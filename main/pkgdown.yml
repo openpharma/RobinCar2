@@ -1,0 +1,10 @@
+pandoc: 2.19.2
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  hello: hello.html
+last_built: 2023-06-20T10:59Z
+urls:
+  reference: https://openpharma.github.io/covadj/main/reference
+  article: https://openpharma.github.io/covadj/main/articles
+
