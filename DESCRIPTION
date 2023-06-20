@@ -1,8 +1,8 @@
 Type: Package
 Package: covadj
 Title: R Package Template
-Version: 0.1.0
-Date: 2023-06-18
+Version: 0.1.0.9000
+Date: 2023-06-20
 Authors@R:
     person("openpharma", , , "openpharma@example.com", role = c("aut", "cre"))
 Description: R package template with GitHub Actions workflows included.
