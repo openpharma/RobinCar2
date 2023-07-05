@@ -17,3 +17,5 @@ coverage.*
 init.sh
 workflows.md
 images
+.vscode
+design

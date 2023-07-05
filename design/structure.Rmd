@@ -1,0 +1,47 @@
+---
+title: "Design for covadj"
+author: "Liming Li"
+output: html_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Objective
+
+The objective is to create a package to include commonly used covariate adjusted analysis method in clinical trials, according to [FDA guidance on adjusting covariates](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/adjusting-covariates-randomized-clinical-trials-drugs-and-biological-products).
+
+# Linear models
+
+Linear models are described in section III.B.
+
+1. Use linear model, include treatment, covariates, intercept with ordinary least square estimator.
+1. Average treatment effect can be robustly obtained.
+1. Robust variance should be used in case of model mis-specification(Huber-White sandwich standard error).
+1. If model includes treatment * covariate interaction, can adopt other robust standard error methods, or using bootstrapping.
+1. Standard error computation best combined with stratification, covariate adjustment and model misspecification.
+
+# Non-linear models
+
+1. Non-collapsibility is a big issue for non-linear models.
+1. HR, OR are usually non-collapsible, while risk difference and RR are collapsible.
+1. CMH is acceptable if conditional treatment effect is of interest.
+1. Covariate adjusted unconditional treatment effect can also be infered, using bootstrapping or statistically reliable methods published.
+1. standardization method is one possible reliable method.
+1. IPTW is also one reliable method.
+1. standard error also best if stratification taken into consideration.
+
+# Implementation of standardization method for linear models
+
+The function name is `lm_std`, and the arguments are quite similar to `lm`.
+There is one more argument, `vcov`, to specify the method used for robust covariance matrix.
+For now at least we choose `vcovHC()` as default
+```
+lm_std(formula, data, ..., vcov = "HC0")
+```
+
+The class of the fit is `lm_std`, with similar printing.
+The inference is based on the robust covariance.

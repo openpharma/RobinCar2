@@ -1,26 +1,26 @@
 Type: Package
 Package: covadj
-Title: R Package Template
+Title: Covariate Adjusted Analysis
 Version: 0.1.0.9000
 Date: 2023-06-20
-Authors@R:
-    person("openpharma", , , "openpharma@example.com", role = c("aut", "cre"))
-Description: R package template with GitHub Actions workflows included.
+Authors@R: c(
+    person("Liming", "Li", , "liming.li@roche.com", role = c("aut", "cre"))
+  )
+Description: Covariate adjusted methods are recommended by FDA guidance of adjusting covariates in clinical trials.
+    Included methods are standard linear regression with robust covariance matrix.
 License: Apache License 2.0 | file LICENSE
 URL: https://github.com/openpharma/covadj/
 BugReports: https://github.com/openpharma/covadj/issues
 Depends:
     R (>= 3.6)
 Imports:
-    plumber,
-    shiny,
-    stringr
+    checkmate (>= 2.0),
+    sandwich,
+    stats
 Suggests:
-    future,
-    httr,
     knitr,
-    shinytest,
-    testthat (>= 2.0)
+    sasr,
+    testthat (>= 3.0.0)
 VignetteBuilder:
     knitr
 biocViews:
