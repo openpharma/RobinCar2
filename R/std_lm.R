@@ -2,21 +2,30 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#' @param formula (`formula`)\cr the model formula.
+#' @param formula (`formula`)\cr the model formula. Must include `trt` to indicate the treatment variable.
 #' @param data (`data.frame`)\cr the dataset to be used.
+#' @param trt (`string`)\cr the treatment variable.
 #' @param ... additional arguments for `lm()`.
 #'
 #' @details For linear models, we can use the conditional treatment effect to represent the marginal treatment effect
 #' because it is collapsible. This function only conduct a `lm` regression and add a class `std_lm` to the returned object
 #' to enable summary function.
+#' To conduct the standardization method, it is required that `trt` is a factor of two levels: the first is control arm and
+#' the second is treatment arm.
 #'
 #' @export
 #'
 #' @examples
-#' std_lm(Sepal.Length ~ Species, data = iris)
-std_lm <- function(formula, data, ...) {
+#' std_lm(Sepal.Length ~ Species, data = subset(iris, Species != "virginica"), trt = "Species")
+std_lm <- function(formula, data, trt, ...) {
+  assert_formula(formula)
+  assert_string(trt)
+  assert_subset(trt, all.vars(formula[[length(formula)]]))
+  data[[trt]] <- h_validate_treatment(data[[trt]])
   fit <- lm(formula = formula, data = data, ...)
   fit$call <- match.call()
+  fit$trt <- trt
+  fit$trt_levels <- levels(data[[trt]])
   class(fit) <- c("std_lm", "lm")
   fit
 }
@@ -53,7 +62,9 @@ summary.std_lm <- function(object, vcov = "HC3", ...) {
     call = getCall(object),
     terms = terms(object),
     residuals = residuals(object),
-    aliased = is.na(coef(object))
+    aliased = is.na(coef(object)),
+    trt_var = object$trt,
+    trt_levels = object$trt_levels
   )
   components$vcov_method <- "HC3"
   components$vcov <- sandwich::vcovHC(object, type = vcov)
@@ -86,9 +97,10 @@ print.summary.std_lm <- function(x, ...) {
   cat("std_lm fit\n\n")
   cat("Formula:      ", deparse(x$call$formula), "\n")
   cat("Covariance:   ", x$vcov_method, "\n")
+  cat("Treatment Var:", x$trt_var, "(", x$trt_levels[1], "vs" , x$trt_levels[2], ")\n")
   cat("Coefficients: \n")
   stats::printCoefmat(
-    x$coefficients,
+    x$coefficients[paste0(x$trt_var, x$trt_levels[2]), , drop = FALSE],
     zap.ind = 3,
     ...
   )

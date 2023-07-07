@@ -2,4 +2,4 @@
 
 ### New features
 
-* Add standardization method with robust covariance.
+* Add standardized linear regression with robust covariance.
