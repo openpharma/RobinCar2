@@ -48,7 +48,7 @@ The class of the fit is `lm_std`, with similar printing like `lm`, including:
 1. the function call
 1. formula used
 1. treatment variable
-1. treatment effect estimate
+1. treatment effect estimate (and its nominal variance)
 
 There is one more argument, `vcov`, to specify the method used for robust covariance matrix.
 When using `summary(fit, vcov = "HC3")` to summarize the fit, it will print additional informations like
@@ -61,8 +61,15 @@ When using `summary(fit, vcov = "HC3")` to summarize the fit, it will print addi
 
 The inference is based on the robust covariance.
 
-For weighting methods, potentially there is an additional formula to specify the weights.
-This can be a wrapper around `ipw` and provide similar results.
+## Weights in these models
+
+For standardization methods, weights should not be used; only for weighting methods we can provide
+some weights function that produce weights for each observations, like `iptw` methods.
+This is also recommented by FDA.
+
+In implementation of this, consider use a wrapper with similar arguments of the standardization methods.
+To simplify the process, we should not do it in two steps, obtaining the weight and then give the weights to
+the regression functions.
 
 # deciding the treatment variable
 
