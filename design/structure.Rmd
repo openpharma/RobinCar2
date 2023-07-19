@@ -37,11 +37,44 @@ Linear models are described in section III.B.
 # Implementation of standardization method for linear models
 
 The function name is `lm_std`, and the arguments are quite similar to `lm`.
-There is one more argument, `vcov`, to specify the method used for robust covariance matrix.
 For now at least we choose `vcovHC()` as default
+
 ```
-lm_std(formula, data, ..., vcov = "HC0")
+std_lm(formula, data, trt_var, ...)
 ```
 
-The class of the fit is `lm_std`, with similar printing.
+The class of the fit is `lm_std`, with similar printing like `lm`, including:
+
+1. the function call
+1. formula used
+1. treatment variable
+1. treatment effect estimate
+
+There is one more argument, `vcov`, to specify the method used for robust covariance matrix.
+When using `summary(fit, vcov = "HC3")` to summarize the fit, it will print additional informations like
+
+1. the function call
+1. formula used
+1. treatment variable
+1. treatment effect and sd/df
+1. significance
+
 The inference is based on the robust covariance.
+
+For weighting methods, potentially there is an additional formula to specify the weights.
+This can be a wrapper around `ipw` and provide similar results.
+
+# deciding the treatment variable
+
+To decide which treatment variable should be used, there are two approaches:
+
+1. specify in formula. `Response ~ trt(trt_var) + .`
+1. specify in a separate argument.
+
+The latter approach is much simpler and is adopted.
+
+# deciding the levels of treatment variable
+
+In general, to obtain the treatment effect, the treatment variable is binary.
+However, if there are multiple arms, there are some method to contruct the estimated
+treatment effect.
