@@ -43,23 +43,13 @@ For now at least we choose `vcovHC()` as default
 std_lm(formula, data, trt_var, ...)
 ```
 
-The class of the fit is `std_lm`, with similar printing like `lm`, including:
+The class of the fit is `std_lm`, it contains the fit object itself.
 
-1. the function call
-1. formula used
-1. treatment variable
-1. treatment effect estimate (and its nominal variance)
-
-There is one more argument, `vcov`, to specify the method used for robust covariance matrix.
-When using `summary(fit, vcov = "HC3")` to summarize the fit, it will print additional informations like
-
-1. the function call
-1. formula used
-1. treatment variable
-1. treatment effect and sd/df
-1. significance
-
-The inference is based on the robust covariance.
+`trteatment_effect` is a generic to obtain the treatment effect and its covariance.
+In `std_lm` or `std_glm`, the "link" is obtained and then apply with the link function to obtain
+the final estimator.
+The derivative of the link functions will be used in sandwich method. The meat part of the sandwich
+is the robust covariance.
 
 ## Weights in these models
 
