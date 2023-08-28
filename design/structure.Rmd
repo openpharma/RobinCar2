@@ -36,14 +36,14 @@ Linear models are described in section III.B.
 
 # Implementation of standardization method for linear models
 
-The function name is `lm_std`, and the arguments are quite similar to `lm`.
+The function name is `std_lm`, and the arguments are quite similar to `lm`.
 For now at least we choose `vcovHC()` as default
 
 ```
 std_lm(formula, data, trt_var, ...)
 ```
 
-The class of the fit is `lm_std`, with similar printing like `lm`, including:
+The class of the fit is `std_lm`, with similar printing like `lm`, including:
 
 1. the function call
 1. formula used
