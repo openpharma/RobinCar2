@@ -45,7 +45,7 @@ std_lm(formula, data, trt_var, ...)
 
 The class of the fit is `std_lm`, it contains the fit object itself.
 
-`trteatment_effect` is a generic to obtain the treatment effect and its covariance.
+`trteatment_effect` is a generic to obtain the marginal treatment effect and its covariance.
 In `std_lm` or `std_glm`, the "link" is obtained and then apply with the link function to obtain
 the final estimator.
 The derivative of the link functions will be used in sandwich method. The meat part of the sandwich

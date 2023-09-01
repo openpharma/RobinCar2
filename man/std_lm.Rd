@@ -4,12 +4,14 @@
 \alias{std_lm}
 \title{Standardized Linear Models}
 \usage{
-std_lm(formula, data, ...)
+std_lm(formula, data, trt, ...)
 }
 \arguments{
-\item{formula}{(\code{formula})\cr the model formula.}
+\item{formula}{(\code{formula})\cr the model formula. Must include \code{trt} to indicate the treatment variable.}
 
 \item{data}{(\code{data.frame})\cr the dataset to be used.}
+
+\item{trt}{(\code{string})\cr the treatment variable.}
 
 \item{...}{additional arguments for \code{lm()}.}
 }
@@ -18,9 +20,11 @@ std_lm(formula, data, ...)
 }
 \details{
 For linear models, we can use the conditional treatment effect to represent the marginal treatment effect
-because it is collapsible. This function only conduct a \code{lm} regression and add a class \code{std_lm} to the returned object
-to enable summary function.
+because it is collapsible. This function only conduct a \code{lm} regression and add a class \code{std_lm} to the returned
+object to enable summary function.
+To conduct the standardization method, it is required that \code{trt} is a factor of two levels: the first is control
+arm and the second is treatment arm.
 }
 \examples{
-std_lm(Sepal.Length ~ Species, data = iris)
+std_lm(Sepal.Length ~ Species, data = subset(iris, Species != "virginica"), trt = "Species")
 }

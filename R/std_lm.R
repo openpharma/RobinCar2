@@ -39,7 +39,8 @@ std_lm <- function(formula, data, trt, ...) {
   trt_coef <- paste0(trt, trt_levels)
   trt_level_match <- match(trt_coef, names(coef(fit)))
   reference_arm <- trt_levels[is.na(trt_level_match)]
-  res$trt_levels <- levels(data[[trt]])
+  res$trt_levels <- levels(data[[trt]])[-1L]
+  res$ref_level <- reference_arm
   class(res) <- "std_lm"
   res
 }
