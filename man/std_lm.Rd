@@ -26,5 +26,5 @@ To conduct the standardization method, it is required that \code{trt} is a facto
 arm and the second is treatment arm.
 }
 \examples{
-std_lm(Sepal.Length ~ Species, data = subset(iris, Species != "virginica"), trt = "Species")
+std_lm(Sepal.Length ~ Species, data = iris, trt = "Species")
 }
