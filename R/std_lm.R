@@ -16,7 +16,7 @@
 #' @export
 #'
 #' @examples
-#' std_lm(Sepal.Length ~ Species, data = subset(iris, Species != "virginica"), trt = "Species")
+#' std_lm(Sepal.Length ~ Species, data = iris, trt = "Species")
 std_lm <- function(formula, data, trt, ...) {
   assert_formula(formula)
   assert_string(trt)

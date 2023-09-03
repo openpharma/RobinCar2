@@ -17,6 +17,9 @@ treatment_effect.std_lm <- function(x, trt, ref, vcov_method = "HC3", ...) {
   cov <- sandwich::vcovHC(x$fit, vcov_method)
   sel_vec <- h_obtain_sel(paste0(x$trt, c(trt, ref)), names(coefs))
   ret <- list(
+    trt = trt,
+    ref = ref,
+    stat = "diff",
     coef = sum(sel_vec * coefs),
     robust_var = sel_vec %*% cov %*% sel_vec
   )
