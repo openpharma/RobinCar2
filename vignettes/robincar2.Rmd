@@ -1,0 +1,268 @@
+---
+title: "RobinCar2"
+date: "`r Sys.Date()`"
+author: Liming Li
+---
+
+#  Needed Methodology
+
+Per discussion, we definitely need the glm (including lm) as our priority.
+So here we will focus on the implementation of glm methods.
+
+# Prototypes
+
+## Using a new fit function
+
+In this proposal, we can use the following function as our interface
+
+```{r, eval = FALSE}
+fit <- robin_glm(y ~ trt + x1 + x2, ..., treat = "trt", car_scheme = simple())
+treatment_effect(fit, contrast = difference)
+```
+
+## Using a fitted object
+
+For a fitted object, it is easy to obtain its data and model.
+The method can be easier to use.
+
+```{r, eval = FALSE}
+fit <- glm(y ~ trt + x1 + x2, ...)
+summary_measure <- robin(fit, treat = "trt", car_scheme = simple())
+treatment_effect(summary_measure)
+```
+
+
+Note: we can actually enable all? e.g.
+
+```{r, eval = FALSE}
+robin_glm <- function(...) {
+  fit <- glm(...)
+  robin(fit, ...)
+}
+```
+
+## Prototypes and benchmarking
+
+```{r}
+library(RobinCar)
+library(covadj)
+library(waldo)
+library(microbenchmark)
+```
+
+### Anova
+
+```{r}
+fit <- lm(y ~ A, data = data)
+
+robin <- robincar_linear(df = data, 
+                             response_col="y",
+                             treat_col="A",
+                             covariate_cols=c("x1", "x3"),
+                             car_scheme="simple",
+                             adj_method="ANOVA")
+compare(vcov_robin(fit, "A"), robin$varcov, ignore_attr = TRUE, tolerance = 1e-7)
+
+
+microbenchmark(
+  a1 = {fit <- lm(y ~ A, data = data); vcov_robin(fit, "A")},
+  a2 = {fit <- glm(y ~ A, data = data); vcov_robin(fit, "A")},
+  b = {robin <- robincar_linear(df = data, 
+                             response_col="y",
+                             treat_col="A",
+                             covariate_cols=c("x1", "x3"),
+                             car_scheme="simple",
+                             adj_method="ANOVA"); robin$varcov},
+  check = "equivalent"
+)
+```
+
+### Ancova
+
+```{r}
+fit <- lm(y ~ A + x1 + x3, data = data)
+
+robin <- robincar_linear(df = data, 
+                            response_col="y",
+                            treat_col="A",
+                            strata_cols=c("z1", "z2"),
+                            covariate_cols=c("x1", "x3"),
+                            car_scheme="biased-coin",
+                            adj_method="ANCOVA")
+
+compare(vcov_robin(fit, "A", strata_formula = ~ A + z1 + z2), robin$varcov, ignore_attr = TRUE, tolerance = 1e-7)
+
+microbenchmark(
+  a1 = {fit <- lm(y ~ A + x1 + x3, data = data); vcov_robin(fit, "A", strata_formula = ~ A + z1 + z2)},
+  a2 = {fit <- glm(y ~ A + x1 + x3, data = data); vcov_robin(fit, "A", strata_formula = ~ A + z1 + z2)},
+  b = {robin <- robincar_linear(df = data, 
+                            response_col="y",
+                            treat_col="A",
+                            strata_cols=c("z1", "z2"),
+                            covariate_cols=c("x1", "x3"),
+                            car_scheme="biased-coin",
+                            adj_method="ANCOVA"); robin$varcov},
+  check = "equivalent"
+)
+```
+
+### ANHECOVA
+
+```{r}
+fit <- lm(y ~ A + A:x1 + A:x3 + A:z1:z2, data = data)
+robin <- robincar_linear(df = data, 
+                                response_col="y",
+                                treat_col="A",
+                                strata_cols=c("z1", "z2"),
+                                covariate_cols=c("x1", "x3"),
+                                car_scheme="pocock-simon",
+                                adj_method="ANHECOVA",
+                                contrast_h=NULL)
+compare(vcov_robin(fit, "A"), robin$varcov, ignore_attr = TRUE, tolerance = 1e-7)
+
+microbenchmark(
+  a1 = {fit <- lm(y ~ A + A:x1 + A:x3 + A:z1:z2, data = data); vcov_robin(fit, "A")},
+  a2 = {fit <- glm(y ~ A + A:x1 + A:x3 + A:z1:z2, data = data); vcov_robin(fit, "A")},
+  b = {robin <- robincar_linear(df = data, 
+                                response_col="y",
+                                treat_col="A",
+                                strata_cols=c("z1", "z2"),
+                                covariate_cols=c("x1", "x3"),
+                                car_scheme="pocock-simon",
+                                adj_method="ANHECOVA",
+                                contrast_h=NULL); robin$varcov},
+  check = "equivalent"
+)
+
+```
+
+### Glm 
+
+```{r}
+fit <- glm(y_bin ~ A + A:z1, data = data,  family = binomial(link = "logit"))
+
+robin <- robincar_glm(df = data,
+                              response_col="y_bin",
+                              treat_col="A",
+                              strata_cols=c("z1"),
+                              car_scheme="pocock-simon",
+                              g_family=binomial(link="logit"),
+                              g_accuracy=7,
+                              adj_method="heterogeneous",
+                              covariate_to_include_strata=TRUE)
+
+compare(vcov_robin(fit, "A"), robin$varcov, ignore_attr = TRUE, tolerance = 1e-7)
+
+microbenchmark(
+  a1 = {fit <- glm(y_bin ~ A + A:z1, data = data,  family = binomial(link = "logit")); vcov_robin(fit, "A")},
+  b = {robin <- robincar_glm(df = data,
+                              response_col="y_bin",
+                              treat_col="A",
+                              strata_cols=c("z1"),
+                              car_scheme="pocock-simon",
+                              g_family=binomial(link="logit"),
+                              g_accuracy=7,
+                              adj_method="heterogeneous",
+                              covariate_to_include_strata=TRUE); robin$varcov},
+  check = "equivalent"
+)
+```
+
+### glm hetero2
+
+```{r}
+fit <- glm(y_bin ~ A + A:x1 + A:z2, data = data,  family = binomial(link = "logit"))
+
+robin <- robincar_glm(df = data,
+                              response_col="y_bin",
+                              treat_col="A",
+                              strata_cols=c("z2"),
+                              covariate_cols=c("x1"),
+                              car_scheme="biased-coin",
+                              g_family=binomial(link="logit"),
+                              g_accuracy=7,
+                              covariate_to_include_strata=TRUE,
+                              adj_method="heterogeneous")
+
+compare(vcov_robin(fit, "A"), robin$varcov, ignore_attr = TRUE, tolerance = 1e-7)
+
+microbenchmark(
+  a1 = {fit <- glm(y_bin ~ A + A:x1 + A:z2, data = data,  family = binomial(link = "logit")); vcov_robin(fit, "A")},
+  b = {robin <- robincar_glm(df = data,
+                              response_col="y_bin",
+                              treat_col="A",
+                              strata_cols=c("z2"),
+                              covariate_cols=c("x1"),
+                              car_scheme="biased-coin",
+                              g_family=binomial(link="logit"),
+                              g_accuracy=7,
+                              covariate_to_include_strata=TRUE,
+                              adj_method="heterogeneous"); robin$varcov},
+  check = "equivalent"
+)
+```
+
+### glm hetero3
+
+```{r}
+fit <- glm(y_bin ~ A + z2:x1, data = data, family = binomial(link = "logit"))
+
+robin <- robincar_glm(df = data,
+                            response_col="y_bin",
+                            treat_col="A",
+                            formula="y_bin ~ A + z2:x1",
+                            strata_cols=c("z2"),
+                            car_scheme="biased-coin",
+                            g_family=binomial(link="logit"),
+                            g_accuracy=7)
+
+compare(vcov_robin(fit, "A", strata_formula = ~A + z2), robin$varcov, ignore_attr = TRUE, tolerance = 1e-7)
+
+microbenchmark(
+  a1 = {fit <- glm(y_bin ~ A + z2:x1, data = data, family = binomial(link = "logit")); vcov_robin(fit, "A", strata_formula = ~A + z2)},
+  b = {robin <- robincar_glm(df = data,
+                            response_col="y_bin",
+                            treat_col="A",
+                            formula="y_bin ~ A + z2:x1",
+                            strata_cols=c("z2"),
+                            car_scheme="biased-coin",
+                            g_family=binomial(link="logit"),
+                            g_accuracy=7); robin$varcov},
+  check = "equivalent"
+)
+```
+
+### glm hetero4
+
+```{r}
+fit <- glm(y_bin ~ A + A:x1 + A:z2, data = data, family = binomial(link = "logit"))
+robin <- glm.heterogeneous <- robincar_glm(df = data,
+                                  response_col="y_bin",
+                                  treat_col="A",
+                                  strata_cols=c("z2"),
+                                  covariate_cols=c("x1"),
+                                  car_scheme="biased-coin",
+                                  g_family=binomial(link="logit"),
+                                  g_accuracy=7,
+                                  covariate_to_include_strata=TRUE,
+                                  adj_method="heterogeneous",
+                                  contrast_h=NULL)
+
+compare(vcov_robin(fit, "A"), robin$varcov, ignore_attr = TRUE, tolerance = 1e-7)
+
+microbenchmark(
+  a1 = {fit <- glm(y_bin ~ A + A:x1 + A:z2, data = data, family = binomial(link = "logit")); vcov_robin(fit, "A", strata_formula = ~A + z2)},
+  b = {robin <- glm.heterogeneous <- robincar_glm(df = data,
+                                  response_col="y_bin",
+                                  treat_col="A",
+                                  strata_cols=c("z2"),
+                                  covariate_cols=c("x1"),
+                                  car_scheme="biased-coin",
+                                  g_family=binomial(link="logit"),
+                                  g_accuracy=7,
+                                  covariate_to_include_strata=TRUE,
+                                  adj_method="heterogeneous",
+                                  contrast_h=NULL); robin$varcov},
+  check = "equivalent"
+)
+```
