@@ -1,0 +1,54 @@
+---
+title: "Simulation Scenario from Jiajun"
+date: "`r Sys.Date()`"
+author: Liming Li
+---
+
+
+```{r}
+library(RobinCar)
+library(covadj)
+library(waldo)
+library(microbenchmark)
+
+set.seed(12345)
+
+sim <- function(nsub, nsim){
+  out <- NULL
+  for(i in 1:nsim){
+    trt <- rbinom(nsub, 1, .5)
+    x <- rnorm(nsub, 0, 3)
+    py <- ifelse(trt==0, plogis(-2+x), plogis(3+1.5*x-.01*x^2))
+    y <- sapply(py, function(x) rbinom(1, 1, x))
+    
+    df <- data.frame(y=y, trt=as.factor(trt), x=x)
+    robin <- robincar_glm(df = df, 
+                             response_col="y",
+                             treat_col="trt",
+                             covariate_cols=c("x"),
+                             car_scheme="simple",
+                             g_family = binomial(),
+                             adj_method="homogeneous")
+    fit <- glm(y ~ trt + x, data = df, family = binomial())
+    vcov_robin(fit, "trt")    
+    re1 <- waldo::compare(robin$varcov, vcov_robin(fit, "trt"), ignore_attr = TRUE, tolerance = 1e-7 )
+
+    robin <- robincar_glm(df = df, 
+                             response_col="y",
+                             treat_col="trt",
+                             covariate_cols=c("x"),
+                             car_scheme="simple",
+                             g_family = binomial(),
+                             adj_method="heterogeneous")
+    fit <- glm(y ~ trt + x:trt, data = df, family = binomial())
+    vcov_robin(fit, "trt")    
+    re2 <- waldo::compare(robin$varcov, vcov_robin(fit, "trt"), ignore_attr = TRUE, tolerance = 1e-7)
+    print(re1)
+    print(re2)
+  }
+  
+}
+
+sim(100, 10)
+
+```
