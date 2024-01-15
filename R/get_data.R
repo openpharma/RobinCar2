@@ -10,6 +10,10 @@ get_data.glm <- function(x, vars) {
   get_data(x$data, vars)
 }
 
+get_data.negbin <- function(x, vars) {
+  get_data.lm(x, vars)
+}
+
 get_data.lm <- function(x, vars) {
   if (is.null(x$call$data)) {
     get_data(attr(x$data, ".Environment"), vars)
