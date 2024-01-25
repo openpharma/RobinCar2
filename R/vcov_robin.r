@@ -10,14 +10,8 @@ vcov_robin.glm <- function(x, trt, strata_formula = NULL, ...) {
   # check if trt is a valid entry in data and of class factor
   # data can be dataframe or environment
   raw_data <- get_data(x, all.vars(x$terms))
-  preds <- lapply(x$xlevels[[trt]], function(lvl) {
-    df <- raw_data
-    df[trt] <- lvl
-    predict(x, type = "response", newdata = df)
-  })
-  pred_true <- predict(x, type = "response")
   resi <- residuals(x, type = "response")
-  preds <- do.call(cbind, preds)
+  preds <- predict_counter_factual3(x, trt)
   est <- colMeans(preds)
   var_preds <- var(preds)
   pit <- as.numeric(table(raw_data[[trt]]) / nrow(raw_data))
@@ -42,14 +36,8 @@ vcov_robin.lm <- function(x, trt, strata_formula = NULL, ...) {
   # errors if using negtive bonomial, however this is not found in glm families.
   # check if trt is a valid entry in data and of class factor
   raw_data <- get_data(x, all.vars(x$terms))
-  preds <- lapply(x$xlevels[[trt]], function(lvl) {
-    df <- x$model
-    df[trt] <- lvl
-    predict(x, type = "response", newdata = df)
-  })
-  pred_true <- predict(x, type = "response")
   resi <- residuals(x, type = "response")
-  preds <- do.call(cbind, preds)
+  preds <- predict_counter_factual3(x, trt)
   est <- colMeans(preds)
   var_preds <- var(preds)
   pit <- table(raw_data[[trt]]) / nrow(raw_data)

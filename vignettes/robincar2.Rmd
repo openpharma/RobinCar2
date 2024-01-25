@@ -285,3 +285,77 @@ microbenchmark(
   check = "equivalent"
 )
 ```
+
+### Efficiency
+
+```{r}
+fit <- lm(y ~ A + x1, data = data)
+
+microbenchmark::microbenchmark(
+  a = predict_counter_factual3(fit, "A"),
+  b = predict_counter_factual2(fit, "A"),
+  check = "equivalent"
+)
+
+fit <- glm(y_bin ~ z1 + z1:A + x1 + A:x1 + A:z2 + 0, data = data, family = binomial(link = "logit"))
+#fit <- glm(y_bin ~ A + A:x3 + A:z2, data = data, family = binomial(link = "logit"))
+
+#fit <- glm(y_bin ~ x3 + z1:A:z2  + x3:A + 0, data = data, family = binomial(link = "logit"))
+microbenchmark::microbenchmark(
+  a = predict_counter_factual3(fit, "A"),
+  b = predict_counter_factual2(fit, "A"),
+  check = "equivalent", times = 1000
+)
+```
+
+
+### predict_counter_factual3 vs get.muhat
+
+```{r}
+
+fit <- glm(y_bin ~ A + A:x1 + A:z2, data = data, family = binomial(link = "logit"))
+robin <- robincar_glm(df = data,
+                                  response_col="y_bin",
+                                  treat_col="A",
+                                  strata_cols=c("z2"),
+                                  covariate_cols=c("x1"),
+                                  car_scheme="biased-coin",
+                                  g_family=binomial(link="logit"),
+                                  g_accuracy=7,
+                                  covariate_to_include_strata=TRUE,
+                                  adj_method="heterogeneous",
+                                  contrast_h=NULL)
+
+res <- predict_counter_factual3(fit, "A")
+unbias_prediction(res, fit$y, data$A, data$z2)
+unbias_prediction2(res, fit$y, data$A, data$z2)
+
+microbenchmark(
+  a = unbias_prediction(res, fit$y, data$A, data$z2),
+  b = unbias_prediction2(res, fit$y, data$A, data$z2),
+  check = "equivalent"
+)
+
+get.muhat <- RobinCar:::get.muhat
+undebug(RobinCar:::get.muhat)
+model <<- model
+mod <<- mod
+data2 <<- data
+muhat <- get.muhat(model, data2, mod)
+
+get.mutilde <- RobinCar:::get.mutilde
+
+y <- fit$y
+resi <- fit$y - fit$fitted.values
+microbenchmark(
+  a = unbias_prediction(res, y, data$A, data$z2),
+  b = unbias_prediction2(res, y, data$A, data$z2),
+  d = unbias_prediction3(res, resi, data$A, data$z2),
+  e = unbias_prediction4(res, resi, data$A, data$z2),
+  #c = {get.mutilde(model, data2, muhat)},
+  check = "equivalent",
+  times = 1000
+)
+
+
+```

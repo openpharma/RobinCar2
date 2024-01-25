@@ -12,6 +12,7 @@ BugReports: https://github.com/openpharma/covadj/issues
 Depends:
     R (>= 3.6)
 Imports:
+    checkmate,
     stats,
     sandwich
 Suggests:

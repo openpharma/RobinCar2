@@ -3,4 +3,8 @@
 S3method(vcov_robin,glm)
 S3method(vcov_robin,lm)
 export(hc)
+export(predict_counter_factual2)
+export(predict_counter_factual3)
 export(vcov_robin)
+import(checkmate)
+importFrom(stats,acf)
