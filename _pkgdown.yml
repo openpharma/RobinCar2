@@ -1,4 +1,4 @@
-url: https://openpharma.github.io/covadj
+url: https://openpharma.github.io/RobinCar2
 
 template:
   bootstrap: 5
@@ -17,4 +17,4 @@ template:
 navbar:
   right:
     - icon: fa-github
-      href: https://github.com/openpharma/covadj
+      href: https://github.com/openpharma/RobinCar2
