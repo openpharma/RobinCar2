@@ -6,7 +6,7 @@ Date: 2023-06-20
 Authors@R:
     person("openpharma", , , "openpharma@example.com", role = c("aut", "cre"))
 Description: R package template with GitHub Actions workflows included.
-License: Apache License 2.0s
+License: Apache License 2.0
 URL: https://github.com/openpharma/RobinCar2/
 BugReports: https://github.com/openpharma/RobinCar2/issues
 Depends:

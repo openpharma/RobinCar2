@@ -240,3 +240,8 @@ robincar_glm2 <- function(data, formula, trt, strata, car_scheme, ...) {
 }
 robincar_glm(d, formula = y ~ z1:trt + trt, "trt", "z1", "coin")
 ```
+
+potentially, there can be other arguments just like `RobinCar::robincar_glm`.
+The formula can be inferred from the choices of "ANOVA", "ANCOVA", "ANHECOVA", etc. if not provided.
+
+All these functions can be exported for direct usage, and also the wrapper is provided.
