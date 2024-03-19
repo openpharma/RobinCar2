@@ -78,7 +78,6 @@ fit <- glm(y ~ trt:z1 + trt, family = binomial(), data = d)
 ## Obtain the predictions
 
 ```{r}
-
 predict_cf <- function(fit, trt, data, ...) {
   UseMethod("predict_cf")
 }
@@ -122,7 +121,6 @@ bias.glm <- function(fit, trt, strat, data) {
   }
   d
 }
-
 ```
 
 ## Ensure the unbiasness
@@ -145,7 +143,6 @@ predict_cf.glm <- function(fit, trt, data, ensure_unbias = TRUE, strata = NULL, 
 ```
 
 ```{r}
-
 pred <- predict_cf(fit, "trt")
 ```
 
