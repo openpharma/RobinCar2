@@ -2,10 +2,10 @@
 % Please edit documentation in R/bias.R
 \name{bias}
 \alias{bias}
-\title{Prediction Mean of Fit}
+\title{Prediction Bias}
 \usage{
 bias(fit, treatment, data)
 }
 \description{
-Obtain mean prediction with each strata.
+Obtain prediction bias within each stratum.
 }

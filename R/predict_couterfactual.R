@@ -41,5 +41,5 @@ predict_counterfactual.glm <- function(fit, treatment, data = fit$data, unbiased
   if (unbiased) {
     ret <- ret - bias(fit, treatment)
   }
-  ret
+  colMeans(ret)
 }
