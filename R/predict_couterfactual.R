@@ -13,11 +13,12 @@ predict_counterfactual <- function(fit, treatment, data, unbiased) {
 }
 
 #' @export
-predict_counterfactual.glm <- function(fit, treatment, data = fit$data, unbiased = TRUE) {
+predict_counterfactual.lm <- function(fit, treatment, data = fit$data, unbiased = TRUE) {
   treatment <- h_get_vars(treatment)
   assert_data_frame(data)
   assert_subset(unlist(treatment), colnames(data))
-  assert_subset(treatment$treatment, all.vars(fit$formula[[3]]))
+  formula <- formula(fit)
+  assert_subset(treatment$treatment, all.vars(formula[[3]]))
   assert(
     test_character(data[[treatment$treatment]]),
     test_factor(data[[treatment$treatment]])
@@ -39,7 +40,7 @@ predict_counterfactual.glm <- function(fit, treatment, data = fit$data, unbiased
   preds <- predict(fit, type = "response", newdata = df)
   ret <- matrix(preds, ncol = n_lvls, dimnames = list(row.names(data), trt_lvls))
   if (unbiased) {
-    ret <- ret - bias(fit, treatment)
+    ret <- ret - bias(fit, treatment, data)
   }
   colMeans(ret)
 }
