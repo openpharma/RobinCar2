@@ -7,7 +7,7 @@ set.seed(20240408)
 n <- 400
 block <- c(0L, 0L, 1L, 1L)
 
-perm_block <- tibble(
+dummy_data <- tibble(
   s1 = sample(c("a", "b"), replace = TRUE, size = n),
   s2 = sample(c("c", "d"), replace = TRUE, size = n),
   covar = rnorm(n),
@@ -26,4 +26,4 @@ perm_block <- tibble(
   ) %>%
   select(id, treatment, s1, s2, covar, y, y_b)
 
-usethis::use_data(perm_block)
+usethis::use_data(dummy_data)
