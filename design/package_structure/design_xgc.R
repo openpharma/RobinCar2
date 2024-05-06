@@ -119,7 +119,7 @@ get_eff_measure <- function(fit) {
 ### g-computation and its VCOV -------------------------------------------------
 
 # func: prepare data
-get_countfact_pred <- function(fit, trt_var_name){
+get_countfact_pred <- function(fit, trt_var_name) {
   treatments <- fit$xlevels[[trt_var_name]]
   use_dat <- fit$model
 
@@ -145,7 +145,7 @@ get_countfact_pred <- function(fit, trt_var_name){
 }
 
 # Step 1: get g-computation theta_t
-pred_counterfact <- get_countfact_pred(fit,"trt")
+pred_counterfact <- get_countfact_pred(fit, "trt")
 theta_t <- sapply(pred_counterfact, function(dat_t) unique(dat_t$theta_t))
 
 # func: calculate V
@@ -241,7 +241,7 @@ n_fVf <- outer(
 rownames(n_fVf) <- colnames(n_fVf) <- treatments
 
 # func: wrapper function given fit and pred_counterfact
-calculate_f_vcov <- function(fit, trt_var_name, counterfact_pred){
+calculate_f_vcov <- function(fit, trt_var_name, counterfact_pred) {
   treatments <- fit$xlevels[[trt_var_name]]
 
   theta_t <- sapply(counterfact_pred, function(dat_t) unique(dat_t$theta_t))
@@ -265,14 +265,16 @@ calculate_f_vcov <- function(fit, trt_var_name, counterfact_pred){
   )
   rownames(n_fVf) <- colnames(n_fVf) <- treatments
 
-  out <- list( theta = theta_t,
-               V = V,
-               f_vcov = n_fVf,
-               n = nrow(fit$model),
-               eff_measure = get_eff_measure(fit),
-               trt_var_name = trt_var_name,
-               fit = fit )
-  class(out) <- c(class(out),"vcov_rc")
+  out <- list(
+    theta = theta_t,
+    V = V,
+    f_vcov = n_fVf,
+    n = nrow(fit$model),
+    eff_measure = get_eff_measure(fit),
+    trt_var_name = trt_var_name,
+    fit = fit
+  )
+  class(out) <- c(class(out), "vcov_rc")
   out
 }
 
@@ -332,7 +334,7 @@ report <- function(fit, trt_var_name, theta, f_vcov, digits = 3) {
   outtmp
 }
 
-report_fvcov <- function(result, digits = 3){
+report_fvcov <- function(result, digits = 3) {
   report(
     fit = result$fit,
     trt_var_name = result$trt_var_name,
@@ -340,7 +342,6 @@ report_fvcov <- function(result, digits = 3){
     f_vcov = result$f_vcov,
     digits = digits
   )
-
 }
 
 # example: report
@@ -351,5 +352,3 @@ report(
   f_vcov = n_fVf,
   digits = 3
 )
-
-

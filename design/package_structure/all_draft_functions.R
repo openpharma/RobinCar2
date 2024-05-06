@@ -1,4 +1,3 @@
-
 get_eff_measure <- function(fit) {
   if (identical(class(fit), "lm")) {
     out_eff <- "diff"
@@ -23,7 +22,7 @@ get_eff_measure <- function(fit) {
 ### g-computation and its VCOV -------------------------------------------------
 
 # func: prepare data
-get_countfact_pred <- function(fit, trt_var_name){
+get_countfact_pred <- function(fit, trt_var_name) {
   treatments <- fit$xlevels[[trt_var_name]]
   use_dat <- fit$model
 
@@ -119,7 +118,7 @@ calculate_fVf <- function(t, s, theta, V, n, eff_measure) {
 vectorized_calculate_fVf <- Vectorize(calculate_fVf, c("t", "s"))
 
 # func: wrapper function given fit and pred_counterfact
-calculate_f_vcov <- function(fit, trt_var_name, counterfact_pred){
+calculate_f_vcov <- function(fit, trt_var_name, counterfact_pred) {
   treatments <- fit$xlevels[[trt_var_name]]
 
   theta_t <- sapply(counterfact_pred, function(dat_t) unique(dat_t$theta_t))
@@ -143,23 +142,25 @@ calculate_f_vcov <- function(fit, trt_var_name, counterfact_pred){
   )
   rownames(n_fVf) <- colnames(n_fVf) <- treatments
 
-  out <- list( theta = theta_t,
-               V = V,
-               f_vcov = n_fVf,
-               n = nrow(fit$model),
-               eff_measure = get_eff_measure(fit),
-               trt_var_name = trt_var_name,
-               fit = fit )
-  class(out) <- c(class(out),"vcov_rc")
+  out <- list(
+    theta = theta_t,
+    V = V,
+    f_vcov = n_fVf,
+    n = nrow(fit$model),
+    eff_measure = get_eff_measure(fit),
+    trt_var_name = trt_var_name,
+    fit = fit
+  )
+  class(out) <- c(class(out), "vcov_rc")
   out
 }
 
 # func: reporting function
 calculate_f <- function(theta_t, theta_s, eff_measure) {
   switch(eff_measure,
-         "diff" = theta_t - theta_s,
-         "risk ratio" = log(theta_t / theta_s),
-         "odds ratio" = log(odds(theta_t) / odds(theta_s))
+    "diff" = theta_t - theta_s,
+    "risk ratio" = log(theta_t / theta_s),
+    "odds ratio" = log(odds(theta_t) / odds(theta_s))
   )
 }
 
@@ -210,7 +211,7 @@ report <- function(fit, trt_var_name, theta, f_vcov, digits = 3) {
   outtmp
 }
 
-report_fvcov <- function(result, digits = 3){
+report_fvcov <- function(result, digits = 3) {
   report(
     fit = result$fit,
     trt_var_name = result$trt_var_name,
