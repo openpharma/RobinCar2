@@ -7,6 +7,8 @@
 #' @param data (`data.frame`) raw dataset.
 #' @param unbiased (`flag`) indicator of whether to remove potential biasness of the prediction.
 #'
+#' @return Numeric matrix of counter factual prediction.
+#'
 #' @export
 predict_counterfactual <- function(fit, treatment, data, unbiased) {
   UseMethod("predict_counterfactual")
@@ -40,9 +42,9 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
   preds <- predict(fit, type = "response", newdata = df)
   ret <- matrix(preds, ncol = n_lvls, dimnames = list(row.names(data), trt_lvls))
   if (unbiased) {
-    ret <- ret - bias(fit, treatment, data)
+    ret <- ret - bias(residuals(fit, type = "response"), treatment$treatment, treatment$strata, data)
   }
-  colMeans(ret)
+  ret
 }
 
 #' @export

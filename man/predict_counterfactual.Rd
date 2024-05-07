@@ -16,6 +16,9 @@ treatment ~ strata(s).}
 
 \item{unbiased}{(\code{flag}) indicator of whether to remove potential biasness of the prediction.}
 }
+\value{
+Numeric matrix of counter factual prediction.
+}
 \description{
 Obtain counterfactual prediction of a fit.
 }

@@ -4,7 +4,19 @@
 \alias{bias}
 \title{Prediction Bias}
 \usage{
-bias(fit, treatment, data)
+bias(residual, treatment, strata, data)
+}
+\arguments{
+\item{residual}{(\code{numeric}) residuals.}
+
+\item{treatment}{(\code{string}) treatment variable.}
+
+\item{strata}{(\code{character}) stratum variable.}
+
+\item{data}{(\code{data.frame}) input data.}
+}
+\value{
+Numeric matrix of bias in each stratum.
 }
 \description{
 Obtain prediction bias within each stratum.
