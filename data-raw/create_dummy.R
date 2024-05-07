@@ -5,7 +5,7 @@ library(dplyr)
 set.seed(20240408)
 
 n <- 600
-block <- factor(c("trt1", "trt1", "trt2", "trt2", "pbo", "pbo"), levels = c("pbo", "trt1", "trt2"))
+block <- c("trt1", "trt1", "trt2", "trt2", "pbo", "pbo")
 
 dummy_data <- tibble(
   s1 = sample(c("a", "b"), replace = TRUE, size = n),
@@ -22,7 +22,8 @@ dummy_data <- tibble(
   ) %>%
   mutate(
     s1 = factor(s1),
-    s2 = factor(s2)
+    s2 = factor(s2),
+    treatment = factor(treatment, levels = c("pbo", "trt1", "trt2"))
   ) %>%
   select(id, treatment, s1, s2, covar, y, y_b)
 
