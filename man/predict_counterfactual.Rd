@@ -14,7 +14,7 @@ treatment ~ strata(s).}
 
 \item{data}{(\code{data.frame}) raw dataset.}
 
-\item{unbiased}{(\code{flag}) indicator of whether to remove potential biasness of the prediction.}
+\item{unbiased}{(\code{flag}) indicator of whether to remove potential bias of the prediction.}
 }
 \value{
 Numeric matrix of counter factual prediction.

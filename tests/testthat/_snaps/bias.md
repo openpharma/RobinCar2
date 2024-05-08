@@ -1,7 +1,7 @@
 # bias works for guassian
 
     Code
-      bias(residuals(fit), treatment = "Species", strata = NULL, iris)
+      bias(residuals(fit_glm), treatment = "Species", strata = NULL, iris)
     Output
                      [,1]          [,2]          [,3]
         [1,] -5.15144e-16 -6.395096e-16 -5.151348e-16

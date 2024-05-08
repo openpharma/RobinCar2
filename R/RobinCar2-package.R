@@ -6,4 +6,5 @@
 "_PACKAGE"
 
 #' @import checkmate
+#' @importFrom stats predict residuals
 NULL
