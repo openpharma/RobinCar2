@@ -1,5 +1,5 @@
 #' S3 Methods for `prediction_cf`
-#' @param object (`prediction_cf`)\cr the obtained counter-factual prediction object.
+#' @param x (`prediction_cf`)\cr the obtained counter-factual prediction object.
 #' @name prediction_cf_methods
 NULL
 

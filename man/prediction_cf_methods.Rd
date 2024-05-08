@@ -8,7 +8,7 @@
 \method{print}{prediction_cf}(x, ...)
 }
 \arguments{
-\item{object}{(\code{prediction_cf})\cr the obtained counter-factual prediction object.}
+\item{x}{(\code{prediction_cf})\cr the obtained counter-factual prediction object.}
 }
 \description{
 S3 Methods for \code{prediction_cf}

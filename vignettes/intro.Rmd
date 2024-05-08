@@ -1,7 +1,16 @@
 
 ---
 title: "Introduction"
-date: "`r Sys.Date()`"
+package: RobinCar2
+output:
+  rmarkdown::html_vignette:
+          toc: true
+vignette: |
+  %\VignetteIndexEntry{Model Fitting Algorithm}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
 ---
 
 # Brief Introduction of RobinCar2
