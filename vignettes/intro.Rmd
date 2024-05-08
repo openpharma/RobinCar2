@@ -1,12 +1,11 @@
 
 ---
-title: "Hello"
+title: "Introduction"
 date: "`r Sys.Date()`"
 ---
 
-Hello World!
+# Brief Introduction of RobinCar2
 
 ```{r}
 library(RobinCar2)
-hello("RobinCar2!")
 ```
