@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE coverage SYSTEM "https://raw.githubusercontent.com/cobertura/cobertura/master/cobertura/src/site/htdocs/xml/coverage-04.dtd">
+<coverage line-rate="0.938461538461538" branch-rate="0" lines-covered="61" lines-valid="65" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2024-05-08 02:13:29.556167">
+  <sources>
+    <source>/__w/RobinCar2/RobinCar2/RobinCar2</source>
+  </sources>
+  <packages>
+    <package name="RobinCar2" line-rate="0.938461538461538" branch-rate="0" complexity="0">
+      <classes>
+        <class name="bias.R" filename="R/bias.R" line-rate="0.894736842105263" branch-rate="0" complexity="0">
+          <methods>
+            <method name="bias" signature="" line-rate="0.894736842105263" branch-rate="0" complexity="0">
+              <lines>
+                <line number="11" hits="4" branch="false"/>
+                <line number="12" hits="4" branch="false"/>
+                <line number="13" hits="4" branch="false"/>
+                <line number="14" hits="4" branch="false"/>
+                <line number="15" hits="4" branch="false"/>
+                <line number="16" hits="4" branch="false"/>
+                <line number="17" hits="4" branch="false"/>
+                <line number="18" hits="4" branch="false"/>
+                <line number="19" hits="0" branch="false"/>
+                <line number="21" hits="4" branch="false"/>
+                <line number="23" hits="4" branch="false"/>
+                <line number="24" hits="4" branch="false"/>
+                <line number="26" hits="0" branch="false"/>
+                <line number="28" hits="4" branch="false"/>
+                <line number="29" hits="4" branch="false"/>
+                <line number="30" hits="4" branch="false"/>
+                <line number="31" hits="4" branch="false"/>
+                <line number="32" hits="4" branch="false"/>
+                <line number="34" hits="4" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="11" hits="4" branch="false"/>
+            <line number="12" hits="4" branch="false"/>
+            <line number="13" hits="4" branch="false"/>
+            <line number="14" hits="4" branch="false"/>
+            <line number="15" hits="4" branch="false"/>
+            <line number="16" hits="4" branch="false"/>
+            <line number="17" hits="4" branch="false"/>
+            <line number="18" hits="4" branch="false"/>
+            <line number="19" hits="0" branch="false"/>
+            <line number="21" hits="4" branch="false"/>
+            <line number="23" hits="4" branch="false"/>
+            <line number="24" hits="4" branch="false"/>
+            <line number="26" hits="0" branch="false"/>
+            <line number="28" hits="4" branch="false"/>
+            <line number="29" hits="4" branch="false"/>
+            <line number="30" hits="4" branch="false"/>
+            <line number="31" hits="4" branch="false"/>
+            <line number="32" hits="4" branch="false"/>
+            <line number="34" hits="4" branch="false"/>
+          </lines>
+        </class>
+        <class name="predict_couterfactual.R" filename="R/predict_couterfactual.R" line-rate="0.964285714285714" branch-rate="0" complexity="0">
+          <methods>
+            <method name="predict_counterfactual" signature="" line-rate="1" branch-rate="0" complexity="0">
+              <lines>
+                <line number="14" hits="3" branch="false"/>
+              </lines>
+            </method>
+            <method name="predict_counterfactual.lm" signature="" line-rate="0.961538461538462" branch-rate="0" complexity="0">
+              <lines>
+                <line number="19" hits="3" branch="false"/>
+                <line number="20" hits="3" branch="false"/>
+                <line number="21" hits="3" branch="false"/>
+                <line number="22" hits="3" branch="false"/>
+                <line number="23" hits="3" branch="false"/>
+                <line number="24" hits="3" branch="false"/>
+                <line number="25" hits="3" branch="false"/>
+                <line number="26" hits="3" branch="false"/>
+                <line number="27" hits="3" branch="false"/>
+                <line number="28" hits="3" branch="false"/>
+                <line number="29" hits="3" branch="false"/>
+                <line number="30" hits="3" branch="false"/>
+                <line number="32" hits="0" branch="false"/>
+                <line number="34" hits="3" branch="false"/>
+                <line number="35" hits="3" branch="false"/>
+                <line number="36" hits="3" branch="false"/>
+                <line number="37" hits="3" branch="false"/>
+                <line number="38" hits="3" branch="false"/>
+                <line number="39" hits="3" branch="false"/>
+                <line number="40" hits="3" branch="false"/>
+                <line number="41" hits="3" branch="false"/>
+                <line number="42" hits="3" branch="false"/>
+                <line number="43" hits="3" branch="false"/>
+                <line number="44" hits="3" branch="false"/>
+                <line number="45" hits="3" branch="false"/>
+                <line number="47" hits="3" branch="false"/>
+              </lines>
+            </method>
+            <method name="predict_counterfactual.glm" signature="" line-rate="1" branch-rate="0" complexity="0">
+              <lines>
+                <line number="52" hits="2" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="14" hits="3" branch="false"/>
+            <line number="19" hits="3" branch="false"/>
+            <line number="20" hits="3" branch="false"/>
+            <line number="21" hits="3" branch="false"/>
+            <line number="22" hits="3" branch="false"/>
+            <line number="23" hits="3" branch="false"/>
+            <line number="24" hits="3" branch="false"/>
+            <line number="25" hits="3" branch="false"/>
+            <line number="26" hits="3" branch="false"/>
+            <line number="27" hits="3" branch="false"/>
+            <line number="28" hits="3" branch="false"/>
+            <line number="29" hits="3" branch="false"/>
+            <line number="30" hits="3" branch="false"/>
+            <line number="32" hits="0" branch="false"/>
+            <line number="34" hits="3" branch="false"/>
+            <line number="35" hits="3" branch="false"/>
+            <line number="36" hits="3" branch="false"/>
+            <line number="37" hits="3" branch="false"/>
+            <line number="38" hits="3" branch="false"/>
+            <line number="39" hits="3" branch="false"/>
+            <line number="40" hits="3" branch="false"/>
+            <line number="41" hits="3" branch="false"/>
+            <line number="42" hits="3" branch="false"/>
+            <line number="43" hits="3" branch="false"/>
+            <line number="44" hits="3" branch="false"/>
+            <line number="45" hits="3" branch="false"/>
+            <line number="47" hits="3" branch="false"/>
+            <line number="52" hits="2" branch="false"/>
+          </lines>
+        </class>
+        <class name="utils.R" filename="R/utils.R" line-rate="0.944444444444444" branch-rate="0" complexity="0">
+          <methods>
+            <method name="h_get_vars" signature="" line-rate="0.944444444444444" branch-rate="0" complexity="0">
+              <lines>
+                <line number="9" hits="11" branch="false"/>
+                <line number="10" hits="4" branch="false"/>
+                <line number="11" hits="4" branch="false"/>
+                <line number="12" hits="4" branch="false"/>
+                <line number="13" hits="4" branch="false"/>
+                <line number="14" hits="7" branch="false"/>
+                <line number="15" hits="5" branch="false"/>
+                <line number="16" hits="0" branch="false"/>
+                <line number="18" hits="5" branch="false"/>
+                <line number="19" hits="2" branch="false"/>
+                <line number="21" hits="3" branch="false"/>
+                <line number="22" hits="3" branch="false"/>
+                <line number="23" hits="3" branch="false"/>
+                <line number="24" hits="3" branch="false"/>
+                <line number="25" hits="3" branch="false"/>
+                <line number="26" hits="3" branch="false"/>
+                <line number="28" hits="2" branch="false"/>
+                <line number="30" hits="7" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="9" hits="11" branch="false"/>
+            <line number="10" hits="4" branch="false"/>
+            <line number="11" hits="4" branch="false"/>
+            <line number="12" hits="4" branch="false"/>
+            <line number="13" hits="4" branch="false"/>
+            <line number="14" hits="7" branch="false"/>
+            <line number="15" hits="5" branch="false"/>
+            <line number="16" hits="0" branch="false"/>
+            <line number="18" hits="5" branch="false"/>
+            <line number="19" hits="2" branch="false"/>
+            <line number="21" hits="3" branch="false"/>
+            <line number="22" hits="3" branch="false"/>
+            <line number="23" hits="3" branch="false"/>
+            <line number="24" hits="3" branch="false"/>
+            <line number="25" hits="3" branch="false"/>
+            <line number="26" hits="3" branch="false"/>
+            <line number="28" hits="2" branch="false"/>
+            <line number="30" hits="7" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
