@@ -23,13 +23,13 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 \
 
-RobinCar2 is a package to provide robust inference of covariate adjusted analysis under startified randomization.
+RobinCar2 is a package to provide robust inference of covariate adjusted analysis under stratified randomization.
 
 ## Installation
 
 ### Development
 
-You can install the current development version from *github* with:
+You can install the current development version from `github` with:
 
 ```{r gh-installation, eval = FALSE}
 if (!require("remotes")) {

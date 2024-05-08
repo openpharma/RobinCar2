@@ -5,7 +5,7 @@
 #' @param treatment (`string` or `formula`) treatment variable in string, or a formula of form
 #' treatment ~ strata(s).
 #' @param data (`data.frame`) raw dataset.
-#' @param unbiased (`flag`) indicator of whether to remove potential biasness of the prediction.
+#' @param unbiased (`flag`) indicator of whether to remove potential bias of the prediction.
 #'
 #' @return Numeric matrix of counter factual prediction.
 #'
