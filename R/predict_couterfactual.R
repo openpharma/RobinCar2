@@ -51,6 +51,7 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
     residual = residual,
     predictions = ret,
     response = y,
+    fit = fit,
     class = "prediction_cf"
   )
 }

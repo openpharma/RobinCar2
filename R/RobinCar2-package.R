@@ -6,5 +6,5 @@
 "_PACKAGE"
 
 #' @import checkmate
-#' @importFrom stats predict residuals
+#' @importFrom stats predict residuals fitted model.response
 NULL
