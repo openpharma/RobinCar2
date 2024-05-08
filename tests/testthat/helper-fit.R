@@ -1,10 +1,8 @@
 # glm fit on iris
-fit_glm <- glm(Sepal.Length ~ Sepal.Width + Species, data = iris)
+fit_glm <- glm(y ~ treatment * s1 + covar, data = dummy_data)
 
 # lm fit on iris
-fit_lm <- lm(Sepal.Length ~ Sepal.Width + Species, data = iris)
+fit_lm <- lm(y ~ treatment * s1 + covar, data = dummy_data)
 
 # glm fit on ToothGrowth
-grow <- ToothGrowth
-grow$resp <- ifelse(grow$len < 15, 0, 1)
-fit_binom <- glm(resp ~ supp + dose, data = grow, family = binomial())
+fit_binom <- glm(y_b ~ treatment * s1 + covar, data = dummy_data, family = binomial())
