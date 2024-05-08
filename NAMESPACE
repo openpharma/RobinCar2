@@ -2,6 +2,7 @@
 
 S3method(predict_counterfactual,glm)
 S3method(predict_counterfactual,lm)
+S3method(print,prediction_cf)
 export(bias)
 export(predict_counterfactual)
 import(checkmate)

@@ -41,10 +41,18 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
   df[[treatment$treatment]] <- rep(trt_lvls, each = nrow(data))
   preds <- predict(fit, type = "response", newdata = df)
   ret <- matrix(preds, ncol = n_lvls, dimnames = list(row.names(data), trt_lvls))
+  y <- model.response(fit$model)
+  residual <- y - fitted(fit)
   if (unbiased) {
-    ret <- ret - bias(residuals(fit, type = "response"), treatment$treatment, treatment$strata, data)
+    ret <- ret - bias(residual, treatment$treatment, treatment$strata, data)
   }
-  ret
+  structure(
+    .Data = colMeans(ret),
+    residual = residual,
+    predictions = ret,
+    response = y,
+    class = "prediction_cf"
+  )
 }
 
 #' @export
