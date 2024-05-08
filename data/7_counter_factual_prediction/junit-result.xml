@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="bias" timestamp="2024-05-08T02:13:53Z" hostname="dc4924acd79f" tests="1" skipped="1" failures="0" errors="0" time="0.137">
-    <testcase time="0.137" classname="bias" name="bias_works_for_guassian">
+  <testsuite name="bias" timestamp="2024-05-08T02:18:35Z" hostname="7e571abbfbb1" tests="1" skipped="1" failures="0" errors="0" time="0.133">
+    <testcase time="0.133" classname="bias" name="bias_works_for_guassian">
       <skipped message="Reason: On CRAN ('test-bias.R:2:3')"/>
     </testcase>
   </testsuite>
-  <testsuite name="predict_counterfactual" timestamp="2024-05-08T02:13:53Z" hostname="dc4924acd79f" tests="3" skipped="3" failures="0" errors="0" time="0.16">
+  <testsuite name="predict_counterfactual" timestamp="2024-05-08T02:18:36Z" hostname="7e571abbfbb1" tests="3" skipped="3" failures="0" errors="0" time="0.161">
     <testcase time="0.11" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:2:3')"/>
     </testcase>
-    <testcase time="0.0259999999999999" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian_with_lm">
+    <testcase time="0.0269999999999999" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian_with_lm">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:6:3')"/>
     </testcase>
     <testcase time="0.024" classname="predict_counterfactual" name="predict_counterfactual_works_for_binomial">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:10:3')"/>
     </testcase>
   </testsuite>
-  <testsuite name="utils" timestamp="2024-05-08T02:13:54Z" hostname="dc4924acd79f" tests="12" skipped="0" failures="0" errors="0" time="0.062">
+  <testsuite name="utils" timestamp="2024-05-08T02:18:36Z" hostname="7e571abbfbb1" tests="12" skipped="0" failures="0" errors="0" time="0.065">
     <testcase time="0.027" classname="utils" name="h_get_vars_works_for_single_character"/>
-    <testcase time="0.003" classname="utils" name="h_get_vars_works_for_single_character"/>
+    <testcase time="0.002" classname="utils" name="h_get_vars_works_for_single_character"/>
     <testcase time="0.00600000000000001" classname="utils" name="h_get_vars_works_for_single_character"/>
     <testcase time="0.004" classname="utils" name="h_get_vars_works_for_single_character"/>
-    <testcase time="0.004" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.002" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.001" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.005" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.003" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.001" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.004" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.004" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.004" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.002" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.002" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.003" classname="utils" name="h_get_vars_works_for_formula"/>
   </testsuite>
 </testsuites>
