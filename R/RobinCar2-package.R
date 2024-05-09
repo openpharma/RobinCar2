@@ -7,4 +7,5 @@
 
 #' @import checkmate
 #' @importFrom stats predict residuals fitted model.response
+#' @importFrom sandwich vcovHC
 NULL

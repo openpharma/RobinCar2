@@ -29,3 +29,9 @@ h_get_vars <- function(treatment) {
   }
   ret
 }
+
+block_sum <- function(x, n) {
+  assert_matrix(x)
+  nr <- nrow(x) / n
+  matrix(colSums(matrix(x, nrow = n)), nrow = nr)
+}
