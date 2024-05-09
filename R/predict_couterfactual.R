@@ -42,7 +42,7 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
 
   mm <- model.matrix(fit, data = df)
   pred_linear <- mm %*% coefficients(fit)
-  preds <- fit$family$linkinv(pred_linear)
+  preds <- family(fit)$linkinv(pred_linear)
 
   ret <- matrix(preds, ncol = n_lvls, dimnames = list(row.names(data), trt_lvls))
   y <- model.response(fit$model)
@@ -57,7 +57,6 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
   if (unbiased) {
     ret <- ret - bias(residual, data[[treatment$treatment]], group_idx)
   }
-
   structure(
     .Data = colMeans(ret),
     residual = residual,
