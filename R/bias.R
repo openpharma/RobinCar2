@@ -11,7 +11,7 @@ bias <- function(residual, treatment, group_idx) {
   assert_factor(treatment, len = length(residual))
   assert_list(group_idx, types = "integer")
   grp <- unlist(group_idx)
-  assert_integer(grp, min = 1L, max = max(grp))
+  assert_integer(grp, lower = 1L, upper = max(grp))
 
   trt_lvls <- levels(treatment)
 
