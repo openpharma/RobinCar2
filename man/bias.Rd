@@ -4,16 +4,14 @@
 \alias{bias}
 \title{Prediction Bias}
 \usage{
-bias(residual, treatment, strata, data)
+bias(residual, treatment, group_idx)
 }
 \arguments{
 \item{residual}{(\code{numeric}) residuals.}
 
-\item{treatment}{(\code{string}) treatment variable.}
+\item{treatment}{(\code{factor}) treatment.}
 
-\item{strata}{(\code{character}) stratum variable.}
-
-\item{data}{(\code{data.frame}) input data.}
+\item{group_idx}{(\code{character}) stratum index.}
 }
 \value{
 Numeric matrix of bias in each stratum.

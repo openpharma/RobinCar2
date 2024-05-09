@@ -1,7 +1,8 @@
 # bias works for guassian
 
     Code
-      bias(residuals(fit_glm), treatment = "treatment", strata = NULL, dummy_data)
+      bias(residuals(fit_glm), treatment = dummy_data$treatment, group_idx = list(
+        seq_len(nrow(dummy_data))))
     Output
                       [,1]          [,2]         [,3]
         [1,] -2.074669e-16 -8.721366e-17 -1.63251e-16
