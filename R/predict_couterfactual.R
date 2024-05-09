@@ -62,6 +62,7 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
     predictions = ret,
     response = y,
     fit = fit,
+    treatment = data[[treatment$treatment]],
     group_idx = group_idx,
     class = "prediction_cf"
   )
