@@ -27,21 +27,21 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
   )
   data[[treatment$treatment]] <- as.factor(data[[treatment$treatment]])
   assert_flag(unbiased)
-  
+
   trt_lvls <- levels(data[[treatment$treatment]])
   n_lvls <- length(trt_lvls)
-  
+
   df <- lapply(
     data,
     function(i) {
       rep(i, times = n_lvls)
     }
   )
-  
+
   df[[treatment$treatment]] <- rep(trt_lvls, each = nrow(data))
-  
+
   preds <- predict(fit, type = "response", newdata = df)
-  
+
   ret <- matrix(preds, ncol = n_lvls, dimnames = list(row.names(data), trt_lvls))
   y <- model.response(fit$model)
   residual <- y - fitted(fit)
@@ -55,7 +55,7 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
   if (unbiased) {
     ret <- ret - bias(residual, data[[treatment$treatment]], group_idx)
   }
-  
+
   structure(
     .Data = colMeans(ret),
     residual = residual,
