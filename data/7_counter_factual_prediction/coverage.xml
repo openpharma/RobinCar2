@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE coverage SYSTEM "https://raw.githubusercontent.com/cobertura/cobertura/master/cobertura/src/site/htdocs/xml/coverage-04.dtd">
-<coverage line-rate="0.986486486486486" branch-rate="0" lines-covered="73" lines-valid="74" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2024-05-09 06:49:09.129267">
+<coverage line-rate="0.986486486486486" branch-rate="0" lines-covered="73" lines-valid="74" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2024-05-09 07:50:10.339936">
   <sources>
     <source>/__w/RobinCar2/RobinCar2/RobinCar2</source>
   </sources>
