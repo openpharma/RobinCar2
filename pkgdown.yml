@@ -2,8 +2,8 @@ pandoc: 3.1.13
 pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
-  hello: hello.html
-last_built: 2024-05-07T20:42Z
+  intro: intro.html
+last_built: 2024-05-14T13:49Z
 urls:
   reference: https://openpharma.github.io/RobinCar2/main/reference
   article: https://openpharma.github.io/RobinCar2/main/articles
