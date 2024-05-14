@@ -4,10 +4,10 @@
     <loc>https://openpharma.github.io/RobinCar2/404.html</loc>
   </url>
   <url>
-    <loc>https://openpharma.github.io/RobinCar2/articles/hello.html</loc>
+    <loc>https://openpharma.github.io/RobinCar2/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://openpharma.github.io/RobinCar2/articles/index.html</loc>
+    <loc>https://openpharma.github.io/RobinCar2/articles/intro.html</loc>
   </url>
   <url>
     <loc>https://openpharma.github.io/RobinCar2/authors.html</loc>
@@ -19,12 +19,24 @@
     <loc>https://openpharma.github.io/RobinCar2/news/index.html</loc>
   </url>
   <url>
+    <loc>https://openpharma.github.io/RobinCar2/reference/RobinCar2-package.html</loc>
+  </url>
+  <url>
+    <loc>https://openpharma.github.io/RobinCar2/reference/bias.html</loc>
+  </url>
+  <url>
     <loc>https://openpharma.github.io/RobinCar2/reference/dummy_data.html</loc>
   </url>
   <url>
-    <loc>https://openpharma.github.io/RobinCar2/reference/hello.html</loc>
+    <loc>https://openpharma.github.io/RobinCar2/reference/h_get_vars.html</loc>
   </url>
   <url>
     <loc>https://openpharma.github.io/RobinCar2/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://openpharma.github.io/RobinCar2/reference/predict_counterfactual.html</loc>
+  </url>
+  <url>
+    <loc>https://openpharma.github.io/RobinCar2/reference/prediction_cf_methods.html</loc>
   </url>
 </urlset>
