@@ -99,7 +99,7 @@ pred <- predict_cf(fit, "trt")
 pred
 ```
 
-## Obtain the biasness
+## Obtain the bias
 
 ```{r}
 bias <- function(fit, trt, strat, data) {
@@ -123,9 +123,9 @@ bias.glm <- function(fit, trt, strat, data) {
 }
 ```
 
-## Ensure the unbiasness
+## Ensure unbias
 
-to ensure the unbiasness, the predict_cf need additional argument
+to ensure unbias, the predict_cf need additional argument
 
 ```{r}
 predict_cf.glm <- function(fit, trt, data, ensure_unbias = TRUE, strata = NULL, ...) {
