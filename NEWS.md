@@ -3,3 +3,4 @@
 ### New features
 
 * Add unbiased counter-factual prediction.
+* Add robust sandwich variance for the marginal treatment effect.

@@ -6,5 +6,6 @@
 "_PACKAGE"
 
 #' @import checkmate
-#' @importFrom stats predict residuals fitted model.response
+#' @importFrom stats predict residuals fitted model.response model.matrix coefficients
+#' @importFrom sandwich vcovHC
 NULL
