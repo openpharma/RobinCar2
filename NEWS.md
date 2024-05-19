@@ -2,12 +2,5 @@
 
 ### New features
 
-* Add an initializer script.
-
-### Enhancements
-
-* Documentation on how to use the initialize a package.
-
-### Bug fixes
-
-* None.
+* Add unbiased counter-factual prediction.
+* Add robust sandwich variance for the marginal treatment effect.

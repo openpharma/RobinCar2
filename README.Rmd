@@ -1,0 +1,46 @@
+---
+output: github_document
+---
+<!-- markdownlint-disable-file -->
+<!-- README.md needs to be generated from README.Rmd. Please edit that file -->
+
+# RobinCar2
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+<!-- badges: start -->
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![CRAN status](https://www.r-pkg.org/badges/version-last-release/RobinCar2)](https://www.r-pkg.org/badges/version-last-release/RobinCar2)
+[![CRAN monthly downloads](https://cranlogs.r-pkg.org/badges/RobinCar2)](https://cranlogs.r-pkg.org/badges/RobinCar2)
+[![CRAN total downloads](https://cranlogs.r-pkg.org/badges/grand-total/RobinCar2)](https://cranlogs.r-pkg.org/badges/grand-total/RobinCar2)
+[![Code Coverage](https://raw.githubusercontent.com/openpharma/RobinCar2/_xml_coverage_reports/data/main/badge.svg)](https://raw.githubusercontent.com/openpharma/RobinCar2/_xml_coverage_reports/data/main/coverage.xml)
+<!-- badges: end -->
+\
+
+RobinCar2 is a package to provide robust inference of covariate adjusted analysis under stratified randomization.
+
+## Installation
+
+### Development
+
+You can install the current development version from `github` with:
+
+```{r gh-installation, eval = FALSE}
+if (!require("remotes")) {
+  install.packages("remotes")
+}
+
+remotes::install_github(
+  "openpharma/RobinCar2"
+)
+```
+
+## Citing `RobinCar2`
+
+To cite `RobinCar2` please see [here](https://openpharma.github.io/RobinCar2/main/authors.html#citation).

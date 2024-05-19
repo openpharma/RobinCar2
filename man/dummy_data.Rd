@@ -5,13 +5,13 @@
 \alias{dummy_data}
 \title{Dummy Trial Data with Permute-Block Randomization}
 \format{
-A data frame with 400 rows and 3 columns:
+A data frame with 600 rows and 7 columns:
 \describe{
 \item{id}{The ID of the patients.}
-\item{treatment}{The treatment assignment.}
-\item{s1}{The first stratification variable.}
-\item{s2}{The second stratification variable.}
-\item{covar}{The covariate.}
+\item{treatment}{The treatment assignment, "pbo", "trt1" and "trt2"}
+\item{s1}{The first stratification variable, "a" and "b".}
+\item{s2}{The second stratification variable, "c" and "d".}
+\item{covar}{The covariate following normal distribution.}
 \item{y}{The continuous response.}
 \item{y_b}{The binary response.}
 }
