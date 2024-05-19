@@ -19,3 +19,6 @@ workflows.md
 images
 design
 data-raw
+^RobinCar2\.Rcheck$
+^RobinCar2.*\.tar\.gz$
+^RobinCar2.*\.tgz$
