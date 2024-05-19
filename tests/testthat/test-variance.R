@@ -32,4 +32,3 @@ test_that("robincar convariance estimation works for binomial fitted by glm", {
     predict_counterfactual(fit_binom, "treatment", dummy_data) |> vcovRobinCar.prediction_cf(eff_measure = "odds ratio")
   )
 })
-
