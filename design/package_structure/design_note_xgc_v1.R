@@ -1,4 +1,4 @@
-# Design note
+# Design note for developing v1
 # Author: X. Gregory Chen
 
 # [Refenrece]
