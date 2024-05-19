@@ -99,7 +99,7 @@ pred <- predict_cf(fit, "trt")
 pred
 ```
 
-## Obtain the biasness
+## Obtain the bias
 
 ```{r}
 bias <- function(fit, trt, strat, data) {
@@ -123,9 +123,9 @@ bias.glm <- function(fit, trt, strat, data) {
 }
 ```
 
-## Ensure the unbiasness
+## Ensure unbias
 
-to ensure the unbiasness, the predict_cf need additional argument
+to ensure unbias, the predict_cf need additional argument
 
 ```{r}
 predict_cf.glm <- function(fit, trt, data, ensure_unbias = TRUE, strata = NULL, ...) {
@@ -207,10 +207,12 @@ vcov_robin.glm <- function(fit, trt, strat = NULL, preds = predict_cf(fit, trt, 
   idx <- split(seq_len(nrow(raw_data)), raw_data[[trt]])
   cov_ymu <- vapply(idx, function(is) stats::cov(fit$y[is], preds[is, ]), FUN.VALUE = rep(0, ncol(preds)))
 
-  vcov_sr <- vapply(idx, function(is) stats::var(fit$y[is]), FUN.VALUE = 0) / pit
   if (sr_decompose) {
-    vcov_sr <- vcov_sr + (diag(var_preds) - 2 * diag(cov_ymu)) / pit
+    vcov_sr <- (vapply(idx, function(is) stats::var(fit$y[is]), FUN.VALUE = 0) + diag(var_preds) - 2 * diag(cov_ymu)) / pit
+  } else {
+    vcov_sr <- vapply(idx, function(is) stats::var(resi[is]), FUN.VALUE = 0) / pit
   }
+
   v <- diag(vcov_sr) + cov_ymu + t(cov_ymu) - var_preds
   if (!randomization %in% c("simple", "pocock-simon") && length(strat) > 0) {
     v <- v - get_erb(resi, raw_data[strat], raw_data[[trt]], pit, randomization)

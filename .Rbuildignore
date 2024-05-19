@@ -17,6 +17,5 @@ coverage.*
 init.sh
 workflows.md
 images
-^RobinCar2\.Rcheck$
-^RobinCar2.*\.tar\.gz$
-^RobinCar2.*\.tgz$
+design
+data-raw
