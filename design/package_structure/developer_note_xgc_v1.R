@@ -267,3 +267,4 @@ source(file.path(getwd(), "design", "package_structure", "all_draft_functions.R"
 pred_counterfact <- get_countfact_pred(fit, "trt")
 fit.fvcov <- calculate_f_vcov(fit, "trt", pred_counterfact)
 report_fvcov(fit.fvcov, 3)
+
