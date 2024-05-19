@@ -266,4 +266,3 @@ fit <- glm(y ~ trt:z1 + trt, family = binomial(link = "logit"), data = d)
 pred_counterfact <- get_countfact_pred(fit, "trt")
 fit.fvcov <- calculate_f_vcov(fit, "trt", pred_counterfact)
 report_fvcov(fit.fvcov, 3)
-
