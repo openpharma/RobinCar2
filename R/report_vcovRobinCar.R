@@ -12,9 +12,9 @@
 report_vcov_robincar <- function(x, digits = 3) {
   eff_measure <- x$eff_measure
 
-  if(is.null(eff_measure)){
+  if (is.null(eff_measure)) {
     cli::cli_alert_info("When eff_measure is NULL, nothing to report")
-  }else{
+  } else {
     report(
       fit = x$fit,
       trt_var_name = x$trt_var_name,
@@ -24,7 +24,6 @@ report_vcov_robincar <- function(x, digits = 3) {
       digits = digits
     )
   }
-
 }
 
 report <- function(fit, trt_var_name, theta, f_vcov, eff_measure, digits = 3) {
@@ -73,11 +72,11 @@ report <- function(fit, trt_var_name, theta, f_vcov, eff_measure, digits = 3) {
   outtmp
 }
 
+#' @noRd
 calculate_f <- function(theta_t, theta_s, eff_measure) {
   switch(eff_measure,
-         "diff" = theta_t - theta_s,
-         "risk ratio" = log(theta_t / theta_s),
-         "odds ratio" = log(odds(theta_t) / odds(theta_s))
+    "diff" = theta_t - theta_s,
+    "risk ratio" = log(theta_t / theta_s),
+    "odds ratio" = log(odds(theta_t) / odds(theta_s))
   )
 }
-

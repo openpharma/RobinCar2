@@ -59,6 +59,7 @@ vcovRobinCar.prediction_cf <- function(x, eff_measure = NULL, ...) {
 #### Helper functions ####
 
 #' helper function: wrap calculations from fit to interested covariance estimate
+#' @noRd
 calculate_f_vcov <- function(fit, trt_var_name, interim_data, eff_measure) {
   treatments <- fit$xlevels[[trt_var_name]]
 
@@ -104,6 +105,7 @@ calculate_f_vcov <- function(fit, trt_var_name, interim_data, eff_measure) {
 
 
 #' helper function: prepare interim_data for calculate_f_vcov
+#' @noRd
 prepare_interim_vcovrc <- function(fit, trt_var_name) {
   treatments <- fit$xlevels[[trt_var_name]]
   use_dat <- fit$model
@@ -130,6 +132,7 @@ prepare_interim_vcovrc <- function(fit, trt_var_name) {
 }
 
 #' helper function: calculate V (covariance of the mean counterfactual prediction of response)
+#' @noRd
 calculate_V <- function(t, s, counterfact_res) {
   if (t == s) { # : calculate v_tt
     # v_tt = pi_t^(-1) * var(Y_j - mu_t_j | j \in I_t) +
@@ -172,6 +175,7 @@ calculate_V <- function(t, s, counterfact_res) {
 vectorized_calculate_V <- Vectorize(calculate_V, c("t", "s"))
 
 #' helper function: calculate n^(-1)f'Vf (covariance of estimated effect measure)
+#' @noRd
 op <- function(x, square = FALSE) (x * (1 - x))^ifelse(square, 2, 1)
 
 odds <- function(x) (x / (1 - x))
