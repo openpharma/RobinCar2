@@ -37,7 +37,8 @@ vcovHC.prediction_cf <- function(x, type = "HC3", ...) {
 
 vcovRobinCar.prediction_cf <- function(x, eff_measure = NULL, ...) {
   target_model <- attr(x, "fit")
-  tm_use_data <- target_model$data
+  data_idx <- ifelse(identical(class(target_model), "lm"), "model", "data")
+  tm_use_data <- target_model[[data_idx]]
   tm_use_trts <- attr(x, "treatment")
   trt_idx_in_data <- sapply(tm_use_data, function(ik) identical(ik, tm_use_trts))
   tm_use_trtvar <- names(trt_idx_in_data)[trt_idx_in_data]
