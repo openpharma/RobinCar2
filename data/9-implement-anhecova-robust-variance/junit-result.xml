@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="bias" timestamp="2024-05-19T22:31:55Z" hostname="c6a114e2d5b1" tests="1" skipped="1" failures="0" errors="0" time="0.115">
-    <testcase time="0.115" classname="bias" name="bias_works_for_guassian">
+  <testsuite name="bias" timestamp="2024-05-30T11:54:23Z" hostname="f83565c0fbb3" tests="1" skipped="1" failures="0" errors="0" time="0.118">
+    <testcase time="0.118" classname="bias" name="bias_works_for_guassian">
       <skipped message="Reason: On CRAN ('test-bias.R:2:3')"/>
     </testcase>
   </testsuite>
-  <testsuite name="predict_counterfactual" timestamp="2024-05-19T22:31:56Z" hostname="c6a114e2d5b1" tests="3" skipped="3" failures="0" errors="0" time="0.194">
-    <testcase time="0.114" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian">
+  <testsuite name="predict_counterfactual" timestamp="2024-05-30T11:54:23Z" hostname="f83565c0fbb3" tests="3" skipped="3" failures="0" errors="0" time="0.196">
+    <testcase time="0.115" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:2:3')"/>
     </testcase>
-    <testcase time="0.042" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian_with_lm">
+    <testcase time="0.043" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian_with_lm">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:6:3')"/>
     </testcase>
     <testcase time="0.038" classname="predict_counterfactual" name="predict_counterfactual_works_for_binomial">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:10:3')"/>
     </testcase>
   </testsuite>
-  <testsuite name="report" timestamp="2024-05-19T22:31:56Z" hostname="c6a114e2d5b1" tests="4" skipped="4" failures="0" errors="0" time="0.236">
+  <testsuite name="report" timestamp="2024-05-30T11:54:23Z" hostname="f83565c0fbb3" tests="4" skipped="4" failures="0" errors="0" time="0.238">
     <testcase time="0.088" classname="report" name="reporting_function_give_info_message_when_eff_measure_is_NULL">
       <skipped message="Reason: On CRAN ('test-report.R:2:3')"/>
     </testcase>
-    <testcase time="0.051" classname="report" name="reporting_function_works_for_gaussian_fitted_by_lm">
+    <testcase time="0.0519999999999999" classname="report" name="reporting_function_works_for_gaussian_fitted_by_lm">
       <skipped message="Reason: On CRAN ('test-report.R:10:3')"/>
     </testcase>
-    <testcase time="0.0469999999999999" classname="report" name="reporting_function_works_for_guassian_fitted_by_glm">
+    <testcase time="0.047" classname="report" name="reporting_function_works_for_guassian_fitted_by_glm">
       <skipped message="Reason: On CRAN ('test-report.R:18:3')"/>
     </testcase>
-    <testcase time="0.05" classname="report" name="reporting_function_works_for_binomial_fitted_by_glm">
+    <testcase time="0.051" classname="report" name="reporting_function_works_for_binomial_fitted_by_glm">
       <skipped message="Reason: On CRAN ('test-report.R:26:3')"/>
     </testcase>
   </testsuite>
-  <testsuite name="utils" timestamp="2024-05-19T22:31:56Z" hostname="c6a114e2d5b1" tests="12" skipped="0" failures="0" errors="0" time="0.075">
-    <testcase time="0.021" classname="utils" name="h_get_vars_works_for_single_character"/>
+  <testsuite name="utils" timestamp="2024-05-30T11:54:23Z" hostname="f83565c0fbb3" tests="12" skipped="0" failures="0" errors="0" time="0.077">
+    <testcase time="0.0219999999999999" classname="utils" name="h_get_vars_works_for_single_character"/>
     <testcase time="0.004" classname="utils" name="h_get_vars_works_for_single_character"/>
     <testcase time="0.01" classname="utils" name="h_get_vars_works_for_single_character"/>
-    <testcase time="0.00599999999999989" classname="utils" name="h_get_vars_works_for_single_character"/>
-    <testcase time="0.00600000000000001" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.00600000000000001" classname="utils" name="h_get_vars_works_for_single_character"/>
+    <testcase time="0.00700000000000001" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.003" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.002" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.004" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.00600000000000001" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.00700000000000012" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.002" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.003" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.00700000000000001" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.00700000000000001" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.002" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.003" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.004" classname="utils" name="h_get_vars_works_for_formula"/>
   </testsuite>
-  <testsuite name="variance" timestamp="2024-05-19T22:31:56Z" hostname="c6a114e2d5b1" tests="3" skipped="3" failures="0" errors="0" time="0.11">
-    <testcase time="0.032" classname="variance" name="robincar_convariance_estimation_works_for_guassian_fitted_by_lm">
+  <testsuite name="variance" timestamp="2024-05-30T11:54:23Z" hostname="f83565c0fbb3" tests="3" skipped="3" failures="0" errors="0" time="0.112">
+    <testcase time="0.0319999999999998" classname="variance" name="robincar_convariance_estimation_works_for_guassian_fitted_by_lm">
       <skipped message="Reason: On CRAN ('test-variance.R:2:3')"/>
     </testcase>
-    <testcase time="0.038" classname="variance" name="robincar_convariance_estimation_works_for_guassian_fitted_by_glm">
+    <testcase time="0.04" classname="variance" name="robincar_convariance_estimation_works_for_guassian_fitted_by_glm">
       <skipped message="Reason: On CRAN ('test-variance.R:12:3')"/>
     </testcase>
     <testcase time="0.04" classname="variance" name="robincar_convariance_estimation_works_for_binomial_fitted_by_glm">
