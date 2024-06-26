@@ -28,6 +28,12 @@
     <loc>https://openpharma.github.io/RobinCar2/reference/dummy_data.html</loc>
   </url>
   <url>
+    <loc>https://openpharma.github.io/RobinCar2/reference/h_adjust_pi.html</loc>
+  </url>
+  <url>
+    <loc>https://openpharma.github.io/RobinCar2/reference/h_get_erb.html</loc>
+  </url>
+  <url>
     <loc>https://openpharma.github.io/RobinCar2/reference/h_get_vars.html</loc>
   </url>
   <url>
@@ -38,5 +44,8 @@
   </url>
   <url>
     <loc>https://openpharma.github.io/RobinCar2/reference/prediction_cf_methods.html</loc>
+  </url>
+  <url>
+    <loc>https://openpharma.github.io/RobinCar2/reference/vcovANHECOVA.html</loc>
   </url>
 </urlset>
