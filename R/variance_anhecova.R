@@ -7,7 +7,7 @@
 #'
 #' @return Named covariance matrix.
 #' @export
-vcovAHECOVA <- function(x, decompose = TRUE, randomization = "simple", ...) {
+vcovANHECOVA <- function(x, decompose = TRUE, randomization = "simple", ...) {
   assert_class(x, "prediction_cf")
   assert_flag(decompose)
   assert_string(randomization)
@@ -37,39 +37,45 @@ vcovAHECOVA <- function(x, decompose = TRUE, randomization = "simple", ...) {
   return(ret)
 }
 
+#' Obtain Adjustment for Proportion of Treatment Assignment
 #' @keywords internal
-h_adjust_pi <- function(pi_t) {
-  diag(pi_t) - pi_t %*% t(pi_t)
+#' @param pi (`numeric`) vector of proportions.
+#' @return Numeric matrix.
+h_adjust_pi <- function(pi) {
+  assert_numeric(pi)
+  diag(pi, nrow = length(pi)) - pi %*% t(pi)
 }
 
+#' Obtain Adjustment for Covariance Matrix
+#' @param resi (`numeric`) vector of residuals.
+#' @param group_idx (`list` of `integer`) index for each groups.
+#' @param trt (`factor`) of treatment assignment.
+#' @param pi (`numeric`) proportion of treatment assignment.
+#' @param randomization (`string`) name of the randomization schema.
 #' @keywords internal
-h_get_erb <- function(resi, group_idx, trt, pi_t, randomization) {
+h_get_erb <- function(resi, group_idx, trt, pi, randomization) {
+  assert_list(group_idx, types = "integer")
   if (length(group_idx) == 1L) {
     return(0)
   }
+  assert_string(randomization)
   if (randomization %in% c("simple", "pocock-simon")) {
     return(0)
   }
-  omegaz_sr <- h_adjust_pi(pi_t)
+  assert_numeric(resi)
+  assert_factor(trt)
+  assert_numeric(pi)
+
+  omegaz_sr <- h_adjust_pi(pi)
+  n_tot <- length(resi)
   resi_per_strata <- vapply(
     group_idx,
-    function(ii) vapply(split(resi[ii], trt[ii]), mean, FUN.VALUE = 0),
+    function(ii) {
+      v <- vapply(split(resi[ii], trt[ii]), mean, FUN.VALUE = 0)
+      v * sqrt(length(ii) / n_tot)
+    },
     FUN.VALUE = rep(0, length(levels(trt)))
   )
-  strata_props <- vapply(
-    group_idx,
-    length,
-    FUN.VALUE = 0L
-  )
-  strata_props <- strata_props / sum(strata_props)
-  rb_z <- resi_per_strata / as.numeric(pi_t)
-  strata_levels <- length(resi_per_strata)
-  n_trt <- length(pi_t)
-  ind <- matrix(seq_len(strata_levels), byrow = TRUE, ncol = n_trt)
-  rb_z_sum <- lapply(
-    seq_len(ncol(rb_z)),
-    function(x) rb_z[, x] %*% t(rb_z[, x]) * strata_props[x]
-  )
-  rb_z_sum <- Reduce(`+`, rb_z_sum)
-  rb_z_sum * omegaz_sr
+  rb_z <- resi_per_strata / as.numeric(pi)
+  tcrossprod(rb_z) * omegaz_sr
 }
