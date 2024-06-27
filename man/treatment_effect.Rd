@@ -9,11 +9,11 @@
 \usage{
 treatment_effect(object, pair, variance, eff_measure, eff_jacobian, ...)
 
-difference(object, pair = names(object), variance = vcovANHECOVA)
+difference(object, ...)
 
-risk_ratio(object, pair = names(object), variance = vcovANHECOVA)
+risk_ratio(object, ...)
 
-odds_ratio(object, pair = names(object), variance = vcovANHECOVA)
+odds_ratio(object, ...)
 }
 \arguments{
 \item{object}{Object from which to obtain treatment effect.}

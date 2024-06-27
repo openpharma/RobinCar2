@@ -3,6 +3,8 @@
 S3method(predict_counterfactual,glm)
 S3method(predict_counterfactual,lm)
 S3method(print,prediction_cf)
+S3method(treatment_effect,glm)
+S3method(treatment_effect,lm)
 S3method(treatment_effect,prediction_cf)
 S3method(vcovHC,prediction_cf)
 export(bias)

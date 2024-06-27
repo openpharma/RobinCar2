@@ -26,6 +26,9 @@ treatment_effect.prediction_cf <- function(object, pair = names(object), varianc
     test_subset(pair, names(object)),
     test_integerish(pair, lower = 1L, upper = length(object))
   )
+  if (test_integerish(pair)) {
+    pair <- names(object)[pair]
+  }
   trt_effect <- unname(eff_measure(object[pair]))
   if (!is.null(variance)) {
     inner_variance <- variance(object, ...)[pair, pair]
@@ -38,6 +41,7 @@ treatment_effect.prediction_cf <- function(object, pair = names(object), varianc
   } else {
     trt_var <- diag(NULL)
   }
+
   pair_names <- outer(pair, pair, FUN = paste, sep = " - ")
   structure(
     .Data = trt_effect,
@@ -47,17 +51,39 @@ treatment_effect.prediction_cf <- function(object, pair = names(object), varianc
   )
 }
 
+
+#' @export
+#' @inheritParams predict_counterfactual
+treatment_effect.lm <- function(object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian, treatment, data, unbiased = TRUE, ...) {
+  pc <- predict_counterfactual(object, treatment, data, unbiased)
+  if (missing(pair)) {
+    treatment_effect(pc, pair = ,, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
+  } else {
+    treatment_effect(pc, pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
+  }
+}
+
+#' @export
+treatment_effect.glm <- function(object, pair, variance = vcovANHECOVA, eff_measure, eff_jacobian, treatment, data = object$data, unbiased = TRUE, ...) {
+  pc <- predict_counterfactual(object, treatment, data, unbiased)
+  if (missing(pair)) {
+    treatment_effect(pc, pair = ,, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
+  } else {
+    treatment_effect(pc, pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
+  }
+}
+
 #' @rdname treatment_effect
-difference <- function(object, pair = names(object), variance = vcovANHECOVA) {
-  treatment_effect(object, pair, variance, eff_measure = h_diff, eff_jacobian = h_jac_diff)
+difference <- function(object, ...) {
+  treatment_effect(object, eff_measure = h_diff, eff_jacobian = h_jac_diff, ...)
 }
 #' @rdname treatment_effect
-risk_ratio <- function(object, pair = names(object), variance = vcovANHECOVA) {
-  treatment_effect(object, pair, variance, eff_measure = h_ratio, eff_jacobian = h_jac_ratio)
+risk_ratio <- function(object, ...) {
+  treatment_effect(object, eff_measure = h_ratio, eff_jacobian = h_jac_ratio, ...)
 }
 #' @rdname treatment_effect
-odds_ratio <- function(object, pair = names(object), variance = vcovANHECOVA) {
-  treatment_effect(object, pair, variance, eff_measure = h_odds_ratio, eff_jacobian = h_jac_odds_ratio)
+odds_ratio <- function(object, ...) {
+  treatment_effect(object, eff_measure = h_odds_ratio, eff_jacobian = h_jac_odds_ratio, ...)
 }
 
 h_diff <- function(x) {
