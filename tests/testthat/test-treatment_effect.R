@@ -58,7 +58,7 @@ test_that("h_odds_ratio works as expected", {
   x <- c(0.5, 0.4, 0.6)
   expect_identical(
     h_odds_ratio(x),
-    c(2/3, 1.5, 2.25),
+    c(2 / 3, 1.5, 2.25),
     tolerance = 1e-8
   )
   x <- c(0.5, 0.4)

@@ -57,7 +57,7 @@ treatment_effect.prediction_cf <- function(object, pair = names(object), varianc
 treatment_effect.lm <- function(object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian, treatment, data, unbiased = TRUE, ...) {
   pc <- predict_counterfactual(object, treatment, data, unbiased)
   if (missing(pair)) {
-    treatment_effect(pc, pair = ,, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
+    treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
   } else {
     treatment_effect(pc, pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
   }
@@ -67,7 +67,7 @@ treatment_effect.lm <- function(object, pair = names(object), variance = vcovANH
 treatment_effect.glm <- function(object, pair, variance = vcovANHECOVA, eff_measure, eff_jacobian, treatment, data = object$data, unbiased = TRUE, ...) {
   pc <- predict_counterfactual(object, treatment, data, unbiased)
   if (missing(pair)) {
-    treatment_effect(pc, pair = ,, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
+    treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
   } else {
     treatment_effect(pc, pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
   }
@@ -110,7 +110,7 @@ h_jac_ratio <- function(x) {
   assert_numeric(x, lower = 0)
   n <- length(x)
   if (n == 2) {
-    matrix(c(- x[2] / x[1]^2, 1 / x[1]), nrow = 1L)
+    matrix(c(-x[2] / x[1]^2, 1 / x[1]), nrow = 1L)
   } else {
     jacobian(h_ratio, x)
   }
