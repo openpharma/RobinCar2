@@ -14,7 +14,8 @@ treatment_effect <- function(object, pair, variance, eff_measure, eff_jacobian, 
 }
 
 #' @export
-treatment_effect.prediction_cf <- function(object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian, ...) {
+treatment_effect.prediction_cf <- function(
+    object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian, ...) {
   assert(
     test_function(variance),
     test_null(variance)
@@ -54,7 +55,9 @@ treatment_effect.prediction_cf <- function(object, pair = names(object), varianc
 
 #' @export
 #' @inheritParams predict_counterfactual
-treatment_effect.lm <- function(object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian, treatment, data, unbiased = TRUE, ...) {
+treatment_effect.lm <- function(
+    object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian,
+    treatment, data, unbiased = TRUE, ...) {
   pc <- predict_counterfactual(object, treatment, data, unbiased)
   if (missing(pair)) {
     treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
@@ -64,7 +67,9 @@ treatment_effect.lm <- function(object, pair = names(object), variance = vcovANH
 }
 
 #' @export
-treatment_effect.glm <- function(object, pair, variance = vcovANHECOVA, eff_measure, eff_jacobian, treatment, data = object$data, unbiased = TRUE, ...) {
+treatment_effect.glm <- function(
+    object, pair, variance = vcovANHECOVA, eff_measure, eff_jacobian,
+    treatment, data = object$data, unbiased = TRUE, ...) {
   pc <- predict_counterfactual(object, treatment, data, unbiased)
   if (missing(pair)) {
     treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
