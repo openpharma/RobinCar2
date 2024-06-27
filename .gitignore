@@ -34,3 +34,4 @@ package.json
 RobinCar2.Rcheck/
 RobinCar2*.tar.gz
 RobinCar2*.tgz
+.Rprofile

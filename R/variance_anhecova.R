@@ -7,7 +7,7 @@
 #'
 #' @return Named covariance matrix.
 #' @export
-vcovANHECOVA <- function(x, decompose = TRUE, randomization = "simple", ...) {
+vcovANHECOVA <- function(x, decompose = TRUE, randomization = "simple", ...) { # nolint
   assert_class(x, "prediction_cf")
   assert_flag(decompose)
   assert_string(randomization)
