@@ -95,7 +95,7 @@ table.table-condensed {
   font-size: 11px;
 }</style>
   <div class="col-md-8 col-md-offset-2">
-    <h2>RobinCar2 coverage - 85.19%</h2>
+    <h2>RobinCar2 coverage - 84.42%</h2>
     <div class="tabbable">
       <ul class="nav nav-tabs" data-tabsetid="covr">
         <li class="active">
@@ -107,11 +107,276 @@ table.table-condensed {
       </ul>
       <div class="tab-content" data-tabsetid="covr">
         <div class="tab-pane active" title="Files" data-value="Files" id="tab-covr-1">
-          <div class="datatables html-widget html-fill-item" id="htmlwidget-4ace89d7d8bb94d97464" style="width:100%;height:500px;"></div>
-          <script type="application/json" data-for="htmlwidget-4ace89d7d8bb94d97464">{"x":{"filter":"none","vertical":false,"fillContainer":false,"data":[["<a href=\"#\">R/variance_anhecova.R<\/a>","<a href=\"#\">R/utils.R<\/a>","<a href=\"#\">R/predict_couterfactual.R<\/a>","<a href=\"#\">R/bias.R<\/a>","<a href=\"#\">R/variance_hc.R<\/a>","<a href=\"#\">R/prediction_cf.R<\/a>"],[81,37,77,24,14,13],[43,19,42,11,9,3],[26,18,42,11,9,3],[17,1,0,0,0,0],["1","5","6","6","1","3"],["60.47%","94.74%","100.00%","100.00%","100.00%","100.00%"]],"container":"<table class=\"row-border\">\n  <thead>\n    <tr>\n      <th>File<\/th>\n      <th>Lines<\/th>\n      <th>Relevant<\/th>\n      <th>Covered<\/th>\n      <th>Missed<\/th>\n      <th>Hits / Line<\/th>\n      <th>Coverage<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"searching":false,"dom":"t","paging":false,"columnDefs":[{"targets":6,"createdCell":"function(td, cellData, rowData, row, col) {\n  var percent = cellData.replace(\"%\", \"\");\n  if (percent > 90) {\n    var grad = \"linear-gradient(90deg, #edfde7 \" + cellData + \", white \" + cellData + \")\";\n  } else if (percent > 75) {\n    var grad = \"linear-gradient(90deg, #f9ffe5 \" + cellData + \", white \" + cellData + \")\";\n  } else {\n    var grad = \"linear-gradient(90deg, #fcece9 \" + cellData + \", white \" + cellData + \")\";\n  }\n  $(td).css(\"background\", grad);\n}\n"},{"className":"dt-right","targets":[1,2,3,4]},{"name":"File","targets":0},{"name":"Lines","targets":1},{"name":"Relevant","targets":2},{"name":"Covered","targets":3},{"name":"Missed","targets":4},{"name":"Hits / Line","targets":5},{"name":"Coverage","targets":6}],"order":[],"autoWidth":false,"orderClasses":false},"callback":"function(table) {\ntable.on('click.dt', 'a', function() {\n  files = $('div#files div');\n  files.not('div.hidden').addClass('hidden');\n  id = $(this).text();\n  files.filter('div[id=\\'' + id + '\\']').removeClass('hidden');\n  $('ul.nav a[data-value=Source]').text(id).tab('show');\n});\n}"},"evals":["options.columnDefs.0.createdCell","callback"],"jsHooks":[]}</script>
+          <div class="datatables html-widget html-fill-item" id="htmlwidget-ae576115c7130259c196" style="width:100%;height:500px;"></div>
+          <script type="application/json" data-for="htmlwidget-ae576115c7130259c196">{"x":{"filter":"none","vertical":false,"fillContainer":false,"data":[["<a href=\"#\">R/variance_anhecova.R<\/a>","<a href=\"#\">R/treatment_effect.R<\/a>","<a href=\"#\">R/utils.R<\/a>","<a href=\"#\">R/predict_couterfactual.R<\/a>","<a href=\"#\">R/bias.R<\/a>","<a href=\"#\">R/variance_hc.R<\/a>","<a href=\"#\">R/prediction_cf.R<\/a>"],[81,138,37,77,24,14,13],[43,61,19,42,11,9,3],[26,50,18,42,11,9,3],[17,11,1,0,0,0,0],["2","12","5","7","8","1","3"],["60.47%","81.97%","94.74%","100.00%","100.00%","100.00%","100.00%"]],"container":"<table class=\"row-border\">\n  <thead>\n    <tr>\n      <th>File<\/th>\n      <th>Lines<\/th>\n      <th>Relevant<\/th>\n      <th>Covered<\/th>\n      <th>Missed<\/th>\n      <th>Hits / Line<\/th>\n      <th>Coverage<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"searching":false,"dom":"t","paging":false,"columnDefs":[{"targets":6,"createdCell":"function(td, cellData, rowData, row, col) {\n  var percent = cellData.replace(\"%\", \"\");\n  if (percent > 90) {\n    var grad = \"linear-gradient(90deg, #edfde7 \" + cellData + \", white \" + cellData + \")\";\n  } else if (percent > 75) {\n    var grad = \"linear-gradient(90deg, #f9ffe5 \" + cellData + \", white \" + cellData + \")\";\n  } else {\n    var grad = \"linear-gradient(90deg, #fcece9 \" + cellData + \", white \" + cellData + \")\";\n  }\n  $(td).css(\"background\", grad);\n}\n"},{"className":"dt-right","targets":[1,2,3,4]},{"name":"File","targets":0},{"name":"Lines","targets":1},{"name":"Relevant","targets":2},{"name":"Covered","targets":3},{"name":"Missed","targets":4},{"name":"Hits / Line","targets":5},{"name":"Coverage","targets":6}],"order":[],"autoWidth":false,"orderClasses":false},"callback":"function(table) {\ntable.on('click.dt', 'a', function() {\n  files = $('div#files div');\n  files.not('div.hidden').addClass('hidden');\n  id = $(this).text();\n  files.filter('div[id=\\'' + id + '\\']').removeClass('hidden');\n  $('ul.nav a[data-value=Source]').text(id).tab('show');\n});\n}"},"evals":["options.columnDefs.0.createdCell","callback"],"jsHooks":[]}</script>
         </div>
         <div class="tab-pane" title="Source" data-value="Source" id="tab-covr-2">
           <div id="files">
+            <div id="R/utils.R" class="hidden">
+              <table class="table-condensed">
+                <tbody>
+                  <tr class="never">
+                    <td class="num">1</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' Extract Variable Names</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">2</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#'</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">3</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @param treatment (`string` or `formula`) string name of the treatment, or a formula.</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">4</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#'</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">5</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @details Extract the formula elements, including `treatment` and `strata`.</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">6</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#'</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">7</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @return A list of two elements, `treatmetn` and `strata`.</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">8</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">h_get_vars &lt;- function(treatment) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">9</td>
+                    <td class="coverage">14<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  if (test_string(treatment)) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">10</td>
+                    <td class="coverage">4<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    ret &lt;- list(</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">11</td>
+                    <td class="coverage">4<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">      treatment = treatment,</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">12</td>
+                    <td class="coverage">4<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">      strata = character(0)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">13</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    )</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">14</td>
+                    <td class="coverage">10<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  } else if (test_formula(treatment)) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">15</td>
+                    <td class="coverage">8<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    if (!identical(length(treatment), 3L)) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">16</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">      stop("treatment formula must be of type treatment ~ strata")</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">17</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    }</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">18</td>
+                    <td class="coverage">8<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    if (!is.name(treatment[[2]])) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">19</td>
+                    <td class="coverage">2<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">      stop("left hand side of the treatment formula should be a single name!")</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">20</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    }</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">21</td>
+                    <td class="coverage">6<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    treatvar &lt;- as.character(treatment[[2]])</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">22</td>
+                    <td class="coverage">6<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    strata &lt;- setdiff(all.vars(treatment[[3]]), ".")</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">23</td>
+                    <td class="coverage">6<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    ret &lt;- list(</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">24</td>
+                    <td class="coverage">6<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">      treatment = treatvar,</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">25</td>
+                    <td class="coverage">6<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">      strata = strata</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">26</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    )</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">27</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  } else {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">28</td>
+                    <td class="coverage">2<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    stop("treatment must be a length 1 character or a formula of form treatment ~ strata")</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">29</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">30</td>
+                    <td class="coverage">10<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  ret</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">31</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">32</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">33</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">block_sum &lt;- function(x, n) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">34</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_matrix(x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">35</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  nr &lt;- nrow(x) / n</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">36</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  matrix(colSums(matrix(x, nrow = n)), nrow = nr)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">37</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <div id="R/predict_couterfactual.R" class="hidden">
               <table class="table-condensed">
                 <tbody>
@@ -208,7 +473,7 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">14</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  UseMethod("predict_counterfactual")</pre>
                     </td>
@@ -243,56 +508,56 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">19</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  treatment &lt;- h_get_vars(treatment)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">20</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_data_frame(data)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">21</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_subset(unlist(treatment), colnames(data))</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">22</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  formula &lt;- formula(fit)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">23</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_subset(treatment$treatment, all.vars(formula[[3]]))</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">24</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert(</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">25</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    test_character(data[[treatment$treatment]]),</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">26</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    test_factor(data[[treatment$treatment]])</pre>
                     </td>
@@ -306,14 +571,14 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">28</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  data[[treatment$treatment]] &lt;- as.factor(data[[treatment$treatment]])</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">29</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_flag(unbiased)</pre>
                     </td>
@@ -327,14 +592,14 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">31</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  trt_lvls &lt;- levels(data[[treatment$treatment]])</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">32</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  n_lvls &lt;- length(trt_lvls)</pre>
                     </td>
@@ -348,28 +613,28 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">34</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  df &lt;- lapply(</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">35</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    data,</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">36</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    function(i) {</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">37</td>
-                    <td class="coverage">35<em>x</em></td>
+                    <td class="coverage">42<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">      rep(i, times = n_lvls)</pre>
                     </td>
@@ -397,7 +662,7 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">41</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  df[[treatment$treatment]] &lt;- rep(trt_lvls, each = nrow(data))</pre>
                     </td>
@@ -411,21 +676,21 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">43</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  mm &lt;- model.matrix(fit, data = df)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">44</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  pred_linear &lt;- mm %*% coefficients(fit)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">45</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  preds &lt;- family(fit)$linkinv(pred_linear)</pre>
                     </td>
@@ -439,21 +704,21 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">47</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  ret &lt;- matrix(preds, ncol = n_lvls, dimnames = list(row.names(data), trt_lvls))</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">48</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  y &lt;- model.response(fit$model)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">49</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  residual &lt;- y - fitted(fit)</pre>
                     </td>
@@ -467,14 +732,14 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">51</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  strata &lt;- data[treatment$strata]</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">52</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  if (ncol(strata) == 0L) {</pre>
                     </td>
@@ -495,7 +760,7 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">55</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  group_idx &lt;- split(seq_len(nrow(data)), strata)</pre>
                     </td>
@@ -509,14 +774,14 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">57</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  if (unbiased) {</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">58</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    ret &lt;- ret - bias(residual, data[[treatment$treatment]], group_idx)</pre>
                     </td>
@@ -530,77 +795,77 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">60</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  structure(</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">61</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    .Data = colMeans(ret),</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">62</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    residual = residual,</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">63</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    predictions = ret,</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">64</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    predictions_linear = pred_linear,</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">65</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    response = y,</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">66</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    fit = fit,</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">67</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    model_matrix = mm,</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">68</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    treatment = data[[treatment$treatment]],</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">69</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    group_idx = group_idx,</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">70</td>
-                    <td class="coverage">5<em>x</em></td>
+                    <td class="coverage">6<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    class = "prediction_cf"</pre>
                     </td>
@@ -642,187 +907,13 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">76</td>
-                    <td class="coverage">4<em>x</em></td>
+                    <td class="coverage">5<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, unbiased = unbiased)</pre>
                     </td>
                   </tr>
                   <tr class="never">
                     <td class="num">77</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">}</pre>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div id="R/bias.R" class="hidden">
-              <table class="table-condensed">
-                <tbody>
-                  <tr class="never">
-                    <td class="num">1</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">#' Prediction Bias</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">2</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">#' @description Obtain prediction bias within each stratum.</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">3</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">#' @param residual (`numeric`) residuals.</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">4</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">#' @param treatment (`factor`) treatment.</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">5</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">#' @param group_idx (`character`) stratum index.</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">6</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">#'</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">7</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">#' @return Numeric matrix of bias in each stratum.</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">8</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">#' @export</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">9</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">bias &lt;- function(residual, treatment, group_idx) {</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">10</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  assert_numeric(residual)</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">11</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  assert_factor(treatment, len = length(residual))</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">12</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  assert_list(group_idx, types = "integer")</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">13</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  grp &lt;- unlist(group_idx)</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">14</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  assert_integer(grp, lower = 1L, upper = max(grp))</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">15</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r"></pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">16</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  trt_lvls &lt;- levels(treatment)</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">17</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r"></pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">18</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  d &lt;- matrix(NA_real_, nrow = length(grp), ncol = length(trt_lvls))</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">19</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  for (i in group_idx) {</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">20</td>
-                    <td class="coverage">8<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    mval &lt;- vapply(split(residual[i], treatment[i]), mean, FUN.VALUE = 0)</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">21</td>
-                    <td class="coverage">8<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    d[i, ] &lt;- matrix(mval, nrow = length(i), ncol = length(mval), byrow = TRUE)</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">22</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  }</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">23</td>
-                    <td class="coverage">6<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  d</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">24</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
                       <pre class="language-r">}</pre>
@@ -901,89 +992,89 @@ table.table-condensed {
                     <td class="num">10</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">vcovANHECOVA &lt;- function(x, decompose = TRUE, randomization = "simple", ...) {</pre>
+                      <pre class="language-r">vcovANHECOVA &lt;- function(x, decompose = TRUE, randomization = "simple", ...) { # nolint</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">11</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_class(x, "prediction_cf")</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">12</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_flag(decompose)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">13</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_string(randomization)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">14</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  resi &lt;- attr(x, "residual")</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">15</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  est &lt;- as.numeric(x)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">16</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  preds &lt;- attr(x, "predictions")</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">17</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  var_preds &lt;- var(preds)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">18</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  y &lt;- attr(x, "response")</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">19</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  trt &lt;- attr(x, "treatment")</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">20</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  pi_t &lt;- as.numeric(table(trt) / length(trt))</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">21</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  trt_lvls &lt;- levels(trt)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">22</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  group_idx &lt;- attr(x, "group_idx")</pre>
                     </td>
@@ -997,14 +1088,14 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">24</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  idx &lt;- split(seq_len(length(trt)), trt)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">25</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  cov_ymu &lt;- vapply(idx, function(is) stats::cov(y[is], preds[is, ]), FUN.VALUE = rep(0, ncol(preds)))</pre>
                     </td>
@@ -1018,14 +1109,14 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">27</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  if (decompose) {</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">28</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    vcov_sr &lt;- (vapply(idx, function(is) stats::var(y[is]), FUN.VALUE = 0) + diag(var_preds) - 2 * diag(cov_ymu)) / pi_t</pre>
                     </td>
@@ -1060,35 +1151,35 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">33</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  v &lt;- diag(vcov_sr) + cov_ymu + t(cov_ymu) - var_preds</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">34</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  v &lt;- v - h_get_erb(resi, group_idx, trt, pi_t, randomization)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">35</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  ret &lt;- v / length(resi)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">36</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  dimnames(ret) &lt;- list(trt_lvls, trt_lvls)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">37</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  return(ret)</pre>
                     </td>
@@ -1228,14 +1319,14 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">57</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_list(group_idx, types = "integer")</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">58</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  if (length(group_idx) == 1L) {</pre>
                     </td>
@@ -1256,21 +1347,21 @@ table.table-condensed {
                   </tr>
                   <tr class="covered">
                     <td class="num">61</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  assert_string(randomization)</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">62</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">  if (randomization %in% c("simple", "pocock-simon")) {</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">63</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">4<em>x</em></td>
                     <td class="col-sm-12">
                       <pre class="language-r">    return(0)</pre>
                     </td>
@@ -1404,263 +1495,970 @@ table.table-condensed {
                 </tbody>
               </table>
             </div>
-            <div id="R/utils.R" class="hidden">
+            <div id="R/treatment_effect.R" class="hidden">
               <table class="table-condensed">
                 <tbody>
                   <tr class="never">
                     <td class="num">1</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">#' Extract Variable Names</pre>
+                      <pre class="language-r">#' Treatment Effect</pre>
                     </td>
                   </tr>
                   <tr class="never">
                     <td class="num">2</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">#'</pre>
+                      <pre class="language-r">#' @description Obtain treatment effect and variance from counter-factual prediction</pre>
                     </td>
                   </tr>
                   <tr class="never">
                     <td class="num">3</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">#' @param treatment (`string` or `formula`) string name of the treatment, or a formula.</pre>
+                      <pre class="language-r">#'</pre>
                     </td>
                   </tr>
                   <tr class="never">
                     <td class="num">4</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">#'</pre>
+                      <pre class="language-r">#' @param object Object from which to obtain treatment effect.</pre>
                     </td>
                   </tr>
                   <tr class="never">
                     <td class="num">5</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">#' @details Extract the formula elements, including `treatment` and `strata`.</pre>
+                      <pre class="language-r">#' @param pair (`integer` or `character`) Names or index of the treatment levels.</pre>
                     </td>
                   </tr>
                   <tr class="never">
                     <td class="num">6</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">#'</pre>
+                      <pre class="language-r">#' @param variance (`function`) Variance function.</pre>
                     </td>
                   </tr>
                   <tr class="never">
                     <td class="num">7</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">#' @return A list of two elements, `treatmetn` and `strata`.</pre>
+                      <pre class="language-r">#' @param eff_measure (`function`) Treatment effect measurement function.</pre>
                     </td>
                   </tr>
                   <tr class="never">
                     <td class="num">8</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">h_get_vars &lt;- function(treatment) {</pre>
+                      <pre class="language-r">#' @param eff_jacobian (`function`) Treatment effect jacobian function.</pre>
                     </td>
                   </tr>
-                  <tr class="covered">
+                  <tr class="never">
                     <td class="num">9</td>
-                    <td class="coverage">13<em>x</em></td>
+                    <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">  if (test_string(treatment)) {</pre>
+                      <pre class="language-r">#' @param ... Additional arguments for variance.</pre>
                     </td>
                   </tr>
-                  <tr class="covered">
+                  <tr class="never">
                     <td class="num">10</td>
-                    <td class="coverage">4<em>x</em></td>
+                    <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">    ret &lt;- list(</pre>
+                      <pre class="language-r">#'</pre>
                     </td>
                   </tr>
-                  <tr class="covered">
+                  <tr class="never">
                     <td class="num">11</td>
-                    <td class="coverage">4<em>x</em></td>
+                    <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">      treatment = treatment,</pre>
+                      <pre class="language-r">#' @export</pre>
                     </td>
                   </tr>
-                  <tr class="covered">
+                  <tr class="never">
                     <td class="num">12</td>
-                    <td class="coverage">4<em>x</em></td>
+                    <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">      strata = character(0)</pre>
+                      <pre class="language-r">treatment_effect &lt;- function(object, pair, variance, eff_measure, eff_jacobian, ...) {</pre>
                     </td>
                   </tr>
-                  <tr class="never">
+                  <tr class="covered">
                     <td class="num">13</td>
-                    <td class="coverage"></td>
+                    <td class="coverage">3<em>x</em></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">    )</pre>
+                      <pre class="language-r">  UseMethod("treatment_effect")</pre>
                     </td>
                   </tr>
-                  <tr class="covered">
+                  <tr class="never">
                     <td class="num">14</td>
-                    <td class="coverage">9<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  } else if (test_formula(treatment)) {</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">15</td>
-                    <td class="coverage">7<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    if (!identical(length(treatment), 3L)) {</pre>
-                    </td>
-                  </tr>
-                  <tr class="missed">
-                    <td class="num">16</td>
-                    <td class="coverage">!</td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">      stop("treatment formula must be of type treatment ~ strata")</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">17</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    }</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">18</td>
-                    <td class="coverage">7<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    if (!is.name(treatment[[2]])) {</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">19</td>
-                    <td class="coverage">2<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">      stop("left hand side of the treatment formula should be a single name!")</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">20</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    }</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">21</td>
-                    <td class="coverage">5<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    treatvar &lt;- as.character(treatment[[2]])</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">22</td>
-                    <td class="coverage">5<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    strata &lt;- setdiff(all.vars(treatment[[3]]), ".")</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">23</td>
-                    <td class="coverage">5<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    ret &lt;- list(</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">24</td>
-                    <td class="coverage">5<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">      treatment = treatvar,</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">25</td>
-                    <td class="coverage">5<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">      strata = strata</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">26</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    )</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">27</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  } else {</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">28</td>
-                    <td class="coverage">2<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">    stop("treatment must be a length 1 character or a formula of form treatment ~ strata")</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">29</td>
-                    <td class="coverage"></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  }</pre>
-                    </td>
-                  </tr>
-                  <tr class="covered">
-                    <td class="num">30</td>
-                    <td class="coverage">9<em>x</em></td>
-                    <td class="col-sm-12">
-                      <pre class="language-r">  ret</pre>
-                    </td>
-                  </tr>
-                  <tr class="never">
-                    <td class="num">31</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
                       <pre class="language-r">}</pre>
                     </td>
                   </tr>
                   <tr class="never">
-                    <td class="num">32</td>
+                    <td class="num">15</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
                       <pre class="language-r"></pre>
                     </td>
                   </tr>
                   <tr class="never">
-                    <td class="num">33</td>
+                    <td class="num">16</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">block_sum &lt;- function(x, n) {</pre>
+                      <pre class="language-r">#' @export</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">17</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">treatment_effect.prediction_cf &lt;- function(</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">18</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian, ...) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">19</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert(</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">20</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    test_function(variance),</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">21</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    test_null(variance)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">22</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  )</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">23</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_function(eff_measure)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">24</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_function(eff_jacobian)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">25</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_vector(pair)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">26</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert(</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">27</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    test_subset(pair, names(object)),</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">28</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    test_integerish(pair, lower = 1L, upper = length(object))</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">29</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  )</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">30</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  if (test_integerish(pair)) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">31</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    pair &lt;- names(object)[pair]</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">32</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">33</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  trt_effect &lt;- unname(eff_measure(object[pair]))</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">34</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">3<em>x</em></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">  assert_matrix(x)</pre>
+                      <pre class="language-r">  if (!is.null(variance)) {</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">35</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">3<em>x</em></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">  nr &lt;- nrow(x) / n</pre>
+                      <pre class="language-r">    inner_variance &lt;- variance(object, ...)[pair, pair]</pre>
                     </td>
                   </tr>
                   <tr class="covered">
                     <td class="num">36</td>
-                    <td class="coverage">1<em>x</em></td>
+                    <td class="coverage">3<em>x</em></td>
                     <td class="col-sm-12">
-                      <pre class="language-r">  matrix(colSums(matrix(x, nrow = n)), nrow = nr)</pre>
+                      <pre class="language-r">    if (missing(eff_jacobian)) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">37</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">      trt_jac &lt;- numDeriv::jacobian(eff_measure, object[pair])</pre>
                     </td>
                   </tr>
                   <tr class="never">
-                    <td class="num">37</td>
+                    <td class="num">38</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    } else {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">39</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">      trt_jac &lt;- eff_jacobian(object[pair])</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">40</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    }</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">41</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    trt_var &lt;- trt_jac %*% inner_variance %*% t(trt_jac)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">42</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  } else {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">43</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    trt_var &lt;- diag(NULL)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">44</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">45</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">46</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  pair_names &lt;- outer(pair, pair, FUN = paste, sep = " - ")</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">47</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  structure(</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">48</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    .Data = trt_effect,</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">49</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    name = pair_names[lower.tri(pair_names)],</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">50</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    variance = diag(trt_var),</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">51</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    class = "treatment_effect"</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">52</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  )</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">53</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">54</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">55</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">56</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @export</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">57</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @inheritParams predict_counterfactual</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">58</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">treatment_effect.lm &lt;- function(</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">59</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian,</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">60</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    treatment, data, unbiased = TRUE, ...) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">61</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  pc &lt;- predict_counterfactual(object, treatment, data, unbiased)</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">62</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  if (missing(pair)) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">63</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">64</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  } else {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">65</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    treatment_effect(pc, pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">66</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">67</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">68</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">69</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @export</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">70</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">treatment_effect.glm &lt;- function(</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">71</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    object, pair, variance = vcovANHECOVA, eff_measure, eff_jacobian,</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">72</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    treatment, data = object$data, unbiased = TRUE, ...) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">73</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  pc &lt;- predict_counterfactual(object, treatment, data, unbiased)</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">74</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  if (missing(pair)) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">75</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">76</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  } else {</pre>
+                    </td>
+                  </tr>
+                  <tr class="missed">
+                    <td class="num">77</td>
+                    <td class="coverage">!</td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    treatment_effect(pc, pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">78</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">79</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">80</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">81</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @rdname treatment_effect</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">82</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">difference &lt;- function(object, ...) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">83</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  treatment_effect(object, eff_measure = h_diff, eff_jacobian = h_jac_diff, ...)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">84</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">85</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @rdname treatment_effect</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">86</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">risk_ratio &lt;- function(object, ...) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">87</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  treatment_effect(object, eff_measure = h_ratio, eff_jacobian = h_jac_ratio, ...)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">88</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">89</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @rdname treatment_effect</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">90</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">odds_ratio &lt;- function(object, ...) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">91</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  treatment_effect(object, eff_measure = h_odds_ratio, eff_jacobian = h_jac_odds_ratio, ...)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">92</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">93</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">94</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">h_diff &lt;- function(x) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">95</td>
+                    <td class="coverage">53<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_numeric(x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">96</td>
+                    <td class="coverage">53<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  d &lt;- outer(x, x, `-`)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">97</td>
+                    <td class="coverage">53<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  d[lower.tri(d)]</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">98</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">99</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">h_jac_diff &lt;- function(x) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">100</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_numeric(x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">101</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  n &lt;- length(x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">102</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  if (n == 2) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">103</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    matrix(c(-1, 1), nrow = 1L)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">104</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  } else {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">105</td>
+                    <td class="coverage">2<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    jacobian(h_diff, x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">106</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">107</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">108</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">109</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">h_ratio &lt;- function(x) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">110</td>
+                    <td class="coverage">106<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_numeric(x, lower = 0)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">111</td>
+                    <td class="coverage">106<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  d &lt;- outer(x, x, `/`)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">112</td>
+                    <td class="coverage">106<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  d[lower.tri(d)]</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">113</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">114</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">h_jac_ratio &lt;- function(x) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">115</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_numeric(x, lower = 0)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">116</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  n &lt;- length(x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">117</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  if (n == 2) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">118</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    matrix(c(-x[2] / x[1]^2, 1 / x[1]), nrow = 1L)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">119</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  } else {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">120</td>
+                    <td class="coverage">2<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    jacobian(h_ratio, x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">121</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">122</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">123</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">124</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">h_odds_ratio &lt;- function(x) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">125</td>
+                    <td class="coverage">53<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_numeric(x, lower = 0, upper = 1)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">126</td>
+                    <td class="coverage">53<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  y &lt;- x / (1 - x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">127</td>
+                    <td class="coverage">53<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  h_ratio(y)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">128</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">129</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">130</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">h_jac_odds_ratio &lt;- function(x) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">131</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_numeric(x, lower = 0, upper = 1)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">132</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  n &lt;- length(x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">133</td>
+                    <td class="coverage">3<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  if (n == 2) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">134</td>
+                    <td class="coverage">1<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    matrix(c(-x[2] / ((1 - x[2]) * x[1]^2), (1 - x[1]) / ((1 - x[2])^2 * x[1])), nrow = 1L)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">135</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  } else {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">136</td>
+                    <td class="coverage">2<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    jacobian(h_odds_ratio, x)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">137</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">138</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
                       <pre class="language-r">}</pre>
@@ -1765,6 +2563,180 @@ table.table-condensed {
                   </tr>
                   <tr class="never">
                     <td class="num">14</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">}</pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="R/bias.R" class="hidden">
+              <table class="table-condensed">
+                <tbody>
+                  <tr class="never">
+                    <td class="num">1</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' Prediction Bias</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">2</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @description Obtain prediction bias within each stratum.</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">3</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @param residual (`numeric`) residuals.</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">4</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @param treatment (`factor`) treatment.</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">5</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @param group_idx (`character`) stratum index.</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">6</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#'</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">7</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @return Numeric matrix of bias in each stratum.</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">8</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">#' @export</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">9</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">bias &lt;- function(residual, treatment, group_idx) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">10</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_numeric(residual)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">11</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_factor(treatment, len = length(residual))</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">12</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_list(group_idx, types = "integer")</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">13</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  grp &lt;- unlist(group_idx)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">14</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  assert_integer(grp, lower = 1L, upper = max(grp))</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">15</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">16</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  trt_lvls &lt;- levels(treatment)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">17</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r"></pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">18</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  d &lt;- matrix(NA_real_, nrow = length(grp), ncol = length(trt_lvls))</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">19</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  for (i in group_idx) {</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">20</td>
+                    <td class="coverage">10<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    mval &lt;- vapply(split(residual[i], treatment[i]), mean, FUN.VALUE = 0)</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">21</td>
+                    <td class="coverage">10<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">    d[i, ] &lt;- matrix(mval, nrow = length(i), ncol = length(mval), byrow = TRUE)</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">22</td>
+                    <td class="coverage"></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  }</pre>
+                    </td>
+                  </tr>
+                  <tr class="covered">
+                    <td class="num">23</td>
+                    <td class="coverage">7<em>x</em></td>
+                    <td class="col-sm-12">
+                      <pre class="language-r">  d</pre>
+                    </td>
+                  </tr>
+                  <tr class="never">
+                    <td class="num">24</td>
                     <td class="coverage"></td>
                     <td class="col-sm-12">
                       <pre class="language-r">}</pre>
