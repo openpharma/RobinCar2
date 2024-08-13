@@ -173,7 +173,7 @@ h_lower_tri_idx <- function(n) {
 print.treatment_effect <- function(obj, digits = 3, ...) {
   cat("Treatment Effect\n")
   cat("-------------\n")
-  cat("Model        : ", deparse(attr(obj,"fit")$formula), "\n")
+  cat("Model        : ", deparse(attr(obj, "fit")$formula), "\n")
   cat("Randomization: ", deparse(attr(obj, "treatment")), "\n")
   cat("Variance Type: ", attr(obj, "vartype"), "\n")
   trt_sd <- sqrt(attr(obj, "variance"))
