@@ -3,7 +3,7 @@
 test_that("h_interaction works correctly", {
   expect_false(h_interaction(y ~ trt + z, treatment = trt ~ x))
   expect_true(h_interaction(y ~ trt:z, treatment = trt ~ x))
-  expect_true(h_interaction(trt*y ~ trt:z, treatment = trt ~ x))
+  expect_true(h_interaction(trt * y ~ trt:z, treatment = trt ~ x))
   expect_true(h_interaction(y ~ trt:z, treatment = "trt"))
 })
 
