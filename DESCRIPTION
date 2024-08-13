@@ -14,6 +14,7 @@ Depends:
 Imports:
     checkmate,
     numDeriv,
+    prediction,
     sandwich,
     stats
 Suggests:

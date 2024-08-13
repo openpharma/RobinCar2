@@ -21,7 +21,6 @@ treatment_effect.prediction_cf <- function(
     test_null(variance)
   )
   assert_function(eff_measure)
-  assert_function(eff_jacobian)
   assert_vector(pair)
   assert(
     test_subset(pair, names(object)),
@@ -36,6 +35,7 @@ treatment_effect.prediction_cf <- function(
     if (missing(eff_jacobian)) {
       trt_jac <- numDeriv::jacobian(eff_measure, object[pair])
     } else {
+      assert_function(eff_jacobian)
       trt_jac <- eff_jacobian(object[pair])
     }
     trt_var <- trt_jac %*% inner_variance %*% t(trt_jac)
@@ -57,8 +57,8 @@ treatment_effect.prediction_cf <- function(
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
     object, pair = names(object), variance = vcovANHECOVA, eff_measure, eff_jacobian,
-    treatment, data, unbiased = TRUE, ...) {
-  pc <- predict_counterfactual(object, treatment, data, unbiased)
+    treatment, data = find_data(object), unbiased = TRUE, ...) {
+  pc <- predict_counterfactual(object, data = data, treatment, unbiased)
   if (missing(pair)) {
     treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
   } else {
@@ -69,7 +69,7 @@ treatment_effect.lm <- function(
 #' @export
 treatment_effect.glm <- function(
     object, pair, variance = vcovANHECOVA, eff_measure, eff_jacobian,
-    treatment, data = object$data, unbiased = TRUE, ...) {
+    treatment, data = find_data(object), unbiased = TRUE, ...) {
   pc <- predict_counterfactual(object, treatment, data, unbiased)
   if (missing(pair)) {
     treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
