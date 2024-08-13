@@ -91,48 +91,77 @@ odds_ratio <- function(object, ...) {
   treatment_effect(object, eff_measure = h_odds_ratio, eff_jacobian = h_jac_odds_ratio, ...)
 }
 
+#' Contrast Functions and Jacobians
+#' @rdname contrast
+#' @param x (`numeric`) Vector of values.
+#' @return Vector of contrasts, or matrix of jacobians.
+#' @examples
+#' h_diff(1:3)
+#' h_jac_ratio(1:3)
+#' @export
 h_diff <- function(x) {
   assert_numeric(x)
   d <- outer(x, x, `-`)
   d[lower.tri(d)]
 }
+
+#' @rdname contrast
+#' @export
 h_jac_diff <- function(x) {
   assert_numeric(x)
   n <- length(x)
-  if (n == 2) {
-    matrix(c(-1, 1), nrow = 1L)
-  } else {
-    jacobian(h_diff, x)
-  }
+  l <- h_lower_tri_idx(n)
+  ret <- matrix(0, nrow = nrow(l), ncol = n)
+  ret[cbind(seq_len(nrow(ret)), l[, 1])] <- 1
+  ret[cbind(seq_len(nrow(ret)), l[, 2])] <- -1
+  ret
 }
 
+#' @rdname contrast
+#' @export
 h_ratio <- function(x) {
   assert_numeric(x, lower = 0)
   d <- outer(x, x, `/`)
   d[lower.tri(d)]
 }
+
+#' @rdname contrast
+#' @export
 h_jac_ratio <- function(x) {
   assert_numeric(x, lower = 0)
   n <- length(x)
-  if (n == 2) {
-    matrix(c(-x[2] / x[1]^2, 1 / x[1]), nrow = 1L)
-  } else {
-    jacobian(h_ratio, x)
-  }
+  l <- h_lower_tri_idx(n)
+  ret <- matrix(0, nrow = nrow(l), ncol = n)
+  ret[cbind(seq_len(nrow(ret)), l[, 1])] <- 1 / x[l[, 2]]
+  ret[cbind(seq_len(nrow(ret)), l[, 2])] <- -x[l[, 1]] / x[l[, 2]]^2
+  ret
 }
 
+#' @rdname contrast
+#' @export
 h_odds_ratio <- function(x) {
   assert_numeric(x, lower = 0, upper = 1)
   y <- x / (1 - x)
   h_ratio(y)
 }
 
+#' @rdname contrast
+#' @export
 h_jac_odds_ratio <- function(x) {
-  assert_numeric(x, lower = 0, upper = 1)
+  assert_numeric(x, lower = 0)
   n <- length(x)
-  if (n == 2) {
-    matrix(c(-x[2] / ((1 - x[2]) * x[1]^2), (1 - x[1]) / ((1 - x[2])^2 * x[1])), nrow = 1L)
-  } else {
-    jacobian(h_odds_ratio, x)
-  }
+  l <- h_lower_tri_idx(n)
+  ret <- matrix(0, nrow = nrow(l), ncol = n)
+  ret[cbind(seq_len(nrow(ret)), l[, 1])] <- (1 - x[l[, 2]]) / ((1 - x[l[, 1]])^2 * x[l[, 2]])
+  ret[cbind(seq_len(nrow(ret)), l[, 2])] <- -x[l[, 1]] / ((1 - x[l[, 1]]) * x[l[, 2]]^2)
+  ret
+}
+
+#' Lower Triangular Index
+#' @param n (`int`) Number of rows/columns.
+#' @return Matrix of lower triangular indices.
+#' @keywords internal
+h_lower_tri_idx <- function(n) {
+  rc <- c(n, n)
+  which(.row(rc) > .col(rc), arr.ind = TRUE)
 }
