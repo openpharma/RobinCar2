@@ -1,7 +1,7 @@
 #' Covariate adjusted glm model
 #' @param formula (`formula`) A formula of analysis.
 #' @param data (`data.frame`) Input data frame.
-#' @param treatment (`formula` or `character(1)`) A formula of treatment assignment or assignment by stratifications,
+#' @param treatment (`formula` or `character(1)`) A formula of treatment assignment or assignment by stratification,
 #' or a string name of treatment assignment.
 #' @param contrast (`function` or `character(1)`) A function to calculate the treatment effect, or character of
 #' "difference", "risk_ratio", "odds_ratio" for default contrasts.
@@ -15,7 +15,9 @@
 #' @export
 #' @examples
 #' robin_glm(y ~ treatment * s1, data = dummy_data, treatment = treatment ~ s1, contrast = "difference", vcov = vcovHC)
-robin_glm <- function(formula, data, treatment, contrast = "difference", contrast_jac = NULL, vcov = vcovANHECOVA, family = gaussian, ...) {
+robin_glm <- function(
+    formula, data, treatment, contrast = "difference",
+    contrast_jac = NULL, vcov = vcovANHECOVA, family = gaussian, ...) {
   attr(formula, ".Environment") <- environment()
   fit <- glm(formula, family = family, data = data)
   pc <- predict_counterfactual(fit, treatment, data, unbiased = TRUE)

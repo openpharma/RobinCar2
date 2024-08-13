@@ -20,7 +20,7 @@ robin_glm(
 
 \item{data}{(\code{data.frame}) Input data frame.}
 
-\item{treatment}{(\code{formula} or \code{character(1)}) A formula of treatment assignment or assignment by stratifications,
+\item{treatment}{(\code{formula} or \code{character(1)}) A formula of treatment assignment or assignment by stratification,
 or a string name of treatment assignment.}
 
 \item{contrast}{(\code{function} or \code{character(1)}) A function to calculate the treatment effect, or character of
