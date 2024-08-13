@@ -12,7 +12,8 @@ test_that("h_interaction works correctly", {
 test_that("robin_glm works correctly", {
   expect_silent(
     robin_glm(
-      y ~ treatment * s1, data = dummy_data, treatment = treatment ~ s1,
+      y ~ treatment * s1,
+      data = dummy_data, treatment = treatment ~ s1,
       contrast = "difference", vcov = vcovHC
     )
   )
@@ -21,7 +22,8 @@ test_that("robin_glm works correctly", {
   expect_silent(robin_glm(y_b ~ treatment * s1, data = dummy_data, treatment = treatment ~ s1, contrast = "odds_ratio"))
   expect_error(
     robin_glm(
-      y_b ~ treatment * s1, data = dummy_data, treatment = treatment ~ s1,
+      y_b ~ treatment * s1,
+      data = dummy_data, treatment = treatment ~ s1,
       contrast = "odds_ratio", vcov = vcovHC
     ),
     "Huber-White standard error only works for difference contrasts in models without interaction term."
