@@ -9,4 +9,5 @@
 #' @importFrom numDeriv jacobian
 #' @importFrom stats predict residuals fitted model.response model.matrix coefficients
 #' @importFrom sandwich vcovHC
+#' @importFrom prediction find_data
 NULL

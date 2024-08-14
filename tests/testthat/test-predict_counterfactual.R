@@ -14,7 +14,7 @@ test_that("predict_counterfactual works if contrast are non-standard", {
   dummy_data2 <- dummy_data
   dummy_data2$s1 <- as.ordered(dummy_data2$s1)
   fit <- glm(y_b ~ treatment * s1, data = dummy_data2, family = binomial())
-  expect_silent(pc <- predict_counterfactual(fit, treatment ~ 1))
+  expect_silent(pc <- predict_counterfactual(fit, treatment ~ 1, data = find_data(fit)))
   expect_snapshot(pc)
   newdf <- rbind(dummy_data2, dummy_data2, dummy_data2)
   newdf$treatment <- rep(factor(levels(dummy_data2$treatment), levels(dummy_data2$treatment)), each = nrow(dummy_data2))
