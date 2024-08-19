@@ -15,7 +15,7 @@ predict_counterfactual <- function(fit, treatment, data, unbiased) {
 }
 
 #' @export
-predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
+predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), unbiased = TRUE) {
   trt_vars <- h_get_vars(treatment)
   assert_data_frame(data)
   assert_subset(unlist(trt_vars), colnames(data))
@@ -73,6 +73,6 @@ predict_counterfactual.lm <- function(fit, treatment, data, unbiased = TRUE) {
 }
 
 #' @export
-predict_counterfactual.glm <- function(fit, treatment, data = fit$data, unbiased = TRUE) {
+predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit), unbiased = TRUE) {
   predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, unbiased = unbiased)
 }

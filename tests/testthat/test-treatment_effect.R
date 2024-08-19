@@ -135,3 +135,17 @@ test_that("treatment_effect works as expected", {
     tolerance = 1e-6
   )
 })
+
+test_that("treatment_effect works as expected for custom contrast", {
+  pc <- predict_counterfactual(fit_binom, treatment ~ s1)
+  h_contrast <- function(x) {
+    v <- outer(x, x, `-`)
+    v[lower.tri(v)]
+  }
+  expect_silent(treatment_effect(pc, eff_measure = h_contrast))
+})
+
+test_that("treatment_effect works for lm/glm object", {
+  expect_silent(treatment_effect(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff))
+  expect_silent(treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff))
+})

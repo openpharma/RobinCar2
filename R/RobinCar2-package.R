@@ -7,6 +7,8 @@
 
 #' @import checkmate
 #' @importFrom numDeriv jacobian
-#' @importFrom stats predict residuals fitted model.response model.matrix coefficients family pnorm var
+#' @importFrom stats predict residuals fitted model.response model.matrix coefficients family
+#' gaussian terms glm var family pnorm var
 #' @importFrom sandwich vcovHC
+#' @importFrom prediction find_data
 NULL
