@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE coverage SYSTEM "https://raw.githubusercontent.com/cobertura/cobertura/master/cobertura/src/site/htdocs/xml/coverage-04.dtd">
-<coverage line-rate="0.816793893129771" branch-rate="0" lines-covered="214" lines-valid="262" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2024-08-19 07:38:26.554868">
+<coverage line-rate="0.816793893129771" branch-rate="0" lines-covered="214" lines-valid="262" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2024-08-19 07:55:12.701227">
   <sources>
     <source>/__w/RobinCar2/RobinCar2/RobinCar2</source>
   </sources>
@@ -171,68 +171,68 @@
           <methods>
             <method name="robin_glm" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="21" hits="6" branch="false"/>
-                <line number="22" hits="6" branch="false"/>
-                <line number="23" hits="6" branch="false"/>
                 <line number="24" hits="6" branch="false"/>
                 <line number="25" hits="6" branch="false"/>
-                <line number="26" hits="1" branch="false"/>
-                <line number="27" hits="1" branch="false"/>
-                <line number="28" hits="1" branch="false"/>
-                <line number="30" hits="5" branch="false"/>
-                <line number="31" hits="2" branch="false"/>
-                <line number="32" hits="3" branch="false"/>
-                <line number="33" hits="1" branch="false"/>
+                <line number="26" hits="6" branch="false"/>
+                <line number="27" hits="6" branch="false"/>
+                <line number="28" hits="6" branch="false"/>
+                <line number="29" hits="1" branch="false"/>
+                <line number="30" hits="1" branch="false"/>
+                <line number="31" hits="1" branch="false"/>
+                <line number="33" hits="5" branch="false"/>
                 <line number="34" hits="2" branch="false"/>
-                <line number="35" hits="1" branch="false"/>
-                <line number="37" hits="1" branch="false"/>
+                <line number="35" hits="3" branch="false"/>
+                <line number="36" hits="1" branch="false"/>
+                <line number="37" hits="2" branch="false"/>
                 <line number="38" hits="1" branch="false"/>
-                <line number="39" hits="1" branch="false"/>
                 <line number="40" hits="1" branch="false"/>
                 <line number="41" hits="1" branch="false"/>
                 <line number="42" hits="1" branch="false"/>
+                <line number="43" hits="1" branch="false"/>
                 <line number="44" hits="1" branch="false"/>
+                <line number="45" hits="1" branch="false"/>
+                <line number="47" hits="1" branch="false"/>
               </lines>
             </method>
             <method name="h_interaction" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="49" hits="10" branch="false"/>
-                <line number="50" hits="10" branch="false"/>
-                <line number="51" hits="10" branch="false"/>
                 <line number="52" hits="10" branch="false"/>
                 <line number="53" hits="10" branch="false"/>
                 <line number="54" hits="10" branch="false"/>
+                <line number="55" hits="10" branch="false"/>
+                <line number="56" hits="10" branch="false"/>
+                <line number="57" hits="10" branch="false"/>
               </lines>
             </method>
           </methods>
           <lines>
-            <line number="21" hits="6" branch="false"/>
-            <line number="22" hits="6" branch="false"/>
-            <line number="23" hits="6" branch="false"/>
             <line number="24" hits="6" branch="false"/>
             <line number="25" hits="6" branch="false"/>
-            <line number="26" hits="1" branch="false"/>
-            <line number="27" hits="1" branch="false"/>
-            <line number="28" hits="1" branch="false"/>
-            <line number="30" hits="5" branch="false"/>
-            <line number="31" hits="2" branch="false"/>
-            <line number="32" hits="3" branch="false"/>
-            <line number="33" hits="1" branch="false"/>
+            <line number="26" hits="6" branch="false"/>
+            <line number="27" hits="6" branch="false"/>
+            <line number="28" hits="6" branch="false"/>
+            <line number="29" hits="1" branch="false"/>
+            <line number="30" hits="1" branch="false"/>
+            <line number="31" hits="1" branch="false"/>
+            <line number="33" hits="5" branch="false"/>
             <line number="34" hits="2" branch="false"/>
-            <line number="35" hits="1" branch="false"/>
-            <line number="37" hits="1" branch="false"/>
+            <line number="35" hits="3" branch="false"/>
+            <line number="36" hits="1" branch="false"/>
+            <line number="37" hits="2" branch="false"/>
             <line number="38" hits="1" branch="false"/>
-            <line number="39" hits="1" branch="false"/>
             <line number="40" hits="1" branch="false"/>
             <line number="41" hits="1" branch="false"/>
             <line number="42" hits="1" branch="false"/>
+            <line number="43" hits="1" branch="false"/>
             <line number="44" hits="1" branch="false"/>
-            <line number="49" hits="10" branch="false"/>
-            <line number="50" hits="10" branch="false"/>
-            <line number="51" hits="10" branch="false"/>
+            <line number="45" hits="1" branch="false"/>
+            <line number="47" hits="1" branch="false"/>
             <line number="52" hits="10" branch="false"/>
             <line number="53" hits="10" branch="false"/>
             <line number="54" hits="10" branch="false"/>
+            <line number="55" hits="10" branch="false"/>
+            <line number="56" hits="10" branch="false"/>
+            <line number="57" hits="10" branch="false"/>
           </lines>
         </class>
         <class name="treatment_effect.R" filename="R/treatment_effect.R" line-rate="0.717171717171717" branch-rate="0" complexity="0">
