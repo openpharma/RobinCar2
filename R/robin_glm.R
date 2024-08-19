@@ -15,7 +15,8 @@
 #' @export
 #' @examples
 #' robin_glm(
-#'   y ~ treatment * s1, data = dummy_data,
+#'   y ~ treatment * s1,
+#'   data = dummy_data,
 #'   treatment = treatment ~ s1, contrast = "difference"
 #' )
 robin_glm <- function(
