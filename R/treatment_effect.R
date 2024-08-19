@@ -170,29 +170,29 @@ h_lower_tri_idx <- function(n) {
 }
 
 #' @export
-print.treatment_effect <- function(obj, digits = 3, ...) {
+print.treatment_effect <- function(x, ...) {
   cat("Treatment Effect\n")
   cat("-------------\n")
-  cat("Model        : ", deparse(attr(obj, "fit")$formula), "\n")
-  cat("Randomization: ", deparse(attr(obj, "treatment")), "\n")
-  cat("Variance Type: ", attr(obj, "vartype"), "\n")
-  trt_sd <- sqrt(attr(obj, "variance"))
-  z_value <- obj / trt_sd
+  cat("Model        : ", deparse(attr(x, "fit")$formula), "\n")
+  cat("Randomization: ", deparse(attr(x, "treatment")), "\n")
+  cat("Variance Type: ", attr(x, "vartype"), "\n")
+  trt_sd <- sqrt(attr(x, "variance"))
+  z_value <- x / trt_sd
   p <- pnorm(abs(z_value), lower.tail = FALSE)
   coef_mat <- matrix(
     c(
-      obj,
+      x,
       trt_sd,
       z_value,
       p
     ),
-    nrow = length(obj)
+    nrow = length(x)
   )
   colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>z)")
-  row.names(coef_mat) <- attr(obj, "name")
+  row.names(coef_mat) <- attr(x, "name")
   stats::printCoefmat(
     coef_mat,
     zap.ind = 3,
-    digits = digits
+    digits = 3
   )
 }
