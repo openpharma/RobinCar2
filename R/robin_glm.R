@@ -14,7 +14,11 @@
 #' `difference`, `risk_ratio`, `odds_ratio`.
 #' @export
 #' @examples
-#' robin_glm(y ~ treatment * s1, data = dummy_data, treatment = treatment ~ s1, contrast = "difference")
+#' robin_glm(
+#'   y ~ treatment * s1,
+#'   data = dummy_data,
+#'   treatment = treatment ~ s1, contrast = "difference"
+#' )
 robin_glm <- function(
     formula, data, treatment, contrast = "difference",
     contrast_jac = NULL, vcov = vcovANHECOVA, family = gaussian, ...) {

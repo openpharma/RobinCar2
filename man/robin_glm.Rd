@@ -41,5 +41,8 @@ including \code{vcovHC} and \code{vcovANHECOVA}.}
 Covariate adjusted glm model
 }
 \examples{
-robin_glm(y ~ treatment * s1, data = dummy_data, treatment = treatment ~ s1, contrast = "difference")
+robin_glm(
+  y ~ treatment * s1, data = dummy_data,
+  treatment = treatment ~ s1, contrast = "difference"
+)
 }

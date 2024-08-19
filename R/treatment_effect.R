@@ -47,6 +47,9 @@ treatment_effect.prediction_cf <- function(
   structure(
     .Data = trt_effect,
     name = pair_names[lower.tri(pair_names)],
+    fit = attr(object, "fit"),
+    vartype = deparse(substitute(variance)),
+    treatment = attr(object, "treatment_formula"),
     variance = diag(trt_var),
     class = "treatment_effect"
   )
@@ -164,4 +167,32 @@ h_jac_odds_ratio <- function(x) {
 h_lower_tri_idx <- function(n) {
   rc <- c(n, n)
   which(.row(rc) > .col(rc), arr.ind = TRUE)
+}
+
+#' @export
+print.treatment_effect <- function(x, ...) {
+  cat("Treatment Effect\n")
+  cat("-------------\n")
+  cat("Model        : ", deparse(attr(x, "fit")$formula), "\n")
+  cat("Randomization: ", deparse(attr(x, "treatment")), "\n")
+  cat("Variance Type: ", attr(x, "vartype"), "\n")
+  trt_sd <- sqrt(attr(x, "variance"))
+  z_value <- x / trt_sd
+  p <- pnorm(abs(z_value), lower.tail = FALSE)
+  coef_mat <- matrix(
+    c(
+      x,
+      trt_sd,
+      z_value,
+      p
+    ),
+    nrow = length(x)
+  )
+  colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>z)")
+  row.names(coef_mat) <- attr(x, "name")
+  stats::printCoefmat(
+    coef_mat,
+    zap.ind = 3,
+    digits = 3
+  )
 }
