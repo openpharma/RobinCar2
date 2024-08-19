@@ -31,3 +31,14 @@
       0.3560965 0.5806957 0.6213865 
       
 
+# predict_counterfactual works if contrast are non-standard
+
+    Code
+      pc
+    Output
+      counter-factual prediction
+      
+            pbo      trt1      trt2 
+      0.3660066 0.5809844 0.6101537 
+      
+
