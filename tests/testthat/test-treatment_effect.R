@@ -146,6 +146,6 @@ test_that("treatment_effect works as expected for custom contrast", {
 })
 
 test_that("treatment_effect works for lm/glm object", {
-  expect_silent(treatment_effect(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff))
-  expect_silent(treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff))
+  expect_snapshot(treatment_effect(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff))
+  expect_snapshot(treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff))
 })
