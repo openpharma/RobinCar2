@@ -20,7 +20,8 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
-    testthat (>= 3.0)
+    testthat (>= 3.0),
+    RobinCar
 VignetteBuilder:
     knitr
 Config/testthat/edition: 3    

@@ -50,6 +50,7 @@ treatment_effect.prediction_cf <- function(
     fit = attr(object, "fit"),
     vartype = deparse(substitute(variance)),
     treatment = attr(object, "treatment_formula"),
+    effects = trt_effect,
     variance = diag(trt_var),
     class = "treatment_effect"
   )
