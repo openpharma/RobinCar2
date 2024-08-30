@@ -4,10 +4,8 @@ library(RobinCar)
 # -------------------------------------
 
 test_that("simple randomization, difference contrast", {
-
   # Function to compare RobinCar to RobinCar2 outputs
   compare <- function(r1, r2) {
-
     # Estimates and variance from RobinCar
     estimates1 <- unname(r1$contrast$result$estimate)
     variances1 <- unname(r1$contrast$result$se**2)
@@ -20,11 +18,12 @@ test_that("simple randomization, difference contrast", {
     testthat::expect_equal(estimates1, estimates2)
   }
 
-  for(family in list (gaussian, binomial)){
-    for(model in c ("~ treatment",
-                   "~ treatment * covar",
-                   "~ treatment * (covar + s1)")){
-
+  for (family in list(gaussian, binomial)) {
+    for (model in c(
+      "~ treatment",
+      "~ treatment * covar",
+      "~ treatment * (covar + s1)"
+    )) {
       # Set formula based on parameters
       yname <- ifelse(identical(family, binomial), "y_b", "y")
       form <- as.formula(paste0(yname, model))
