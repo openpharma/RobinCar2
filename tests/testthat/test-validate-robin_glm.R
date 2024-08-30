@@ -52,7 +52,5 @@ test_that("simple randomization, difference contrast", {
       # Compare the results
       compare(robincar1, robincar2)
     }
-
   }
-
 })
