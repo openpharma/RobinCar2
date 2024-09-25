@@ -178,7 +178,7 @@ print.treatment_effect <- function(x, ...) {
   cat("Variance Type: ", attr(x, "vartype"), "\n")
   trt_sd <- sqrt(attr(x, "variance"))
   z_value <- x / trt_sd
-  p <- pnorm(abs(z_value), lower.tail = FALSE)
+  p <- 2 * pnorm(abs(z_value), lower.tail = FALSE)
   coef_mat <- matrix(
     c(
       x,
