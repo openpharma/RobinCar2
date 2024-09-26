@@ -33,4 +33,3 @@ test_that("h_get_vars works for formula with schemas", {
   res <- expect_silent(h_get_vars(a ~ strata(b)))
   expect_identical(res, list(treatment = "a", schema = "sp", strata = "b"))
 })
-
