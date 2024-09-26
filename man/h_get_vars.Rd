@@ -10,11 +10,11 @@ h_get_vars(treatment)
 \item{treatment}{(\code{string} or \code{formula}) string name of the treatment, or a formula.}
 }
 \value{
-A list of two elements, \code{treatmetn} and \code{strata}.
+A list of three elements, \code{treatment}, \code{schema} and \code{strata}.
 }
 \description{
 Extract Variable Names
 }
 \details{
-Extract the formula elements, including \code{treatment} and \code{strata}.
+Extract the formula elements, including \code{treatment}, \code{schema} and \code{strata}.
 }

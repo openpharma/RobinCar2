@@ -8,7 +8,7 @@
 #' @param contrast_jac (`function`) A function to calculate the Jacobian of the contrast function. Ignored if using
 #' default contrasts.
 #' @param vcov (`function`) A function to calculate the variance-covariance matrix of the treatment effect,
-#' including `vcovHC` and `vcovANHECOVA`.
+#' including `vcovHC` and `gvcov`.
 #' @param family (`family`) A family object of the glm model.
 #' @param ... Additional arguments passed to `vcov`. For finer control of glm, refer to usage of `treatment_effect`,
 #' `difference`, `risk_ratio`, `odds_ratio`.
@@ -21,14 +21,14 @@
 #' )
 robin_glm <- function(
     formula, data, treatment, contrast = "difference",
-    contrast_jac = NULL, vcov = vcovANHECOVA, family = gaussian, ...) {
+    contrast_jac = NULL, vcov = gvcov, family = gaussian, ...) {
   attr(formula, ".Environment") <- environment()
   fit <- glm(formula, family = family, data = data)
-  pc <- predict_counterfactual(fit, treatment, data, unbiased = TRUE)
+  pc <- predict_counterfactual(fit, treatment, data)
   has_interaction <- h_interaction(formula, treatment)
   if (has_interaction && identical(vcov, vcovHC) && !identical(contrast, "difference")) {
     stop(
-      "Huber-White standard error only works for difference contrasts in models without interaction term."
+      "Huber-White variance estimator is ONLY supported when the expected outcome difference is estimated using a linear model without treatment-covariate interactions; see the 2023 FDA guidance."
     )
   }
   if (identical(contrast, "difference")) {
