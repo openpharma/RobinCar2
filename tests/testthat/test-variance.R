@@ -5,12 +5,12 @@ test_that("vcovHC works", {
   )
 })
 
-test_that("vcovANHECOVA works", {
+test_that("gvcov works", {
   pc <- predict_counterfactual(fit_binom, treatment ~ s1)
   expect_snapshot(
-    vcovANHECOVA(pc)
+    gvcov(pc)
   )
   expect_snapshot(
-    vcovANHECOVA(pc, randomization = "permute_block")
+    gvcov(pc, randomization = "permute_block")
   )
 })

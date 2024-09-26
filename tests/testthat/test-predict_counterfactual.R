@@ -1,13 +1,13 @@
 test_that("predict_counterfactual works for guassian", {
-  expect_snapshot(predict_counterfactual(fit_glm, "treatment"))
+  expect_snapshot(predict_counterfactual(fit_glm, treatment ~ 1))
 })
 
 test_that("predict_counterfactual works for guassian with lm", {
-  expect_snapshot(predict_counterfactual(fit_lm, "treatment", data = dummy_data))
+  expect_snapshot(predict_counterfactual(fit_lm, treatment ~ 1, data = dummy_data))
 })
 
 test_that("predict_counterfactual works for binomial", {
-  expect_snapshot(predict_counterfactual(fit_binom, "treatment"))
+  expect_snapshot(predict_counterfactual(fit_binom, treatment ~ 1))
 })
 
 test_that("predict_counterfactual works if contrast are non-standard", {

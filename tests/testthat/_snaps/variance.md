@@ -8,10 +8,10 @@
       trt1  4.523445e-07  1.164889e-03 -7.709031e-07
       trt2 -9.709004e-06 -7.709031e-07  1.170214e-03
 
-# vcovANHECOVA works
+# gvcov works
 
     Code
-      vcovANHECOVA(pc)
+      gvcov(pc)
     Output
                     pbo         trt1         trt2
       pbo  1.128902e-03 1.856234e-05 1.333885e-05
@@ -21,7 +21,7 @@
 ---
 
     Code
-      vcovANHECOVA(pc, randomization = "permute_block")
+      gvcov(pc, randomization = "permute_block")
     Output
                     pbo         trt1         trt2
       pbo  1.128902e-03 1.856234e-05 1.333885e-05
