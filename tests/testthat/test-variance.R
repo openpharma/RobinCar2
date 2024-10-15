@@ -3,6 +3,10 @@ test_that("vcovHC works", {
   expect_snapshot(
     vcovHC(pc)
   )
+  pc <- predict_counterfactual(fit_binom, treatment ~ pb(s1))
+  expect_snapshot(
+    vcovHC(pc)
+  )
 })
 
 test_that("gvcov works", {
@@ -10,7 +14,19 @@ test_that("gvcov works", {
   expect_snapshot(
     gvcov(pc)
   )
+  pc <- predict_counterfactual(fit_binom, treatment ~ 1)
   expect_snapshot(
-    gvcov(pc, randomization = "permute_block")
+    gvcov(pc)
+  )
+  pc <- predict_counterfactual(fit_binom, treatment ~ pb(s1))
+  expect_snapshot(
+    gvcov(pc)
+  )
+  expect_snapshot(
+    gvcov(pc, decompose = FALSE)
+  )
+  pc <- predict_counterfactual(fit_binom, treatment ~ ps(s1))
+  expect_snapshot(
+    gvcov(pc)
   )
 })

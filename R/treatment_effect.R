@@ -6,21 +6,26 @@
 #' @param variance (`function`) Variance function.
 #' @param eff_measure (`function`) Treatment effect measurement function.
 #' @param eff_jacobian (`function`) Treatment effect jacobian function.
+#' @param vcov_args (`list`) Additional arguments for variance.
 #' @param ... Additional arguments for variance.
 #'
 #' @export
-treatment_effect <- function(object, pair, variance, eff_measure, eff_jacobian, ...) {
+treatment_effect <- function(object, pair, variance, eff_measure, eff_jacobian, vcov_args, ...) {
   UseMethod("treatment_effect")
 }
 
 #' @export
 treatment_effect.prediction_cf <- function(
-    object, pair = names(object), variance = gvcov, eff_measure, eff_jacobian, ...) {
+    object, pair = names(object), variance = "gvcov", eff_measure, eff_jacobian, vcov_args = list(), ...) {
   assert(
+    test_string(variance),
     test_function(variance),
     test_null(variance)
   )
   assert_function(eff_measure)
+  if (missing(pair)) {
+    pair <- names(object)
+  }
   assert_vector(pair)
   assert(
     test_subset(pair, names(object)),
@@ -30,8 +35,16 @@ treatment_effect.prediction_cf <- function(
     pair <- names(object)[pair]
   }
   trt_effect <- unname(eff_measure(object[pair]))
+  if (test_string(variance)) {
+    variance_name <- variance
+    variance <- match.fun(variance)
+  } else if (test_function(variance)) {
+    variance_name <- "function"
+  } else {
+    variance_name <- "none"
+  }
   if (!is.null(variance)) {
-    inner_variance <- variance(object, ...)[pair, pair]
+    inner_variance <- do.call(variance, c(list(object), vcov_args))[pair, pair]
     if (missing(eff_jacobian)) {
       trt_jac <- numDeriv::jacobian(eff_measure, object[pair])
     } else {
@@ -47,8 +60,9 @@ treatment_effect.prediction_cf <- function(
   structure(
     .Data = trt_effect,
     name = pair_names[lower.tri(pair_names)],
+    marginal_mean = object,
     fit = attr(object, "fit"),
-    vartype = deparse(substitute(variance)),
+    vartype = variance_name,
     treatment = attr(object, "treatment_formula"),
     variance = diag(trt_var),
     class = "treatment_effect"
@@ -59,26 +73,18 @@ treatment_effect.prediction_cf <- function(
 #' @export
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
-    object, pair = names(object), variance = gvcov, eff_measure, eff_jacobian,
-    treatment, data = find_data(object), ...) {
+    object, pair, variance = gvcov, eff_measure, eff_jacobian,
+    treatment, vcov_args = list(), data = find_data(object), ...) {
   pc <- predict_counterfactual(object, data = data, treatment)
-  if (missing(pair)) {
-    treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
-  } else {
-    treatment_effect(pc, pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
-  }
+  treatment_effect(pc, pair = pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
 }
 
 #' @export
 treatment_effect.glm <- function(
     object, pair, variance = gvcov, eff_measure, eff_jacobian,
-    treatment, data = find_data(object), ...) {
+    treatment, vcov_args = list(), data = find_data(object), ...) {
   pc <- predict_counterfactual(object, treatment, data)
-  if (missing(pair)) {
-    treatment_effect(pc, pair = , , variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
-  } else {
-    treatment_effect(pc, pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
-  }
+  treatment_effect(pc, pair = pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
 }
 
 #' @rdname treatment_effect
@@ -173,11 +179,18 @@ h_lower_tri_idx <- function(n) {
 print.treatment_effect <- function(x, ...) {
   cat("Treatment Effect\n")
   cat("-------------\n")
-  cat("Model        : ", deparse(attr(x, "fit")$formula), "\n")
+  cat("Model        : ", deparse(as.formula(attr(x, "fit"))), "\n")
   cat("Randomization: ", deparse(attr(x, "treatment")), "\n")
+  cat("Marginal Mean: \n")
+  print(attr(x, "marginal_mean"))
+  
   cat("Variance Type: ", attr(x, "vartype"), "\n")
-  trt_sd <- sqrt(attr(x, "variance"))
-  z_value <- x / trt_sd
+  if (identical(attr(x, "vartype"), "none")) {
+    trt_sd <- rep(NA, length(x))
+  } else {
+    trt_sd <- sqrt(attr(x, "variance"))
+  }
+  z_value <- as.numeric(x) / trt_sd
   p <- 2 * pnorm(abs(z_value), lower.tail = FALSE)
   coef_mat <- matrix(
     c(
@@ -194,5 +207,5 @@ print.treatment_effect <- function(x, ...) {
     coef_mat,
     zap.ind = 3,
     digits = 3
-  )
+  )  
 }
