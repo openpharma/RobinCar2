@@ -9,6 +9,7 @@
 <url><loc>https://openpharma.github.io/RobinCar2/reference/bias.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/contrast.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/dummy_data.html</loc></url>
+<url><loc>https://openpharma.github.io/RobinCar2/reference/gvcov.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_adjust_pi.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_get_erb.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_get_vars.html</loc></url>
@@ -18,6 +19,5 @@
 <url><loc>https://openpharma.github.io/RobinCar2/reference/prediction_cf_methods.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/robin_glm.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/treatment_effect.html</loc></url>
-<url><loc>https://openpharma.github.io/RobinCar2/reference/vcovANHECOVA.html</loc></url>
 </urlset>
 
