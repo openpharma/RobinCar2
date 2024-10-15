@@ -183,7 +183,7 @@ print.treatment_effect <- function(x, ...) {
   cat("Randomization: ", deparse(attr(x, "treatment")), "\n")
   cat("Marginal Mean: \n")
   print(attr(x, "marginal_mean"))
-  
+
   cat("Variance Type: ", attr(x, "vartype"), "\n")
   if (identical(attr(x, "vartype"), "none")) {
     trt_sd <- rep(NA, length(x))
@@ -207,5 +207,5 @@ print.treatment_effect <- function(x, ...) {
     coef_mat,
     zap.ind = 3,
     digits = 3
-  )  
+  )
 }
