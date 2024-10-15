@@ -34,9 +34,8 @@ robin_glm <- function(
   }
   pc <- predict_counterfactual(fit, treatment, data)
   has_interaction <- h_interaction(formula, treatment)
-  if (
-    has_interaction && (identical(vcov, "vcovHC") || identical(vcov, vcovHC)) &&
-      !identical(contrast, "difference")) {
+  use_vcovhc <- identical(vcov, "vcovHC") || identical(vcov, vcovHC)
+  if (has_interaction && use_vcovhc && !identical(contrast, "difference")) {
     stop(
       "Huber-White variance estimator is ONLY supported when the expected outcome difference is estimated",
       "using a linear model without treatment-covariate interactions; see the 2023 FDA guidance."
