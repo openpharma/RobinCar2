@@ -14,7 +14,7 @@ test_that("robin_glm works correctly", {
     robin_glm(
       y ~ treatment * s1,
       data = dummy_data, treatment = treatment ~ s1,
-      contrast = "difference", vcov = "vcovHC"
+      contrast = "difference"
     )
   )
   expect_silent(robin_glm(y_b ~ treatment * s1, data = dummy_data, treatment = treatment ~ s1, contrast = "difference"))
@@ -25,6 +25,14 @@ test_that("robin_glm works correctly", {
       y_b ~ treatment * s1,
       data = dummy_data, treatment = treatment ~ s1,
       contrast = "odds_ratio", vcov = "vcovHC"
+    ),
+    "Huber-White variance estimator is ONLY"
+  )
+  expect_error(
+    robin_glm(
+      y_b ~ treatment * s1,
+      data = dummy_data, treatment = treatment ~ s1,
+      contrast = "difference", vcov = "vcovHC"
     ),
     "Huber-White variance estimator is ONLY"
   )
@@ -40,7 +48,7 @@ test_that("robin_glm works for glm.nb", {
       y_b ~ treatment * s1,
       data = dummy_data2, treatment = treatment ~ s1,
       family = MASS::negative.binomial(theta = NA),
-      contrast = "difference", vcov = "vcovHC"
+      contrast = "difference"
     )
   )
 })
