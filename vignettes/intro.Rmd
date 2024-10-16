@@ -85,7 +85,8 @@ Other than negative binomial link function, it is also possible that we use Pois
 ```{r}
 dummy_data$y_count <- rpois(nrow(dummy_data), lambda = 20)
 robin_glm(
-  y_count ~ treatment * s1 + covar, data = dummy_data,
+  y_count ~ treatment * s1 + covar,
+  data = dummy_data,
   treatment = treatment ~ pb(s1), family = MASS::negative.binomial(theta = 1)
 )
 ```
