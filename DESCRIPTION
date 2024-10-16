@@ -1,11 +1,18 @@
 Type: Package
 Package: RobinCar2
-Title: R Package Template
+Title: ROBust INference for Covariate Adjustment in Randomized clinical trials
 Version: 0.1.0.9000
-Date: 2024-05-08
+Date: 2024-10-16
 Authors@R:
-    person("openpharma", , , "openpharma@example.com", role = c("aut", "cre"))
-Description: R package template with GitHub Actions workflows included.
+    c(
+      person("Liming", "Li", , "liming.li@roche.com", role = c("aut", "cre")),
+      person("Marlena", "Bannick", , "mnorwood@uw.edu", role="aut", comment=c(ORCID="0000-0001-6279-5978")),
+      person("Ting", "Ye", , , role="aut"),
+      person("Gregory", "Chen", , "xiangyi.gregory.chen@msd.com", role = "aut")
+    )
+Description: Performs robust estimation and inference when using covariate adjustment
+  and/or covariate-adaptive randomization in randomized controlled trials.
+  This package is trimmed to reduce the depdendencies and validated to be used across industry.
 License: Apache License 2.0
 URL: https://github.com/openpharma/RobinCar2/
 BugReports: https://github.com/openpharma/RobinCar2/issues

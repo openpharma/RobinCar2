@@ -17,6 +17,13 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: openpharma \email{openpharma@example.com}
+\strong{Maintainer}: Liming Li \email{liming.li@roche.com}
+
+Authors:
+\itemize{
+  \item Marlena Bannick \email{mnorwood@uw.edu} (\href{https://orcid.org/0000-0001-6279-5978}{ORCID})
+  \item Ting Ye
+  \item Gregory Chen \email{xiangyi.gregory.chen@msd.com}
+}
 
 }
