@@ -23,15 +23,9 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">Introduction</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">Package Introduction</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-<!-- start dropdown for versions --> <li class="nav-item dropdown">
-        <a href="#" class="nav-link dropdown-toggle"
-          data-bs-toggle="dropdown" role="button"
-          aria-expanded="false" aria-haspopup="true"
-          id="dropdown-versions">Versions</a> <div class="dropdown-menu" aria-labelledby="dropdown-versions"> <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a> </div></li>
-<!-- end dropdown for versions -->
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/openpharma/RobinCar2"><span class="fa fa-github"></span></a></li>
       </ul></div>
 
@@ -58,8 +52,9 @@
 <span>  <span class="va">treatment</span>,</span>
 <span>  contrast <span class="op">=</span> <span class="st">"difference"</span>,</span>
 <span>  contrast_jac <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  vcov <span class="op">=</span> <span class="va">gvcov</span>,</span>
-<span>  family <span class="op">=</span> <span class="va">gaussian</span>,</span>
+<span>  vcov <span class="op">=</span> <span class="st">"gvcov"</span>,</span>
+<span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  vcov_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -100,11 +95,18 @@ including <code>vcovHC</code> and <code>gvcov</code>.</p></dd>
 <dd><p>(<code>family</code>) A family object of the glm model.</p></dd>
 
 
+<dt id="arg-vcov-args">vcov_args<a class="anchor" aria-label="anchor" href="#arg-vcov-args"></a></dt>
+<dd><p>(<code>list</code>) Additional arguments passed to <code>vcov</code>.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code>vcov</code>. For finer control of glm, refer to usage of <code>treatment_effect</code>,
-<code>difference</code>, <code>risk_ratio</code>, <code>odds_ratio</code>.</p></dd>
+<dd><p>Additional arguments passed to <code>glm</code> or <code>glm.nb</code>.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>If family is <code>MASS::negative.binomial(NA)</code>, the function will use <code><a href="https://rdrr.io/pkg/MASS/man/glm.nb.html" class="external-link">MASS::glm.nb</a></code> instead of <code>glm</code>.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -117,6 +119,12 @@ including <code>vcovHC</code> and <code>gvcov</code>.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model        :  y ~ treatment * s1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Randomization:  treatment ~ s1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Marginal Mean: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> counter-factual prediction</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       pbo      trt1      trt2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.2230481 0.7639923 0.9482753 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variance Type:  gvcov </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std.Err Z Value  Pr(&gt;z)    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> trt1 - pbo     0.541   0.103    5.26 1.4e-07 ***</span>
@@ -131,7 +139,7 @@ including <code>vcovHC</code> and <code>gvcov</code>.</p></dd>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by openpharma.</p>
+  <p>Developed by Liming Li, Marlena Bannick, Ting Ye, Gregory Chen.</p>
 </div>
 
 <div class="pkgdown-footer-right">

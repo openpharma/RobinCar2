@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Introduction • RobinCar2</title>
+<title>Package Introduction • RobinCar2</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Package Introduction">
 <!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-125641273-1"></script><script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -39,16 +39,10 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/intro.html">Introduction</a></li>
+<li><a class="dropdown-item" href="../articles/intro.html">Package Introduction</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-<!-- start dropdown for versions --> <li class="nav-item dropdown">
-        <a href="#" class="nav-link dropdown-toggle"
-          data-bs-toggle="dropdown" role="button"
-          aria-expanded="false" aria-haspopup="true"
-          id="dropdown-versions">Versions</a> <div class="dropdown-menu" aria-labelledby="dropdown-versions"> <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a> </div></li>
-<!-- end dropdown for versions -->
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/openpharma/RobinCar2"><span class="fa fa-github"></span></a></li>
@@ -65,7 +59,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Introduction</h1>
+      <h1>Package Introduction</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/main/vignettes/intro.Rmd" class="external-link"><code>vignettes/intro.Rmd</code></a></small>
@@ -74,19 +68,197 @@
 
     
     
+<p>RobinCar2 provides robust inference on treatment effect estimates
+obtained through (generalized) linear models(glm) with variance link
+functions.</p>
+<p>Here with the dummy data provided in the package, we demonstrate how
+to use the package.</p>
 <div class="section level2">
-<h2 id="brief-introduction-of-robincar2">Brief Introduction of RobinCar2<a class="anchor" aria-label="anchor" href="#brief-introduction-of-robincar2"></a>
+<h2 id="common-usage">Common Usage<a class="anchor" aria-label="anchor" href="#common-usage"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/openpharma/RobinCar2/" class="external-link">RobinCar2</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/openpharma/RobinCar2/" class="external-link">RobinCar2</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dummy_data</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   id treatment s1 s2      covar           y y_b</span></span>
+<span><span class="co">#&gt; 1  1       pbo  b  c  0.5119022 -0.02761963   0</span></span>
+<span><span class="co">#&gt; 2  2       pbo  a  c -0.7941720  0.49919508   0</span></span>
+<span><span class="co">#&gt; 3  3      trt1  b  d  0.8988804  0.48037375   0</span></span>
+<span><span class="co">#&gt; 4  4      trt2  b  c -0.4821317  0.67490126   1</span></span>
+<span><span class="co">#&gt; 5  5      trt1  a  d -0.2285514  0.55499267   0</span></span>
+<span><span class="co">#&gt; 6  6      trt2  a  c  0.2742069  2.39830584   1</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="data-introduction">Data Introduction<a class="anchor" aria-label="anchor" href="#data-introduction"></a>
+</h3>
+<p>In the <code>dummy_data</code>, we have the following columns:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>id</code> is the patient identifier.</li>
+<li>
+<code>treatment</code> is the treatment assignment.</li>
+<li>
+<code>s1</code> is the first stratification factor.</li>
+<li>
+<code>s2</code> is the second stratification factor.</li>
+<li>
+<code>covar</code> is the continuous covariate.</li>
+<li>
+<code>y</code> is the continuous outcome.</li>
+<li>
+<code>y_b</code> is the binary outcome.</li>
+</ol>
 </div>
-  </main>
+<div class="section level3">
+<h3 id="obtain-treatment-effect-for-continuous-outcome">Obtain Treatment Effect for Continuous Outcome<a class="anchor" aria-label="anchor" href="#obtain-treatment-effect-for-continuous-outcome"></a>
+</h3>
+<p>In simplest case of a continuous outcome, and we want to adjust for
+<code>covar</code>, <code>s1</code>, where <code>covar</code> is a
+covariate and <code>s1</code> is a stratification factor. Randomization
+is permuted-block randomization stratified by <code>s1</code>. A proper
+model to use is <code>y ~ treatment * s1 + covar</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>, data <span class="op">=</span> <span class="va">dummy_data</span>, treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Treatment Effect</span></span>
+<span><span class="co">#&gt; -------------</span></span>
+<span><span class="co">#&gt; Model        :  y ~ treatment * s1 + covar </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1) </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt; counter-factual prediction</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
+<span><span class="co">#&gt; 0.2003208 0.7639709 0.9712499 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Type:  gvcov </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo     0.564   0.101    5.60 2.2e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 - pbo     0.771   0.101    7.61 2.8e-14 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1    0.207   0.107    1.94   0.052 .  </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>We can also use the Huber-White variance estimator by setting
+<code>vcov = "vcovHC"</code>. Please note that in this case, the model
+formula should not contain treatment interaction with stratification
+factors.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">+</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>, data <span class="op">=</span> <span class="va">dummy_data</span>, treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span>, vcov <span class="op">=</span> <span class="st">"vcovHC"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Treatment Effect</span></span>
+<span><span class="co">#&gt; -------------</span></span>
+<span><span class="co">#&gt; Model        :  y ~ treatment + s1 + covar </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1) </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt; counter-factual prediction</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
+<span><span class="co">#&gt; 0.2004488 0.7639780 0.9712848 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Type:  gvcov </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo     0.564   0.101    5.59 2.2e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 - pbo     0.771   0.101    7.61 2.8e-14 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1    0.207   0.107    1.94   0.052 .  </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="obtain-treatment-effect-for-binary-outcome">Obtain Treatment Effect for Binary Outcome<a class="anchor" aria-label="anchor" href="#obtain-treatment-effect-for-binary-outcome"></a>
+</h3>
+<p>If the outcome is binary, and we want to adjust for
+<code>covar</code>, <code>s1</code>, where <code>covar</code> is a
+covariate and <code>s1</code> is a stratification factor. Randomization
+is permuted-block randomization stratified by <code>s1</code>. A proper
+model to use is <code>y_b ~ treatment * s1 + covar</code>. Note here we
+need to specify <code>family</code> to be
+<code>binomial(link = "logit")</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span><span class="va">y_b</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>, data <span class="op">=</span> <span class="va">dummy_data</span>, treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Treatment Effect</span></span>
+<span><span class="co">#&gt; -------------</span></span>
+<span><span class="co">#&gt; Model        :  y_b ~ treatment * s1 + covar </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1) </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt; counter-factual prediction</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
+<span><span class="co">#&gt; 0.3560965 0.5806957 0.6213865 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Type:  gvcov </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo    0.2246  0.0477    4.71 2.5e-06 ***</span></span>
+<span><span class="co">#&gt; trt2 - pbo    0.2653  0.0475    5.58 2.4e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1   0.0407  0.0479    0.85     0.4    </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="obtain-treatment-effect-for-counts">Obtain Treatment Effect for Counts<a class="anchor" aria-label="anchor" href="#obtain-treatment-effect-for-counts"></a>
+</h3>
+<p>If the outcome is count, and we want to adjust for the same
+covariates, we can use
+<code>family = MASS::negative.binomial(theta = NA)</code>, to correctly
+optimize over <code>theta</code>. Otherwise we can also have a fixed
+<code>theta</code> if we do know the truth.</p>
+<p>Other than negative binomial link function, it is also possible that
+we use Poisson link function.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dummy_data</span><span class="op">$</span><span class="va">y_count</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">dummy_data</span><span class="op">)</span>, lambda <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span></span>
+<span>  <span class="va">y_count</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">dummy_data</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span>, family <span class="op">=</span> <span class="fu">MASS</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MASS/man/negative.binomial.html" class="external-link">negative.binomial</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Treatment Effect</span></span>
+<span><span class="co">#&gt; -------------</span></span>
+<span><span class="co">#&gt; Model        :  y_count ~ treatment * s1 + covar </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1) </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt; counter-factual prediction</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      pbo     trt1     trt2 </span></span>
+<span><span class="co">#&gt; 19.15274 20.06251 20.59907 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Type:  gvcov </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo     0.910   0.453    2.01 0.04440 *  </span></span>
+<span><span class="co">#&gt; trt2 - pbo     1.446   0.439    3.29 0.00099 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1    0.537   0.466    1.15 0.24907    </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="using-different-covariate-adaptive-randomization-schema">Using Different Covariate-Adaptive Randomization Schema<a class="anchor" aria-label="anchor" href="#using-different-covariate-adaptive-randomization-schema"></a>
+</h3>
+<p>If the randomization schema is not permuted-block randomization, we
+can use other randomization schema. Currently we have also
+<code>sp</code>(simple), <code>pb</code>(permuted-block),
+<code>ps</code>(Pocock-Simon).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span><span class="va">y_b</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>, data <span class="op">=</span> <span class="va">dummy_data</span>, treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">ps</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Treatment Effect</span></span>
+<span><span class="co">#&gt; -------------</span></span>
+<span><span class="co">#&gt; Model        :  y_b ~ treatment * s1 + covar </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ ps(s1) </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt; counter-factual prediction</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
+<span><span class="co">#&gt; 0.3560965 0.5806957 0.6213865 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Type:  gvcov </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo    0.2246  0.0477    4.71 2.5e-06 ***</span></span>
+<span><span class="co">#&gt; trt2 - pbo    0.2653  0.0475    5.58 2.4e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1   0.0407  0.0479    0.85     0.4    </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+</div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by openpharma.</p>
+  <p>Developed by Liming Li, Marlena Bannick, Ting Ye, Gregory Chen.</p>
 </div>
 
 <div class="pkgdown-footer-right">

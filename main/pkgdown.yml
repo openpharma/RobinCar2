@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   intro: intro.html
-last_built: 2024-10-15T02:14Z
+last_built: 2024-10-21T12:03Z
 urls:
   reference: https://openpharma.github.io/RobinCar2/reference
   article: https://openpharma.github.io/RobinCar2/articles
