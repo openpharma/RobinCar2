@@ -7,6 +7,14 @@ test_that("h_get_vars works for formula", {
     "Must be a formula, not character"
   )
   expect_error(
+    h_get_vars(trt ~ pb(s1) + ps(s2)),
+    "only one randomization schema is allowed!"
+  )
+  expect_error(
+    h_get_vars(~ ps(s2)),
+    "treatment formula must be of type treatment ~ strata"
+  )
+  expect_error(
     h_get_vars(NULL),
     "Must be a formula, not 'NULL'"
   )

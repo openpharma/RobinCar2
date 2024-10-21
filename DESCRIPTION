@@ -14,6 +14,7 @@ Depends:
 Imports:
     checkmate,
     numDeriv,
+    MASS,
     prediction,
     sandwich,
     stats
