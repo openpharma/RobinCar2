@@ -73,7 +73,7 @@ treatment_effect.prediction_cf <- function(
 #' @export
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
-    object, pair, variance = gvcov, eff_measure, eff_jacobian,
+    object, pair, variance = "gvcov", eff_measure, eff_jacobian,
     vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, data = data, treatment)
   treatment_effect(pc, pair = pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
@@ -81,7 +81,7 @@ treatment_effect.lm <- function(
 
 #' @export
 treatment_effect.glm <- function(
-    object, pair, variance = gvcov, eff_measure, eff_jacobian,
+    object, pair, variance = "gvcov", eff_measure, eff_jacobian,
     vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, treatment, data)
   treatment_effect(pc, pair = pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
@@ -201,7 +201,7 @@ print.treatment_effect <- function(x, ...) {
     ),
     nrow = length(x)
   )
-  colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>z)")
+  colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
   row.names(coef_mat) <- attr(x, "name")
   stats::printCoefmat(
     coef_mat,
