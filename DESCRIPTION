@@ -12,7 +12,7 @@ Authors@R:
     )
 Description: Performs robust estimation and inference when using covariate adjustment
   and/or covariate-adaptive randomization in randomized controlled trials.
-  This package is trimmed to reduce the depdendencies and validated to be used across industry.
+  This package is trimmed to reduce the dependencies and validated to be used across industry.
 License: Apache License 2.0
 URL: https://github.com/openpharma/RobinCar2/
 BugReports: https://github.com/openpharma/RobinCar2/issues
