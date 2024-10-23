@@ -21,8 +21,9 @@ Coverage](https://raw.githubusercontent.com/openpharma/RobinCar2/_xml_coverage_r
 
 RobinCar2 is a package to provide robust inference of covariate adjusted
 analysis under stratified randomization. The methods implemented are
-recommended by [FDA guidance on covariate adjustment](). The methods are
-based on the work of [Ye, Shao, Yi and Zhao
+recommended by [FDA guidance on covariate
+adjustment](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/adjusting-covariates-randomized-clinical-trials-drugs-and-biological-products).
+The methods are based on the work of [Ye, Shao, Yi and Zhao
 (2023)](doi:10.1080/01621459.2022.2049278), [Ye, Bannick, Yi and Shao
 (2023)](doi:10.1080/24754269.2023.2205802), [Ye, Shao, Yi
 (2023)](doi:10.1093/biomet/asad045%3E) and [Bannick, Shao, Liu, Du, Yi,
