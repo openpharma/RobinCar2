@@ -43,12 +43,6 @@
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-<!-- start dropdown for versions --> <li class="nav-item dropdown">
-        <a href="#" class="nav-link dropdown-toggle"
-          data-bs-toggle="dropdown" role="button"
-          aria-expanded="false" aria-haspopup="true"
-          id="dropdown-versions">Versions</a> <div class="dropdown-menu" aria-labelledby="dropdown-versions"> <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a> </div></li>
-<!-- end dropdown for versions -->
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/openpharma/RobinCar2"><span class="fa fa-github"></span></a></li>
@@ -134,10 +128,10 @@ model to use is <code>y ~ treatment * s1 + covar</code>.</p>
 <span><span class="co">#&gt; 0.2003208 0.7639709 0.9712499 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variance Type:  gvcov </span></span>
-<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
-<span><span class="co">#&gt; trt1 - pbo     0.564   0.101    5.60 2.2e-08 ***</span></span>
-<span><span class="co">#&gt; trt2 - pbo     0.771   0.101    7.61 2.8e-14 ***</span></span>
-<span><span class="co">#&gt; trt2 - trt1    0.207   0.107    1.94   0.052 .  </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo     0.564   0.101    5.60  2.2e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 - pbo     0.771   0.101    7.61  2.8e-14 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1    0.207   0.107    1.94    0.052 .  </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p>We can also use the Huber-White variance estimator by setting
@@ -156,11 +150,11 @@ factors.</p>
 <span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
 <span><span class="co">#&gt; 0.2004488 0.7639780 0.9712848 </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Variance Type:  gvcov </span></span>
-<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
-<span><span class="co">#&gt; trt1 - pbo     0.564   0.101    5.59 2.2e-08 ***</span></span>
-<span><span class="co">#&gt; trt2 - pbo     0.771   0.101    7.61 2.8e-14 ***</span></span>
-<span><span class="co">#&gt; trt2 - trt1    0.207   0.107    1.94   0.052 .  </span></span>
+<span><span class="co">#&gt; Variance Type:  vcovHC </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo     0.564   0.101    5.60  2.1e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 - pbo     0.771   0.102    7.57  3.7e-14 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1    0.207   0.108    1.92    0.055 .  </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>
@@ -187,10 +181,10 @@ need to specify <code>family</code> to be
 <span><span class="co">#&gt; 0.3560965 0.5806957 0.6213865 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variance Type:  gvcov </span></span>
-<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
-<span><span class="co">#&gt; trt1 - pbo    0.2246  0.0477    4.71 2.5e-06 ***</span></span>
-<span><span class="co">#&gt; trt2 - pbo    0.2653  0.0475    5.58 2.4e-08 ***</span></span>
-<span><span class="co">#&gt; trt2 - trt1   0.0407  0.0479    0.85     0.4    </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo    0.2246  0.0477    4.71  2.5e-06 ***</span></span>
+<span><span class="co">#&gt; trt2 - pbo    0.2653  0.0475    5.58  2.4e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1   0.0407  0.0479    0.85      0.4    </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>
@@ -222,10 +216,10 @@ we use Poisson link function.</p>
 <span><span class="co">#&gt; 19.15274 20.06251 20.59907 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variance Type:  gvcov </span></span>
-<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
-<span><span class="co">#&gt; trt1 - pbo     0.910   0.453    2.01 0.04440 *  </span></span>
-<span><span class="co">#&gt; trt2 - pbo     1.446   0.439    3.29 0.00099 ***</span></span>
-<span><span class="co">#&gt; trt2 - trt1    0.537   0.466    1.15 0.24907    </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo     0.910   0.453    2.01  0.04440 *  </span></span>
+<span><span class="co">#&gt; trt2 - pbo     1.446   0.439    3.29  0.00099 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1    0.537   0.466    1.15  0.24907    </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>
@@ -249,10 +243,10 @@ can use other randomization schema. Currently we have also
 <span><span class="co">#&gt; 0.3560965 0.5806957 0.6213865 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variance Type:  gvcov </span></span>
-<span><span class="co">#&gt;             Estimate Std.Err Z Value  Pr(&gt;z)    </span></span>
-<span><span class="co">#&gt; trt1 - pbo    0.2246  0.0477    4.71 2.5e-06 ***</span></span>
-<span><span class="co">#&gt; trt2 - pbo    0.2653  0.0475    5.58 2.4e-08 ***</span></span>
-<span><span class="co">#&gt; trt2 - trt1   0.0407  0.0479    0.85     0.4    </span></span>
+<span><span class="co">#&gt;             Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 - pbo    0.2246  0.0477    4.71  2.5e-06 ***</span></span>
+<span><span class="co">#&gt; trt2 - pbo    0.2653  0.0475    5.58  2.4e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 - trt1   0.0407  0.0479    0.85      0.4    </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>
