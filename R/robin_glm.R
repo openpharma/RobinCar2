@@ -42,11 +42,11 @@ robin_glm <- function(
     )
   }
   if (identical(contrast, "difference")) {
-    difference(pc)
+    difference(pc, variance = vcov, vcov_args = vcov_args)
   } else if (identical(contrast, "risk_ratio")) {
-    risk_ratio(pc)
+    risk_ratio(pc, variance = vcov, vcov_args = vcov_args)
   } else if (identical(contrast, "odds_ratio")) {
-    odds_ratio(pc)
+    odds_ratio(pc, variance = vcov, vcov_args = vcov_args)
   } else {
     assert_function(contrast)
     assert_function(contrast_jac, null.ok = TRUE)
