@@ -18,7 +18,7 @@
       0.03359913 0.03441801 0.03401864 
       
       
-      Variance Type:  gvcov 
+      Variance Type:  vcovG 
                   Estimate Std.Err Z Value Pr(>|z|)    
       trt1 - pbo    0.2246  0.0477    4.71  2.5e-06 ***
       trt2 - pbo    0.2653  0.0475    5.58  2.4e-08 ***
@@ -47,7 +47,7 @@
       0.06768998 0.07592944 0.07654319 
       
       
-      Variance Type:  gvcov 
+      Variance Type:  vcovG 
                   Estimate Std.Err Z Value Pr(>|z|)    
       trt1 - pbo     0.564   0.101    5.60  2.2e-08 ***
       trt2 - pbo     0.771   0.101    7.61  2.8e-14 ***
@@ -98,7 +98,7 @@
       0.03359913 0.03441801 
       
       
-      Variance Type:  gvcov 
+      Variance Type:  vcovG 
                  Estimate Std.Err Z Value Pr(>|z|)    
       trt1 - pbo   0.2246  0.0477    4.71  2.5e-06 ***
       ---

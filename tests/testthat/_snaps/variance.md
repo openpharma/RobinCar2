@@ -18,10 +18,10 @@
       trt1  4.523445e-07  1.164889e-03 -7.709031e-07
       trt2 -9.709004e-06 -7.709031e-07  1.170214e-03
 
-# gvcov works
+# vcovG works
 
     Code
-      gvcov(pc)
+      vcovG(pc)
     Output
                     pbo         trt1         trt2
       pbo  1.128902e-03 1.856234e-05 1.333885e-05
@@ -31,7 +31,7 @@
 ---
 
     Code
-      gvcov(pc)
+      vcovG(pc)
     Output
                     pbo         trt1         trt2
       pbo  1.128902e-03 1.856234e-05 1.333885e-05
@@ -41,7 +41,7 @@
 ---
 
     Code
-      gvcov(pc)
+      vcovG(pc)
     Output
                     pbo         trt1         trt2
       pbo  1.128902e-03 1.856234e-05 1.333885e-05
@@ -51,7 +51,7 @@
 ---
 
     Code
-      gvcov(pc, decompose = FALSE)
+      vcovG(pc, decompose = FALSE)
     Output
                     pbo         trt1         trt2
       pbo  1.127076e-03 1.856234e-05 1.333885e-05
@@ -61,7 +61,7 @@
 ---
 
     Code
-      gvcov(pc)
+      vcovG(pc)
     Output
                     pbo         trt1         trt2
       pbo  1.128902e-03 1.856234e-05 1.333885e-05
