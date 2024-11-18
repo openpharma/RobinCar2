@@ -11,5 +11,4 @@
 #' gaussian terms glm var family pnorm var as.formula
 #' @importFrom sandwich vcovHC
 #' @importFrom MASS negative.binomial
-#' @importFrom prediction find_data
 NULL

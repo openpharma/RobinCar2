@@ -53,6 +53,7 @@ treatment_effect.prediction_cf <- function(
     }
     trt_var <- trt_jac %*% inner_variance %*% t(trt_jac)
   } else {
+    inner_variance <- NULL
     trt_var <- diag(NULL)
   }
 
@@ -63,6 +64,7 @@ treatment_effect.prediction_cf <- function(
     marginal_mean = object,
     fit = attr(object, "fit"),
     vartype = variance_name,
+    mmvariance = inner_variance,
     treatment = attr(object, "treatment_formula"),
     variance = diag(trt_var),
     class = "treatment_effect"
@@ -183,7 +185,12 @@ print.treatment_effect <- function(x, ...) {
   cat("Randomization: ", deparse(attr(x, "treatment")), "\n")
   cat("Marginal Mean: \n")
   print(attr(x, "marginal_mean"))
-
+  if (!identical(attr(x, "vartype"), "none")) {
+    v <- attr(x, "mmvariance")
+    cat("Marginal Mean Variance: \n")
+    print(sqrt(diag(v)))
+    cat("\n\n")
+  }
   cat("Variance Type: ", attr(x, "vartype"), "\n")
   if (identical(attr(x, "vartype"), "none")) {
     trt_sd <- rep(NA, length(x))
