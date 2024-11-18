@@ -13,6 +13,11 @@
             pbo      trt1      trt2 
       0.3560965 0.5806957 0.6213865 
       
+      Marginal Mean Variance: 
+             pbo       trt1       trt2 
+      0.03359913 0.03441801 0.03401864 
+      
+      
       Variance Type:  gvcov 
                   Estimate Std.Err Z Value Pr(>|z|)    
       trt1 - pbo    0.2246  0.0477    4.71  2.5e-06 ***
@@ -24,7 +29,8 @@
 ---
 
     Code
-      treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff)
+      treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff,
+      data = dummy_data)
     Output
       Treatment Effect
       -------------
@@ -35,6 +41,11 @@
       
             pbo      trt1      trt2 
       0.2003208 0.7639709 0.9712499 
+      
+      Marginal Mean Variance: 
+             pbo       trt1       trt2 
+      0.06768998 0.07592944 0.07654319 
+      
       
       Variance Type:  gvcov 
                   Estimate Std.Err Z Value Pr(>|z|)    
@@ -81,6 +92,11 @@
       
             pbo      trt1      trt2 
       0.3560965 0.5806957 0.6213865 
+      
+      Marginal Mean Variance: 
+             pbo       trt1 
+      0.03359913 0.03441801 
+      
       
       Variance Type:  gvcov 
                  Estimate Std.Err Z Value Pr(>|z|)    

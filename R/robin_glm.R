@@ -27,6 +27,8 @@ robin_glm <- function(
   attr(formula, ".Environment") <- environment()
   # check if using negative.binomial family with NA as theta.
   # If so, use MASS::glm.nb instead of glm.
+  assert_subset(all.vars(formula), names(data))
+  assert_subset(all.vars(treatment), names(data))
   if (identical(family$family, "Negative Binomial(NA)")) {
     fit <- MASS::glm.nb(formula, data = data, ...)
   } else {
