@@ -9,24 +9,24 @@ test_that("vcovHC works", {
   )
 })
 
-test_that("gvcov works", {
+test_that("vcovG works", {
   pc <- predict_counterfactual(fit_binom, treatment ~ s1)
   expect_snapshot(
-    gvcov(pc)
+    vcovG(pc)
   )
   pc <- predict_counterfactual(fit_binom, treatment ~ 1)
   expect_snapshot(
-    gvcov(pc)
+    vcovG(pc)
   )
   pc <- predict_counterfactual(fit_binom, treatment ~ pb(s1))
   expect_snapshot(
-    gvcov(pc)
+    vcovG(pc)
   )
   expect_snapshot(
-    gvcov(pc, decompose = FALSE)
+    vcovG(pc, decompose = FALSE)
   )
   pc <- predict_counterfactual(fit_binom, treatment ~ ps(s1))
   expect_snapshot(
-    gvcov(pc)
+    vcovG(pc)
   )
 })

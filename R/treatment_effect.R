@@ -16,7 +16,7 @@ treatment_effect <- function(object, pair, variance, eff_measure, eff_jacobian, 
 
 #' @export
 treatment_effect.prediction_cf <- function(
-    object, pair = names(object), variance = "gvcov", eff_measure, eff_jacobian, vcov_args = list(), ...) {
+    object, pair = names(object), variance = "vcovG", eff_measure, eff_jacobian, vcov_args = list(), ...) {
   assert(
     test_string(variance),
     test_function(variance),
@@ -75,7 +75,7 @@ treatment_effect.prediction_cf <- function(
 #' @export
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
-    object, pair, variance = "gvcov", eff_measure, eff_jacobian,
+    object, pair, variance = "vcovG", eff_measure, eff_jacobian,
     vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, data = data, treatment)
   treatment_effect(pc, pair = pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
@@ -83,7 +83,7 @@ treatment_effect.lm <- function(
 
 #' @export
 treatment_effect.glm <- function(
-    object, pair, variance = "gvcov", eff_measure, eff_jacobian,
+    object, pair, variance = "vcovG", eff_measure, eff_jacobian,
     vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, treatment, data)
   treatment_effect(pc, pair = pair, variance = variance, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)

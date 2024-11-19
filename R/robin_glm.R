@@ -8,7 +8,7 @@
 #' @param contrast_jac (`function`) A function to calculate the Jacobian of the contrast function. Ignored if using
 #' default contrasts.
 #' @param vcov (`function`) A function to calculate the variance-covariance matrix of the treatment effect,
-#' including `vcovHC` and `gvcov`.
+#' including `vcovHC` and `vcovG`.
 #' @param family (`family`) A family object of the glm model.
 #' @param vcov_args (`list`) Additional arguments passed to `vcov`.
 #' @param ... Additional arguments passed to `glm` or `glm.nb`.
@@ -23,7 +23,7 @@
 #' )
 robin_glm <- function(
     formula, data, treatment, contrast = "difference",
-    contrast_jac = NULL, vcov = "gvcov", family = gaussian(), vcov_args = list(), ...) {
+    contrast_jac = NULL, vcov = "vcovG", family = gaussian(), vcov_args = list(), ...) {
   attr(formula, ".Environment") <- environment()
   # check if using negative.binomial family with NA as theta.
   # If so, use MASS::glm.nb instead of glm.

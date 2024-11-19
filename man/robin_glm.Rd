@@ -10,7 +10,7 @@ robin_glm(
   treatment,
   contrast = "difference",
   contrast_jac = NULL,
-  vcov = "gvcov",
+  vcov = "vcovG",
   family = gaussian(),
   vcov_args = list(),
   ...
@@ -31,7 +31,7 @@ or a string name of treatment assignment.}
 default contrasts.}
 
 \item{vcov}{(\code{function}) A function to calculate the variance-covariance matrix of the treatment effect,
-including \code{vcovHC} and \code{gvcov}.}
+including \code{vcovHC} and \code{vcovG}.}
 
 \item{family}{(\code{family}) A family object of the glm model.}
 
