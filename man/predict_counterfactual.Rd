@@ -4,17 +4,14 @@
 \alias{predict_counterfactual}
 \title{Counterfactual Prediction}
 \usage{
-predict_counterfactual(fit, treatment, data, unbiased)
+predict_counterfactual(fit, treatment, data)
 }
 \arguments{
 \item{fit}{fitted object.}
 
-\item{treatment}{(\code{string} or \code{formula}) treatment variable in string, or a formula of form
-treatment ~ strata(s).}
+\item{treatment}{(\code{formula}) formula of form treatment ~ strata(s).}
 
 \item{data}{(\code{data.frame}) raw dataset.}
-
-\item{unbiased}{(\code{flag}) indicator of whether to remove potential bias of the prediction.}
 }
 \value{
 Numeric matrix of counter factual prediction.

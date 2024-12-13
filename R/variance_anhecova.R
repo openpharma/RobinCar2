@@ -2,15 +2,13 @@
 #'
 #' @param x (`prediction_cf`) Counter-factual prediction.
 #' @param decompose (`flag`) whether to use decompose method to calculate the variance.
-#' @param randomization (`string`) randomization method.
 #' @param ... Not used.
 #'
 #' @return Named covariance matrix.
 #' @export
-vcovANHECOVA <- function(x, decompose = TRUE, randomization = "simple", ...) { # nolint
+vcovG <- function(x, decompose = TRUE, ...) { # nolint
   assert_class(x, "prediction_cf")
   assert_flag(decompose)
-  assert_string(randomization)
   resi <- attr(x, "residual")
   est <- as.numeric(x)
   preds <- attr(x, "predictions")
@@ -31,7 +29,7 @@ vcovANHECOVA <- function(x, decompose = TRUE, randomization = "simple", ...) { #
   }
 
   v <- diag(vcov_sr) + cov_ymu + t(cov_ymu) - var_preds
-  v <- v - h_get_erb(resi, group_idx, trt, pi_t, randomization)
+  v <- v - h_get_erb(resi, group_idx, trt, pi_t, attr(x, "schema"))
   ret <- v / length(resi)
   dimnames(ret) <- list(trt_lvls, trt_lvls)
   return(ret)
@@ -59,7 +57,7 @@ h_get_erb <- function(resi, group_idx, trt, pi, randomization) {
     return(0)
   }
   assert_string(randomization)
-  if (randomization %in% c("simple", "pocock-simon")) {
+  if (randomization %in% c("sp", "ps")) {
     return(0)
   }
   assert_numeric(resi)

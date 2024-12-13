@@ -7,7 +7,15 @@
 \alias{odds_ratio}
 \title{Treatment Effect}
 \usage{
-treatment_effect(object, pair, variance, eff_measure, eff_jacobian, ...)
+treatment_effect(
+  object,
+  pair,
+  variance,
+  eff_measure,
+  eff_jacobian,
+  vcov_args,
+  ...
+)
 
 difference(object, ...)
 
@@ -25,6 +33,8 @@ odds_ratio(object, ...)
 \item{eff_measure}{(\code{function}) Treatment effect measurement function.}
 
 \item{eff_jacobian}{(\code{function}) Treatment effect jacobian function.}
+
+\item{vcov_args}{(\code{list}) Additional arguments for variance.}
 
 \item{...}{Additional arguments for variance.}
 }

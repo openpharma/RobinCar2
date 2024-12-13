@@ -10,8 +10,9 @@ robin_glm(
   treatment,
   contrast = "difference",
   contrast_jac = NULL,
-  vcov = vcovANHECOVA,
-  family = gaussian,
+  vcov = "vcovG",
+  family = gaussian(),
+  vcov_args = list(),
   ...
 )
 }
@@ -30,15 +31,19 @@ or a string name of treatment assignment.}
 default contrasts.}
 
 \item{vcov}{(\code{function}) A function to calculate the variance-covariance matrix of the treatment effect,
-including \code{vcovHC} and \code{vcovANHECOVA}.}
+including \code{vcovHC} and \code{vcovG}.}
 
 \item{family}{(\code{family}) A family object of the glm model.}
 
-\item{...}{Additional arguments passed to \code{vcov}. For finer control of glm, refer to usage of \code{treatment_effect},
-\code{difference}, \code{risk_ratio}, \code{odds_ratio}.}
+\item{vcov_args}{(\code{list}) Additional arguments passed to \code{vcov}.}
+
+\item{...}{Additional arguments passed to \code{glm} or \code{glm.nb}.}
 }
 \description{
 Covariate adjusted glm model
+}
+\details{
+If family is \code{MASS::negative.binomial(NA)}, the function will use \code{MASS::glm.nb} instead of \code{glm}.
 }
 \examples{
 robin_glm(

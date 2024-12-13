@@ -2,23 +2,21 @@
 #' @description Obtain counterfactual prediction of a fit.
 #'
 #' @param fit fitted object.
-#' @param treatment (`string` or `formula`) treatment variable in string, or a formula of form
-#' treatment ~ strata(s).
+#' @param treatment (`formula`) formula of form treatment ~ strata(s).
 #' @param data (`data.frame`) raw dataset.
-#' @param unbiased (`flag`) indicator of whether to remove potential bias of the prediction.
 #'
 #' @return Numeric matrix of counter factual prediction.
 #'
 #' @export
-predict_counterfactual <- function(fit, treatment, data, unbiased) {
+predict_counterfactual <- function(fit, treatment, data) {
   UseMethod("predict_counterfactual")
 }
 
 #' @export
-predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), unbiased = TRUE) {
+predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit)) {
   trt_vars <- h_get_vars(treatment)
   assert_data_frame(data)
-  assert_subset(unlist(trt_vars), colnames(data))
+  assert_subset(c(trt_vars$treatment, trt_vars$strata), colnames(data))
   formula <- formula(fit)
   assert_subset(trt_vars$treatment, all.vars(formula[[3]]))
   assert(
@@ -26,7 +24,6 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), unb
     test_factor(data[[trt_vars$treatment]])
   )
   data[[trt_vars$treatment]] <- as.factor(data[[trt_vars$treatment]])
-  assert_flag(unbiased)
 
   trt_lvls <- levels(data[[trt_vars$treatment]])
   n_lvls <- length(trt_lvls)
@@ -54,13 +51,16 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), unb
   }
   group_idx <- split(seq_len(nrow(data)), strata)
 
-  if (unbiased) {
+  if (identical(trt_vars$schema, "ps")) {
     ret <- ret - bias(residual, data[[trt_vars$treatment]], group_idx)
+  } else {
+    ret <- ret - bias(residual, data[[trt_vars$treatment]], list(seq_len(nrow(ret))))
   }
   structure(
     .Data = colMeans(ret),
     residual = residual,
     predictions = ret,
+    schema = trt_vars$schema,
     predictions_linear = pred_linear,
     response = y,
     fit = fit,
@@ -73,6 +73,6 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), unb
 }
 
 #' @export
-predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit), unbiased = TRUE) {
-  predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, unbiased = unbiased)
+predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit)) {
+  predict_counterfactual.lm(fit = fit, data = data, treatment = treatment)
 }
