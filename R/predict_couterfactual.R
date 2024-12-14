@@ -52,9 +52,9 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit)) {
   group_idx <- split(seq_len(nrow(data)), strata)
 
   if (identical(trt_vars$schema, "ps")) {
-    ret <- ret - bias(residual, data[[trt_vars$treatment]], group_idx)
+    ret <- ret + bias(residual, data[[trt_vars$treatment]], group_idx)
   } else {
-    ret <- ret - bias(residual, data[[trt_vars$treatment]], list(seq_len(nrow(ret))))
+    ret <- ret + bias(residual, data[[trt_vars$treatment]], list(seq_len(nrow(ret))))
   }
   structure(
     .Data = colMeans(ret),
