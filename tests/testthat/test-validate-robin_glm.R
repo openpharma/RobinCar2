@@ -8,14 +8,13 @@ library(MASS)
 dummy_data$y_c <- ifelse(
   dummy_data$y <= 0, 1,
   ifelse(dummy_data$y <= 1, 2,
-         ifelse(dummy_data$y <= 2, 3, 4))
+    ifelse(dummy_data$y <= 2, 3, 4)
+  )
 )
 
 test_that("marginal means", {
-
   # Function to compare RobinCar to RobinCar2 outputs
   compare <- function(r1, r2) {
-
     # Estimates and variance from RobinCar
     enames <- r1$result$treat
     estimates1 <- r1$result$estimate
@@ -32,27 +31,28 @@ test_that("marginal means", {
     testthat::expect_equal(estimates1, estimates2)
   }
 
-  for(family in list (gaussian(), binomial(), poisson(), negative.binomial(theta=1))){
-    for(model in c ("~ treatment",
-                   "~ treatment * covar",
-                   "~ treatment * (covar + s1)")){
-
+  for (family in list(gaussian(), binomial(), poisson(), negative.binomial(theta = 1))) {
+    for (model in c(
+      "~ treatment",
+      "~ treatment * covar",
+      "~ treatment * (covar + s1)"
+    )) {
       print(model)
       print(family$family)
 
       # Set formula based on parameters
-      if(family$family == "gaussian"){
+      if (family$family == "gaussian") {
         yname <- "y"
-      } else if(family$family == "binomial"){
+      } else if (family$family == "binomial") {
         yname <- "y_b"
-      } else if(family$family %in% c("poisson", "Negative Binomial(1)")){
+      } else if (family$family %in% c("poisson", "Negative Binomial(1)")) {
         yname <- "y_c"
       }
       form <- as.formula(paste0(yname, model))
 
       # Use RobinCar2
       robincar2 <- robin_glm(
-        form=form,
+        form = form,
         data = dummy_data,
         treatment = treatment ~ 1,
         vcov = vcovG,
