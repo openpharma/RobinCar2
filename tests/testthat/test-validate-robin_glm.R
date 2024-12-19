@@ -6,7 +6,7 @@ library(MASS)
 
 # Make categorical outcome to test counts
 # Not informative at all
-dummy_data$y_c <- MASS::rnegbin(n=nrow(dummy_data), theta=1)
+dummy_data$y_c <- MASS::rnegbin(n = nrow(dummy_data), theta = 1)
 
 test_that("marginal means", {
   # Function to compare RobinCar to RobinCar2 outputs
@@ -48,11 +48,10 @@ test_that("marginal means", {
       "~ treatment * (covar + s1)",
       "~ treatment * (covar + s1 + s2)"
     )) {
-      for (scheme in c("simple", "pocock-simon", "permuted-block")){
-        for(strata in list(c(), c("s1"), c("s1", "s2"))){
-
+      for (scheme in c("simple", "pocock-simon", "permuted-block")) {
+        for (strata in list(c(), c("s1"), c("s1", "s2"))) {
           # Set formula based on parameters
-          if(identical(family, "nb")){
+          if (identical(family, "nb")) {
             yname <- "y_c"
           } else if (identical(family$family, "gaussian")) {
             yname <- "y"
@@ -64,32 +63,31 @@ test_that("marginal means", {
 
           form <- as.formula(paste0(yname, model))
 
-          if(identical(family, "nb")){
-            family2 <- MASS::negative.binomial(theta=NA)
+          if (identical(family, "nb")) {
+            family2 <- MASS::negative.binomial(theta = NA)
           } else {
             family2 <- family
           }
 
-          if(scheme == "simple"){
+          if (scheme == "simple") {
             scheme2 <- "sp"
-          } else if(scheme == "permuted-block") {
+          } else if (scheme == "permuted-block") {
             scheme2 <- "pb"
           } else {
             scheme2 <- "ps"
           }
 
-          if(identical(strata, c())){
+          if (identical(strata, c())) {
             strata2 <- "1"
           } else {
             strata2 <- strata
           }
 
-          scheme_form <- paste0("treatment ~ ", scheme2, "(", paste(strata2, collapse=" + "), ")")
+          scheme_form <- paste0("treatment ~ ", scheme2, "(", paste(strata2, collapse = " + "), ")")
 
           # Skip simple randomization with strata
           # this is fine for RobinCar2, but it returns an error (intentionally) with RobinCar
-          if(!(identical(strata, c()) & (scheme != "simple"))){
-
+          if (!(identical(strata, c()) & (scheme != "simple"))) {
             # Use RobinCar
             # We don't need to see RobinCar warnings.
             suppressWarnings(robincar1 <- robincar_glm(
