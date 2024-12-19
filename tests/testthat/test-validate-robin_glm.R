@@ -5,12 +5,8 @@ library(MASS)
 # -------------------------------------
 
 # Make categorical outcome to test counts
-dummy_data$y_c <- ifelse(
-  dummy_data$y <= 0, 1,
-  ifelse(dummy_data$y <= 1, 2,
-    ifelse(dummy_data$y <= 2, 3, 4)
-  )
-)
+# Not informative at all
+dummy_data$y_c <- MASS::rnegbin(n=nrow(dummy_data), theta=1)
 
 test_that("marginal means", {
   # Function to compare RobinCar to RobinCar2 outputs
@@ -31,46 +27,95 @@ test_that("marginal means", {
     testthat::expect_equal(estimates1, estimates2)
   }
 
-  for (family in list(gaussian(), binomial(), poisson(), negative.binomial(theta = 1))) {
+  families <- list(
+    gaussian(),
+    binomial(),
+    poisson(),
+    negative.binomial(theta = 1),
+    "nb" # negative binomial with unspecified dispersion parameter
+  )
+
+  for (family in families) {
     for (model in c(
+      # ANOVA
       "~ treatment",
-      "~ treatment * covar",
-      "~ treatment * (covar + s1)"
+      # ANCOVA
+      "~ treatment + covar",
+      "~ treatment + covar + s1",
+      "~ treatment + covar + s1 + s2",
+      # ANHECOVA
+      "~ treatment * (covar)",
+      "~ treatment * (covar + s1)",
+      "~ treatment * (covar + s1 + s2)"
     )) {
-      print(model)
-      print(family$family)
+      for (scheme in c("simple", "pocock-simon", "permuted-block")){
+        for(strata in list(c(), c("s1"), c("s1", "s2"))){
 
-      # Set formula based on parameters
-      if (family$family == "gaussian") {
-        yname <- "y"
-      } else if (family$family == "binomial") {
-        yname <- "y_b"
-      } else if (family$family %in% c("poisson", "Negative Binomial(1)")) {
-        yname <- "y_c"
+          # Set formula based on parameters
+          if(identical(family, "nb")){
+            yname <- "y_c"
+          } else if (identical(family$family, "gaussian")) {
+            yname <- "y"
+          } else if (identical(family$family, "binomial")) {
+            yname <- "y_b"
+          } else {
+            yname <- "y_c"
+          }
+
+          form <- as.formula(paste0(yname, model))
+
+          if(identical(family, "nb")){
+            family2 <- MASS::negative.binomial(theta=NA)
+          } else {
+            family2 <- family
+          }
+
+          if(scheme == "simple"){
+            scheme2 <- "sp"
+          } else if(scheme == "permuted-block") {
+            scheme2 <- "pb"
+          } else {
+            scheme2 <- "ps"
+          }
+
+          if(identical(strata, c())){
+            strata2 <- "1"
+          } else {
+            strata2 <- strata
+          }
+
+          scheme_form <- paste0("treatment ~ ", scheme2, "(", paste(strata2, collapse=" + "), ")")
+
+          # Skip simple randomization with strata
+          # this is fine for RobinCar2, but it returns an error (intentionally) with RobinCar
+          if(!(identical(strata, c()) & (scheme != "simple"))){
+
+            # Use RobinCar
+            # We don't need to see RobinCar warnings.
+            suppressWarnings(robincar1 <- robincar_glm(
+              df = dummy_data,
+              treat_col = "treatment",
+              response_col = yname,
+              formula = form,
+              car_scheme = scheme,
+              car_strata_cols = strata,
+              g_family = family
+            ))
+
+            # Use RobinCar2
+            robincar2 <- robin_glm(
+              form = form,
+              data = dummy_data,
+              treatment = as.formula(scheme_form),
+              vcov = vcovG,
+              family = family2
+            )
+
+            # Compare the results
+            compare(robincar1, robincar2)
+          }
+        }
       }
-      form <- as.formula(paste0(yname, model))
-
-      # Use RobinCar2
-      robincar2 <- robin_glm(
-        form = form,
-        data = dummy_data,
-        treatment = treatment ~ 1,
-        vcov = vcovG,
-        family = family
-      )
-
-      # Use RobinCar
-      robincar1 <- robincar_glm(
-        df = dummy_data,
-        treat_col = "treatment",
-        response_col = yname,
-        formula = form,
-        car_scheme = "simple",
-        g_family = family,
-      )
-
-      # Compare the results
-      compare(robincar1, robincar2)
     }
   }
 })
