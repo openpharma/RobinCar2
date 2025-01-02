@@ -188,7 +188,7 @@ print.treatment_effect <- function(x, ...) {
   if (!identical(attr(x, "vartype"), "none")) {
     v <- attr(x, "mmvariance")
     cat("Marginal Mean Variance: \n")
-    print(sqrt(diag(v)))
+    print(diag(v))
     cat("\n\n")
   }
   cat("Variance Type: ", attr(x, "vartype"), "\n")
