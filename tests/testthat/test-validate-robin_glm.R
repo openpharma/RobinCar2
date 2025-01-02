@@ -51,7 +51,11 @@ test_that("marginal means", {
       "~ treatment * (covar + s1 + s2)"
     )) {
       for (scheme in c("simple", "pocock-simon", "permuted-block")){
-        for(strata in list(c(), c("s1"), c("s1", "s2"))){
+        for(strata in list(
+          c(),
+          c("s1"),
+          c("s1", "s2")
+          )){
 
           # Set formula based on parameters
           if(identical(family, "nb")){
@@ -92,6 +96,7 @@ test_that("marginal means", {
           # this is fine for RobinCar2, but it returns an error (intentionally) with RobinCar
           if(!(identical(strata, c()) & (scheme != "simple"))){
 
+            set.seed(365)
             # Use RobinCar
             # We don't need to see RobinCar warnings.
             suppressWarnings(robincar1 <- robincar_glm(
@@ -104,6 +109,7 @@ test_that("marginal means", {
               g_family = family,
             ))
 
+            set.seed(365)
             # Use RobinCar2
             robincar2 <- robin_glm(
               form = form,
@@ -141,7 +147,7 @@ test_that("contrast -- standard options", {
     testthat::expect_equal(estimates1[indices], estimates2[indices])
     testthat::expect_equal(variances1[indices], variances2[indices])
   }
-  skip("SKIP")
+
   for(scheme in c("simple", "pocock-simon", "permuted-block")){
 
     model <- "~ treatment + covar + s1"
