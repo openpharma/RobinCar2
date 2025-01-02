@@ -43,7 +43,7 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit)) {
 
   ret <- matrix(preds, ncol = n_lvls, dimnames = list(row.names(data), trt_lvls))
   y <- model.response(fit$model)
-  residual <- y - fitted(fit)
+  residual_raw <- y - fitted(fit)
 
   strata <- data[trt_vars$strata]
   if (ncol(strata) == 0L) {
@@ -52,10 +52,19 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit)) {
   group_idx <- split(seq_len(nrow(data)), strata)
 
   if (identical(trt_vars$schema, "ps")) {
-    ret <- ret + bias(residual, data[[trt_vars$treatment]], group_idx)
+    ret <- ret + bias(residual_raw, data[[trt_vars$treatment]], group_idx)
   } else {
-    ret <- ret + bias(residual, data[[trt_vars$treatment]], list(seq_len(nrow(ret))))
+    ret <- ret + bias(residual_raw, data[[trt_vars$treatment]], list(seq_len(nrow(ret))))
   }
+
+  # Create residual based on the
+  # prediction-unbiased response
+  residual <- vector(length=nrow(ret), mode="numeric")
+  for(i in 1:length(trt_lvls)){
+    trt_idx <- which(data$treatment == trt_lvls[i])
+    residual[trt_idx] <- y[trt_idx] - ret[trt_idx, i]
+  }
+
   structure(
     .Data = colMeans(ret),
     residual = residual,
