@@ -27,6 +27,13 @@ test_that("predict_counterfactual works for negative binomial --
     obs_mean <- mean(dummy_data[idx, ][["y_b"]])
     expect_equal(pred_mean, obs_mean, tolerance = 1e-15)
   }
+
+  # check that the mean of the residuals is zero within a treatment group
+  # this test exists because previously residual and predictions attributes
+  # were not aligned properly when predictions were biased
+  residuals <- attr(pc, "residual")
+  res_mean <- mean(residuals[idx])
+  expect_equal(res_mean, 0, tolerance=1e-15)
 })
 
 test_that("predict_counterfactual works if contrast are non-standard", {
