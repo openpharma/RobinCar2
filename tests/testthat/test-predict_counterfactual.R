@@ -11,8 +11,10 @@ test_that("predict_counterfactual works for binomial", {
 })
 
 test_that("predict_counterfactual for negative binomial", {
-  fit <- glm(y_b ~ treatment * covar, data = dummy_data,
-             family = negative.binomial(theta = 1))
+  fit <- glm(y_b ~ treatment * covar,
+    data = dummy_data,
+    family = negative.binomial(theta = 1)
+  )
   pc <- predict_counterfactual(fit, treatment ~ 1, data = find_data(fit))
   predictions <- attr(pc, "predictions")
 

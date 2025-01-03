@@ -28,11 +28,13 @@ test_that("marginal means", {
     testthat::expect_equal(variances1, variances2)
   }
 
-  families <- list(gaussian(),
-                   binomial(),
-                   poisson(),
-                   negative.binomial(theta = 1),
-                   "nb") # negative binomial with unspecified dispersion parameter
+  families <- list(
+    gaussian(),
+    binomial(),
+    poisson(),
+    negative.binomial(theta = 1),
+    "nb"
+  ) # negative binomial with unspecified dispersion parameter
 
   for (family in families) {
     for (model in c(
@@ -210,7 +212,7 @@ test_that("contrast -- standard options", {
     # RobinCar does not do all pairwise contrasts
     r1_odds <- run_robin1(
       contrast_h = function(vec) {
-        ((vec / (1 - vec)) / (vec[1] / (1 - vec[1]))) [2:3]
+        ((vec / (1 - vec)) / (vec[1] / (1 - vec[1])))[2:3]
       }
     )
     r2_odds <- run_robin2(contrast = "odds_ratio")
