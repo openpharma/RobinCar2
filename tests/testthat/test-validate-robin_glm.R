@@ -162,6 +162,9 @@ test_that("contrast -- standard options", {
       strata2 <- strata
     }
 
+    strata2c <- paste(strata2, collapse = " + ")
+    scheme_form <- paste0("treatment ~ ", scheme2, "(", strata2c, ")")
+
     run_robin1 <- function(...) {
       suppressWarnings(
         robincar_glm(
