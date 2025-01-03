@@ -33,7 +33,7 @@ test_that("predict_counterfactual works for negative binomial --
   # were not aligned properly when predictions were biased
   residuals <- attr(pc, "residual")
   res_mean <- mean(residuals[idx])
-  expect_equal(res_mean, 0, tolerance=1e-15)
+  expect_equal(res_mean, 0, tolerance = 1e-15)
 })
 
 test_that("predict_counterfactual works if contrast are non-standard", {

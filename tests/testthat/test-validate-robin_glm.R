@@ -11,7 +11,6 @@ dummy_data$y_c <- MASS::rnegbin(n = nrow(dummy_data), theta = 1)
 test_that("marginal means", {
   # Function to compare RobinCar to RobinCar2 outputs
   compare_means <- function(r1, r2) {
-
     # Estimates and variance from RobinCar
     enames <- r1$result$treat
     estimates1 <- r1$result$estimate
@@ -50,10 +49,8 @@ test_that("marginal means", {
       "~ treatment * (covar + s1)",
       "~ treatment * (covar + s1 + s2)"
     )) {
-
       for (scheme in c("simple", "pocock-simon", "permuted-block")) {
         for (strata in list(c(), c("s1"), c("s1", "s2"))) {
-
           # Set formula based on parameters
           if (identical(family, "nb")) {
             yname <- "y_c"
@@ -125,9 +122,7 @@ test_that("marginal means", {
 })
 
 test_that("contrast -- standard options", {
-
   compare_contrast <- function(r1, r2, indices) {
-
     # Estimates and variance from RobinCar
     enames <- r1$contrast$result$contrast
     estimates1 <- r1$contrast$result$estimate
@@ -144,31 +139,30 @@ test_that("contrast -- standard options", {
     testthat::expect_equal(variances1[indices], variances2[indices])
   }
 
-  for(scheme in c("simple", "pocock-simon", "permuted-block")){
-
+  for (scheme in c("simple", "pocock-simon", "permuted-block")) {
     model <- "~ treatment + covar + s1"
     family <- family2 <- gaussian()
     yname <- "y"
     form <- as.formula(paste0(yname, model))
     strata <- c("s1")
 
-    if(scheme == "simple"){
+    if (scheme == "simple") {
       scheme2 <- "sp"
-    } else if(scheme == "permuted-block") {
+    } else if (scheme == "permuted-block") {
       scheme2 <- "pb"
     } else {
       scheme2 <- "ps"
     }
 
-    if(identical(strata, c())){
+    if (identical(strata, c())) {
       strata2 <- "1"
     } else {
       strata2 <- strata
     }
 
-    scheme_form <- paste0("treatment ~ ", scheme2, "(", paste(strata2, collapse=" + "), ")")
+    scheme_form <- paste0("treatment ~ ", scheme2, "(", paste(strata2, collapse = " + "), ")")
 
-    run.robin1 <- function(...){
+    run.robin1 <- function(...) {
       suppressWarnings(robincar_glm(
         df = dummy_data,
         treat_col = "treatment",
@@ -177,10 +171,11 @@ test_that("contrast -- standard options", {
         car_scheme = scheme,
         car_strata_cols = strata,
         g_family = family,
-        ...))
+        ...
+      ))
     }
 
-    run.robin2 <- function(...){
+    run.robin2 <- function(...) {
       robin_glm(
         form = form,
         data = dummy_data,
@@ -194,46 +189,44 @@ test_that("contrast -- standard options", {
     # DIFFERENCE ---------------------------------------------
 
     r1_diff <- run.robin1(
-      contrast_h="diff"
+      contrast_h = "diff"
     )
     r2_diff <- run.robin2(
-      contrast="difference"
+      contrast = "difference"
     )
-    compare_contrast(r1_diff, r2_diff, indices=1:2)
+    compare_contrast(r1_diff, r2_diff, indices = 1:2)
 
     # RATIO -------------------------------------------------
 
     r1_ratio <- run.robin1(
-      contrast_h="ratio"
+      contrast_h = "ratio"
     )
     r2_ratio <- run.robin2(
-      contrast="risk_ratio"
+      contrast = "risk_ratio"
     )
-    compare_contrast(r1_ratio, r2_ratio, indices=1:2)
+    compare_contrast(r1_ratio, r2_ratio, indices = 1:2)
 
     # ODDS RATIO --------------------------------------------
 
     # RobinCar does not do all pairwise contrasts
     r1_odds <- run.robin1(
-      contrast_h=function(vec) ((vec / (1-vec)) / (vec[1] / (1-vec[1])))[2:3]
+      contrast_h = function(vec) ((vec / (1 - vec)) / (vec[1] / (1 - vec[1])))[2:3]
     )
     r2_odds <- run.robin2(
-      contrast="odds_ratio"
+      contrast = "odds_ratio"
     )
-    compare_contrast(r1_odds, r2_odds, indices=1:2)
+    compare_contrast(r1_odds, r2_odds, indices = 1:2)
 
     # CUSTOM FUNCTION ---------------------------------------
 
     # This is a custom function for a contrast just to make sure
     # the custom function works correctly, not for anything scientifically meaningful
     r1_cust <- run.robin1(
-      contrast_h=function(x) x + 4
+      contrast_h = function(x) x + 4
     )
     r2_cust <- run.robin2(
-      contrast=function(x) x + 4
+      contrast = function(x) x + 4
     )
-    compare_contrast(r1_cust, r2_cust, indices=1:3)
-
-}})
-
-
+    compare_contrast(r1_cust, r2_cust, indices = 1:3)
+  }
+})
