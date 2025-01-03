@@ -162,12 +162,6 @@ test_that("contrast -- standard options", {
       strata2 <- strata
     }
 
-    scheme_form <- paste0("treatment ~ ",
-                          scheme2,
-                          "(",
-                          paste(strata2, collapse = " + "),
-                          ")")
-
     run_robin1 <- function(...) {
       suppressWarnings(
         robincar_glm(
@@ -198,12 +192,14 @@ test_that("contrast -- standard options", {
 
     r1_diff <- run_robin1(contrast_h = "diff")
     r2_diff <- run_robin2(contrast = "difference")
+
     compare_contrast(r1_diff, r2_diff, indices = 1:2)
 
     # RATIO -------------------------------------------------
 
     r1_ratio <- run_robin1(contrast_h = "ratio")
     r2_ratio <- run_robin2(contrast = "risk_ratio")
+
     compare_contrast(r1_ratio, r2_ratio, indices = 1:2)
 
     # ODDS RATIO --------------------------------------------
@@ -228,6 +224,5 @@ test_that("contrast -- standard options", {
       contrast = function(x) x + 4
     )
     compare_contrast(r1_cust, r2_cust, indices = 1:3)
-
   }
 })
