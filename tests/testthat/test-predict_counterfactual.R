@@ -15,7 +15,7 @@ test_that("predict_counterfactual for negative binomial", {
     data = dummy_data,
     family = negative.binomial(theta = 1)
   )
-  pc <- predict_counterfactual(fit, treatment ~ 1, data = find_data(fit))
+  pc <- predict_counterfactual(fit, treatment ~ 1, dummy_data)
   predictions <- attr(pc, "predictions")
 
   # Check that the mean of the predicted outcomes within
