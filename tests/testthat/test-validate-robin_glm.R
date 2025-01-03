@@ -133,11 +133,11 @@ test_that("contrast -- standard options", {
   compare_contrast <- function(r1, r2, indices) {
 
     # Estimates and variance from RobinCar
-    enames <- r1$contrast$result$treat
+    enames <- r1$contrast$result$contrast
     estimates1 <- r1$contrast$result$estimate
-    names(estimates1) <- enames
+    names(estimates1) <- NULL
     variances1 <- diag(r1$contrast$varcov)
-    names(variances1) <- enames
+    names(variances1) <- NULL
 
     # Estimates and variance for the first two
     # contrast vector elements from RobinCar2
@@ -217,25 +217,26 @@ test_that("contrast -- standard options", {
 
     # ODDS RATIO --------------------------------------------
 
-    # r1_odds <- run.robin1(
-    #   contrast_h=function()
-    # )
-    # r2_odds <- run.robin2(
-    #   contrast="odds_ratio"
-    # )
-    # compare_contrast(r1_odds, r2_odds)
+    # RobinCar does not do all pairwise contrasts
+    r1_odds <- run.robin1(
+      contrast_h=function(vec) ((vec / (1-vec)) / (vec[1] / (1-vec[1])))[2:3]
+    )
+    r2_odds <- run.robin2(
+      contrast="odds_ratio"
+    )
+    compare_contrast(r1_odds, r2_odds, indices=1:2)
 
     # CUSTOM FUNCTION ---------------------------------------
 
     # This is a custom function for a contrast just to make sure
     # the custom function works correctly, not for anything scientifically meaningful
-    # r1_cust <- run.robin1(
-    #   contrast_h=function()
-    # )
-    # r2_cust <- run.robin2(
-    #   contrast=function()
-    # )
-    # compare_contrast(r1_cust, r2_cust)
+    r1_cust <- run.robin1(
+      contrast_h=function(x) x + 4
+    )
+    r2_cust <- run.robin2(
+      contrast=function(x) x + 4
+    )
+    compare_contrast(r1_cust, r2_cust, indices=1:3)
 
 }})
 
