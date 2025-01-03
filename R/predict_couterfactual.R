@@ -59,8 +59,8 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit)) {
 
   # Create residual based on the
   # prediction-unbiased response
-  residual <- vector(length=nrow(ret), mode="numeric")
-  for(i in 1:length(trt_lvls)){
+  residual <- vector(length = nrow(ret), mode = "numeric")
+  for (i in seq_along(trt_lvls)){
     trt_idx <- which(data$treatment == trt_lvls[i])
     residual[trt_idx] <- y[trt_idx] - ret[trt_idx, i]
   }

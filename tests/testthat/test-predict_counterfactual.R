@@ -10,16 +10,16 @@ test_that("predict_counterfactual works for binomial", {
   expect_snapshot(predict_counterfactual(fit_binom, treatment ~ 1))
 })
 
-test_that("predict_counterfactual works for negative binomial --
-          this tests that the prediction unbiasedness correction is working correctly", {
-  fit <- glm(y_b ~ treatment * covar, data = dummy_data, family = negative.binomial(theta = 1))
+test_that("predict_counterfactual for negative binomial", {
+  fit <- glm(y_b ~ treatment * covar, data = dummy_data,
+             family = negative.binomial(theta = 1))
   pc <- predict_counterfactual(fit, treatment ~ 1, data = find_data(fit))
   predictions <- attr(pc, "predictions")
 
   # Check that the mean of the predicted outcomes within
   # each treatment group matches with the observed outcomes
   trt_levels <- levels(dummy_data$treatment)
-  for (i in 1:length(trt_levels)) {
+  for (i in seq_along(trt_levels)) {
     idx <- dummy_data$treatment == trt_levels[i]
     # mean of the predicted outcomes within treatment group i
     pred_mean <- mean(predictions[idx, i])
@@ -33,7 +33,7 @@ test_that("predict_counterfactual works for negative binomial --
   # were not aligned properly when predictions were biased
   residuals <- attr(pc, "residual")
   res_mean <- mean(residuals[idx])
-  expect_equal(res_mean, 0, tolerance=1e-15)
+  expect_equal(res_mean, 0, tolerance = 1e-15)
 })
 
 test_that("predict_counterfactual works if contrast are non-standard", {
