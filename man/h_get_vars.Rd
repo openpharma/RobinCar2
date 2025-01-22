@@ -18,3 +18,4 @@ Extract Variable Names
 \details{
 Extract the formula elements, including \code{treatment}, \code{schema} and \code{strata}.
 }
+\keyword{internal}

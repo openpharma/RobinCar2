@@ -17,4 +17,42 @@ template:
 navbar:
   right:
     - icon: fa-github
+      aria-label: github
       href: https://github.com/openpharma/RobinCar2
+
+reference:
+  - title: Package
+    contents:
+      - RobinCar2-package
+  - title: Main Function
+    contents:
+    - robin_glm
+  - title: Counter Factual Predictions
+    contents:
+    - predict_counterfactual
+  - title: Contrasts
+    contents:
+    - h_diff
+    - h_ratio
+    - h_odds_ratio
+  - title: Jacobian of Contrasts
+    contents:
+    - h_jac_diff
+    - h_jac_ratio
+    - h_jac_odds_ratio
+  - title: Treatment Effects
+    contents:
+    - treatment_effect
+    - difference
+    - risk_ratio
+    - odds_ratio
+  - title: Robust Variance
+    contents:
+    - vcovG
+    - vcovHC
+  - title: Dummy Data
+    contents:
+    - dummy_data
+  - title: Utilities
+    contents:
+    - find_data

@@ -19,3 +19,4 @@ Numeric matrix of bias in each stratum.
 \description{
 Obtain prediction bias within each stratum.
 }
+\keyword{internal}

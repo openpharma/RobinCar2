@@ -1,9 +1,10 @@
-#### Main functions ####
-
-#' @exportS3Method
-vcovHC.prediction_cf <- function(x, type = "HC3", ...) {
+#' Heteroskedasticity-consistent covariance matrix for predictions
+#' @description The heteroskedasticity-consistent covariance matrix for predictions
+#' is obtained with `sandwich::vocvHC` using sandwich method.
+#' @export
+vcovHC <- function(x, type = "HC3", ...) {
   fit <- attr(x, "fit")
-  vc <- vcovHC(fit, type = type)
+  vc <- sandwich::vcovHC(fit, type = type)
   mm <- attr(x, "model_matrix")
   n <- nrow(mm) / length(names(x))
   md <- family(fit)$mu.eta(attr(x, "predictions_linear")) / n
