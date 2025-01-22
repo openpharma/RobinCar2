@@ -5,7 +5,7 @@
 #' @param group_idx (`character`) stratum index.
 #'
 #' @return Numeric matrix of bias in each stratum.
-#' @export
+#' @keywords internal
 bias <- function(residual, treatment, group_idx) {
   assert_numeric(residual)
   assert_factor(treatment, len = length(residual))

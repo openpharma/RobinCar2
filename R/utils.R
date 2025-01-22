@@ -11,6 +11,7 @@ randomization_schema <- data.frame(
 #' @details Extract the formula elements, including `treatment`, `schema` and `strata`.
 #'
 #' @return A list of three elements, `treatment`, `schema` and `strata`.
+#' @keywords internal
 h_get_vars <- function(treatment) {
   assert_formula(treatment)
   if (!identical(length(treatment), 3L)) {
