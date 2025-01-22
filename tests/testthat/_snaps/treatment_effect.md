@@ -14,8 +14,8 @@
       0.3560965 0.5806957 0.6213865 
       
       Marginal Mean Variance: 
-             pbo       trt1       trt2 
-      0.03359913 0.03441801 0.03401864 
+              pbo        trt1        trt2 
+      0.001128902 0.001184599 0.001157268 
       
       
       Variance Type:  vcovG 
@@ -43,8 +43,8 @@
       0.2003208 0.7639709 0.9712499 
       
       Marginal Mean Variance: 
-             pbo       trt1       trt2 
-      0.06768998 0.07592944 0.07654319 
+              pbo        trt1        trt2 
+      0.004581934 0.005765279 0.005858859 
       
       
       Variance Type:  vcovG 
@@ -94,8 +94,8 @@
       0.3560965 0.5806957 0.6213865 
       
       Marginal Mean Variance: 
-             pbo       trt1 
-      0.03359913 0.03441801 
+              pbo        trt1 
+      0.001128902 0.001184599 
       
       
       Variance Type:  vcovG 
