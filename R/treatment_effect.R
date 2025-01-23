@@ -57,7 +57,7 @@ treatment_effect.prediction_cf <- function(
     trt_var <- diag(NULL)
   }
 
-  pair_names <- outer(pair, pair, FUN = paste, sep = " - ")
+  pair_names <- outer(pair, pair, FUN = paste, sep = " v.s. ")
   structure(
     .Data = trt_effect,
     name = pair_names[lower.tri(pair_names)],

@@ -97,7 +97,7 @@ test_that("treatment_effect works as expected", {
   )
   expect_identical(
     attr(df, "name"),
-    c("trt1 - pbo", "trt2 - pbo", "trt2 - trt1")
+    c("trt1 v.s. pbo", "trt2 v.s. pbo", "trt2 v.s. trt1")
   )
   expect_identical(
     attr(df, "variance"),
@@ -112,7 +112,7 @@ test_that("treatment_effect works as expected", {
   )
   expect_identical(
     attr(rr, "name"),
-    c("trt1 - pbo", "trt2 - pbo", "trt2 - trt1")
+    c("trt1 v.s. pbo", "trt2 v.s. pbo", "trt2 v.s. trt1")
   )
   expect_identical(
     attr(rr, "variance"),
@@ -127,7 +127,7 @@ test_that("treatment_effect works as expected", {
   )
   expect_identical(
     attr(or, "name"),
-    c("trt1 - pbo", "trt2 - pbo", "trt2 - trt1")
+    c("trt1 v.s. pbo", "trt2 v.s. pbo", "trt2 v.s. trt1")
   )
   expect_identical(
     attr(or, "variance"),
