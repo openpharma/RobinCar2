@@ -58,7 +58,7 @@ robincar_glm(
   formula = y_b ~ treatment * s1 + covar,
   car_strata_cols = "s1",
   car_scheme = "permuted-block",
-  g_family = binomial(link="logit"),
+  g_family = binomial(link = "logit"),
   contrast_h = "diff"
 )
 ```
