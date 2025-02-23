@@ -5,7 +5,7 @@ Version: 0.1.0.9000
 Date: 2024-10-16
 Authors@R:
     c(
-      person("Liming", "Li", , "liming.li@roche.com", role = c("aut", "cre")),
+      person("Liming", "Li", , "clark.liming@gmail.com", role = c("aut", "cre")),
       person("Marlena", "Bannick", , "mnorwood@uw.edu", role="aut", comment=c(ORCID="0000-0001-6279-5978")),
       person("Ting", "Ye", , , role="aut"),
       person("Gregory", "Chen", , "xiangyi.gregory.chen@msd.com", role = "aut")
