@@ -18,7 +18,7 @@ treatment_effect.prediction_cf <- function(
   assert_function(eff_measure)
   assert_class(pair, "contrast")
   # make sure levels match
-  assert_identical(attr(pair, "levels"), names(object))
+  pair <- update_levels(pair, names(object))
   trt_effect <- unname(eff_measure(object[pair[[1]]], object[pair[[2]]]))
   trt_jac <- eff_jacobian(object[pair[[1]]], object[pair[[2]]])
   trt_jac_mat <- jac_mat(trt_jac, pair)
@@ -126,7 +126,7 @@ h_odds_ratio <- function(x, y) {
 h_jac_odds_ratio <- function(x, y) {
   assert_numeric(x, lower = 0)
   assert_numeric(y, lower = 0, upper = 1, len = length(x))
-  cbind(1 / (y * (1 - y)), -x / (y^2 * (1 - y)))
+  cbind(1 / (1 - x)^2 / y * (1 - y), - x / (1 - x) / y^2)
 }
 
 #' @rdname contrast

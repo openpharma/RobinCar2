@@ -72,13 +72,15 @@ against_ref <- function(levels, ref = levels[1], x = tail(levels, -1)) {
 custom_contrast <- function(levels, x, y) {
   assert_character(levels)
   if (test_integerish(x)) {
-    assert_integerish(x, len = length(levels))
+    assert_integerish(x)
   } else {
+    assert_character(x)
     assert_subset(x, levels)
   }
   if (test_integerish(y)) {
-    assert_integerish(y, len = length(levels))
+    assert_integerish(y, len = length(x))
   } else {
+    assert_character(y, len = length(x))
     assert_subset(y, levels)
   }
   structure(
@@ -89,6 +91,17 @@ custom_contrast <- function(levels, x, y) {
     max_levels = length(levels),
     levels = levels,
     class = "contrast"
+  )
+}
+
+update_levels <- function(pair, levels) {
+  assert_class(pair, "contrast")
+  assert_character(levels)
+  neworder <- match(attr(pair, "levels"), levels)
+  custom_contrast(
+    levels,
+    neworder[pair[[1]]],
+    neworder[pair[[2]]]
   )
 }
 

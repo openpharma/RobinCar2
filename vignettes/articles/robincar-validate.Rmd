@@ -244,7 +244,7 @@ test_that("contrast -- standard options", {
         ((vec / (1 - vec)) / (vec[1] / (1 - vec[1])))[2:3]
       }
     )
-    r2_odds <- run_robin2(contrast = \(x, y) (x / (1 - x)) / (y / (1 - y)))
+    r2_odds <- run_robin2(contrast = "odds_ratio")
     compare_contrast(r1_odds, r2_odds)
 
     # CUSTOM FUNCTION ---------------------------------------
