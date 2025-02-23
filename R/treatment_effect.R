@@ -17,6 +17,8 @@ treatment_effect.prediction_cf <- function(
     object, pair = pairwise(names(object)), eff_measure, eff_jacobian = eff_jacob(eff_measure), ...) {
   assert_function(eff_measure)
   assert_class(pair, "contrast")
+  # make sure levels match
+  assert_identical(attr(pair, "levels"), names(object))
   trt_effect <- unname(eff_measure(object[pair[[1]]], object[pair[[2]]]))
   trt_jac <- eff_jacobian(object[pair[[1]]], object[pair[[2]]])
   trt_jac_mat <- jac_mat(trt_jac, pair)

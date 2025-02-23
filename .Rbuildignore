@@ -19,4 +19,4 @@ workflows.md
 images
 design
 data-raw
-vignettes/robincar-comparison.Rmd
+^vignettes/articles$

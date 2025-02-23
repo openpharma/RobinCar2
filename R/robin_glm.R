@@ -11,6 +11,7 @@
 #' including `vcovHC` and `vcovG`.
 #' @param family (`family`) A family object of the glm model.
 #' @param vcov_args (`list`) Additional arguments passed to `vcov`.
+#' @param pair Pairwise treatment comparison.
 #' @param ... Additional arguments passed to `glm` or `glm.nb`.
 #' @details
 #' If family is `MASS::negative.binomial(NA)`, the function will use `MASS::glm.nb` instead of `glm`.
@@ -23,7 +24,7 @@
 #' )
 robin_glm <- function(
     formula, data, treatment, contrast = "difference",
-    contrast_jac = NULL, vcov = "vcovG", family = gaussian(), vcov_args = list(), ...) {
+    contrast_jac = NULL, vcov = "vcovG", family = gaussian(), vcov_args = list(), pair, ...) {
   attr(formula, ".Environment") <- environment()
   # check if using negative.binomial family with NA as theta.
   # If so, use MASS::glm.nb instead of glm.
@@ -43,19 +44,22 @@ robin_glm <- function(
       "using a linear model without treatment-covariate interactions; see the 2023 FDA guidance."
     )
   }
+  if (missing(pair)) {
+    pair <- pairwise(names(pc))
+  }
   if (identical(contrast, "difference")) {
-    difference(pc)
+    difference(pc, pair = pair)
   } else if (identical(contrast, "risk_ratio")) {
-    risk_ratio(pc)
+    risk_ratio(pc, pair = pair)
   } else if (identical(contrast, "odds_ratio")) {
-    odds_ratio(pc)
+    odds_ratio(pc, pair = pair)
   } else {
     assert_function(contrast, args = c("x", "y"))
     assert_function(contrast_jac, null.ok = TRUE, args = c("x", "y"))
     if (is.null(contrast_jac)) {
       contrast_jac <- eff_jacob(contrast)
     }
-    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac)
+    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair)
   }
 }
 
