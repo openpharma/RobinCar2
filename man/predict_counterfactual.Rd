@@ -4,7 +4,7 @@
 \alias{predict_counterfactual}
 \title{Counterfactual Prediction}
 \usage{
-predict_counterfactual(fit, treatment, data)
+predict_counterfactual(fit, treatment, data, vcov, vcov_args, ...)
 }
 \arguments{
 \item{fit}{fitted object.}

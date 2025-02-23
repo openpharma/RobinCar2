@@ -22,6 +22,7 @@ Imports:
     checkmate,
     numDeriv,
     MASS,
+    methods,
     sandwich,
     stats
 Suggests:

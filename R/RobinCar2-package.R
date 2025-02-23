@@ -4,9 +4,10 @@
 #'
 #' @aliases RobinCar2-package
 #' @import checkmate
-#' @importFrom numDeriv jacobian
+#' @importFrom numDeriv grad
 #' @importFrom stats predict residuals fitted model.response model.matrix coefficients family
 #' gaussian terms glm var family pnorm var as.formula
 #' @importFrom sandwich vcovHC
 #' @importFrom MASS negative.binomial
+#' @importFrom methods formalArgs
 "_PACKAGE"
