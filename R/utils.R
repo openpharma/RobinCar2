@@ -60,7 +60,7 @@ against_ref <- function(levels, ref = levels[1], x = tail(levels, -1)) {
     check_string(ref),
     check_int(ref)
   )
-  custom_contrast(x, rep(ref, length(x)), levels)
+  custom_contrast(levels, x, rep(ref, length(x)))
 }
 #' Create Contrast of Pairs
 #' @param x (`vector`) A vector of treatment levels.

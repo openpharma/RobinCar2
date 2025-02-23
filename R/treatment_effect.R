@@ -8,21 +8,24 @@
 #' @param ... Additional arguments for variance.
 #'
 #' @export
-treatment_effect <- function(object, pair, eff_measure, eff_jacobian, ...) {
+treatment_effect <- function(object, pair = pairwise(names(object)), eff_measure, eff_jacobian = eff_jacob(eff_measure), ...) {
   UseMethod("treatment_effect")
 }
 
 #' @export
 treatment_effect.prediction_cf <- function(
-    object, pair = pairwise(names(object)), eff_measure, eff_jacobian, ...) {
+    object, pair = pairwise(names(object)), eff_measure, eff_jacobian = eff_jacob(eff_measure), ...) {
   assert_function(eff_measure)
   assert_class(pair, "contrast")
   trt_effect <- unname(eff_measure(object[pair[[1]]], object[pair[[2]]]))
   trt_jac <- eff_jacobian(object[pair[[1]]], object[pair[[2]]])
   trt_jac_mat <- jac_mat(trt_jac, pair)
+  equal_val <- eff_measure(object[1], object[1])
   structure(
     .Data = trt_effect,
     pair = pair,
+    contrast = deparse(substitute(eff_measure)),
+    equal_val = equal_val,
     marginal_mean = object,
     fit = attr(object, "fit"),
     treatment = attr(object, "treatment_formula"),
@@ -36,17 +39,23 @@ treatment_effect.prediction_cf <- function(
 #' @export
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
-    object, pair, vcov = "vcovG", eff_measure, eff_jacobian,
+    object, pair, vcov = "vcovG", eff_measure, eff_jacobian = eff_jacob(eff_measure),
     vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, data = data, treatment, vcov = vcov, vcov_args = vcov_args)
+  if (missing(pair)) {
+    pair <- pairwise(names(pc))
+  }
   treatment_effect(pc, pair = pair, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
 }
 
 #' @export
 treatment_effect.glm <- function(
-    object, pair, vcov = "vcovG", eff_measure, eff_jacobian,
+    object, pair, vcov = "vcovG", eff_measure, eff_jacobian = eff_jacob(eff_measure),
     vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, treatment, data, vcov = vcov, vcov_args = vcov_args)
+  if (missing(pair)) {
+    pair <- pairwise(names(pc))
+  }
   treatment_effect(pc, pair = pair, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
 }
 
@@ -88,7 +97,7 @@ h_jac_diff <- function(x, y) {
 
 #' @rdname contrast
 #' @export
-h_ratio <- function(x) {
+h_ratio <- function(x, y) {
   assert_numeric(x, lower = 0)
   assert_numeric(y, lower = 0, len = length(x))
   x / y
@@ -96,7 +105,7 @@ h_ratio <- function(x) {
 
 #' @rdname contrast
 #' @export
-h_jac_ratio <- function(x) {
+h_jac_ratio <- function(x, y) {
   assert_numeric(x, lower = 0)
   assert_numeric(y, lower = 0, len = length(x))
   cbind(1 / y, -x / y^2)
@@ -112,7 +121,7 @@ h_odds_ratio <- function(x, y) {
 
 #' @rdname contrast
 #' @export
-h_jac_odds_ratio <- function(x) {
+h_jac_odds_ratio <- function(x, y) {
   assert_numeric(x, lower = 0)
   assert_numeric(y, lower = 0, upper = 1, len = length(x))
   cbind(1 / (y * (1 - y)), -x / (y^2 * (1 - y)))
@@ -121,14 +130,11 @@ h_jac_odds_ratio <- function(x) {
 #' @rdname contrast
 #' @export
 eff_jacob <- function(f) {
-  assert_identical(
-    methods::formalArgs(f),
-    c("x", "y")
-  )
+  assert_function(f, args = c("x", "y"))
   function(x, y) {
     cbind(
-      numDeriv::grad(f, x, y = y),
-      numDeriv::grad(f, y, x = x)
+      numDeriv::grad(\(x) {f(x = x, y = y)}, x),
+      numDeriv::grad(\(y) {f(x = x, y = y)}, y)
     )
   }
 }
@@ -136,13 +142,13 @@ eff_jacob <- function(f) {
 #' @export
 print.treatment_effect <- function(x, ...) {
   print(attr(x, "marginal_mean"), signif.legend = FALSE)
-  cat("\nContrast     :\n")
+  cat(sprintf("\nContrast     :  %s\n", attr(x, "contrast")))
   if (is.null(attr(x, "variance"))) {
     trt_sd <- rep(NA, length(x))
   } else {
     trt_sd <- sqrt(diag(attr(x, "variance")))
   }
-  z_value <- as.numeric(x) / trt_sd
+  z_value <- as.numeric(x - attr(x, "equal_val")) / trt_sd
   p <- 2 * pnorm(abs(z_value), lower.tail = FALSE)
   coef_mat <- matrix(
     c(

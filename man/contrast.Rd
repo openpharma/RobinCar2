@@ -17,13 +17,13 @@ h_diff(x, y)
 
 h_jac_diff(x, y)
 
-h_ratio(x)
+h_ratio(x, y)
 
-h_jac_ratio(x)
+h_jac_ratio(x, y)
 
 h_odds_ratio(x, y)
 
-h_jac_odds_ratio(x)
+h_jac_odds_ratio(x, y)
 
 eff_jacob(f)
 

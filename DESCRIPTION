@@ -22,14 +22,12 @@ Imports:
     checkmate,
     numDeriv,
     MASS,
-    methods,
     sandwich,
     stats
 Suggests:
     knitr,
     rmarkdown,
-    testthat (>= 3.0),
-    RobinCar
+    testthat (>= 3.0)
 VignetteBuilder:
     knitr
 Config/testthat/edition: 3    

@@ -3,26 +3,20 @@
     Code
       treatment_effect(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff)
     Output
-      Treatment Effect
-      -------------
       Model        :  y_b ~ treatment * s1 + covar 
-      Randomization:  treatment ~ s1 
-      Marginal Mean: 
-      counter-factual prediction
-      
-            pbo      trt1      trt2 
-      0.3560965 0.5806957 0.6213865 
-      
-      Marginal Mean Variance: 
-              pbo        trt1        trt2 
-      0.001128902 0.001184599 0.001157268 
-      
-      
+      Randomization:  treatment ~ s1  ( Simple )
       Variance Type:  vcovG 
-                     Estimate Std.Err Z Value Pr(>|z|)    
-      trt1 v.s. pbo    0.2246  0.0477    4.71  2.5e-06 ***
-      trt2 v.s. pbo    0.2653  0.0475    5.58  2.4e-08 ***
-      trt2 v.s. trt1   0.0407  0.0479    0.85      0.4    
+      Marginal Mean: 
+           Estimate  Std.Err Z Value  Pr(>|z|)    
+      pbo  0.356097 0.033599  10.598 < 2.2e-16 ***
+      trt1 0.580696 0.034418  16.872 < 2.2e-16 ***
+      trt2 0.621386 0.034019  18.266 < 2.2e-16 ***
+      
+      Contrast     :  eff_measure
+                     Estimate  Std.Err Z Value  Pr(>|z|)    
+      trt1 v.s. pbo  0.224599 0.047711  4.7075 2.508e-06 ***
+      trt2 v.s. pbo  0.265290 0.047534  5.5810 2.391e-08 ***
+      trt2 v.s. trt1 0.040691 0.047941  0.8488     0.396    
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -32,26 +26,20 @@
       treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff,
       data = dummy_data)
     Output
-      Treatment Effect
-      -------------
       Model        :  y ~ treatment * s1 + covar 
-      Randomization:  treatment ~ s1 
-      Marginal Mean: 
-      counter-factual prediction
-      
-            pbo      trt1      trt2 
-      0.2003208 0.7639709 0.9712499 
-      
-      Marginal Mean Variance: 
-              pbo        trt1        trt2 
-      0.004581934 0.005765279 0.005858859 
-      
-      
+      Randomization:  treatment ~ s1  ( Simple )
       Variance Type:  vcovG 
-                     Estimate Std.Err Z Value Pr(>|z|)    
-      trt1 v.s. pbo     0.564   0.101    5.60  2.2e-08 ***
-      trt2 v.s. pbo     0.771   0.101    7.61  2.8e-14 ***
-      trt2 v.s. trt1    0.207   0.107    1.94    0.052 .  
+      Marginal Mean: 
+           Estimate  Std.Err Z Value  Pr(>|z|)    
+      pbo  0.200321 0.067690  2.9594  0.003083 ** 
+      trt1 0.763971 0.075929 10.0616 < 2.2e-16 ***
+      trt2 0.971250 0.076543 12.6889 < 2.2e-16 ***
+      
+      Contrast     :  eff_measure
+                     Estimate Std.Err Z Value  Pr(>|z|)    
+      trt1 v.s. pbo   0.56365 0.10074  5.5952 2.203e-08 ***
+      trt2 v.s. pbo   0.77093 0.10133  7.6082 2.779e-14 ***
+      trt2 v.s. trt1  0.20728 0.10683  1.9402   0.05235 .  
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -61,46 +49,42 @@
       treatment_effect(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff,
       variance = NULL)
     Output
-      Treatment Effect
-      -------------
       Model        :  y_b ~ treatment * s1 + covar 
-      Randomization:  treatment ~ s1 
+      Randomization:  treatment ~ s1  ( Simple )
+      Variance Type:  vcovG 
       Marginal Mean: 
-      counter-factual prediction
+           Estimate  Std.Err Z Value  Pr(>|z|)    
+      pbo  0.356097 0.033599  10.598 < 2.2e-16 ***
+      trt1 0.580696 0.034418  16.872 < 2.2e-16 ***
+      trt2 0.621386 0.034019  18.266 < 2.2e-16 ***
       
-            pbo      trt1      trt2 
-      0.3560965 0.5806957 0.6213865 
-      
-      Variance Type:  none 
-                     Estimate Std.Err Z Value Pr(>|z|)
-      trt1 v.s. pbo    0.2246      NA      NA       NA
-      trt2 v.s. pbo    0.2653      NA      NA       NA
-      trt2 v.s. trt1   0.0407      NA      NA       NA
+      Contrast     :  eff_measure
+                     Estimate  Std.Err Z Value  Pr(>|z|)    
+      trt1 v.s. pbo  0.224599 0.047711  4.7075 2.508e-06 ***
+      trt2 v.s. pbo  0.265290 0.047534  5.5810 2.391e-08 ***
+      trt2 v.s. trt1 0.040691 0.047941  0.8488     0.396    
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-# treatment_effect works if pair is integer
+# treatment_effect works if pair is defined
 
     Code
-      treatment_effect(fit_binom, pair = c(1, 2), treatment = treatment ~ s1,
-      eff_measure = h_diff)
+      treatment_effect(fit_binom, pair = against_ref(c("pbo", "trt1", "trt2")),
+      treatment = treatment ~ s1, eff_measure = h_diff)
     Output
-      Treatment Effect
-      -------------
       Model        :  y_b ~ treatment * s1 + covar 
-      Randomization:  treatment ~ s1 
-      Marginal Mean: 
-      counter-factual prediction
-      
-            pbo      trt1      trt2 
-      0.3560965 0.5806957 0.6213865 
-      
-      Marginal Mean Variance: 
-              pbo        trt1 
-      0.001128902 0.001184599 
-      
-      
+      Randomization:  treatment ~ s1  ( Simple )
       Variance Type:  vcovG 
-                    Estimate Std.Err Z Value Pr(>|z|)    
-      trt1 v.s. pbo   0.2246  0.0477    4.71  2.5e-06 ***
+      Marginal Mean: 
+           Estimate  Std.Err Z Value  Pr(>|z|)    
+      pbo  0.356097 0.033599  10.598 < 2.2e-16 ***
+      trt1 0.580696 0.034418  16.872 < 2.2e-16 ***
+      trt2 0.621386 0.034019  18.266 < 2.2e-16 ***
+      
+      Contrast     :  eff_measure
+                    Estimate  Std.Err Z Value  Pr(>|z|)    
+      trt1 v.s. pbo 0.224599 0.047711  4.7075 2.508e-06 ***
+      trt2 v.s. pbo 0.265290 0.047534  5.5810 2.391e-08 ***
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 

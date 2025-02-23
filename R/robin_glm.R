@@ -34,7 +34,7 @@ robin_glm <- function(
   } else {
     fit <- glm(formula, family = family, data = data, ...)
   }
-  pc <- predict_counterfactual(fit, treatment, data)
+  pc <- predict_counterfactual(fit, treatment, data, variance = vcov, vcov_args = vcov_args)
   has_interaction <- h_interaction(formula, treatment)
   use_vcovhc <- identical(vcov, "vcovHC") || identical(vcov, vcovHC)
   if (use_vcovhc && (has_interaction || !identical(contrast, "difference"))) {
@@ -44,20 +44,18 @@ robin_glm <- function(
     )
   }
   if (identical(contrast, "difference")) {
-    difference(pc, variance = vcov, vcov_args = vcov_args)
+    difference(pc)
   } else if (identical(contrast, "risk_ratio")) {
-    risk_ratio(pc, variance = vcov, vcov_args = vcov_args)
+    risk_ratio(pc)
   } else if (identical(contrast, "odds_ratio")) {
-    odds_ratio(pc, variance = vcov, vcov_args = vcov_args)
+    odds_ratio(pc)
   } else {
-    assert_function(contrast)
-    assert_function(contrast_jac, null.ok = TRUE)
+    assert_function(contrast, args = c("x", "y"))
+    assert_function(contrast_jac, null.ok = TRUE, args = c("x", "y"))
     if (is.null(contrast_jac)) {
-      contrast_jac <- function(x) {
-        numDeriv::jacobian(contrast, x)
-      }
+      contrast_jac <- eff_jacob(contrast)
     }
-    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, variance = vcov, vcov_args = vcov_args)
+    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac)
   }
 }
 
