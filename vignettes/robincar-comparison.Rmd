@@ -1,0 +1,99 @@
+---
+title: "RobinCar Comparison"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RobinCar Comparison}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(RobinCar2)
+library(RobinCar)
+```
+
+[RobinCar](https://marlenabannick.com/RobinCar/) was developed as a comprehensive library of existing and future methods on covariate adjustment. RobinCar2 aims to become a standard R package for industry and regulatory agencies to implement covariate adjustment using selected methods with clear documentation and validation for GxP compliance.
+
+*See the American Statistical Association (ASA) BIOP Covariate Adjustment Scientific Working Group (SWG) Software Subteam page [here](https://carswg.github.io/subteam_software.html) for more information.*
+
+As such, RobinCar and RobinCar2 share many methods. Please use this vignette as a guide to the similarities and differences between RobinCar and RobinCar2.
+
+## RobinCar2 and RobinCar produce the same results when run with the same settings on the same data
+
+RobinCar2 has a testing suite that ensures that the outputs are identical between RobinCar and RobinCar2. The comparisons use the `dummy_data` dataset included in RobinCar2. The outputs for the point estimates and variance estimates are compared under a variety of settings, including:
+
+-   Marginal means and treatment contrasts, for the difference, relative risk, odds ratio, and a custom contrast.
+-   Under Gaussian, binomial, Poisson, and negative binomial (known and unknown dispersion parameters) working models.
+-   Mean model specifications of ANOVA, ANCOVA, and ANHECOVA with up to three covariates.
+-   Under simple, Pocock-Simon, and permuted block randomization schemes.
+
+Please see the following testing file for details: <https://github.com/openpharma/RobinCar2/blob/main/tests/testthat/test-validate-robin_glm.R>
+
+## Differences between RobinCar and RobinCar2 argument usage
+
+The interface for users is very similar between RobinCar and RobinCar2, though RobinCar2 has some more streamlined use. Users of RobinCar should find RobinCar2 at least as user-friendly and not have trouble switching between packages.
+
+Here we provide an example of using a *logistic regression working model* with *stratified permuted block randomization*, and the `dummy_data` provided in the package. We output the treatment contrast.
+
+```         
+head(dummy_data)
+```
+
+### RobinCar
+
+Here is the call in RobinCar, and the output:
+
+```{r, eval=T}
+robincar_glm(
+  df = dummy_data,
+  treat_col = "treatment",
+  response_col = "y_b",
+  formula = y_b ~ treatment * s1 + covar,
+  car_strata_cols = "s1",
+  car_scheme = "permuted-block",
+  g_family = binomial(link = "logit"),
+  contrast_h = "diff"
+)
+```
+
+### RobinCar2
+
+In RobinCar2, all of the randomization information, including the name of the treatment variable, the stratification variable, and the randomization scheme info is included in the `treatment` argument. This contrasts with RobinCar, where the information is required in `treat_col`, `car_strata_cols`, and `car_scheme`.
+
+```{r, eval=T}
+robin_glm(
+  data = dummy_data,
+  formula = y_b ~ treatment * s1 + covar,
+  treatment = treatment ~ pb(s1),
+  family = binomial(link = "logit")
+)
+```
+
+The structure of the output of RobinCar2 more closely mirrors the structure of the output that one would obtain using `glm()`.
+
+## Feature availability in RobinCar v. RobinCar2
+
+Here we list any differences in the features that are available in RobinCar and RobinCar2. This will be continually updated as the packages are updated.
+
+*Last Updated: February 21, 2025*
+
+### Features available in RobinCar that are not available in RobinCar2
+
+#### Variance function
+
+RobinCar only has one option for the variance, which RobinCar2 calls `vcovG`. `vcovG` is the influence function-based variance estimator. RobinCar2 has the option of specifying a `vcov` other than `vcovG`.
+
+Currently, the only other `vcov` that is allowed in RobinCar2 is the sandwich variance, called `vcovHC` and it is only valid for ANCOVA with a linear contrast. Please see the table in the following blogpost from the ASA-BIOP Covariate Adjustment SWG [here](https://carswg.github.io/posts/blog_linear_model.html) for more information about the methodology behind the sandwich variance versus influence-based variance.
+
+### Features available in RobinCar2 that are not available in RobinCar
+
+#### Time-to-event analysis
+
+Currently, RobinCar has functions for time-to-event data analysis and RobinCar2 does not. This is planned for future releases of RobinCar2. Please see [here](https://marlenabannick.com/RobinCar/articles/Robust-Testing-for-Time-to-Event-Data.html) for usage of RobinCar time-to-event methods.
