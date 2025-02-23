@@ -6,6 +6,13 @@
 \usage{
 vcovHC(x, type = "HC3", ...)
 }
+\arguments{
+\item{x}{(\code{prediction_cf}) Counter-factual prediction.}
+
+\item{type}{(\code{character}) Type of HC covariance matrix.}
+
+\item{...}{Additional arguments for \code{sandwich::vcovHC}.}
+}
 \description{
 The heteroskedasticity-consistent covariance matrix for predictions
 is obtained with \code{sandwich::vocvHC} using sandwich method.

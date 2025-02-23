@@ -39,8 +39,8 @@ treatment_effect.prediction_cf <- function(
 #' @export
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
-    object, pair, vcov = "vcovG", eff_measure, eff_jacobian = eff_jacob(eff_measure),
-    vcov_args = list(), treatment, data = find_data(object), ...) {
+    object, pair, eff_measure, eff_jacobian = eff_jacob(eff_measure),
+    vcov = "vcovG", vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, data = data, treatment, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
     pair <- pairwise(names(pc))
@@ -50,8 +50,8 @@ treatment_effect.lm <- function(
 
 #' @export
 treatment_effect.glm <- function(
-    object, pair, vcov = "vcovG", eff_measure, eff_jacobian = eff_jacob(eff_measure),
-    vcov_args = list(), treatment, data = find_data(object), ...) {
+    object, pair, eff_measure, eff_jacobian = eff_jacob(eff_measure),
+    vcov = "vcovG", vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, treatment, data, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
     pair <- pairwise(names(pc))
@@ -77,8 +77,8 @@ odds_ratio <- function(object, ...) {
 #' @param x (`numeric`) Vector of values.
 #' @return Vector of contrasts, or matrix of jacobians.
 #' @examples
-#' h_diff(1:3)
-#' h_jac_ratio(1:3)
+#' h_diff(1:3, 4:6)
+#' h_jac_ratio(1:3, 4:6)
 #' @export
 h_diff <- function(x, y) {
   assert_numeric(x)
@@ -128,6 +128,7 @@ h_jac_odds_ratio <- function(x, y) {
 }
 
 #' @rdname contrast
+#' @param f (`function`) Function with argument x and y to compute treatment effect.
 #' @export
 eff_jacob <- function(f) {
   assert_function(f, args = c("x", "y"))

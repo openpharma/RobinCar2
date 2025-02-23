@@ -93,7 +93,7 @@ custom_contrast <- function(levels, x, y) {
 }
 
 jac_mat <- function(jac, pair) {
-  assert_matrix(jac, ncol = 2, nrow = length(pair[[1]]))
+  assert_matrix(jac, ncols = 2, nrows = length(pair[[1]]))
   assert_class(pair, "contrast")
   ret <- matrix(0, nrow = nrow(jac), ncol = attr(pair, "max_levels"))
   ret[cbind(seq_len(nrow(jac)), pair[[1]])] <- jac[, 1]

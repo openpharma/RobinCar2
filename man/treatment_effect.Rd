@@ -7,7 +7,13 @@
 \alias{odds_ratio}
 \title{Treatment Effect}
 \usage{
-treatment_effect(object, pair, eff_measure, eff_jacobian, ...)
+treatment_effect(
+  object,
+  pair = pairwise(names(object)),
+  eff_measure,
+  eff_jacobian = eff_jacob(eff_measure),
+  ...
+)
 
 difference(object, ...)
 

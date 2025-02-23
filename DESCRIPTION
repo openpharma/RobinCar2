@@ -23,7 +23,8 @@ Imports:
     numDeriv,
     MASS,
     sandwich,
-    stats
+    stats,
+    utils
 Suggests:
     knitr,
     rmarkdown,

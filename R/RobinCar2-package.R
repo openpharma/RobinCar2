@@ -9,4 +9,5 @@
 #' gaussian terms glm var family pnorm var as.formula
 #' @importFrom sandwich vcovHC
 #' @importFrom MASS negative.binomial
+#' @importFrom utils combn tail
 "_PACKAGE"

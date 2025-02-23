@@ -38,6 +38,8 @@ custom_contrast(levels, x, y)
 
 \item{y}{(\code{vector}) A vector of treatment levels.}
 
+\item{f}{(\code{function}) Function with argument x and y to compute treatment effect.}
+
 \item{levels}{(\code{character}) Levels of the treatment.}
 
 \item{ref}{(\code{string} or \code{int}) Reference level.}
@@ -51,6 +53,6 @@ Contrast Functions and Jacobians
 Create Contrast of Pairs
 }
 \examples{
-h_diff(1:3)
-h_jac_ratio(1:3)
+h_diff(1:3, 4:6)
+h_jac_ratio(1:3, 4:6)
 }

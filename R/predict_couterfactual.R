@@ -4,6 +4,9 @@
 #' @param fit fitted object.
 #' @param treatment (`formula`) formula of form treatment ~ strata(s).
 #' @param data (`data.frame`) raw dataset.
+#' @param vcov (`function` or `character`) variance function or name.
+#' @param vcov_args (`list`) additional arguments for variance function.
+#' @param ... Additional arguments for methods.
 #'
 #' @return Numeric matrix of counter factual prediction.
 #'
