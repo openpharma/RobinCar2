@@ -4,17 +4,25 @@
 #' @param fit fitted object.
 #' @param treatment (`formula`) formula of form treatment ~ strata(s).
 #' @param data (`data.frame`) raw dataset.
+#' @param vcov (`function` or `character`) variance function or name.
+#' @param vcov_args (`list`) additional arguments for variance function.
+#' @param ... Additional arguments for methods.
 #'
 #' @return Numeric matrix of counter factual prediction.
 #'
 #' @export
-predict_counterfactual <- function(fit, treatment, data) {
+predict_counterfactual <- function(fit, treatment, data, vcov, vcov_args, ...) {
   UseMethod("predict_counterfactual")
 }
 
 #' @export
-predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit)) {
+predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vcov = "vcovG", vcov_args = list(), ...) {
   trt_vars <- h_get_vars(treatment)
+  assert(
+    test_string(vcov),
+    test_function(vcov),
+    test_null(vcov)
+  )
   assert_data_frame(data)
   assert_subset(c(trt_vars$treatment, trt_vars$strata), colnames(data))
   formula <- formula(fit)
@@ -62,7 +70,7 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit)) {
   trt_idx <- match(data[[trt_vars$treatment]], trt_lvls)
   residual <- y - ret[cbind(seq_len(nrow(ret)), trt_idx)]
 
-  structure(
+  ret <- structure(
     .Data = colMeans(ret),
     residual = residual,
     predictions = ret,
@@ -76,9 +84,23 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit)) {
     group_idx = group_idx,
     class = "prediction_cf"
   )
+  if (test_string(vcov)) {
+    variance_name <- vcov
+    vcov <- match.fun(vcov)
+    mm_variance <- do.call(vcov, c(list(ret), vcov_args))
+  } else if (test_function(vcov)) {
+    variance_name <- deparse(substitute(vcov))
+    mm_variance <- do.call(vcov, c(list(ret), vcov_args))
+  } else {
+    variance_name <- NULL
+    mm_variance <- rep(NA_real_, n_lvls)
+  }
+  attr(ret, "variance") <- mm_variance
+  attr(ret, "variance_name") <- variance_name
+  ret
 }
 
 #' @export
-predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit)) {
-  predict_counterfactual.lm(fit = fit, data = data, treatment = treatment)
+predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit), vcov = "vcovG", vcov_args = list(), ...) {
+  predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, vcov = vcov, vcov_args = vcov_args, ...)
 }

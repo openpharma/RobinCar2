@@ -1,9 +1,33 @@
+---
+title: "RobinCar Validation"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{RobinCar Validation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This document validate RobinCar2 against RobinCar.
+
+
+```{r}
+if (!requireNamespace("RobinCar", quietly = TRUE)) {
+  install.packages("RobinCar")
+}
 library(RobinCar)
+library(RobinCar2)
 library(MASS)
+library(testthat)
+```
 
 # Compare RobinCar2 to RobinCar results
-# -------------------------------------
 
+## Negative Binomial
+
+The response is following negative binomial distribution with a dispersion parameter of 1.
+This checks the marginal means and variance.
+
+```{r}
 # Make categorical outcome to test counts
 # Not informative at all
 dummy_data$y_c <- MASS::rnegbin(n = nrow(dummy_data), theta = 1)
@@ -21,8 +45,9 @@ test_that("marginal means", {
 
     # Estimates and variance for the first two
     # contrast vector elements from RobinCar2
-    estimates2 <- c(attributes(r2)$marginal_mean)
-    variances2 <- attributes(r2)$mmvariance
+    mm <- attr(r2, "marginal_mean")
+    estimates2 <- c(mm)
+    variances2 <- attr(mm, "variance")
 
     testthat::expect_equal(estimates1, estimates2)
     testthat::expect_equal(variances1, variances2)
@@ -124,23 +149,28 @@ test_that("marginal means", {
     }
   }
 })
+```
 
+## Normal distribution
+
+The response is following normal distribution.
+
+```{r}
 test_that("contrast -- standard options", {
-  compare_contrast <- function(r1, r2, indices) {
+  compare_contrast <- function(r1, r2) {
     # Estimates and variance from RobinCar
     enames <- r1$contrast$result$contrast
     estimates1 <- r1$contrast$result$estimate
     names(estimates1) <- NULL
-    variances1 <- diag(r1$contrast$varcov)
-    names(variances1) <- NULL
+    variances1 <- r1$contrast$varcov
+    dimnames(variances1) <- NULL
 
     # Estimates and variance for the first two
     # contrast vector elements from RobinCar2
-    estimates2 <- c(r2)
+    estimates2 <- as.numeric(r2)
     variances2 <- attr(r2, "variance")
-
-    testthat::expect_equal(estimates1[indices], estimates2[indices])
-    testthat::expect_equal(variances1[indices], variances2[indices])
+    testthat::expect_equal(estimates1, estimates2)
+    testthat::expect_equal(variances1, variances2, tolerance = 1e-4)
   }
 
   for (scheme in c("simple", "pocock-simon", "permuted-block")) {
@@ -189,6 +219,7 @@ test_that("contrast -- standard options", {
         treatment = as.formula(scheme_form),
         vcov = vcovG,
         family = family2,
+        pair = against_ref(c("pbo", "trt1", "trt2"), ref = "pbo", x = c("trt1", "trt2")),
         ...
       )
     }
@@ -198,14 +229,14 @@ test_that("contrast -- standard options", {
     r1_diff <- run_robin1(contrast_h = "diff")
     r2_diff <- run_robin2(contrast = "difference")
 
-    compare_contrast(r1_diff, r2_diff, indices = 1:2)
+    compare_contrast(r1_diff, r2_diff)
 
     # RATIO -------------------------------------------------
 
     r1_ratio <- run_robin1(contrast_h = "ratio")
     r2_ratio <- run_robin2(contrast = "risk_ratio")
 
-    compare_contrast(r1_ratio, r2_ratio, indices = 1:2)
+    compare_contrast(r1_ratio, r2_ratio)
 
     # ODDS RATIO --------------------------------------------
 
@@ -216,18 +247,19 @@ test_that("contrast -- standard options", {
       }
     )
     r2_odds <- run_robin2(contrast = "odds_ratio")
-    compare_contrast(r1_odds, r2_odds, indices = 1:2)
+    compare_contrast(r1_odds, r2_odds)
 
     # CUSTOM FUNCTION ---------------------------------------
 
     # This is a custom function for a contrast just to make sure
     # the custom function works correctly, not for anything scientifically meaningful
     r1_cust <- run_robin1(
-      contrast_h = function(x) x + 4
+      contrast_h = function(x) x[-1] + 4
     )
     r2_cust <- run_robin2(
-      contrast = function(x) x + 4
+      contrast = function(x, y) x + 4
     )
-    compare_contrast(r1_cust, r2_cust, indices = 1:3)
+    compare_contrast(r1_cust, r2_cust)
   }
 })
+```

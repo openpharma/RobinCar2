@@ -19,3 +19,4 @@ workflows.md
 images
 design
 data-raw
+^vignettes/articles$

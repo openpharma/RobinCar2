@@ -11,6 +11,7 @@
 #' including `vcovHC` and `vcovG`.
 #' @param family (`family`) A family object of the glm model.
 #' @param vcov_args (`list`) Additional arguments passed to `vcov`.
+#' @param pair Pairwise treatment comparison.
 #' @param ... Additional arguments passed to `glm` or `glm.nb`.
 #' @details
 #' If family is `MASS::negative.binomial(NA)`, the function will use `MASS::glm.nb` instead of `glm`.
@@ -23,7 +24,7 @@
 #' )
 robin_glm <- function(
     formula, data, treatment, contrast = "difference",
-    contrast_jac = NULL, vcov = "vcovG", family = gaussian(), vcov_args = list(), ...) {
+    contrast_jac = NULL, vcov = "vcovG", family = gaussian(), vcov_args = list(), pair, ...) {
   attr(formula, ".Environment") <- environment()
   # check if using negative.binomial family with NA as theta.
   # If so, use MASS::glm.nb instead of glm.
@@ -34,7 +35,7 @@ robin_glm <- function(
   } else {
     fit <- glm(formula, family = family, data = data, ...)
   }
-  pc <- predict_counterfactual(fit, treatment, data)
+  pc <- predict_counterfactual(fit, treatment, data, variance = vcov, vcov_args = vcov_args)
   has_interaction <- h_interaction(formula, treatment)
   use_vcovhc <- identical(vcov, "vcovHC") || identical(vcov, vcovHC)
   if (use_vcovhc && (has_interaction || !identical(contrast, "difference"))) {
@@ -43,21 +44,22 @@ robin_glm <- function(
       "using a linear model without treatment-covariate interactions; see the 2023 FDA guidance."
     )
   }
+  if (missing(pair)) {
+    pair <- pairwise(names(pc))
+  }
   if (identical(contrast, "difference")) {
-    difference(pc, variance = vcov, vcov_args = vcov_args)
+    difference(pc, pair = pair)
   } else if (identical(contrast, "risk_ratio")) {
-    risk_ratio(pc, variance = vcov, vcov_args = vcov_args)
+    risk_ratio(pc, pair = pair)
   } else if (identical(contrast, "odds_ratio")) {
-    odds_ratio(pc, variance = vcov, vcov_args = vcov_args)
+    odds_ratio(pc, pair = pair)
   } else {
-    assert_function(contrast)
-    assert_function(contrast_jac, null.ok = TRUE)
+    assert_function(contrast, args = c("x", "y"))
+    assert_function(contrast_jac, null.ok = TRUE, args = c("x", "y"))
     if (is.null(contrast_jac)) {
-      contrast_jac <- function(x) {
-        numDeriv::jacobian(contrast, x)
-      }
+      contrast_jac <- eff_jacob(contrast)
     }
-    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, variance = vcov, vcov_args = vcov_args)
+    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair)
   }
 }
 

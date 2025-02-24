@@ -4,7 +4,7 @@
 \alias{predict_counterfactual}
 \title{Counterfactual Prediction}
 \usage{
-predict_counterfactual(fit, treatment, data)
+predict_counterfactual(fit, treatment, data, vcov, vcov_args, ...)
 }
 \arguments{
 \item{fit}{fitted object.}
@@ -12,6 +12,12 @@ predict_counterfactual(fit, treatment, data)
 \item{treatment}{(\code{formula}) formula of form treatment ~ strata(s).}
 
 \item{data}{(\code{data.frame}) raw dataset.}
+
+\item{vcov}{(\code{function} or \code{character}) variance function or name.}
+
+\item{vcov_args}{(\code{list}) additional arguments for variance function.}
+
+\item{...}{Additional arguments for methods.}
 }
 \value{
 Numeric matrix of counter factual prediction.
