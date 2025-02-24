@@ -1,14 +1,13 @@
 ---
-title: "RobinCar Validation"
+title: "RobinCar Validation Report"
 output: rmarkdown::html_document
 vignette: >
-  %\VignetteIndexEntry{RobinCar Validation}
+  %\VignetteIndexEntry{RobinCar Validation Report}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-This document validate RobinCar2 against RobinCar.
-
+This document validates RobinCar2 against RobinCar.
 
 ```{r}
 if (!requireNamespace("RobinCar", quietly = TRUE)) {
@@ -22,7 +21,7 @@ library(testthat)
 
 # Compare RobinCar2 to RobinCar results
 
-## Negative Binomial
+## Negative Binomial Working Model
 
 The response is following negative binomial distribution with a dispersion parameter of 1.
 This checks the marginal means and variance.
@@ -151,9 +150,9 @@ test_that("marginal means", {
 })
 ```
 
-## Normal distribution
+## Linear Working Model
 
-The response is following normal distribution.
+The response is continuous.
 
 ```{r}
 test_that("contrast -- standard options", {
