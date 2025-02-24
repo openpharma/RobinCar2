@@ -8,7 +8,9 @@
 #' @param ... Additional arguments for variance.
 #'
 #' @export
-treatment_effect <- function(object, pair = pairwise(names(object)), eff_measure, eff_jacobian = eff_jacob(eff_measure), ...) {
+treatment_effect <- function(
+  object, pair = pairwise(names(object)), eff_measure,
+  eff_jacobian = eff_jacob(eff_measure), ...) {
   UseMethod("treatment_effect")
 }
 
@@ -136,12 +138,8 @@ eff_jacob <- function(f) {
   assert_function(f, args = c("x", "y"))
   function(x, y) {
     cbind(
-      numDeriv::grad(\(x) {
-        f(x = x, y = y)
-      }, x),
-      numDeriv::grad(\(y) {
-        f(x = x, y = y)
-      }, y)
+      numDeriv::grad(\(x) f(x = x, y = y), x),
+      numDeriv::grad(\(y) f(x = x, y = y), y)
     )
   }
 }

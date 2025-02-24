@@ -5,7 +5,7 @@
 #' @param type (`character`) Type of HC covariance matrix.
 #' @param ... Additional arguments for `sandwich::vcovHC`.
 #' @export
-vcovHC <- function(x, type = "HC3", ...) {
+vcovHC <- function(x, type = "HC3", ...) { # nolint
   assert_class(x, "prediction_cf")
   fit <- attr(x, "fit")
   vc <- sandwich::vcovHC(fit, type = type)

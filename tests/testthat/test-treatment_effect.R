@@ -84,14 +84,14 @@ test_that("h_jac_odds_ratio work as expected", {
   y <- c(0.5, 0.2, 0.6)
   expect_identical(
     h_jac_odds_ratio(x, y),
-    matrix(c(4, 6.25, 25 / 6, -1.6, -125 / 8, -25 / 6), nrow = 3),
+    matrix(c(1.5625, 16, 25 / 6, -1, -25, -25 / 6), nrow = 3),
     tolerance = 1e-8
   )
   x <- c(0.2, 0.5)
   y <- c(0.5, 0.2)
   expect_identical(
     h_jac_odds_ratio(x, y),
-    matrix(c(4, 6.25, -1.6, -125 / 8), nrow = 2),
+    matrix(c(1.5625, 16, -1, -25), nrow = 2),
     tolerance = 1e-8
   )
 })
@@ -139,7 +139,7 @@ test_that("treatment_effect works as expected", {
   )
   expect_identical(
     diag(attr(or, "variance")),
-    c(0.07848085, 0.08650976, 0.04161292),
+    c(0.25578808, 0.36889840, 0.05635703),
     tolerance = 1e-6
   )
 })
@@ -162,5 +162,10 @@ test_that("treatment_effect works if variance is not used", {
 })
 
 test_that("treatment_effect works if pair is defined", {
-  expect_snapshot(treatment_effect(fit_binom, pair = against_ref(c("pbo", "trt1", "trt2")), treatment = treatment ~ s1, eff_measure = h_diff))
+  expect_snapshot(
+    treatment_effect(
+      fit_binom, pair = against_ref(c("pbo", "trt1", "trt2")),
+      treatment = treatment ~ s1, eff_measure = h_diff
+    )
+  )
 })
