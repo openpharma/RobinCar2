@@ -164,7 +164,8 @@ test_that("treatment_effect works if variance is not used", {
 test_that("treatment_effect works if pair is defined", {
   expect_snapshot(
     treatment_effect(
-      fit_binom, pair = against_ref(c("pbo", "trt1", "trt2")),
+      fit_binom,
+      pair = against_ref(c("pbo", "trt1", "trt2")),
       treatment = treatment ~ s1, eff_measure = h_diff
     )
   )

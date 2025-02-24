@@ -9,8 +9,8 @@
 #'
 #' @export
 treatment_effect <- function(
-  object, pair = pairwise(names(object)), eff_measure,
-  eff_jacobian = eff_jacob(eff_measure), ...) {
+    object, pair = pairwise(names(object)), eff_measure,
+    eff_jacobian = eff_jacob(eff_measure), ...) {
   UseMethod("treatment_effect")
 }
 
