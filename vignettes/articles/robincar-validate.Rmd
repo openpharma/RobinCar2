@@ -17,6 +17,7 @@ if (!requireNamespace("RobinCar", quietly = TRUE)) {
 library(RobinCar)
 library(RobinCar2)
 library(MASS)
+library(testthat)
 ```
 
 # Compare RobinCar2 to RobinCar results
