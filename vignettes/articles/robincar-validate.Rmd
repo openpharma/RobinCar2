@@ -15,6 +15,7 @@ if (!requireNamespace("RobinCar", quietly = TRUE)) {
   install.packages("RobinCar")
 }
 library(RobinCar)
+library(RobinCar2)
 library(MASS)
 ```
 
