@@ -13,6 +13,7 @@ robin_glm(
   vcov = "vcovG",
   family = gaussian(),
   vcov_args = list(),
+  pair,
   ...
 )
 }
@@ -36,6 +37,8 @@ including \code{vcovHC} and \code{vcovG}.}
 \item{family}{(\code{family}) A family object of the glm model.}
 
 \item{vcov_args}{(\code{list}) Additional arguments passed to \code{vcov}.}
+
+\item{pair}{Pairwise treatment comparison.}
 
 \item{...}{Additional arguments passed to \code{glm} or \code{glm.nb}.}
 }

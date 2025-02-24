@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Liming Li \email{liming.li@roche.com}
+\strong{Maintainer}: Liming Li \email{clark.liming@gmail.com}
 
 Authors:
 \itemize{
