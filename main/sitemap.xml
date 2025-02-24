@@ -3,6 +3,7 @@
 <url><loc>https://openpharma.github.io/RobinCar2/articles/index.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/articles/intro.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/articles/robincar-comparison.html</loc></url>
+<url><loc>https://openpharma.github.io/RobinCar2/articles/robincar-validate.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/authors.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/index.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/news/index.html</loc></url>
@@ -14,7 +15,6 @@
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_adjust_pi.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_get_erb.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_get_vars.html</loc></url>
-<url><loc>https://openpharma.github.io/RobinCar2/reference/h_lower_tri_idx.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/index.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/predict_counterfactual.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/prediction_cf_methods.html</loc></url>

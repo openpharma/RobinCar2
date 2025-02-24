@@ -41,6 +41,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/intro.html">Package Introduction</a></li>
     <li><a class="dropdown-item" href="../articles/robincar-comparison.html">RobinCar Comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/robincar-validate.html">RobinCar Validation</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -118,26 +119,20 @@ is permuted-block randomization stratified by <code>s1</code>. A proper
 model to use is <code>y ~ treatment * s1 + covar</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>, data <span class="op">=</span> <span class="va">dummy_data</span>, treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Treatment Effect</span></span>
-<span><span class="co">#&gt; -------------</span></span>
 <span><span class="co">#&gt; Model        :  y ~ treatment * s1 + covar </span></span>
-<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1) </span></span>
-<span><span class="co">#&gt; Marginal Mean: </span></span>
-<span><span class="co">#&gt; counter-factual prediction</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
-<span><span class="co">#&gt; 0.2003208 0.7639709 0.9712499 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Marginal Mean Variance: </span></span>
-<span><span class="co">#&gt;         pbo        trt1        trt2 </span></span>
-<span><span class="co">#&gt; 0.004581934 0.005765279 0.005858859 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1)  ( Permuted-Block )</span></span>
 <span><span class="co">#&gt; Variance Type:  vcovG </span></span>
-<span><span class="co">#&gt;                Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; trt1 v.s. pbo     0.564   0.101    5.60  2.2e-08 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. pbo     0.771   0.101    7.61  2.8e-14 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. trt1    0.207   0.107    1.94    0.052 .  </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt;      Estimate  Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; pbo  0.200321 0.067690  2.9594  0.003083 ** </span></span>
+<span><span class="co">#&gt; trt1 0.763971 0.075929 10.0616 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; trt2 0.971250 0.076543 12.6889 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Contrast     :  h_diff</span></span>
+<span><span class="co">#&gt;                Estimate Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 v.s. pbo   0.56365 0.10074  5.5952 2.203e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. pbo   0.77093 0.10133  7.6082 2.779e-14 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. trt1  0.20728 0.10683  1.9402   0.05235 .  </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p>We can also use the Huber-White variance estimator by setting
@@ -146,26 +141,20 @@ formula should not contain treatment interaction with stratification
 factors.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">+</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>, data <span class="op">=</span> <span class="va">dummy_data</span>, treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span>, vcov <span class="op">=</span> <span class="st">"vcovHC"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Treatment Effect</span></span>
-<span><span class="co">#&gt; -------------</span></span>
 <span><span class="co">#&gt; Model        :  y ~ treatment + s1 + covar </span></span>
-<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1) </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1)  ( Permuted-Block )</span></span>
+<span><span class="co">#&gt; Variance Type:  vcovG </span></span>
 <span><span class="co">#&gt; Marginal Mean: </span></span>
-<span><span class="co">#&gt; counter-factual prediction</span></span>
+<span><span class="co">#&gt;      Estimate  Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; pbo  0.200449 0.067690  2.9613  0.003064 ** </span></span>
+<span><span class="co">#&gt; trt1 0.763978 0.075930 10.0616 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; trt2 0.971285 0.076539 12.6901 &lt; 2.2e-16 ***</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
-<span><span class="co">#&gt; 0.2004488 0.7639780 0.9712848 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Marginal Mean Variance: </span></span>
-<span><span class="co">#&gt;         pbo        trt1        trt2 </span></span>
-<span><span class="co">#&gt; 0.004480119 0.005685396 0.005911814 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Variance Type:  vcovHC </span></span>
-<span><span class="co">#&gt;                Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; trt1 v.s. pbo     0.564   0.101    5.60  2.1e-08 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. pbo     0.771   0.102    7.57  3.7e-14 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. trt1    0.207   0.108    1.92    0.055 .  </span></span>
+<span><span class="co">#&gt; Contrast     :  h_diff</span></span>
+<span><span class="co">#&gt;                Estimate Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 v.s. pbo   0.56353 0.10074  5.5941 2.218e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. pbo   0.77084 0.10133  7.6074 2.796e-14 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. trt1  0.20731 0.10683  1.9405   0.05232 .  </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>
@@ -181,26 +170,20 @@ need to specify <code>family</code> to be
 <code>binomial(link = "logit")</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span><span class="va">y_b</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>, data <span class="op">=</span> <span class="va">dummy_data</span>, treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Treatment Effect</span></span>
-<span><span class="co">#&gt; -------------</span></span>
 <span><span class="co">#&gt; Model        :  y_b ~ treatment * s1 + covar </span></span>
-<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1) </span></span>
-<span><span class="co">#&gt; Marginal Mean: </span></span>
-<span><span class="co">#&gt; counter-factual prediction</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
-<span><span class="co">#&gt; 0.3560965 0.5806957 0.6213865 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Marginal Mean Variance: </span></span>
-<span><span class="co">#&gt;         pbo        trt1        trt2 </span></span>
-<span><span class="co">#&gt; 0.001128902 0.001184599 0.001157268 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1)  ( Permuted-Block )</span></span>
 <span><span class="co">#&gt; Variance Type:  vcovG </span></span>
-<span><span class="co">#&gt;                Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; trt1 v.s. pbo    0.2246  0.0477    4.71  2.5e-06 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. pbo    0.2653  0.0475    5.58  2.4e-08 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. trt1   0.0407  0.0479    0.85      0.4    </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt;      Estimate  Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; pbo  0.356097 0.033599  10.598 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; trt1 0.580696 0.034418  16.872 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; trt2 0.621386 0.034019  18.266 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Contrast     :  h_diff</span></span>
+<span><span class="co">#&gt;                Estimate  Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 v.s. pbo  0.224599 0.047711  4.7075 2.508e-06 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. pbo  0.265290 0.047534  5.5810 2.391e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. trt1 0.040691 0.047941  0.8488     0.396    </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>
@@ -221,26 +204,20 @@ we use Poisson link function.</p>
 <span>  data <span class="op">=</span> <span class="va">dummy_data</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span>, family <span class="op">=</span> <span class="fu">MASS</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MASS/man/negative.binomial.html" class="external-link">negative.binomial</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Treatment Effect</span></span>
-<span><span class="co">#&gt; -------------</span></span>
 <span><span class="co">#&gt; Model        :  y_count ~ treatment * s1 + covar </span></span>
-<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1) </span></span>
-<span><span class="co">#&gt; Marginal Mean: </span></span>
-<span><span class="co">#&gt; counter-factual prediction</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;      pbo     trt1     trt2 </span></span>
-<span><span class="co">#&gt; 19.15272 20.06258 20.59901 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Marginal Mean Variance: </span></span>
-<span><span class="co">#&gt;        pbo       trt1       trt2 </span></span>
-<span><span class="co">#&gt; 0.09028392 0.11338830 0.10294317 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ pb(s1)  ( Permuted-Block )</span></span>
 <span><span class="co">#&gt; Variance Type:  vcovG </span></span>
-<span><span class="co">#&gt;                Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; trt1 v.s. pbo     0.910   0.453    2.01  0.04438 *  </span></span>
-<span><span class="co">#&gt; trt2 v.s. pbo     1.446   0.439    3.29  0.00099 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. trt1    0.536   0.466    1.15  0.24919    </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt;      Estimate  Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; pbo  19.15272  0.30047  63.742 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; trt1 20.06258  0.33673  59.580 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; trt2 20.59901  0.32085  64.202 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Contrast     :  h_diff</span></span>
+<span><span class="co">#&gt;                Estimate Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 v.s. pbo   0.90986 0.45255  2.0105 0.0443766 *  </span></span>
+<span><span class="co">#&gt; trt2 v.s. pbo   1.44629 0.43915  3.2934 0.0009898 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. trt1  0.53643 0.46552  1.1523 0.2491880    </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>
@@ -253,26 +230,20 @@ can use other randomization schema. Currently we have also
 <code>ps</code>(Pocock-Simon).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_glm.html">robin_glm</a></span><span class="op">(</span><span class="va">y_b</span> <span class="op">~</span> <span class="va">treatment</span> <span class="op">*</span> <span class="va">s1</span> <span class="op">+</span> <span class="va">covar</span>, data <span class="op">=</span> <span class="va">dummy_data</span>, treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="fu">ps</span><span class="op">(</span><span class="va">s1</span><span class="op">)</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Treatment Effect</span></span>
-<span><span class="co">#&gt; -------------</span></span>
 <span><span class="co">#&gt; Model        :  y_b ~ treatment * s1 + covar </span></span>
-<span><span class="co">#&gt; Randomization:  treatment ~ ps(s1) </span></span>
-<span><span class="co">#&gt; Marginal Mean: </span></span>
-<span><span class="co">#&gt; counter-factual prediction</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;       pbo      trt1      trt2 </span></span>
-<span><span class="co">#&gt; 0.3560965 0.5806957 0.6213865 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Marginal Mean Variance: </span></span>
-<span><span class="co">#&gt;         pbo        trt1        trt2 </span></span>
-<span><span class="co">#&gt; 0.001128902 0.001184599 0.001157268 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Randomization:  treatment ~ ps(s1)  ( Pocock-Simon )</span></span>
 <span><span class="co">#&gt; Variance Type:  vcovG </span></span>
-<span><span class="co">#&gt;                Estimate Std.Err Z Value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; trt1 v.s. pbo    0.2246  0.0477    4.71  2.5e-06 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. pbo    0.2653  0.0475    5.58  2.4e-08 ***</span></span>
-<span><span class="co">#&gt; trt2 v.s. trt1   0.0407  0.0479    0.85      0.4    </span></span>
+<span><span class="co">#&gt; Marginal Mean: </span></span>
+<span><span class="co">#&gt;      Estimate  Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; pbo  0.356097 0.033599  10.598 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; trt1 0.580696 0.034418  16.872 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; trt2 0.621386 0.034019  18.266 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Contrast     :  h_diff</span></span>
+<span><span class="co">#&gt;                Estimate  Std.Err Z Value  Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; trt1 v.s. pbo  0.224599 0.047711  4.7075 2.508e-06 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. pbo  0.265290 0.047534  5.5810 2.391e-08 ***</span></span>
+<span><span class="co">#&gt; trt2 v.s. trt1 0.040691 0.047941  0.8488     0.396    </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>

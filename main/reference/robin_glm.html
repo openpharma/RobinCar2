@@ -25,6 +25,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/intro.html">Package Introduction</a></li>
     <li><a class="dropdown-item" href="../articles/robincar-comparison.html">RobinCar Comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/robincar-validate.html">RobinCar Validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/openpharma/RobinCar2" aria-label="github"><span class="fa fa-github"></span></a></li>
@@ -56,6 +57,7 @@
 <span>  vcov <span class="op">=</span> <span class="st">"vcovG"</span>,</span>
 <span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">gaussian</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  vcov_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">pair</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -100,6 +102,10 @@ including <code>vcovHC</code> and <code>vcovG</code>.</p></dd>
 <dd><p>(<code>list</code>) Additional arguments passed to <code>vcov</code>.</p></dd>
 
 
+<dt id="arg-pair">pair<a class="anchor" aria-label="anchor" href="#arg-pair"></a></dt>
+<dd><p>Pairwise treatment comparison.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <code>glm</code> or <code>glm.nb</code>.</p></dd>
 
@@ -116,26 +122,20 @@ including <code>vcovHC</code> and <code>vcovG</code>.</p></dd>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">dummy_data</span>,</span></span>
 <span class="r-in"><span>  treatment <span class="op">=</span> <span class="va">treatment</span> <span class="op">~</span> <span class="va">s1</span>, contrast <span class="op">=</span> <span class="st">"difference"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Treatment Effect</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model        :  y ~ treatment * s1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Randomization:  treatment ~ s1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Marginal Mean: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> counter-factual prediction</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       pbo      trt1      trt2 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.2230481 0.7639923 0.9482753 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Marginal Mean Variance: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         pbo        trt1        trt2 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.004673852 0.005956420 0.005996443 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Randomization:  treatment ~ s1  ( Simple )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variance Type:  vcovG </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                Estimate Std.Err Z Value Pr(&gt;|z|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> trt1 v.s. pbo     0.541   0.103    5.26  1.4e-07 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> trt2 v.s. pbo     0.725   0.103    7.04  1.9e-12 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> trt2 v.s. trt1    0.184   0.109    1.69    0.091 .  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Marginal Mean: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Estimate  Std.Err Z Value  Pr(&gt;|z|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pbo  0.223048 0.068366  3.2626  0.001104 ** </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> trt1 0.763992 0.077178  9.8991 &lt; 2.2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> trt2 0.948275 0.077437 12.2458 &lt; 2.2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Contrast     :  h_diff</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                Estimate Std.Err Z Value  Pr(&gt;|z|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> trt1 v.s. pbo   0.54094 0.10282  5.2611 1.432e-07 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> trt2 v.s. pbo   0.72523 0.10302  7.0399 1.924e-12 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> trt2 v.s. trt1  0.18428 0.10911  1.6890   0.09123 .  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 </code></pre></div>
