@@ -1,8 +1,8 @@
 ---
-title: "RobinCar Validation Report"
+title: "RobinCar2 Validation Report"
 output: rmarkdown::html_document
 vignette: >
-  %\VignetteIndexEntry{RobinCar Validation Report}
+  %\VignetteIndexEntry{RobinCar2 Validation Report}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
