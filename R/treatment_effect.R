@@ -126,7 +126,7 @@ h_odds_ratio <- function(x, y) {
 h_jac_odds_ratio <- function(x, y) {
   assert_numeric(x, lower = 0)
   assert_numeric(y, lower = 0, upper = 1, len = length(x))
-  cbind(1 / (1 - x)^2 / y * (1 - y), - x / (1 - x) / y^2)
+  cbind(1 / (1 - x)^2 / y * (1 - y), -x / (1 - x) / y^2)
 }
 
 #' @rdname contrast
@@ -136,8 +136,12 @@ eff_jacob <- function(f) {
   assert_function(f, args = c("x", "y"))
   function(x, y) {
     cbind(
-      numDeriv::grad(\(x) {f(x = x, y = y)}, x),
-      numDeriv::grad(\(y) {f(x = x, y = y)}, y)
+      numDeriv::grad(\(x) {
+        f(x = x, y = y)
+      }, x),
+      numDeriv::grad(\(y) {
+        f(x = x, y = y)
+      }, y)
     )
   }
 }
