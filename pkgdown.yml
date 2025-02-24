@@ -1,9 +1,11 @@
-pandoc: '3.4'
+pandoc: 3.6.3
 pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   intro: intro.html
-last_built: 2025-01-23T02:09Z
+  articles/robincar-comparison: robincar-comparison.html
+  articles/robincar-validate: robincar-validate.html
+last_built: 2025-02-24T14:03Z
 urls:
   reference: https://openpharma.github.io/RobinCar2/main/reference
   article: https://openpharma.github.io/RobinCar2/main/articles
