@@ -55,8 +55,9 @@ by stratification interaction as `y ~ treatment * s1 + covar`.
 
 ```{r}
 robin_lm(y ~ treatment * s1 + covar,
-          data = dummy_data,
-          treatment = treatment ~ pb(s1))
+  data = dummy_data,
+  treatment = treatment ~ pb(s1)
+)
 ```
 
 We can also use the Huber-White variance estimator by setting `vcov = "vcovHC"`.
@@ -65,9 +66,10 @@ treatment by stratification (covariate) interaction.
 
 ```{r}
 robin_lm(y ~ treatment + s1 + covar,
-         data = dummy_data,
-         treatment = treatment ~ pb(s1),
-         vcov = "vcovHC")
+  data = dummy_data,
+  treatment = treatment ~ pb(s1),
+  vcov = "vcovHC"
+)
 ```
 
 ## Obtain Treatment Effect for Binary Outcomes
@@ -80,9 +82,10 @@ to specify `family` to be `binomial(link = "logit")`.
 
 ```{r}
 robin_glm(y_b ~ treatment * s1 + covar,
-          data = dummy_data,
-          treatment = treatment ~ pb(s1),
-          family = binomial(link = "logit"))
+  data = dummy_data,
+  treatment = treatment ~ pb(s1),
+  family = binomial(link = "logit")
+)
 ```
 
 ## Obtain Treatment Effect for Counts
@@ -114,7 +117,8 @@ Pocock-Simon randomization.
 
 ```{r}
 robin_glm(y_b ~ treatment * s1 + covar,
-          data = dummy_data,
-          treatment = treatment ~ ps(s1), 
-          family = binomial(link = "logit"))
+  data = dummy_data,
+  treatment = treatment ~ ps(s1),
+  family = binomial(link = "logit")
+)
 ```
