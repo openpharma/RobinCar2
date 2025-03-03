@@ -17,17 +17,54 @@ downloads](https://cranlogs.r-pkg.org/badges/RobinCar2)](https://cranlogs.r-pkg.
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/RobinCar2)](https://cranlogs.r-pkg.org/badges/grand-total/RobinCar2)
 [![Code
 Coverage](https://raw.githubusercontent.com/openpharma/RobinCar2/_xml_coverage_reports/data/main/badge.svg)](https://raw.githubusercontent.com/openpharma/RobinCar2/_xml_coverage_reports/data/main/coverage.xml)
-<!-- badges: end -->  
 
-RobinCar2 is a package to provide robust inference of covariate adjusted
-analysis under stratified randomization. The methods implemented are
-recommended by [FDA guidance on covariate
-adjustment](https://www.regulations.gov/docket/FDA-2019-D-0934). The
-methods are based on the work of [Ye, Shao, Yi and Zhao
-(2023)](doi:10.1080/01621459.2022.2049278), [Ye, Bannick, Yi and Shao
-(2023)](doi:10.1080/24754269.2023.2205802), [Ye, Shao, Yi
-(2023)](doi:10.1093/biomet/asad045%3E) and [Bannick, Shao, Liu, Du, Yi,
-Ye (2024)](doi:10.48550/arXiv.2306.10213).
+<!-- badges: end -->
+
+  
+
+RobinCar2 is a package that provides robust covariate adjustment methods
+for estimating and inferring treatment effects under stratified
+randomization. The implemented methods follow the [FDA’s final guidance
+on covariate
+adjustment](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/adjusting-covariates-randomized-clinical-trials-drugs-and-biological-products)
+and are supported by a well-established body of literature. For linear
+adjustment, see, for example, [Tsiatis
+(2008)](https://pubmed.ncbi.nlm.nih.gov/17960577/), [Bugni et
+al. (2018)](https://pubmed.ncbi.nlm.nih.gov/30906087/), [Ye, Shao, Yi,
+and Zhao
+(2023)](https://www.tandfonline.com/doi/full/10.1080/01621459.2022.2049278),
+and [Ye, Shao, and Yi
+(2022)](https://academic.oup.com/biomet/article/109/1/33/6157823?guestAccessKey=8b2596f8-c032-459a-af01-5bdc89e4d4d1&login=true).
+For nonlinear adjustment, see, e.g., [Rosenblum and van der Laan
+(2010)](https://www.degruyter.com/document/doi/10.2202/1557-4679.1138/html?lang=en&srsltid=AfmBOoo_ikKbaLeBYcxie-99GCMnZfRNzf6aGn8Uxxnw0X3boYtm69U0),
+[Wang et
+al. (2021)](https://www.tandfonline.com/doi/full/10.1080/01621459.2021.1981338),
+[Ye, Bannick, Yi, and Shao
+(2023)](https://www.tandfonline.com/doi/full/10.1080/24754269.2023.2205802),
+and [Bannick, Shao, Liu, Du, Yi, and Ye
+(2024)](https://arxiv.org/abs/2306.10213).
+
+All the following papers (added above) are cited in the FDA guidance.
+
+- Bugni, F, IA Canay, and AM Shaikh, 2018, Inference Under
+  Covariate-Adaptive Randomization, Journal of the American Statistical
+  Association, 113(524):1784-1796.
+
+- Tsiatis, AA, M Davidian, M Zhang, and X Lu, 2008, Covariate Adjustment
+  for Two-Sample Treatment Comparisons in Randomized Trials: A
+  Principled Yet Flexible Approach, Statistics in Medicine,
+  27(23):4658-4677.
+
+- Wang, B, R Susukida, R Mojtabai, M Amin-Esmaeili, and M
+  Rosemblum, 2021. Model-Robust Inference for Clinical Trials that
+  Improve Precision by Stratified Randomization and Covariate
+  Adjustment, Journal of the American Statistical Association, doi:
+  10.1080/01621459.2021.1981338.
+
+- Rosenblum, M and MJ van der Laan, 2010, Simple, Efficient Estimators
+  of Treatment Effects in Randomized Trials Using Generalized Linear
+  Models to Leverage Baseline Variables, International Journal of
+  Biostatisitcs, 6(1):13.
 
 ## Installation
 
