@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE coverage SYSTEM "https://raw.githubusercontent.com/cobertura/cobertura/master/cobertura/src/site/htdocs/xml/coverage-04.dtd">
-<coverage line-rate="0.918079096045198" branch-rate="0" lines-covered="325" lines-valid="354" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2025-02-26 01:07:00.602483">
+<coverage line-rate="0.918079096045198" branch-rate="0" lines-covered="325" lines-valid="354" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2025-03-07 15:27:20.429545">
   <sources>
     <source>/__w/RobinCar2/RobinCar2/RobinCar2</source>
   </sources>
@@ -368,12 +368,12 @@
             </method>
             <method name="h_interaction" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="40" hits="18" branch="false"/>
-                <line number="41" hits="18" branch="false"/>
-                <line number="42" hits="18" branch="false"/>
-                <line number="43" hits="18" branch="false"/>
-                <line number="44" hits="18" branch="false"/>
-                <line number="45" hits="18" branch="false"/>
+                <line number="40" hits="14" branch="false"/>
+                <line number="41" hits="14" branch="false"/>
+                <line number="42" hits="14" branch="false"/>
+                <line number="43" hits="14" branch="false"/>
+                <line number="44" hits="14" branch="false"/>
+                <line number="45" hits="14" branch="false"/>
               </lines>
             </method>
           </methods>
@@ -393,12 +393,12 @@
             <line number="33" hits="1" branch="false"/>
             <line number="34" hits="1" branch="false"/>
             <line number="36" hits="1" branch="false"/>
-            <line number="40" hits="18" branch="false"/>
-            <line number="41" hits="18" branch="false"/>
-            <line number="42" hits="18" branch="false"/>
-            <line number="43" hits="18" branch="false"/>
-            <line number="44" hits="18" branch="false"/>
-            <line number="45" hits="18" branch="false"/>
+            <line number="40" hits="14" branch="false"/>
+            <line number="41" hits="14" branch="false"/>
+            <line number="42" hits="14" branch="false"/>
+            <line number="43" hits="14" branch="false"/>
+            <line number="44" hits="14" branch="false"/>
+            <line number="45" hits="14" branch="false"/>
           </lines>
         </class>
         <class name="treatment_effect.R" filename="R/treatment_effect.R" line-rate="0.936708860759494" branch-rate="0" complexity="0">
@@ -629,24 +629,24 @@
           <methods>
             <method name="h_get_vars" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="16" hits="51" branch="false"/>
-                <line number="17" hits="49" branch="false"/>
+                <line number="16" hits="47" branch="false"/>
+                <line number="17" hits="45" branch="false"/>
                 <line number="18" hits="1" branch="false"/>
-                <line number="20" hits="48" branch="false"/>
+                <line number="20" hits="44" branch="false"/>
                 <line number="21" hits="2" branch="false"/>
-                <line number="23" hits="46" branch="false"/>
-                <line number="24" hits="46" branch="false"/>
-                <line number="25" hits="46" branch="false"/>
-                <line number="26" hits="46" branch="false"/>
+                <line number="23" hits="42" branch="false"/>
+                <line number="24" hits="42" branch="false"/>
+                <line number="25" hits="42" branch="false"/>
+                <line number="26" hits="42" branch="false"/>
                 <line number="27" hits="1" branch="false"/>
-                <line number="28" hits="45" branch="false"/>
-                <line number="29" hits="43" branch="false"/>
-                <line number="31" hits="45" branch="false"/>
-                <line number="32" hits="45" branch="false"/>
-                <line number="33" hits="45" branch="false"/>
-                <line number="34" hits="45" branch="false"/>
-                <line number="35" hits="45" branch="false"/>
-                <line number="36" hits="45" branch="false"/>
+                <line number="28" hits="41" branch="false"/>
+                <line number="29" hits="39" branch="false"/>
+                <line number="31" hits="41" branch="false"/>
+                <line number="32" hits="41" branch="false"/>
+                <line number="33" hits="41" branch="false"/>
+                <line number="34" hits="41" branch="false"/>
+                <line number="35" hits="41" branch="false"/>
+                <line number="36" hits="41" branch="false"/>
               </lines>
             </method>
             <method name="block_sum" signature="" line-rate="1" branch-rate="0" complexity="0">
@@ -721,24 +721,24 @@
             </method>
           </methods>
           <lines>
-            <line number="16" hits="51" branch="false"/>
-            <line number="17" hits="49" branch="false"/>
+            <line number="16" hits="47" branch="false"/>
+            <line number="17" hits="45" branch="false"/>
             <line number="18" hits="1" branch="false"/>
-            <line number="20" hits="48" branch="false"/>
+            <line number="20" hits="44" branch="false"/>
             <line number="21" hits="2" branch="false"/>
-            <line number="23" hits="46" branch="false"/>
-            <line number="24" hits="46" branch="false"/>
-            <line number="25" hits="46" branch="false"/>
-            <line number="26" hits="46" branch="false"/>
+            <line number="23" hits="42" branch="false"/>
+            <line number="24" hits="42" branch="false"/>
+            <line number="25" hits="42" branch="false"/>
+            <line number="26" hits="42" branch="false"/>
             <line number="27" hits="1" branch="false"/>
-            <line number="28" hits="45" branch="false"/>
-            <line number="29" hits="43" branch="false"/>
-            <line number="31" hits="45" branch="false"/>
-            <line number="32" hits="45" branch="false"/>
-            <line number="33" hits="45" branch="false"/>
-            <line number="34" hits="45" branch="false"/>
-            <line number="35" hits="45" branch="false"/>
-            <line number="36" hits="45" branch="false"/>
+            <line number="28" hits="41" branch="false"/>
+            <line number="29" hits="39" branch="false"/>
+            <line number="31" hits="41" branch="false"/>
+            <line number="32" hits="41" branch="false"/>
+            <line number="33" hits="41" branch="false"/>
+            <line number="34" hits="41" branch="false"/>
+            <line number="35" hits="41" branch="false"/>
+            <line number="36" hits="41" branch="false"/>
             <line number="40" hits="1" branch="false"/>
             <line number="41" hits="1" branch="false"/>
             <line number="42" hits="1" branch="false"/>
