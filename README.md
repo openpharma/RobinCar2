@@ -1,5 +1,6 @@
 
 <!-- markdownlint-disable-file -->
+
 <!-- README.md needs to be generated from README.Rmd. Please edit that file -->
 
 # RobinCar2
@@ -64,7 +65,7 @@ All the following papers (added above) are cited in the FDA guidance.
 - Rosenblum, M and MJ van der Laan, 2010, Simple, Efficient Estimators
   of Treatment Effects in Randomized Trials Using Generalized Linear
   Models to Leverage Baseline Variables, International Journal of
-  Biostatisitcs, 6(1):13.
+  Biostatistics, 6(1):13.
 
 ## Installation
 
