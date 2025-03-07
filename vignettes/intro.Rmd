@@ -46,7 +46,7 @@ In the `dummy_data`, we have the following columns:
 1. `y` is the continuous outcome.
 1. `y_b` is the binary outcome.
 
-## Obtain Treatment Effect for Continuous Outcomes using the general variance
+## Obtain Treatment Effect for Continuous Outcomes Using the General Variance
 
 For the continuous outcome `y`, the linear model includes `covar` as a covariate,
 `s1` as a stratification factor. The randomization scheme is a permuted-block
@@ -71,6 +71,9 @@ robin_lm(y ~ treatment + s1 + covar,
   vcov = "vcovHC"
 )
 ```
+
+Note that `robin_glm` can also handle continuous outcomes using the default
+family and the default link function `family = gaussian()`.
 
 ## Obtain Treatment Effect for Binary Outcomes
 

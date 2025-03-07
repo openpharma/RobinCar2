@@ -62,12 +62,3 @@ robin_glm <- function(
     treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair)
   }
 }
-
-h_interaction <- function(formula, treatment) {
-  assert_formula(formula)
-  treatment <- h_get_vars(treatment)
-  assert_subset(treatment$treatment, all.vars(formula[[length(formula)]]))
-  tms <- terms(formula)
-  fct <- attr(tms, "factors")
-  any(fct[treatment$treatment, ] %in% c(1, 2) & colSums(fct != 0) > 1)
-}
