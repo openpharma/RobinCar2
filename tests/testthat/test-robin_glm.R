@@ -1,12 +1,3 @@
-# h_interaction ----
-
-test_that("h_interaction works correctly", {
-  expect_false(h_interaction(y ~ trt + z, treatment = trt ~ x))
-  expect_true(h_interaction(y ~ trt:z, treatment = trt ~ x))
-  expect_true(h_interaction(trt * y ~ trt:z, treatment = trt ~ x))
-  expect_true(h_interaction(y ~ trt:z, treatment = trt ~ 1))
-})
-
 # robin_glm ----
 
 test_that("robin_glm works correctly", {

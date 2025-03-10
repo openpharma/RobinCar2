@@ -20,12 +20,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-RobinCar2 provides robust inference on treatment effect estimates obtained through
-(generalized) linear models(glm) with variance link functions.
-
-Here with the dummy data provided in the package, we demonstrate how to use the package.
+RobinCar2 provides robust covariate adjustment methods for estimating and
+inferring treatment effects through generalized linear models (glm) under
+different randomization schema.
 
 # Common Usage
+A minimal call of `robin_lm()` and `robin_glm()`, consisting of only formula,
+data arguments and the randomization scheme, will produce an object of class
+`treatment_effect`.
 
 ```{r}
 library(RobinCar2)
@@ -44,58 +46,82 @@ In the `dummy_data`, we have the following columns:
 1. `y` is the continuous outcome.
 1. `y_b` is the binary outcome.
 
-## Obtain Treatment Effect for Continuous Outcome
+## Obtain Treatment Effect for Continuous Outcomes Using the General Variance
 
-In simplest case of a continuous outcome, and we want to adjust for `covar`, `s1`, where `covar` is
-a covariate and `s1` is a stratification factor.
-Randomization is permuted-block randomization stratified by `s1`.
-A proper model to use is `y ~ treatment * s1 + covar`.
+For the continuous outcome `y`, the linear model includes `covar` as a covariate,
+`s1` as a stratification factor. The randomization scheme is a permuted-block
+randomization stratified by `s1`. The model formula also includes the treatment
+by stratification interaction as `y ~ treatment * s1 + covar`.
 
 ```{r}
-robin_glm(y ~ treatment * s1 + covar, data = dummy_data, treatment = treatment ~ pb(s1))
+robin_lm(y ~ treatment * s1 + covar,
+  data = dummy_data,
+  treatment = treatment ~ pb(s1)
+)
 ```
 
 We can also use the Huber-White variance estimator by setting `vcov = "vcovHC"`.
-Please note that in this case, the model formula should not contain treatment interaction with stratification factors.
+Please note that in this case, the model formula should not contain the
+treatment by stratification (covariate) interaction.
 
 ```{r}
-robin_glm(y ~ treatment + s1 + covar, data = dummy_data, treatment = treatment ~ pb(s1), vcov = "vcovHC")
+robin_lm(y ~ treatment + s1 + covar,
+  data = dummy_data,
+  treatment = treatment ~ pb(s1),
+  vcov = "vcovHC"
+)
 ```
 
-## Obtain Treatment Effect for Binary Outcome
+Note that `robin_glm` can also handle continuous outcomes using the default
+family and the default link function `family = gaussian()`.
 
-If the outcome is binary, and we want to adjust for `covar`, `s1`, where `covar` is
-a covariate and `s1` is a stratification factor.
-Randomization is permuted-block randomization stratified by `s1`.
-A proper model to use is `y_b ~ treatment * s1 + covar`.
-Note here we need to specify `family` to be `binomial(link = "logit")`.
+## Obtain Treatment Effect for Binary Outcomes
+
+For binary outcomes, the logistic model includes `covar` as a covariate,
+`s1` as a stratification factor. The randomization scheme is a permuted-block
+randomization stratified by `s1`. The model formula also includes the treatment
+by stratification interaction as `y_b ~ treatment * s1 + covar`. Note here we need
+to specify `family` to be `binomial(link = "logit")`.
 
 ```{r}
-robin_glm(y_b ~ treatment * s1 + covar, data = dummy_data, treatment = treatment ~ pb(s1), family = binomial(link = "logit"))
+robin_glm(y_b ~ treatment * s1 + covar,
+  data = dummy_data,
+  treatment = treatment ~ pb(s1),
+  family = binomial(link = "logit")
+)
 ```
 
 ## Obtain Treatment Effect for Counts
 
-If the outcome is count, and we want to adjust for the same covariates,
-we can use `family = MASS::negative.binomial(theta = NA)`, to correctly optimize over `theta`.
-Otherwise we can also have a fixed `theta` if we do know the truth.
-
-Other than negative binomial link function, it is also possible that we use Poisson link function.
+For counts, the log link model includes `covar` as a covariate,
+`s1` as a stratification factor. The randomization scheme is a permuted-block
+randomization stratified by `s1`. The model formula also includes the treatment
+by stratification interaction as `y_count ~ treatment * s1 + covar`. Note here
+we need to specify `family` to be `poisson(link = "log")` to use the Poisson
+model or to be `MASS::negative.binomial(theta = NA)` to use the negative
+binomial model. A fixed `theta` could be provided if it is known.
 
 ```{r}
 dummy_data$y_count <- rpois(nrow(dummy_data), lambda = 20)
 robin_glm(
   y_count ~ treatment * s1 + covar,
   data = dummy_data,
-  treatment = treatment ~ pb(s1), family = MASS::negative.binomial(theta = 1)
+  treatment = treatment ~ pb(s1),
+  family = MASS::negative.binomial(theta = 1)
 )
 ```
 
 ## Using Different Covariate-Adaptive Randomization Schema
 
-If the randomization schema is not permuted-block randomization, we can use other randomization schema.
-Currently we have also `sp`(simple), `pb`(permuted-block), `ps`(Pocock-Simon).
+If the randomization schema is not permuted-block randomization, we can use
+other randomization schema. Currently RobinCar2 supports `sp` for the simple
+randomization, `pb` for the permuted-block randomization, and `ps` for the
+Pocock-Simon randomization.
 
 ```{r}
-robin_glm(y_b ~ treatment * s1 + covar, data = dummy_data, treatment = treatment ~ ps(s1), family = binomial(link = "logit"))
+robin_glm(y_b ~ treatment * s1 + covar,
+  data = dummy_data,
+  treatment = treatment ~ ps(s1),
+  family = binomial(link = "logit")
+)
 ```

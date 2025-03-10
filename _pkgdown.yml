@@ -26,6 +26,7 @@ reference:
       - RobinCar2-package
   - title: Main Function
     contents:
+    - robin_lm
     - robin_glm
   - title: Counter Factual Predictions
     contents:

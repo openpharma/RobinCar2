@@ -41,5 +41,7 @@ glm
 heteroskedasticity
 jacobian
 jacobians
+lm
 pbo
 trt
+vcovG
