@@ -1,8 +1,8 @@
 ---
-title: "RobinCar Comparison"
+title: "User Guide to RobinCar and RobinCar2"
 output: rmarkdown::html_document
 vignette: >
-  %\VignetteIndexEntry{RobinCar Comparison}
+  %\VignetteIndexEntry{User Guide to RobinCar and RobinCar2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -38,6 +38,7 @@ RobinCar2 has a testing suite that ensures that the outputs are identical betwee
 -   Under simple, Pocock-Simon, and permuted block randomization schemes.
 
 Please see the following testing file for details: <https://github.com/openpharma/RobinCar2/blob/main/tests/testthat/test-validate-robin_glm.R>
+or view the report at RobinCar2 Validation Report.
 
 ## Differences between RobinCar and RobinCar2 argument usage
 
@@ -87,7 +88,7 @@ Here we list any differences in the features that are available in RobinCar and 
 
 *Last Updated: February 21, 2025*
 
-### Features available in RobinCar that are not available in RobinCar2
+### Features available in RobinCar2 that are not available in RobinCar
 
 #### Variance function
 
@@ -95,7 +96,7 @@ RobinCar only has one option for the variance, which RobinCar2 calls `vcovG`. `v
 
 Currently, the only other `vcov` that is allowed in RobinCar2 is the sandwich variance, called `vcovHC` and it is only valid for ANCOVA with a linear contrast. Please see the table in the following blogpost from the ASA-BIOP Covariate Adjustment SWG [here](https://carswg.github.io/posts/blog_linear_model.html) for more information about the methodology behind the sandwich variance versus influence-based variance.
 
-### Features available in RobinCar2 that are not available in RobinCar
+### Features available in RobinCar that are not available in RobinCar2
 
 #### Time-to-event analysis
 
