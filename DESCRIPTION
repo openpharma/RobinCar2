@@ -5,10 +5,18 @@ Version: 0.1.0.9000
 Date: 2024-10-16
 Authors@R:
     c(
-      person("Liming", "Li", , "clark.liming@gmail.com", role = c("aut", "cre")),
+      person("Liming", "Li", , "liming.li1@astrazeneca.com", role = c("aut", "cre"), comment = c(ORCID = "0009-0008-6870-0878")),
+      person("Dong", "Xi", , "Dong.Xi1@gilead.com", role = "aut"),
       person("Marlena", "Bannick", , "mnorwood@uw.edu", role="aut", comment=c(ORCID="0000-0001-6279-5978")),
-      person("Ting", "Ye", , , role="aut"),
-      person("Gregory", "Chen", , "xiangyi.gregory.chen@msd.com", role = "aut")
+      person("Ting", "Ye", , "tingye1@uw.edu", role="aut"),
+      person("Yanyao", "Yi", , "yi_yanyao@lilly.com", role="aut"),
+      person("Gregory", "Chen", , "xiangyi.gregory.chen@msd.com", role = "ctb"),
+      person("Gilead Sciences, Inc.", role = c("cph", "fnd")),
+      person("F. Hoffmann-La Roche AG", role = c("cph", "fnd")),
+      person("Merck Sharp & Dohme, Inc.", role = c("cph", "fnd")),
+      person("AstraZeneca plc", role = c("cph", "fnd"))
+      person("Eli Lilly and Company", role = c("cph", "fnd")),
+      person("The University of Washington", role = c("cph", "fnd"))
     )
 Description: Performs robust estimation and inference when using covariate adjustment
   and/or covariate-adaptive randomization in randomized controlled trials.

@@ -6,7 +6,8 @@ NULL
 #' @describeIn prediction_cf_methods prints the prediction_cf object.
 #' @exportS3Method
 #' @keywords internal
-print.prediction_cf <- function(x, ...) {
+print.prediction_cf <- function(x, level = 0.95, ...) {
+  assert_number(level, lower = 0.5, upper = 1)
   cat("Model        : ", deparse(as.formula(attr(x, "fit"))), "\n")
   cat(
     "Randomization: ",
@@ -18,18 +19,16 @@ print.prediction_cf <- function(x, ...) {
   cat("Variance Type: ", attr(x, "variance_name"), "\n")
   cat("Marginal Mean: \n")
   trt_sd <- sqrt(diag(attr(x, "variance")))
-  z_value <- as.numeric(x) / trt_sd
-  p <- 2 * pnorm(abs(z_value), lower.tail = FALSE)
   m_mat <- matrix(
     c(
       as.numeric(x),
       trt_sd,
-      z_value,
-      p
+      x + trt_sd * qnorm(0.5 - level / 2),
+      x + trt_sd * qnorm(0.5 + level / 2)
     ),
     nrow = length(x)
   )
-  colnames(m_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
+  colnames(m_mat) <- c("Estimate", "Std.Err", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
   row.names(m_mat) <- attr(x, "name")
   stats::printCoefmat(
     m_mat,

@@ -145,8 +145,8 @@ eff_jacob <- function(f) {
 }
 
 #' @export
-print.treatment_effect <- function(x, ...) {
-  print(attr(x, "marginal_mean"), signif.legend = FALSE)
+print.treatment_effect <- function(x, level = 0.95, ...) {
+  print(attr(x, "marginal_mean"), signif.legend = FALSE, level = level)
   cat(sprintf("\nContrast     :  %s\n", attr(x, "contrast")))
   if (is.null(attr(x, "variance"))) {
     trt_sd <- rep(NA, length(x))
