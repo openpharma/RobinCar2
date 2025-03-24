@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE coverage SYSTEM "https://raw.githubusercontent.com/cobertura/cobertura/master/cobertura/src/site/htdocs/xml/coverage-04.dtd">
-<coverage line-rate="0.918079096045198" branch-rate="0" lines-covered="325" lines-valid="354" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2025-03-10 06:44:19.078287">
+<coverage line-rate="0.917847025495751" branch-rate="0" lines-covered="324" lines-valid="353" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2025-03-24 13:55:22.43539">
   <sources>
     <source>/__w/RobinCar2/RobinCar2/RobinCar2</source>
   </sources>
   <packages>
-    <package name="RobinCar2" line-rate="0.918079096045198" branch-rate="0" complexity="0">
+    <package name="RobinCar2" line-rate="0.917847025495751" branch-rate="0" complexity="0">
       <classes>
         <class name="bias.R" filename="R/bias.R" line-rate="1" branch-rate="0" complexity="0">
           <methods>
@@ -246,7 +246,6 @@
                 <line number="34" hits="7" branch="false"/>
                 <line number="35" hits="7" branch="false"/>
                 <line number="36" hits="7" branch="false"/>
-                <line number="37" hits="7" branch="false"/>
               </lines>
             </method>
           </methods>
@@ -278,7 +277,6 @@
             <line number="34" hits="7" branch="false"/>
             <line number="35" hits="7" branch="false"/>
             <line number="36" hits="7" branch="false"/>
-            <line number="37" hits="7" branch="false"/>
           </lines>
         </class>
         <class name="robin_glm.R" filename="R/robin_glm.R" line-rate="1" branch-rate="0" complexity="0">
