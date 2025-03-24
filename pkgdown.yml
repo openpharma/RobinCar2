@@ -5,7 +5,7 @@ articles:
   intro: intro.html
   articles/robincar-comparison: robincar-comparison.html
   articles/robincar-validate: robincar-validate.html
-last_built: 2025-03-10T06:44Z
+last_built: 2025-03-24T13:55Z
 urls:
   reference: https://openpharma.github.io/RobinCar2/main/reference
   article: https://openpharma.github.io/RobinCar2/main/articles
