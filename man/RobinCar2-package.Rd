@@ -17,13 +17,25 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Liming Li \email{clark.liming@gmail.com}
+\strong{Maintainer}: Liming Li \email{liming.li1@astrazeneca.com} (\href{https://orcid.org/0009-0008-6870-0878}{ORCID})
 
 Authors:
 \itemize{
+  \item Dong Xi \email{Dong.Xi1@gilead.com}
   \item Marlena Bannick \email{mnorwood@uw.edu} (\href{https://orcid.org/0000-0001-6279-5978}{ORCID})
-  \item Ting Ye
-  \item Gregory Chen \email{xiangyi.gregory.chen@msd.com}
+  \item Ting Ye \email{tingye1@uw.edu}
+  \item Yanyao Yi \email{yi_yanyao@lilly.com}
+}
+
+Other contributors:
+\itemize{
+  \item Gregory Chen \email{xiangyi.gregory.chen@msd.com} [contributor]
+  \item Gilead Sciences, Inc. [copyright holder, funder]
+  \item F. Hoffmann-La Roche AG [copyright holder, funder]
+  \item Merck Sharp & Dohme, Inc. [copyright holder, funder]
+  \item AstraZeneca plc [copyright holder, funder]
+  \item Eli Lilly and Company [copyright holder, funder]
+  \item The University of Washington [copyright holder, funder]
 }
 
 }

@@ -7,10 +7,10 @@
       Randomization:  treatment ~ s1  ( Simple )
       Variance Type:  vcovG 
       Marginal Mean: 
-           Estimate  Std.Err Z Value  Pr(>|z|)    
-      pbo  0.356097 0.033599  10.598 < 2.2e-16 ***
-      trt1 0.580696 0.034418  16.872 < 2.2e-16 ***
-      trt2 0.621386 0.034019  18.266 < 2.2e-16 ***
+           Estimate  Std.Err    2.5 % 97.5 %
+      pbo  0.356097 0.033599 0.290243 0.4219
+      trt1 0.580696 0.034418 0.513238 0.6482
+      trt2 0.621386 0.034019 0.554711 0.6881
       
       Contrast     :  eff_measure
                      Estimate  Std.Err Z Value  Pr(>|z|)    
@@ -30,10 +30,10 @@
       Randomization:  treatment ~ s1  ( Simple )
       Variance Type:  vcovG 
       Marginal Mean: 
-           Estimate  Std.Err Z Value  Pr(>|z|)    
-      pbo  0.200321 0.067690  2.9594  0.003083 ** 
-      trt1 0.763971 0.075929 10.0616 < 2.2e-16 ***
-      trt2 0.971250 0.076543 12.6889 < 2.2e-16 ***
+           Estimate  Std.Err    2.5 % 97.5 %
+      pbo  0.200321 0.067690 0.067651 0.3330
+      trt1 0.763971 0.075929 0.615152 0.9128
+      trt2 0.971250 0.076543 0.821228 1.1213
       
       Contrast     :  eff_measure
                      Estimate Std.Err Z Value  Pr(>|z|)    
@@ -53,10 +53,10 @@
       Randomization:  treatment ~ s1  ( Simple )
       Variance Type:  vcovG 
       Marginal Mean: 
-           Estimate  Std.Err Z Value  Pr(>|z|)    
-      pbo  0.356097 0.033599  10.598 < 2.2e-16 ***
-      trt1 0.580696 0.034418  16.872 < 2.2e-16 ***
-      trt2 0.621386 0.034019  18.266 < 2.2e-16 ***
+           Estimate  Std.Err    2.5 % 97.5 %
+      pbo  0.356097 0.033599 0.290243 0.4219
+      trt1 0.580696 0.034418 0.513238 0.6482
+      trt2 0.621386 0.034019 0.554711 0.6881
       
       Contrast     :  eff_measure
                      Estimate  Std.Err Z Value  Pr(>|z|)    
@@ -76,10 +76,10 @@
       Randomization:  treatment ~ s1  ( Simple )
       Variance Type:  vcovG 
       Marginal Mean: 
-           Estimate  Std.Err Z Value  Pr(>|z|)    
-      pbo  0.356097 0.033599  10.598 < 2.2e-16 ***
-      trt1 0.580696 0.034418  16.872 < 2.2e-16 ***
-      trt2 0.621386 0.034019  18.266 < 2.2e-16 ***
+           Estimate  Std.Err    2.5 % 97.5 %
+      pbo  0.356097 0.033599 0.290243 0.4219
+      trt1 0.580696 0.034418 0.513238 0.6482
+      trt2 0.621386 0.034019 0.554711 0.6881
       
       Contrast     :  eff_measure
                     Estimate  Std.Err Z Value  Pr(>|z|)    

@@ -83,3 +83,8 @@ remotes::install_github(
 
 To cite `RobinCar2` please see
 [here](https://openpharma.github.io/RobinCar2/main/authors.html#citation).
+
+## Acknowledgement
+
+This package is supported by [ASA-BIOP Covariate Adjustment SWG Software
+Subteam](https://carswg.github.io/subteam_software.html).

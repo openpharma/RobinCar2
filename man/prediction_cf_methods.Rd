@@ -5,7 +5,7 @@
 \alias{print.prediction_cf}
 \title{S3 Methods for \code{prediction_cf}}
 \usage{
-\method{print}{prediction_cf}(x, ...)
+\method{print}{prediction_cf}(x, level = 0.95, ...)
 }
 \arguments{
 \item{x}{(\code{prediction_cf})\cr the obtained counter-factual prediction object.}
