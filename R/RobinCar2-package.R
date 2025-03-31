@@ -6,7 +6,7 @@
 #' @import checkmate
 #' @importFrom numDeriv grad
 #' @importFrom stats predict residuals fitted model.response model.matrix coefficients family
-#' gaussian terms glm var family pnorm var as.formula qnorm
+#' gaussian terms glm var family pnorm var as.formula qnorm lm
 #' @importFrom sandwich vcovHC
 #' @importFrom MASS negative.binomial
 #' @importFrom utils combn tail

@@ -138,8 +138,8 @@ eff_jacob <- function(f) {
   assert_function(f, args = c("x", "y"))
   function(x, y) {
     cbind(
-      numDeriv::grad(\(x) f(x = x, y = y), x),
-      numDeriv::grad(\(y) f(x = x, y = y), y)
+      numDeriv::grad(function(x) f(x = x, y = y), x),
+      numDeriv::grad(function(y) f(x = x, y = y), y)
     )
   }
 }
