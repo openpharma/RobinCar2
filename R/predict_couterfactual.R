@@ -8,7 +8,7 @@
 #' @param vcov_args (`list`) additional arguments for variance function.
 #' @param ... Additional arguments for methods.
 #'
-#' @return Numeric matrix of counter factual prediction.
+#' @return Object of class `prediction_cf` containing of counter factual prediction.
 #'
 #' @export
 predict_counterfactual <- function(fit, treatment, data, vcov, vcov_args, ...) {

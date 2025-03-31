@@ -6,7 +6,7 @@
 #' @param eff_measure (`function`) Treatment effect measurement function.
 #' @param eff_jacobian (`function`) Treatment effect jacobian function.
 #' @param ... Additional arguments for variance.
-#'
+#' @return A treatment effect object.
 #' @export
 treatment_effect <- function(
     object, pair = pairwise(names(object)), eff_measure,

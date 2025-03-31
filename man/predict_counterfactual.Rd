@@ -20,7 +20,7 @@ predict_counterfactual(fit, treatment, data, vcov, vcov_args, ...)
 \item{...}{Additional arguments for methods.}
 }
 \value{
-Numeric matrix of counter factual prediction.
+Object of class \code{prediction_cf} containing of counter factual prediction.
 }
 \description{
 Obtain counterfactual prediction of a fit.

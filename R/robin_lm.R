@@ -9,6 +9,7 @@
 #' @param pair Pairwise treatment comparison.
 #' @param ... Additional arguments passed to `lm`.
 #' @export
+#' @return A treatment_effect object.
 #' @examples
 #' robin_lm(
 #'   y ~ treatment * s1,

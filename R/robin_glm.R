@@ -16,6 +16,7 @@
 #' @details
 #' If family is `MASS::negative.binomial(NA)`, the function will use `MASS::glm.nb` instead of `glm`.
 #' @export
+#' @return A treatment_effect object.
 #' @examples
 #' robin_glm(
 #'   y ~ treatment * s1,

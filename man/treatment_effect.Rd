@@ -32,6 +32,9 @@ odds_ratio(object, ...)
 
 \item{...}{Additional arguments for variance.}
 }
+\value{
+A treatment effect object.
+}
 \description{
 Obtain treatment effect and variance from counter-factual prediction
 }

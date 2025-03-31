@@ -42,6 +42,9 @@ including \code{vcovHC} and \code{vcovG}.}
 
 \item{...}{Additional arguments passed to \code{glm} or \code{glm.nb}.}
 }
+\value{
+A treatment_effect object.
+}
 \description{
 Covariate adjusted glm model
 }
