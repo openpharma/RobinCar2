@@ -9,6 +9,11 @@
 }
 \arguments{
 \item{x}{(\code{prediction_cf})\cr the obtained counter-factual prediction object.}
+
+\item{level}{(\code{number})\cr the significance level.}
+}
+\value{
+No return value.
 }
 \description{
 S3 Methods for \code{prediction_cf}

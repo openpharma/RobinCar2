@@ -1,6 +1,8 @@
 #' S3 Methods for `prediction_cf`
 #' @param x (`prediction_cf`)\cr the obtained counter-factual prediction object.
+#' @param level (`number`)\cr the significance level.
 #' @name prediction_cf_methods
+#' @return No return value.
 NULL
 
 #' @describeIn prediction_cf_methods prints the prediction_cf object.

@@ -13,6 +13,9 @@ vcovHC(x, type = "HC3", ...)
 
 \item{...}{Additional arguments for \code{sandwich::vcovHC}.}
 }
+\value{
+Matrix of the heteroskedasticity-consistent covariance for the predictions.
+}
 \description{
 The heteroskedasticity-consistent covariance matrix for predictions
 is obtained with \code{sandwich::vocvHC} using sandwich method.
