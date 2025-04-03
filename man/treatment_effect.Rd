@@ -33,7 +33,7 @@ odds_ratio(object, ...)
 \item{...}{Additional arguments for variance.}
 }
 \value{
-A lisf of \code{treatment_effect} object with following elements:
+A list of \code{treatment_effect} object with following elements:
 \itemize{
 \item \code{estimate}: estimate of the treatment effect.
 \item \code{pair}: \code{contrast} object indicating the pairwise treatment effect.

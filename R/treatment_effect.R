@@ -6,7 +6,7 @@
 #' @param eff_measure (`function`) Treatment effect measurement function.
 #' @param eff_jacobian (`function`) Treatment effect jacobian function.
 #' @param ... Additional arguments for variance.
-#' @return A lisf of `treatment_effect` object with following elements:
+#' @return A list of `treatment_effect` object with following elements:
 #' - `estimate`: estimate of the treatment effect.
 #' - `pair`: `contrast` object indicating the pairwise treatment effect.
 #' - `contrast`: name of the contrast function.
