@@ -73,6 +73,11 @@ against_ref <- function(levels, ref = levels[1], x = tail(levels, -1)) {
 #' @param levels (`character`) Levels of the treatment.
 #' @export
 #' @rdname contrast
+#' @return A list of `contrast` object with following elements:
+#' - Index of the treatment group.
+#' - Index of the reference group.
+#' Additional attributes include `levels` and `max_levels` indicating the
+#' names of the treatment levels and the maximum number of levels.
 custom_contrast <- function(levels, x, y) {
   assert_character(levels)
   if (test_integerish(x)) {

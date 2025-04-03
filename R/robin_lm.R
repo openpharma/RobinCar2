@@ -32,7 +32,7 @@ robin_lm <- function(
     )
   }
   if (missing(pair)) {
-    pair <- pairwise(names(pc))
+    pair <- pairwise(names(pc$estimate))
   }
   difference(pc, pair = pair)
 }

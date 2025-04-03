@@ -44,9 +44,9 @@ test_that("marginal means", {
 
     # Estimates and variance for the first two
     # contrast vector elements from RobinCar2
-    mm <- attr(r2, "marginal_mean")
+    mm <- r2$marginal_mean
     estimates2 <- c(mm)
-    variances2 <- attr(mm, "variance")
+    variances2 <- mm$variance
 
     testthat::expect_equal(estimates1, estimates2)
     testthat::expect_equal(variances1, variances2)
@@ -166,8 +166,8 @@ test_that("contrast -- standard options", {
 
     # Estimates and variance for the first two
     # contrast vector elements from RobinCar2
-    estimates2 <- as.numeric(r2)
-    variances2 <- attr(r2, "variance")
+    estimates2 <- r2$estimate
+    variances2 <- r2$variance
     testthat::expect_equal(estimates1, estimates2)
     testthat::expect_equal(variances1, variances2, tolerance = 1e-4)
   }

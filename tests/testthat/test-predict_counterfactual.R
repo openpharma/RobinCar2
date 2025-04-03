@@ -16,7 +16,7 @@ test_that("predict_counterfactual for negative binomial", {
     family = negative.binomial(theta = 1)
   )
   pc <- predict_counterfactual(fit, treatment ~ 1, dummy_data)
-  predictions <- attr(pc, "predictions")
+  predictions <- pc$predictions
 
   # Check that the mean of the predicted outcomes within
   # each treatment group matches with the observed outcomes
@@ -33,7 +33,7 @@ test_that("predict_counterfactual for negative binomial", {
   # check that the mean of the residuals is zero within a treatment group
   # this test exists because previously residual and predictions attributes
   # were not aligned properly when predictions were biased
-  residuals <- attr(pc, "residual")
+  residuals <- pc$residual
   res_mean <- mean(residuals[idx])
   expect_equal(res_mean, 0, tolerance = 1e-15)
 })
@@ -47,7 +47,7 @@ test_that("predict_counterfactual works if contrast are non-standard", {
   newdf <- rbind(dummy_data2, dummy_data2, dummy_data2)
   newdf$treatment <- rep(factor(levels(dummy_data2$treatment), levels(dummy_data2$treatment)), each = nrow(dummy_data2))
   expect_identical(
-    attr(pc, "predictions_linear")[, 1],
+    pc$predictions_linear[, 1],
     predict(fit, newdata = newdf, type = "link")
   )
 })

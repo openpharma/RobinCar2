@@ -8,7 +8,20 @@
 #' @param vcov_args (`list`) additional arguments for variance function.
 #' @param ... Additional arguments for methods.
 #'
-#' @return Object of class `prediction_cf` containing of counter factual prediction.
+#' @return List of class `prediction_cf` containing following elements:
+#' - `estimate`: predicted marginal mean.
+#' - `residual`: residual of the bias-corrected prediction.
+#' - `predictions`: all predicted values.
+#' - `predictions_liner`: linear predictions.
+#' - `schema`: randomization schema.
+#' - `response`: response value.
+#' - `fit`: fitted model.
+#' - `model_matrix`: model matrix.
+#' - `treatment_formula`: treatment assignment and randomization formula.
+#' - `treatment`: treatment value.
+#' - `group_idx`: group index based on the stratification.
+#' - `variance`: estimated variance of the marginal mean.
+#' - `variance_name`: name of the variance.
 #'
 #' @export
 predict_counterfactual <- function(fit, treatment, data, vcov, vcov_args, ...) {
@@ -69,19 +82,20 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
   # prediction-unbiased response
   trt_idx <- match(data[[trt_vars$treatment]], trt_lvls)
   residual <- y - ret[cbind(seq_len(nrow(ret)), trt_idx)]
-
   ret <- structure(
-    .Data = colMeans(ret),
-    residual = residual,
-    predictions = ret,
-    schema = trt_vars$schema,
-    predictions_linear = pred_linear,
-    response = y,
-    fit = fit,
-    model_matrix = mm,
-    treatment_formula = treatment,
-    treatment = data[[trt_vars$treatment]],
-    group_idx = group_idx,
+    list(
+      estimate = colMeans(ret),
+      residual = residual,
+      predictions = ret,
+      schema = trt_vars$schema,
+      predictions_linear = pred_linear,
+      response = y,
+      fit = fit,
+      model_matrix = mm,
+      treatment_formula = treatment,
+      treatment = data[[trt_vars$treatment]],
+      group_idx = group_idx
+    ),
     class = "prediction_cf"
   )
   if (test_string(vcov)) {
@@ -95,8 +109,8 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
     variance_name <- NULL
     mm_variance <- rep(NA_real_, n_lvls)
   }
-  attr(ret, "variance") <- mm_variance
-  attr(ret, "variance_name") <- variance_name
+  ret$variance <- mm_variance
+  ret$variance_name <- variance_name
   ret
 }
 

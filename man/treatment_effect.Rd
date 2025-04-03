@@ -9,7 +9,7 @@
 \usage{
 treatment_effect(
   object,
-  pair = pairwise(names(object)),
+  pair = pairwise(names(object$estimate)),
   eff_measure,
   eff_jacobian = eff_jacob(eff_measure),
   ...
@@ -33,7 +33,18 @@ odds_ratio(object, ...)
 \item{...}{Additional arguments for variance.}
 }
 \value{
-A treatment effect object.
+A lisf of \code{treatment_effect} object with following elements:
+\itemize{
+\item \code{estimate}: estimate of the treatment effect.
+\item \code{pair}: \code{contrast} object indicating the pairwise treatment effect.
+\item \code{contrast}: name of the contrast function.
+\item \code{euqal_val}: the value for no treatment effect given the contrast.
+\item \code{marginal_mean}: the \code{prediction_cf} object.
+\item \code{fit}: the fitted model.
+\item \code{treatment}: the treatment assignment.
+\item \code{variance}: the variance of the treatment effect.
+\item \code{jacobian}: the Jacobian matrix.
+}
 }
 \description{
 Obtain treatment effect and variance from counter-factual prediction

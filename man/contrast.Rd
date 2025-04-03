@@ -46,6 +46,14 @@ custom_contrast(levels, x, y)
 }
 \value{
 Vector of contrasts, or matrix of jacobians.
+
+A list of \code{contrast} object with following elements:
+\itemize{
+\item Index of the treatment group.
+\item Index of the reference group.
+Additional attributes include \code{levels} and \code{max_levels} indicating the
+names of the treatment levels and the maximum number of levels.
+}
 }
 \description{
 Contrast Functions and Jacobians

@@ -46,7 +46,7 @@ robin_glm <- function(
     )
   }
   if (missing(pair)) {
-    pair <- pairwise(names(pc))
+    pair <- pairwise(names(pc$estimate))
   }
   if (identical(contrast, "difference")) {
     difference(pc, pair = pair)
