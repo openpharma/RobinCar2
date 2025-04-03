@@ -51,6 +51,7 @@
     <div class="dropdown-menu" aria-labelledby="dropdown-versions">
     <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/release-candidate">release-candidate</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a>
+<a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.1.1-rc6">v0.1.1-rc6</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.1.1-rc5">v0.1.1-rc5</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.1.1-rc4">v0.1.1-rc4</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.1.1-rc3">v0.1.1-rc3</a>
@@ -77,7 +78,7 @@
       <h1>RobinCar2 Validation Report</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.1.1-rc5/vignettes/articles/robincar-validate.Rmd" class="external-link"><code>vignettes/articles/robincar-validate.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.1.1-rc6/vignettes/articles/robincar-validate.Rmd" class="external-link"><code>vignettes/articles/robincar-validate.Rmd</code></a></small>
       <div class="d-none name"><code>robincar-validate.Rmd</code></div>
     </div>
 
@@ -119,9 +120,9 @@ variance.</p>
 <span></span>
 <span>    <span class="co"># Estimates and variance for the first two</span></span>
 <span>    <span class="co"># contrast vector elements from RobinCar2</span></span>
-<span>    <span class="va">mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">r2</span>, <span class="st">"marginal_mean"</span><span class="op">)</span></span>
-<span>    <span class="va">estimates2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mm</span><span class="op">)</span></span>
-<span>    <span class="va">variances2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">mm</span>, <span class="st">"variance"</span><span class="op">)</span></span>
+<span>    <span class="va">mm</span> <span class="op">&lt;-</span> <span class="va">r2</span><span class="op">$</span><span class="va">marginal_mean</span></span>
+<span>    <span class="va">estimates2</span> <span class="op">&lt;-</span> <span class="va">mm</span><span class="op">$</span><span class="va">estimate</span></span>
+<span>    <span class="va">variances2</span> <span class="op">&lt;-</span> <span class="va">mm</span><span class="op">$</span><span class="va">variance</span></span>
 <span></span>
 <span>    <span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/equality-expectations.html" class="external-link">expect_equal</a></span><span class="op">(</span><span class="va">estimates1</span>, <span class="va">estimates2</span><span class="op">)</span></span>
 <span>    <span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/equality-expectations.html" class="external-link">expect_equal</a></span><span class="op">(</span><span class="va">variances1</span>, <span class="va">variances2</span><span class="op">)</span></span>
@@ -241,8 +242,8 @@ variance.</p>
 <span></span>
 <span>    <span class="co"># Estimates and variance for the first two</span></span>
 <span>    <span class="co"># contrast vector elements from RobinCar2</span></span>
-<span>    <span class="va">estimates2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">r2</span><span class="op">)</span></span>
-<span>    <span class="va">variances2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">r2</span>, <span class="st">"variance"</span><span class="op">)</span></span>
+<span>    <span class="va">estimates2</span> <span class="op">&lt;-</span> <span class="va">r2</span><span class="op">$</span><span class="va">estimate</span></span>
+<span>    <span class="va">variances2</span> <span class="op">&lt;-</span> <span class="va">r2</span><span class="op">$</span><span class="va">variance</span></span>
 <span>    <span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/equality-expectations.html" class="external-link">expect_equal</a></span><span class="op">(</span><span class="va">estimates1</span>, <span class="va">estimates2</span><span class="op">)</span></span>
 <span>    <span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/equality-expectations.html" class="external-link">expect_equal</a></span><span class="op">(</span><span class="va">variances1</span>, <span class="va">variances2</span>, tolerance <span class="op">=</span> <span class="fl">1e-4</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
