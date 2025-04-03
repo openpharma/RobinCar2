@@ -16,7 +16,7 @@
 #' - `treatment`: the treatment assignment.
 #' - `variance`: the variance of the treatment effect.
 #' - `jacobian`: the Jacobian matrix.
-#' 
+#'
 #' @export
 treatment_effect <- function(
     object, pair = pairwise(names(object$estimate)), eff_measure,
