@@ -1,13 +1,13 @@
 Type: Package
 Package: RobinCar2
-Title: ROBust INference for Covariate Adjustment in Randomized clinical trials
-Version: 0.1.0.9000
-Date: 2024-10-16
+Title: ROBust INference for Covariate Adjustment in Randomized Clinical Trials
+Version: 0.1.1
+Date: 2025-03-30
 Authors@R:
     c(
       person("Liming", "Li", , "liming.li1@astrazeneca.com", role = c("aut", "cre"), comment = c(ORCID = "0009-0008-6870-0878")),
-      person("Dong", "Xi", , "Dong.Xi1@gilead.com", role = "aut"),
       person("Marlena", "Bannick", , "mnorwood@uw.edu", role="aut", comment=c(ORCID="0000-0001-6279-5978")),
+      person("Dong", "Xi", , "Dong.Xi1@gilead.com", role = "aut"),
       person("Ting", "Ye", , "tingye1@uw.edu", role="aut"),
       person("Yanyao", "Yi", , "yi_yanyao@lilly.com", role="aut"),
       person("Gregory", "Chen", , "xiangyi.gregory.chen@msd.com", role = "ctb"),
@@ -21,6 +21,11 @@ Authors@R:
 Description: Performs robust estimation and inference when using covariate adjustment
   and/or covariate-adaptive randomization in randomized controlled trials.
   This package is trimmed to reduce the dependencies and validated to be used across industry.
+  See "FDA's final guidance on covariate adjustment"<https://www.regulations.gov/docket/FDA-2019-D-0934>, Tsiatis (2008) <doi:10.1002/sim.3113>,
+  Bugni et al. (2018) <doi:10.1080/01621459.2017.1375934>, Ye, Shao, Yi, and Zhao (2023)<doi:10.1080/01621459.2022.2049278>,
+  Ye, Shao, and Yi (2022)<doi:10.1093/biomet/asab015>, Rosenblum and van der Laan (2010)<doi:10.2202/1557-4679.1138>,
+  Wang et al. (2021)<doi:10.1080/01621459.2021.1981338>, Ye, Bannick, Yi, and Shao (2023)<doi:10.1080/24754269.2023.2205802>,
+  and Bannick, Shao, Liu, Du, Yi, and Ye (2024)<doi:10.48550/arXiv.2306.10213>.
 License: Apache License 2.0
 URL: https://github.com/openpharma/RobinCar2/
 BugReports: https://github.com/openpharma/RobinCar2/issues

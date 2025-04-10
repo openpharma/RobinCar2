@@ -9,15 +9,15 @@
 vcovG <- function(x, decompose = TRUE, ...) { # nolint
   assert_class(x, "prediction_cf")
   assert_flag(decompose)
-  resi <- attr(x, "residual")
-  est <- as.numeric(x)
-  preds <- attr(x, "predictions")
+  resi <- x$residual
+  est <- x$estimate
+  preds <- x$predictions
   var_preds <- var(preds)
-  y <- attr(x, "response")
-  trt <- attr(x, "treatment")
+  y <- x$response
+  trt <- x$treatment
   pi_t <- as.numeric(table(trt) / length(trt))
   trt_lvls <- levels(trt)
-  group_idx <- attr(x, "group_idx")
+  group_idx <- x$group_idx
 
   idx <- split(seq_len(length(trt)), trt)
   cov_ymu <- vapply(idx, function(is) stats::cov(y[is], preds[is, ]), FUN.VALUE = rep(0, ncol(preds)))
@@ -29,7 +29,7 @@ vcovG <- function(x, decompose = TRUE, ...) { # nolint
   }
 
   v <- diag(vcov_sr) + cov_ymu + t(cov_ymu) - var_preds
-  v <- v - h_get_erb(resi, group_idx, trt, pi_t, attr(x, "schema"))
+  v <- v - h_get_erb(resi, group_idx, trt, pi_t, x$schema)
   ret <- v / length(resi)
   dimnames(ret) <- list(trt_lvls, trt_lvls)
   return(ret)

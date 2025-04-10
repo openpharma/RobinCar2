@@ -16,6 +16,7 @@
 #' @details
 #' If family is `MASS::negative.binomial(NA)`, the function will use `MASS::glm.nb` instead of `glm`.
 #' @export
+#' @return A treatment_effect object.
 #' @examples
 #' robin_glm(
 #'   y ~ treatment * s1,
@@ -45,7 +46,7 @@ robin_glm <- function(
     )
   }
   if (missing(pair)) {
-    pair <- pairwise(names(pc))
+    pair <- pairwise(names(pc$estimate))
   }
   if (identical(contrast, "difference")) {
     difference(pc, pair = pair)

@@ -102,43 +102,43 @@ test_that("treatment_effect works as expected", {
   rr <- expect_silent(risk_ratio(pc))
   or <- expect_silent(odds_ratio(pc))
   expect_identical(
-    df,
+    df$estimate,
     c(0.22459921, 0.26528993, 0.04069073),
     ignore_attr = TRUE,
     tolerance = 1e-6
   )
   expect_identical(
-    attr(df, "pair")[[1]],
+    df$pair[[1]],
     c(2L, 3L, 3L)
   )
   expect_identical(
-    diag(attr(df, "variance")),
+    diag(df$variance),
     c(0.002276376, 0.002259492, 0.002298305),
     tolerance = 1e-6
   )
   expect_identical(
-    rr,
+    rr$estimate,
     c(1.630726, 1.744994, 1.070072),
     ignore_attr = TRUE,
     tolerance = 1e-6
   )
   expect_identical(
-    attr(rr, "pair")[[1]],
+    rr$pair[[1]],
     c(2L, 3L, 3L)
   )
   expect_identical(
-    diag(attr(rr, "variance")),
+    diag(rr$variance),
     c(0.032539074, 0.035867956, 0.007316219),
     tolerance = 1e-6
   )
   expect_identical(
-    or,
+    or$estimate,
     c(2.504219, 2.967691, 1.185076),
     ignore_attr = TRUE,
     tolerance = 1e-6
   )
   expect_identical(
-    diag(attr(or, "variance")),
+    diag(or$variance),
     c(0.25578808, 0.36889840, 0.05635703),
     tolerance = 1e-6
   )

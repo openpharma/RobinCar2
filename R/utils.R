@@ -1,3 +1,5 @@
+#' Randomization schema
+#' @keywords internal
 randomization_schema <- data.frame(
   schema = c("Pocock-Simon", "Permuted-Block", "Simple"),
   id = c("ps", "pb", "sp"),
@@ -36,6 +38,8 @@ h_get_vars <- function(treatment) {
   )
 }
 
+#' Block Sum of a matrix
+#' @keywords internal
 block_sum <- function(x, n) {
   assert_matrix(x)
   nr <- nrow(x) / n
@@ -69,6 +73,11 @@ against_ref <- function(levels, ref = levels[1], x = tail(levels, -1)) {
 #' @param levels (`character`) Levels of the treatment.
 #' @export
 #' @rdname contrast
+#' @return A list of `contrast` object with following elements:
+#' - Index of the treatment group.
+#' - Index of the reference group.
+#' Additional attributes include `levels` and `max_levels` indicating the
+#' names of the treatment levels and the maximum number of levels.
 custom_contrast <- function(levels, x, y) {
   assert_character(levels)
   if (test_integerish(x)) {
@@ -94,6 +103,8 @@ custom_contrast <- function(levels, x, y) {
   )
 }
 
+#' Update levels in a contrast pair
+#' @keywords internal
 update_levels <- function(pair, levels) {
   assert_class(pair, "contrast")
   assert_character(levels)
@@ -105,6 +116,8 @@ update_levels <- function(pair, levels) {
   )
 }
 
+#' Obtain the Jacobian matrix
+#' @keywords internal
 jac_mat <- function(jac, pair) {
   assert_matrix(jac, ncols = 2, nrows = length(pair[[1]]))
   assert_class(pair, "contrast")

@@ -11,6 +11,9 @@ find_data(fit, ...)
 
 \item{...}{Additional arguments.}
 }
+\value{
+A data frame used in the fit.
+}
 \description{
 Find Data in a Fit
 }

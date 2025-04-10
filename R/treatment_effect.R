@@ -6,35 +6,47 @@
 #' @param eff_measure (`function`) Treatment effect measurement function.
 #' @param eff_jacobian (`function`) Treatment effect jacobian function.
 #' @param ... Additional arguments for variance.
+#' @return A list of `treatment_effect` object with following elements:
+#' - `estimate`: estimate of the treatment effect.
+#' - `pair`: `contrast` object indicating the pairwise treatment effect.
+#' - `contrast`: name of the contrast function.
+#' - `euqal_val`: the value for no treatment effect given the contrast.
+#' - `marginal_mean`: the `prediction_cf` object.
+#' - `fit`: the fitted model.
+#' - `treatment`: the treatment assignment.
+#' - `variance`: the variance of the treatment effect.
+#' - `jacobian`: the Jacobian matrix.
 #'
 #' @export
 treatment_effect <- function(
-    object, pair = pairwise(names(object)), eff_measure,
+    object, pair = pairwise(names(object$estimate)), eff_measure,
     eff_jacobian = eff_jacob(eff_measure), ...) {
   UseMethod("treatment_effect")
 }
 
 #' @export
 treatment_effect.prediction_cf <- function(
-    object, pair = pairwise(names(object)), eff_measure, eff_jacobian = eff_jacob(eff_measure), ...) {
+    object, pair = pairwise(names(object$estimate)), eff_measure, eff_jacobian = eff_jacob(eff_measure), ...) {
   assert_function(eff_measure)
   assert_class(pair, "contrast")
   # make sure levels match
-  pair <- update_levels(pair, names(object))
-  trt_effect <- unname(eff_measure(object[pair[[1]]], object[pair[[2]]]))
-  trt_jac <- eff_jacobian(object[pair[[1]]], object[pair[[2]]])
+  pair <- update_levels(pair, names(object$estimate))
+  trt_effect <- unname(eff_measure(object$estimate[pair[[1]]], object$estimate[pair[[2]]]))
+  trt_jac <- eff_jacobian(object$estimate[pair[[1]]], object$estimate[pair[[2]]])
   trt_jac_mat <- jac_mat(trt_jac, pair)
-  equal_val <- eff_measure(object[1], object[1])
+  equal_val <- eff_measure(object$estimate[1], object$estimate[1])
   structure(
-    .Data = trt_effect,
-    pair = pair,
-    contrast = deparse(substitute(eff_measure)),
-    equal_val = equal_val,
-    marginal_mean = object,
-    fit = attr(object, "fit"),
-    treatment = attr(object, "treatment_formula"),
-    variance = trt_jac_mat %*% attr(object, "variance") %*% t(trt_jac_mat),
-    jacobian = trt_jac_mat,
+    list(
+      estimate = trt_effect,
+      pair = pair,
+      contrast = deparse(substitute(eff_measure)),
+      equal_val = equal_val,
+      marginal_mean = object,
+      fit = object$fit,
+      treatment = object$treatment_formula,
+      variance = trt_jac_mat %*% object$variance %*% t(trt_jac_mat),
+      jacobian = trt_jac_mat
+    ),
     class = "treatment_effect"
   )
 }
@@ -47,7 +59,7 @@ treatment_effect.lm <- function(
     vcov = "vcovG", vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, data = data, treatment, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
-    pair <- pairwise(names(pc))
+    pair <- pairwise(names(pc$estimate))
   }
   treatment_effect(pc, pair = pair, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
 }
@@ -58,7 +70,7 @@ treatment_effect.glm <- function(
     vcov = "vcovG", vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, treatment, data, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
-    pair <- pairwise(names(pc))
+    pair <- pairwise(names(pc$estimate))
   }
   treatment_effect(pc, pair = pair, eff_measure = eff_measure, eff_jacobian = eff_jacobian, ...)
 }
@@ -138,34 +150,34 @@ eff_jacob <- function(f) {
   assert_function(f, args = c("x", "y"))
   function(x, y) {
     cbind(
-      numDeriv::grad(\(x) f(x = x, y = y), x),
-      numDeriv::grad(\(y) f(x = x, y = y), y)
+      numDeriv::grad(function(x) f(x = x, y = y), x),
+      numDeriv::grad(function(y) f(x = x, y = y), y)
     )
   }
 }
 
 #' @export
 print.treatment_effect <- function(x, level = 0.95, ...) {
-  print(attr(x, "marginal_mean"), signif.legend = FALSE, level = level)
-  cat(sprintf("\nContrast     :  %s\n", attr(x, "contrast")))
-  if (is.null(attr(x, "variance"))) {
+  print(x$marginal_mean, signif.legend = FALSE, level = level)
+  cat(sprintf("\nContrast     :  %s\n", x$contrast))
+  if (is.null(x$variance)) {
     trt_sd <- rep(NA, length(x))
   } else {
-    trt_sd <- sqrt(diag(attr(x, "variance")))
+    trt_sd <- sqrt(diag(x$variance))
   }
-  z_value <- as.numeric(x - attr(x, "equal_val")) / trt_sd
+  z_value <- as.numeric(x$estimate - x$equal_val) / trt_sd
   p <- 2 * pnorm(abs(z_value), lower.tail = FALSE)
   coef_mat <- matrix(
     c(
-      x,
+      x$estimate,
       trt_sd,
       z_value,
       p
     ),
-    nrow = length(x)
+    nrow = length(x$estimate)
   )
   colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
-  pair <- attr(x, "pair")
+  pair <- x$pair
   row.names(coef_mat) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
   stats::printCoefmat(
     coef_mat

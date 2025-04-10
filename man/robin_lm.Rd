@@ -31,6 +31,9 @@ including \code{vcovHC} and \code{vcovG}. The default is 'vcovG'.}
 
 \item{...}{Additional arguments passed to \code{lm}.}
 }
+\value{
+A treatment_effect object.
+}
 \description{
 Covariate adjusted lm model
 }
