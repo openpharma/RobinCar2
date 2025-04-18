@@ -2,6 +2,7 @@
 title: "Design Doc for Survival Analysis with RobinCar2"
 author: Daniel Sabanes Bove
 bibliography: references.bib
+number-sections: true
 ---
 
 This design doc shall serve to align on the design of the survival analysis implementation in RobinCar2.
