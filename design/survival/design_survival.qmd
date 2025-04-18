@@ -1,0 +1,83 @@
+---
+title: "Design Doc for Survival Analysis with RobinCar2"
+author: Daniel Sabanes Bove
+bibliography: references.bib
+---
+
+This design doc shall serve to align on the design of the survival analysis implementation in RobinCar2.
+
+# User interface
+
+The proposal for the user interface is the function call of the form:
+
+```{r}
+#| eval: false
+
+robin_surv(
+    Surv(time, event) ~ treatment * s1 + covariates,
+    data = df,
+    treatment = pb(s1),
+    contrast = "hazardratio",
+    pval = "logrank"
+)
+```
+
+## Name and arguments
+
+- The name `robin_surv()` indicates general survival analysis functionality. In particular, we do not need to assume a Cox proportional hazards model in order to interpret the logrank test results. 
+- We use the standard `Surv(time, event)` syntax from the `survival` package, with which users are familiar already.
+    - If the user would not like to adjust for covariates, they can omit the `covariates` in the formula.
+    - If the user would not like to have a stratified estimate, they can omit the `s1` in the formula and in the `treatment` argument.
+- We keep in line with the other RobinCar2 functions for specifying the randomization scheme via the `treatment` argument.
+- For the `contrast` argument, we will start only with the hazard ratio option, as laid out in the paper by @YeShaoYi2023. 
+    - In the future, this could include other contrasts, such as differences of restricted mean survival times or differences of survival probabilities at a given time point.
+- The `pval` argument allows the user to specify the type of p-value they want to compute. We will start with the logrank test, but in the future we could add other options, such as p-values based on the Cox score test, which is available in the RobinCar package already.
+
+## Output
+
+This could be the output from the `robin_surv()` function:
+
+````
+#> Model        :  Surv(time, event) ~ treatment * s1 + covariates
+#> Randomization:  treatment ~ pb(s1)  ( Permuted-Block )
+#> 
+#> Contrast     :  Hazard ratio
+#> Test         :  Logrank
+#>                Estimate Std.Err Z Value  Pr(>|z|)    
+#> trt1 v.s. pbo   0.56365 0.10074  5.5952 2.203e-08 ***
+#> trt2 v.s. pbo   0.77093 0.10133  7.6082   0.05235 . 
+#> trt2 v.s. trt1  0.20728 0.10683  1.9402 2.779e-14 *** 
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+````
+
+Please note that for now there will be no "Marginal Mean" section included in the output. 
+However, this could be added in the future, see @sec-questions below.
+
+# Internal implementation
+
+The `robincar_surv()` will follow a similar structure as e.g. `robincar_glm()`. However, the methods are quite different, e.g. here we do not have the prediction of counterfactuals. Therefore the pattern still looks quite different.
+
+Steps include:
+
+1. Checks
+1. Calculation of risk set and failure times
+1. For each pair of treatment arms, we will compute:
+   a. unadjusted hazard ratio estimate
+   a. covariate adjusted hazard ratio estimate
+   a. standard error
+   a. p-value for the logrank test
+1. Return the list with results, with class `surv_effect`
+
+Note that the class of the value is not `treatment_effect` here, because we don't have marginal means, or Jacobian matrix here, in contrast to GLMs. Since there is some overlap, which could e.g. be used for the `print()` method or others, it could be helpful to have a common class `treatment_effect` and then have subclasses `glm_effect` and `surv_effect` which contain additional information.
+
+# Questions {#sec-questions}
+
+1. For the future, which kind of marginal means could we display? E.g. restricted mean survival times which are also covariate and stratification adjusted would be great. 
+    - This would then eventually parallel the results we obtain for GLMs
+    - Does the methodology exist already? E.g. from references in @MagirrWangDengMorrisBaillie2024 ?
+1. If we have more than two treatment arms in the data set, we would currently just compute the pairwise contrasts. 
+    - Is there a more efficient way to compute the pairwise hazard ratios and tests maybe?
+    - Is this sufficient? Or do we need to / could we compute an overall (logrank) test as well?    
+
+# References
