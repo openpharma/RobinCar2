@@ -462,6 +462,75 @@ beta_est <- get_beta_estimates(lm_input)
 beta_est
 ```
 
+### Adjusted test statistic
+
+Now, finally, we can implement the covariate adjusted log-rank test statistic based on equations (4) and (6) in @YeShaoYi2023.
+We need to be careful in formula (4): It can be (as in the example here) that not all patients enter the linear model computations, because of missing values in some of their covariates. Therefore, when calculating the unadjusted result, we need to use the same patients as in the linear model.
+
+```{r}
+covadj_log_rank <- function(df, treatment, time, status, model) {
+    # Use row names for df such that we can see which patients are dropped etc.
+    rownames(df) <- seq_len(nrow(df))
+
+    # Calculate derived outcomes and regress them on covariates.
+    df_with_covs_ovals <- derived_outcome_vals(df, treatment, time, status, covariates = all.vars(model))
+    lm_input <- get_lm_input(df_with_covs_ovals, model)
+    beta_est <- get_beta_estimates(lm_input)
+
+    # Obtain unadjusted result for the patients included in the two linear models.
+    included_pts <- union(names(lm_input[["0"]]$y), names(lm_input[["1"]]$y))
+    df_included <- df[rownames(df) %in% included_pts, ]
+
+    unadj_res <- nonadj_log_rank(df_included, treatment, time, status)
+
+    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+    # proportion of treatment 1 in the trial.
+    pi <- mean(as.numeric(df[[treatment]]) - 1)
+
+    # Overall column wise average of design matrices.
+    X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
+    X_bar <- colMeans(X_all)
+
+    # Center the design matrices with this overall average.
+    X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
+    X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
+
+    # Compute adjustment term for U_L.
+    n <- nrow(df_included)
+    U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+
+    # Compute adjusted U_CL.
+    U_CL <- unadj_res$U_L - U_L_adj_term
+
+    # Compute adjustment term for sigma_L2.
+    cov_X <- cov(X_all)
+    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+    sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
+
+    # Compute adjusted sigma_CL2.
+    sigma_CL2 <- unadj_res$sigma_L2 - sigma_L2_adj_term
+
+    # Compute adjusted test statistic.
+    tau_CL <- sqrt(n) * U_CL / sqrt(sigma_CL2)
+
+    pval <- 2 * pnorm(-abs(tau_CL))
+
+    # Return results.
+    list(
+        U_CL = U_CL,
+        sigma_CL2 = sigma_CL2,
+        tau_CL = tau_CL,
+        pval = pval,
+        unadj_res = unadj_res
+    )
+}
+
+our_res <- covadj_log_rank(dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
+our_res
+```
+
+## Covariate adjusted hazard ratio estimate
+
 
 
 # References
