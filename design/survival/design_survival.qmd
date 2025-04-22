@@ -386,6 +386,82 @@ head(dat_derived)
 
 We can also see that the $\hat{O}_{ij}$ values here are the same for the patients with tied event times.
 
-### 
+### Regression of derived outcome values on covariates
+
+We can see from equation (5) in @YeShaoYi2023 that we can use a linear regression model, separately per treatment arm, and without intercept and with centered design matrix, to estimate the coefficients $\hat{\beta}_{j}$ for each treatment arm $j$.
+
+These estimated coefficients are then crucial for the adjustment of the log rank test statistic in equation (4).
+
+Let's first write a function that returns the original, i.e. non-centered, design matrices and the response for the two treatment arms: 
+
+```{r}
+get_lm_input <- function(df, model) {
+    assert_data_frame(df)
+    assert_formula(model)
+    assert_subset(all.vars(model), names(df))
+
+    # Add outcome, remove intercept:
+    model <- update(model, O_hat ~ . - 1)
+    df_by_trt <- split(df, f = df$treatment)
+    lapply(
+        df_by_trt,
+        function(this_df) {
+            mf <- model.frame(model, data = this_df)
+            X <- model.matrix(model, data = mf)
+            y <- model.response(mf)
+            list(X = X, y = y)
+        }
+    )
+}
+```
+
+Let's try this:
+
+```{r}
+lm_input <- get_lm_input(dat_derived, ~ age + ph.karno + meal.cal)
+str(lm_input)
+```
+
+Note that here we might drop patients which have missing values in any of the covariates included in the model. Therefore it is important that we return the parallel response vector as well.
+
+Now we can estimate the regression coefficients, using this input:
+
+```{r}
+get_beta_estimates <- function(lm_input) {
+    assert_list(lm_input, types = "list")
+    assert_names(names(lm_input), identical.to = c("0", "1"))
+
+    # Fit the model separately for each treatment arm.
+    beta_est <- list()
+
+    for (group in names(lm_input)) {
+        # Get the design matrix for this treatment arm.
+        X <- lm_input[[group]]$X
+
+        # Center it.
+        X <- scale(X, center = TRUE, scale = FALSE)
+
+        # Get the derived outcome values, the response.
+        y <- lm_input[[group]]$y
+
+        # Fit the model without intercept.
+        lm_fit <- lm.fit(X, y)
+
+        # Get the coefficients.
+        beta_est[[group]] <- lm_fit$coefficients
+    }
+
+    beta_est
+}
+```
+
+Let's try this:
+
+```{r}
+beta_est <- get_beta_estimates(lm_input)
+beta_est
+```
+
+
 
 # References
