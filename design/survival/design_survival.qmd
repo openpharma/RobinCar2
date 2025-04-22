@@ -195,4 +195,197 @@ our_res$tau_L^2 - cox_res
 
 So this is basically identical.
 
+## Unadjusted hazard ratio estimate
+
+Similarly as above, we can write down the score function from the partial likelihood for the Cox model with log hazard ratio $\theta$:
+
+```{r}
+nonadj_log_rank_score <- function(theta, df, treatment, time, status) {
+    assert_numeric(theta, min.len = 1L, finite = TRUE)
+    assert_string(treatment)
+    assert_string(time)
+    assert_string(status)
+    assert_data_frame(df)
+    assert_factor(df[[treatment]], n.levels = 2L)
+    assert_factor(df[[status]], levels = c("Alive", "Dead"))
+    assert_numeric(df[[time]], lower = 0)
+
+    # Standardize data set format, subset to relevant variables.
+    df <- data.frame(
+        treatment = as.numeric(df[[treatment]]) - 1L,
+        time = df[[time]],
+        status = as.numeric(df[[status]] == "Dead")
+    )
+
+    # Sort by time.
+    df <- df[order(df$time), ]
+
+    # Patients with events.
+    df_events <- df[df$status == 1L, ]
+
+    # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
+    U_L <- sigma_L2 <- 0
+    for (i in seq_len(nrow(df_events))) {
+        # This event time.
+        t_i <- df_events$time[i]
+
+        # This treatment arm indicator.
+        I_i <- df_events$treatment[i]
+
+        # Proportions of patients at risk at time t_i, per arm.
+        Y_bar_1_ti <- mean(df$treatment & df$time >= t_i)
+        Y_bar_0_ti <- mean(!df$treatment & df$time >= t_i)
+
+        # Adjusted proportion of patients at risk in the treatment arm:
+        Y_bar_1_ti_coxph <- Y_bar_1_ti * exp(theta)
+
+        # Increment U_L.
+        U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
+    }
+    n <- nrow(df)
+    U_L / n
+}
+```
+
+We can see here that the only difference to the log rank test is the multiplication of $\bar{Y}_{1}(t)$ with the hazard ratio $\exp(\theta)$ in the score function.
+
+Let's see if we can match the `survival` results accordingly, by solving the score equation for $\theta$ to obtain the hazard ratio estimate:
+
+```{r}
+score_solution <- uniroot(
+    nonadj_log_rank_score,
+    interval = c(-10, 10),
+    df = dat,
+    treatment = "sex",
+    time = "time",
+    status = "status"
+)
+our_theta_est <- score_solution$root
+our_theta_est
+```
+
+From the `survival` package we get:
+
+```{r}
+pkg_theta_est <- as.numeric(coef(check))
+pkg_theta_est
+```
+
+So this is indeed very close:
+
+```{r}
+our_theta_est - pkg_theta_est
+```
+
+## Covariate adjusted log-rank test
+
+Now we will follow Section 3 in @YeShaoYi2023 to implement the covariate adjusted log-rank test.
+
+### Derived outcome values
+
+First we need to calculate the derived outcome values, the $\hat{O}_{ij}$, for each patient $i$ in each treatment arm $j$, as defined in Equation (3) in the paper. If we denote all observed event times by $t_{(1)}, \ldots, t_{(m)}$, then the $\hat{O}_{ij}$ value is practically calculated as:
+
+$$
+\hat{O}_{ij} = \sum_{k=1}^{m} 
+\frac{\overline{Y}_{1-j}(t_{(k)})}{\overline{Y}(t_{(k)})} 
+\left\{ dN_{ij}(t_{(k)}) - Y_{ij}(t_{(k)}) \frac{d\overline{N}(t_{(k)})}{\overline{Y}(t_{(k)})} \right\}
+$$
+
+Here we have the following quantities:
+
+- $\overline{Y}_{1-j}(t_{(k)})$: the proportion of patients at risk in the opposite treatment arm at time $t_{(k)}$.
+- $\overline{Y}(t_{(k)})$: the overall proportion of patients at risk at time $t_{(k)}$.
+- $dN_{ij}(t_{(k)})$: whether this patient had an event at time $t_{(k)}$, then 1, otherwise 0.
+- $Y_{ij}(t_{(k)})$: whether this patient was at risk at time $t_{(k)}$, then 1, otherwise 0.
+- $d\overline{N}(t_{(k)})$: the proportion of patients having an event at time $t_{(k)}$.
+- $\overline{Y}(t_{(k)})$: the overall proportion of patients at risk at time $t_{(k)}$.
+
+One consideration here is what happens if there are ties between some of the event times. In that case, $N(t)$ would only jump at the unique event times, and the jump height would depend on the number of patients having an event at that time. However, since the other quantities are about proportions of patients at risk, and these would not change if we had ties, we can just ignore the ties for the purpose of calculating the $\hat{O}_{ij}$ values. We basically just sum the same summand more often then, according to how many patients had an event at that time.
+
+This function takes the data frame with the meta data, now including the covariates specification (keeping it simple for now), sorts it by time and then adds the $\hat{O}_{ij}$ values to it.
+
+```{r}
+derived_outcome_vals <- function(df, treatment, time, status, covariates) {
+    assert_string(treatment)
+    assert_string(time)
+    assert_string(status)
+    assert_character(covariates)
+    assert_data_frame(df)
+    assert_factor(df[[treatment]], n.levels = 2L)
+    assert_factor(df[[status]], levels = c("Alive", "Dead"))
+    assert_numeric(df[[time]], lower = 0)
+
+    # Standardize data set format, subset to relevant variables.
+    df <- data.frame(
+        treatment = as.numeric(df[[treatment]]) - 1L,
+        time = df[[time]],
+        status = as.numeric(df[[status]] == "Dead"),
+        df[covariates]
+    )
+
+    # Sort by time.
+    df <- df[order(df$time), ]
+
+    # Patients with events.
+    df_events <- df[df$status == 1L, ]
+
+    # Add derived outcome column.
+    df$O_hat <- NA_real_
+
+    # Calculate quantities which are the same across patients first.
+    # These are in parallel to df_events.
+
+    # Proportions of patients at risk, per event time and treatment arm.
+    # Corresponds to \bar{Y}_1(t) and \bar{Y}_0(t).
+    at_risk_matrix <- outer(df$time, df_events$time, FUN = ">=")
+    Y_bar_1 <- colMeans(df$treatment & at_risk_matrix)
+    Y_bar_0 <- colMeans(!df$treatment & at_risk_matrix)
+    Y_bar <- Y_bar_0 + Y_bar_1
+
+    # Proportion of patients having an event at this time.
+    # Corresponds to d\bar{N}(t).
+    dN_bar <- rep(1 / nrow(df), nrow(df_events))
+
+    # Loop over all patients.
+    for (i in seq_len(nrow(df))) {
+        # Treatment arm?
+        I_i <- df$treatment[i]
+
+        # Event in this patient?
+        delta_i <- df$status[i] == 1L
+
+        # Time for this patient.
+        t_i <- df$time[i]
+
+        # Does this patient have an event at this time? Corresponds to dN_ij(t).
+        dN_ij <- delta_i * (df_events$time == t_i)
+
+        # Is this patient at risk at this time? Corresponds to Y_ij(t).
+        Y_ij <- as.numeric(t_i >= df_events$time)
+
+        # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
+        weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
+
+        # Compute martingale residuals.
+        martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
+
+        # Sum across all event times.
+        df$O_hat[i] <- sum(weights * martingale_residuals)
+    }
+
+    df
+}
+```
+
+Let's try this out:
+
+```{r}
+dat_derived <- derived_outcome_vals(dat, "sex", "time", "status", covariates = c("age", "ph.karno", "meal.cal"))
+head(dat_derived)
+```
+
+We can also see that the $\hat{O}_{ij}$ values here are the same for the patients with tied event times.
+
+### 
+
 # References
