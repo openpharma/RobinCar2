@@ -80,5 +80,119 @@ Note that the class of the value is not `treatment_effect` here, because we don'
 1. If we have more than two treatment arms in the data set, we would currently just compute the pairwise contrasts. 
     - Is there a more efficient way to compute the pairwise hazard ratios and tests maybe?
     - Is this sufficient? Or do we need to / could we compute an overall (logrank) test as well?    
+1. How should ties be handled?
+    - The "Breslow approximation" seems simplest, see e.g. in the `survival` package's manual:
+
+        "The Breslow approximation in essence ignores the ties. If two subjects A and B died on day 100, say, the partial likelihood will have separate terms for the two deaths. Subject A will be at risk for the death that happened to B, and B will be at risk for the death that happened to A. In life this is not technically possible of course: whoever died first will not be at risk for the second death."
+
+# Prototype
+
+Idea is to code the prototype (almost) from scratch to have an independent implementation to compare with RobinCar, to really improve reliability. So I might still look at the overall flow of RobinCar and the helper functions, but I will not copy the code directly.
+
+## Example data
+
+As example data, we are going to use the NCCTG Lung Cancer Data set, which is available in the `survival` package.
+We are going to use the male patients as treatment arm $j = 0$ and the female patients as treatment arm $j = 1$.
+
+```{r}
+library(dplyr)
+library(checkmate)
+dat <- survival::lung |>
+    mutate(
+        status = factor(ifelse(status == 1, "Alive", "Dead")),
+        sex = factor(ifelse(sex == 1, "Male", "Female")),
+        status_numeric = as.numeric(status == "Dead")
+    )
+head(dat)
+```
+
+## Unadjusted log-rank test
+
+Let's first try to implement the unadjusted log-rank test, following the notation in Section 2 in @YeShaoYi2023.
+
+```{r}
+nonadj_log_rank <- function(df, treatment, time, status) {
+    assert_string(treatment)
+    assert_string(time)
+    assert_string(status)
+    assert_data_frame(df)
+    assert_factor(df[[treatment]], n.levels = 2L)
+    assert_factor(df[[status]], levels = c("Alive", "Dead"))
+    assert_numeric(df[[time]], lower = 0)
+
+    # Standardize data set format, subset to relevant variables.
+    df <- data.frame(
+        treatment = as.numeric(df[[treatment]]) - 1L,
+        time = df[[time]],
+        status = as.numeric(df[[status]] == "Dead")
+    )
+
+    # Sort by time.
+    df <- df[order(df$time), ]
+
+    # Patients with events.
+    df_events <- df[df$status == 1L, ]
+
+    # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
+    U_L <- sigma_L2 <- 0
+    for (i in seq_len(nrow(df_events))) {
+        # This event time.
+        t_i <- df_events$time[i]
+
+        # This treatment arm indicator.
+        I_i <- df_events$treatment[i]
+
+        # Proportions of patients at risk at time t_i, per arm.
+        Y_bar_1_ti <- mean(df$treatment & df$time >= t_i)
+        Y_bar_0_ti <- mean(!df$treatment & df$time >= t_i)
+
+        # Overall proportion of patients at risk at time t_i.
+        Y_bar_ti <- Y_bar_0_ti + Y_bar_1_ti
+
+        # Increment U_L.
+        U_L <- U_L + (I_i - Y_bar_1_ti / Y_bar_ti)
+
+        # Increment sigma_L2.
+        sigma_L2 <- sigma_L2 + Y_bar_1_ti * Y_bar_0_ti / Y_bar_ti^2
+    }
+    n <- nrow(df)
+    U_L <- U_L / n
+    sigma_L2 <- sigma_L2 / n
+    tau_L <- sqrt(n) * U_L / sqrt(sigma_L2)
+    pval <- 2 * pnorm(-abs(tau_L))
+    list(
+        U_L = U_L,
+        sigma_L2 = sigma_L2,
+        tau_L = tau_L,
+        pval = pval
+    )
+}
+
+our_res <- nonadj_log_rank(dat, "sex", "time", "status")
+our_res
+```
+
+Let's compare this with the standard `survival` implementation:
+
+```{r}
+library(survival)
+
+pkg_res <- survdiff(Surv(time, status_numeric) ~ sex, data = dat)
+pkg_res
+
+our_res$tau_L^2 - pkg_res$chisq
+```
+
+So this is pretty close.
+
+Equivalently we can also compute the score test of the Cox model:
+
+```{r}
+check <- coxph(Surv(time, status_numeric) ~ sex, data = dat, ties = "breslow")
+cox_res <- summary(check)$sctest["test"]
+our_res$tau_L^2 - cox_res
+```
+
+So this is basically identical.
 
 # References
