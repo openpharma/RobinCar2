@@ -822,7 +822,8 @@ cl <- robincar_covhr(
     covariate_cols = c("age", "ph.karno", "meal.cal"),
     car_scheme = "simple",
     adj_method = "CL",
-    ref_arm = "Female"
+    ref_arm = "Female",
+    p_trt = mean(df_subset$sex == "Male")
 )
 str(cl)
 
@@ -839,5 +840,7 @@ So these results are close but not numerically equal to what we obtained earlier
 our_covadj_theta_est - robincar_theta_est
 our_covadj_theta_est_se - robincar_theta_est_se
 ```
+
+We will need to dig a little bit to understand why the results are not numerically equal. It could be e.g. due to the handling of ties.
 
 # References
