@@ -241,13 +241,38 @@ nonadj_log_rank_score <- function(theta, df, treatment, time, status) {
 
         # Increment U_L.
         U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
+
+        # Increment sigma_L2.
+        sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti / (Y_bar_1_ti_coxph + Y_bar_0_ti)^2
     }
     n <- nrow(df)
-    U_L / n
+    U_L <- U_L / n
+    sigma_L2 <- sigma_L2 / n
+    se_theta_L <- sqrt(1 / (n * sigma_L2))
+    structure(U_L, sigma_L2 = sigma_L2, se_theta_L = se_theta_L)
 }
 ```
 
 We can see here that the only difference to the log rank test is the multiplication of $\bar{Y}_{1}(t)$ with the hazard ratio $\exp(\theta)$ in the score function.
+
+### Standard error computation
+
+While it is not explicitly written in @YeShaoYi2023, we can see from p. 698 that a variance estimate of the log hazard ratio estimate $\hat{\theta}_{\text{L}}$ is given by the inverse scaled negative derivative $1 / (n \cdot g(\vartheta))$ of the score function $\widehat{U}_{L}(\vartheta)$, i.e. $g(\vartheta) = \partial \widehat{U}_{L}(\vartheta)/ \partial\vartheta$, evaluated at the solution $\vartheta = \hat{\theta}_{\text{L}}$.
+
+Here $g(\vartheta)$ is given by
+
+$$
+g(\vartheta) = \frac{1}{n} \sum_{i=1}^{n} \int_0^{\tau} 
+\frac{e^{\vartheta} \overline{Y}_1(t) \overline{Y}_0(t)}
+{\left( e^{\vartheta} \overline{Y}_1(t) + \overline{Y}_0(t) \right)^2}
+dN_i(t)
+$$
+
+This matches the form we had used above for $\sigma_L^2$, merely replacing $\overline{Y}_1(t)$ by $e^{\vartheta} \overline{Y}_1(t)$.
+
+Given $\sigma^2_L(\hat{\theta}_{\text{L}}) = 1 / (n \cdot g(\hat{\theta}_{\text{L}}))$, the standard error is then just the square root of that, and we can use it to construct confidence intervals based on the normal approximation. We have already included this calculation in the above function.
+
+### Comparison with `survival` results
 
 Let's see if we can match the `survival` results accordingly, by solving the score equation for $\theta$ to obtain the hazard ratio estimate:
 
@@ -262,9 +287,12 @@ score_solution <- uniroot(
 )
 our_theta_est <- score_solution$root
 our_theta_est
+
+our_theta_est_se <- attr(score_solution$f.root, "se_theta_L")
+our_theta_est_se
 ```
 
-From the `survival` package we get:
+From the `survival` package we get the log hazard ratio estimate:
 
 ```{r}
 pkg_theta_est <- as.numeric(coef(check))
@@ -276,6 +304,20 @@ So this is indeed very close:
 ```{r}
 our_theta_est - pkg_theta_est
 ```
+
+And we get the standard error:
+
+```{r}
+pkg_theta_est_se <- sqrt(vcov(check))
+```
+
+We can compare that too:
+
+```{r}
+pkg_theta_est_se - our_theta_est_se
+```
+
+So that also matches well.
 
 ## Covariate adjusted log-rank test
 
