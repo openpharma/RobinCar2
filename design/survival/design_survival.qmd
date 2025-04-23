@@ -716,15 +716,30 @@ covadj_log_rank_score <- function(theta, df, treatment, time, status, model) {
     U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
     # Compute adjusted U_CL.
-    U_CL <- unadj_score - U_L_adj_term
+    U_CL <- as.numeric(unadj_score) - U_L_adj_term
 
-    U_CL
+    # Compute adjustment term for sigma_L2.
+    cov_X <- cov(X_all)
+    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+    sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
+
+    # Compute standard error for theta estimate.
+    g_theta_CL <- attr(unadj_score, "sigma_L2")
+    var_theta_CL <- (g_theta_CL - sigma_L2_adj_term) / (g_theta_CL^2) / n
+    se_theta_CL <- suppressWarnings(sqrt(var_theta_CL))
+
+    structure(U_CL, se_theta_CL = se_theta_CL)
 }
 
 covadj_log_rank_score(theta = 0, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
-covadj_log_rank_score(theta = -10, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
-covadj_log_rank_score(theta = 10, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
+covadj_log_rank_score(theta = -5, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
+covadj_log_rank_score(theta = 5, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
 ```
+
+### Standard error computation
+
+Here we can follow the lines of p. 698 in @YeShaoYi2023 again. We can see that we need a similar quadratic form depending on the regression coefficient estimates and the covariance matrix of the design matrix, as we had for the computation of $\sigma_{\text{CL}}^2$ above.
+We have included this already in the above function.
 
 Let's try to use this to compute the covariate adjusted log hazard ratio estimate $\hat{\theta}_{\text{CL}}$:
 
@@ -747,5 +762,21 @@ We can compare this with the earlier calculated unadjusted hazard ratio estimate
 ```{r}
 our_theta_est
 ```
+
+For the standard error, we get:
+
+```{r}
+our_covadj_theta_est_se <- attr(covadj_score_solution$f.root, "se_theta_CL")
+our_covadj_theta_est_se
+```
+
+We can compare that with the earlier calculated unadjusted standard error:
+
+```{r}
+our_theta_est_se
+```
+
+So interestingly, this is slightly larger here than the unadjusted one. 
+Let's see later if this actually is correct...
 
 # References
