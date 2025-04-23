@@ -741,6 +741,8 @@ covadj_log_rank_score(theta = 5, df = dat, treatment = "sex", time = "time", sta
 Here we can follow the lines of p. 698 in @YeShaoYi2023 again. We can see that we need a similar quadratic form depending on the regression coefficient estimates and the covariance matrix of the design matrix, as we had for the computation of $\sigma_{\text{CL}}^2$ above.
 We have included this already in the above function.
 
+### Comparison with unadjusted results
+
 Let's try to use this to compute the covariate adjusted log hazard ratio estimate $\hat{\theta}_{\text{CL}}$:
 
 ```{r}
@@ -757,10 +759,20 @@ our_covadj_theta_est <- covadj_score_solution$root
 our_covadj_theta_est
 ```
 
-We can compare this with the earlier calculated unadjusted hazard ratio estimate:
+Let's compare this with the unadjusted hazard ratio estimate for the same, reduced, data set:
 
 ```{r}
-our_theta_est
+df_subset <- na.omit(subset(dat, select = c(time, status, status_numeric, sex, age, ph.karno, meal.cal)))
+unadj_score_solution <- uniroot(
+    nonadj_log_rank_score,
+    interval = c(-5, 5),
+    df = df_subset,
+    treatment = "sex",
+    time = "time",
+    status = "status"
+)
+our_unadj_theta_est <- unadj_score_solution$root
+our_unadj_theta_est
 ```
 
 For the standard error, we get:
@@ -770,13 +782,62 @@ our_covadj_theta_est_se <- attr(covadj_score_solution$f.root, "se_theta_CL")
 our_covadj_theta_est_se
 ```
 
-We can compare that with the earlier calculated unadjusted standard error:
+We can compare that with the above calculated unadjusted standard error:
 
 ```{r}
+our_theta_est_se <- attr(unadj_score_solution$f.root, "se_theta_L")
 our_theta_est_se
 ```
 
-So interestingly, this is slightly larger here than the unadjusted one. 
-Let's see later if this actually is correct...
+So we can see that the covariate adjusted standard error is indeed smaller than the unadjusted one.
+
+### Comparison with `survival` results
+
+Let's compare this with the `survival` package results using a Cox model:
+
+```{r}
+check_adjusted <- coxph(Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal, data = dat, ties = "breslow")
+
+coxph_covadj_theta_est <- as.numeric(coef(check_adjusted)["sexMale"])
+coxph_covadj_theta_est
+
+coxph_covadj_theta_est_se <- sqrt(vcov(check_adjusted)["sexMale", "sexMale"])
+coxph_covadj_theta_est_se
+```
+
+So these results are different, which is expected, because with this Cox model we are estimating a conditional hazard ratio.
+
+### Comparison with RobinCar results
+
+We can also compare this with the results from RobinCar:
+
+```{r}
+library(RobinCar)
+cl <- robincar_covhr(
+    df = df_subset,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female"
+)
+str(cl)
+
+robincar_theta_est <- cl$result$theta_CL
+robincar_theta_est
+
+robincar_theta_est_se <- cl$result$se_theta_CL
+robincar_theta_est_se
+```
+
+So these results are close but not numerically equal to what we obtained earlier:
+
+```{r}
+our_covadj_theta_est - robincar_theta_est
+our_covadj_theta_est_se - robincar_theta_est_se
+```
 
 # References
