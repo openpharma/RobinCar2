@@ -531,6 +531,179 @@ our_res
 
 ## Covariate adjusted hazard ratio estimate
 
+We follow p. 698 in @YeShaoYi2023 to implement the covariate adjusted score function for the Cox model with log hazard ratio $\theta$:
+$$
+\widehat{U}_{\text{CL}}(\vartheta) = 
+\widehat{U}_{\text{L}}(\vartheta) - 
+\frac{1}{n} \sum_{i=1}^{n} \left\{ I_i (X_i - \bar{X})^\top \widehat{\beta}_1(\vartheta) - (1 - I_i)(X_i - \bar{X})^\top \widehat{\beta}_0(\vartheta) \right\},
+$$
 
+where we fixed the typo that the regression coefficients depend on $\vartheta$ instead of $\widehat{\theta}_{\text{L}}$.
+As mentioned in the paper, in turn they depend on derived outcomes calculated from $\vartheta$. So we first need to have a function for that:
+
+### Derived outcome values depending on $\vartheta$
+
+All these function names are just placeholders for now, they can definitely be improved...
+
+Let's write this function which is very close to the above `derived_outcome_vals()` but takes as first argument a single $\vartheta$ value and returns the derived outcome values based on this log hazard ratio value.
+
+```{r}
+derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, covariates) {
+    assert_number(theta)
+    assert_string(treatment)
+    assert_string(time)
+    assert_string(status)
+    assert_character(covariates)
+    assert_data_frame(df)
+    assert_factor(df[[treatment]], n.levels = 2L)
+    assert_factor(df[[status]], levels = c("Alive", "Dead"))
+    assert_numeric(df[[time]], lower = 0)
+
+    # Standardize data set format, subset to relevant variables.
+    df <- data.frame(
+        treatment = as.numeric(df[[treatment]]) - 1L,
+        time = df[[time]],
+        status = as.numeric(df[[status]] == "Dead"),
+        df[covariates]
+    )
+
+    # Sort by time.
+    df <- df[order(df$time), ]
+
+    # Patients with events.
+    df_events <- df[df$status == 1L, ]
+
+    # Add derived outcome column.
+    df$O_hat <- NA_real_
+
+    # Calculate quantities which are the same across patients first.
+    # These are in parallel to df_events.
+
+    # Hazard ratio.
+    exp_theta <- exp(theta)
+
+    # Proportions of patients at risk, per event time and treatment arm.
+    # Corresponds to \exp(\vartheta) * \bar{Y}_1(t) and \bar{Y}_0(t).
+    # So here theta enters.
+    at_risk_matrix <- outer(df$time, df_events$time, FUN = ">=")
+    Y_bar_1 <- exp_theta * colMeans(df$treatment & at_risk_matrix)
+    Y_bar_0 <- colMeans(!df$treatment & at_risk_matrix)
+    Y_bar <- Y_bar_0 + Y_bar_1
+
+    # Proportion of patients having an event at this time.
+    # Corresponds to d\bar{N}(t).
+    dN_bar <- rep(1 / nrow(df), nrow(df_events))
+
+    # Loop over all patients.
+    for (i in seq_len(nrow(df))) {
+        # Treatment arm?
+        I_i <- df$treatment[i]
+
+        # Event in this patient?
+        delta_i <- df$status[i] == 1L
+
+        # Time for this patient.
+        t_i <- df$time[i]
+
+        # Does this patient have an event at this time? Corresponds to dN_ij(t).
+        dN_ij <- delta_i * (df_events$time == t_i)
+
+        # Is this patient at risk at this time? Corresponds to Y_ij(t).
+        # Here theta enters, too.
+        Y_ij <- as.numeric(t_i >= df_events$time) * ifelse(I_i, exp_theta, 1)
+
+        # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
+        weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
+
+        # Compute martingale residuals.
+        martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
+
+        # Sum across all event times.
+        df$O_hat[i] <- sum(weights * martingale_residuals)
+    }
+
+    df
+}
+```
+
+Let's try this out:
+
+```{r}
+dat_derived_theta <- derived_outcome_vals_from_theta(theta = 1, dat, "sex", "time", "status", covariates = c("age", "ph.karno", "meal.cal"))
+head(dat_derived_theta)
+```
+
+### Regression coefficients depending on $\vartheta$
+
+Here we don't need a new function, because we can just use the `get_beta_estimates()` function from above on the derived outcome values we just calculated. The estimates don't depend on $\vartheta$ in another way, but just through $\hat{O}_{ij}(\vartheta)$, which we already calculated.
+
+### Covariate adjusted score function in $\vartheta$
+
+So now we can based on that code the covariate adjusted score function. We start with one that just takes a scalar $\vartheta$, because `uniroot()` does actually not need a vectorized function. 
+
+```{r}
+covadj_log_rank_score <- function(theta, df, treatment, time, status, model) {
+    # Use row names for df such that we can see which patients are dropped etc.
+    rownames(df) <- seq_len(nrow(df))
+
+    # Calculate derived outcomes and regress them on covariates.
+    df_with_covs_ovals <- derived_outcome_vals_from_theta(theta, df, treatment, time, status, covariates = all.vars(model))
+    lm_input <- get_lm_input(df_with_covs_ovals, model)
+    beta_est <- get_beta_estimates(lm_input)
+
+    # Obtain unadjusted result for the patients included in the two linear models.
+    included_pts <- union(names(lm_input[["0"]]$y), names(lm_input[["1"]]$y))
+    df_included <- df[rownames(df) %in% included_pts, ]
+
+    unadj_score <- nonadj_log_rank_score(theta, df_included, treatment, time, status)
+
+    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+    # proportion of treatment 1 in the trial.
+    pi <- mean(as.numeric(df[[treatment]]) - 1)
+
+    # Overall column wise average of design matrices.
+    X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
+    X_bar <- colMeans(X_all)
+
+    # Center the design matrices with this overall average.
+    X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
+    X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
+
+    # Compute adjustment term for U_L.
+    n <- nrow(df_included)
+    U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+
+    # Compute adjusted U_CL.
+    U_CL <- unadj_score - U_L_adj_term
+
+    U_CL
+}
+
+covadj_log_rank_score(theta = 0, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
+covadj_log_rank_score(theta = -10, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
+covadj_log_rank_score(theta = 10, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
+```
+
+Let's try to use this to compute the covariate adjusted log hazard ratio estimate $\hat{\theta}_{\text{CL}}$:
+
+```{r}
+covadj_score_solution <- uniroot(
+    covadj_log_rank_score,
+    interval = c(-5, 5),
+    df = dat,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~ age + ph.karno + meal.cal
+)
+our_covadj_theta_est <- covadj_score_solution$root
+our_covadj_theta_est
+```
+
+We can compare this with the earlier calculated unadjusted hazard ratio estimate:
+
+```{r}
+our_theta_est
+```
 
 # References
