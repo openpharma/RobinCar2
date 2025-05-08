@@ -86,6 +86,7 @@ Note that the class of the value is not `treatment_effect` here, because we don'
         "The Breslow approximation in essence ignores the ties. If two subjects A and B died on day 100, say, the partial likelihood will have separate terms for the two deaths. Subject A will be at risk for the death that happened to B, and B will be at risk for the death that happened to A. In life this is not technically possible of course: whoever died first will not be at risk for the second death."
 1. If a stratum only contains a single patient, do we count this patient in `n`?
     - Question arises because this stratum then does not contribute to the statistics (summand is 0).
+    - Seems we still need to count it, at least like this we match the `survival` package's result exactly.
 
 # Prototype
 
@@ -352,7 +353,7 @@ One consideration here is what happens if there are ties between some of the eve
 This function takes the data frame with the meta data, now including the covariates specification (keeping it simple for now), sorts it by time and then adds the $\hat{O}_{ij}$ values to it.
 
 ```{r}
-derived_outcome_vals <- function(df, treatment, time, status, covariates) {
+derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nrow(df)) {
     assert_string(treatment)
     assert_string(time)
     assert_string(status)
@@ -361,6 +362,8 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates) {
     assert_factor(df[[treatment]], n.levels = 2L)
     assert_factor(df[[status]], levels = c("Alive", "Dead"))
     assert_numeric(df[[time]], lower = 0)
+    assert_count(n)
+    assert_true(n >= nrow(df))
 
     # Standardize data set format, subset to relevant variables.
     df <- data.frame(
@@ -385,13 +388,13 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates) {
     # Proportions of patients at risk, per event time and treatment arm.
     # Corresponds to \bar{Y}_1(t) and \bar{Y}_0(t).
     at_risk_matrix <- outer(df$time, df_events$time, FUN = ">=")
-    Y_bar_1 <- colMeans(df$treatment & at_risk_matrix)
-    Y_bar_0 <- colMeans(!df$treatment & at_risk_matrix)
+    Y_bar_1 <- colSums(df$treatment & at_risk_matrix) / n
+    Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
     Y_bar <- Y_bar_0 + Y_bar_1
 
     # Proportion of patients having an event at this time.
     # Corresponds to d\bar{N}(t).
-    dN_bar <- rep(1 / nrow(df), nrow(df_events))
+    dN_bar <- rep(1 / n, nrow(df_events))
 
     # Loop over all patients.
     for (i in seq_len(nrow(df))) {
@@ -922,6 +925,120 @@ our_strat_res$tau_SL^2 - strat_cox_res
 
 Again this is basically identical. So this works.
 
+## Covariate adjusted stratified log-rank test
+
+### Derived outcome values
+
+For the covariate adjusted version of the stratified log-rank test, we first calculate the derived outcome values. Similarly as above, we can reuse the `derived_outcome_vals()` function, but we have adapted it here too to take the `n` argument, which is the total number of patients across strata.
+
+```{r}
+strat_derived_outcome_vals <- function(df, treatment, time, status, strata, covariates) {
+    assert_string(strata)
+    assert_data_frame(df)
+    assert_factor(df[[strata]])
+    n <- nrow(df)
+
+    df <- na.omit(df[, c(treatment, time, status, strata, covariates)])
+    df[[strata]] <- droplevels(df[[strata]])
+    strata_levels <- levels(df[[strata]])
+
+    df_split <- split(df, f = df[[strata]])
+
+    lapply(
+        df_split,
+        FUN = derived_outcome_vals,
+        treatment = treatment,
+        time = time,
+        status = status,
+        covariates = covariates,
+        n = n
+    )
+}
+```
+
+So we just return the stratum specific derived outcome values, but we do not combine them yet.
+
+
+
+Let's try this out:
+
+```{r}
+strat_dat_derived <- strat_derived_outcome_vals(dat, "sex", "time", "status", "strata", covariates = c("age", "ph.karno", "meal.cal"))
+str(strat_dat_derived, 2)
+```
+
+### Regression of derived outcome values on covariates
+
+Unfortunately we cannot just sum up the strata specific correction terms, because we need to first derive global regression coefficients.
+
+Again we start with the function to get the design matrices and response vectors, where we just process each stratum separately:
+
+```{r}
+get_strat_lm_input <- function(df_split, model) {
+    assert_list(df_split, types = "data.frame")
+    lapply(df_split, get_lm_input, model = model)
+}
+```
+
+Let's try this:
+
+```{r}
+strat_lm_input <- get_strat_lm_input(strat_dat_derived, ~ age + ph.karno + meal.cal)
+str(strat_lm_input, 2)
+```
+
+So for each stratum we have the treatment arm specific design matrices and response vectors.
+
+Now we can estimate the global (across all strata) regression coefficients for each treatment arm. Here we cannot delegate to the function `get_beta_estimates()` from above, but instead need to perform a more manual coefficient estimate calculation:
+
+```{r}
+get_strat_beta_estimates <- function(strat_lm_input) {
+    assert_list(strat_lm_input, types = "list")
+    assert_list(strat_lm_input[[1]], types = "list")
+    assert_names(names(strat_lm_input[[1]]), identical.to = c("0", "1"))
+
+    # Get coefficient estimates separately for each treatment arm.
+    beta_est <- list()
+
+    for (group in c("0", "1")) {
+        XtXs <- list()
+        Xtys <- list()
+
+        for (stratum in names(strat_lm_input)) {
+            if (group %in% names(strat_lm_input[[stratum]])) {
+                # Get the design matrix for this treatment arm.
+                X <- strat_lm_input[[stratum]][[group]]$X
+
+                # Center it.
+                X <- scale(X, center = TRUE, scale = FALSE)
+
+                # Get the derived outcome values, the response.
+                y <- strat_lm_input[[stratum]][[group]]$y
+
+                # Save the cross products.
+                XtXs[[stratum]] <- crossprod(X)
+                Xtys[[stratum]] <- crossprod(X, y)
+            }
+        }
+
+        # Sum across strata.
+        XtX <- Reduce("+", XtXs)
+        Xty <- Reduce("+", Xtys)
+
+        # Get the coefficients.
+        beta_est[[group]] <- solve(XtX, Xty)
+    }
+
+    beta_est
+}
+```
+
+Let's try this:
+
+```{r}
+strat_beta_est <- get_strat_beta_estimates(strat_lm_input)
+strat_beta_est
+```
 
 
 # References
