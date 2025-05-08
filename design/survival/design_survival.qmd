@@ -1033,11 +1033,97 @@ get_strat_beta_estimates <- function(strat_lm_input) {
 }
 ```
 
+Alternatively, we could also stack (row-bind) the design matrices and response vectors across strata, for each treatment group, and then use `lm.fit()` to obtain the coefficients. We can consider that for packaging.
+
 Let's try this:
 
 ```{r}
 strat_beta_est <- get_strat_beta_estimates(strat_lm_input)
 strat_beta_est
+```
+
+### Adjusted test statistic
+
+Now can implement the covariate adjusted stratified log-rank test statistic based on the first equation on p. 700 in @YeShaoYi2023.
+We see that the formula is essentially the same as the one for the non-stratified version, and we just use stratum specific centering for the design matrices.
+
+```{r}
+strat_covadj_log_rank <- function(df, treatment, time, status, strata, model) {
+    # Use row names for df such that we can see which patients are dropped etc.
+    rownames(df) <- seq_len(nrow(df))
+
+    # Calculate derived outcomes and regress them on covariates.
+    df_split_with_covs_ovals <- strat_derived_outcome_vals(df, treatment, time, status, strata = strata, covariates = all.vars(model))
+    strat_lm_input <- get_strat_lm_input(df_split_with_covs_ovals, model)
+    beta_est <- get_strat_beta_estimates(strat_lm_input)
+
+    # Obtain unadjusted result for the patients included in the two linear models.
+    included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
+    df_included <- df[rownames(df) %in% included_pts, ]
+
+    unadj_strat_res <- strat_log_rank(df_included, treatment, time, status, strata)
+
+    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+    # proportion of treatment 1 in the trial.
+    pi <- mean(as.numeric(df[[treatment]]) - 1)
+
+    # Overall column wise average of design matrices.
+    strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
+    strat_X_bar <- lapply(strat_X_all, colMeans)
+
+    # Center the design matrices with this overall average.
+    has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
+    has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
+
+    X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+    X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+
+    X_0 <- do.call(rbind, X_0)
+    X_1 <- do.call(rbind, X_1)
+
+    # Compute adjustment term for U_SL.
+    n <- nrow(df_included)
+    U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+
+    # Compute adjusted U_CSL.
+    U_CSL <- unadj_strat_res$U_SL - U_SL_adj_term
+
+    # Compute adjustment term for sigma_SL2.
+    strat_n <- sapply(strat_X_all, nrow)
+    strat_use <- names(which(strat_n > 1))
+    strat_n <- strat_n[strat_use]
+    overall_n <- sum(strat_n)
+    strat_cov_X <- lapply(strat_X_all[strat_use], cov)
+    weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
+    weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
+
+    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+    sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
+
+    # Compute adjusted sigma_CSL2.
+    sigma_CSL2 <- unadj_strat_res$sigma_SL2 - sigma_SL2_adj_term
+
+    # Compute adjusted test statistic.
+    tau_CSL <- sqrt(n) * U_CSL / sqrt(sigma_CSL2)
+
+    pval <- 2 * pnorm(-abs(tau_CSL))
+
+    # Return results.
+    list(
+        U_CSL = U_CSL,
+        sigma_CSL2 = sigma_CSL2,
+        tau_CSL = tau_CSL,
+        pval = pval,
+        unadj_strat_res = unadj_strat_res
+    )
+}
+
+our_strat_covadj_res <- strat_covadj_log_rank(
+    dat,
+    treatment = "sex", time = "time", status = "status", strata = "strata",
+    model = ~ age + ph.karno + meal.cal
+)
+our_strat_covadj_res
 ```
 
 
