@@ -367,6 +367,7 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nr
 
     # Standardize data set format, subset to relevant variables.
     df <- data.frame(
+        index = seq_len(nrow(df)),
         treatment = as.numeric(df[[treatment]]) - 1L,
         time = df[[time]],
         status = as.numeric(df[[status]] == "Dead"),
@@ -397,7 +398,7 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nr
     dN_bar <- rep(1 / n, nrow(df_events))
 
     # Loop over all patients.
-    for (i in seq_len(nrow(df))) {
+    for (i in df$index) {
         # Treatment arm?
         I_i <- df$treatment[i]
 
@@ -408,7 +409,8 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nr
         t_i <- df$time[i]
 
         # Does this patient have an event at this time? Corresponds to dN_ij(t).
-        dN_ij <- delta_i * (df_events$time == t_i)
+        # Careful here: we need to check the patient index, not the event time, which could tied.
+        dN_ij <- delta_i * (df_events$index == i)
 
         # Is this patient at risk at this time? Corresponds to Y_ij(t).
         Y_ij <- as.numeric(t_i >= df_events$time)
@@ -434,7 +436,7 @@ dat_derived <- derived_outcome_vals(dat, "sex", "time", "status", covariates = c
 head(dat_derived)
 ```
 
-We can also see that the $\hat{O}_{ij}$ values here are the same for the patients with tied event times.
+We can also see that the $\hat{O}_{ij}$ values here are *not* the same for the patients with tied event times.
 
 ### Regression of derived outcome values on covariates
 
@@ -575,7 +577,13 @@ covadj_log_rank <- function(df, treatment, time, status, model) {
     )
 }
 
-our_res <- covadj_log_rank(dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
+our_res <- covadj_log_rank(
+    dat,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~ age + ph.karno + meal.cal
+)
 our_res
 ```
 
@@ -611,6 +619,7 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
 
     # Standardize data set format, subset to relevant variables.
     df <- data.frame(
+        index = seq_len(nrow(df)),
         treatment = as.numeric(df[[treatment]]) - 1L,
         time = df[[time]],
         status = as.numeric(df[[status]] == "Dead"),
@@ -645,7 +654,7 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
     dN_bar <- rep(1 / nrow(df), nrow(df_events))
 
     # Loop over all patients.
-    for (i in seq_len(nrow(df))) {
+    for (i in df$index) {
         # Treatment arm?
         I_i <- df$treatment[i]
 
@@ -656,7 +665,7 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
         t_i <- df$time[i]
 
         # Does this patient have an event at this time? Corresponds to dN_ij(t).
-        dN_ij <- delta_i * (df_events$time == t_i)
+        dN_ij <- delta_i * (df_events$index == i)
 
         # Is this patient at risk at this time? Corresponds to Y_ij(t).
         # Here theta enters, too.
@@ -679,7 +688,14 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
 Let's try this out:
 
 ```{r}
-dat_derived_theta <- derived_outcome_vals_from_theta(theta = 1, dat, "sex", "time", "status", covariates = c("age", "ph.karno", "meal.cal"))
+dat_derived_theta <- derived_outcome_vals_from_theta(
+    theta = 1,
+    dat,
+    "sex",
+    "time",
+    "status",
+    covariates = c("age", "ph.karno", "meal.cal")
+)
 head(dat_derived_theta)
 ```
 
@@ -697,7 +713,14 @@ covadj_log_rank_score <- function(theta, df, treatment, time, status, model) {
     rownames(df) <- seq_len(nrow(df))
 
     # Calculate derived outcomes and regress them on covariates.
-    df_with_covs_ovals <- derived_outcome_vals_from_theta(theta, df, treatment, time, status, covariates = all.vars(model))
+    df_with_covs_ovals <- derived_outcome_vals_from_theta(
+        theta,
+        df,
+        treatment,
+        time,
+        status,
+        covariates = all.vars(model)
+    )
     lm_input <- get_lm_input(df_with_covs_ovals, model)
     beta_est <- get_beta_estimates(lm_input)
 
@@ -739,9 +762,30 @@ covadj_log_rank_score <- function(theta, df, treatment, time, status, model) {
     structure(U_CL, se_theta_CL = se_theta_CL)
 }
 
-covadj_log_rank_score(theta = 0, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
-covadj_log_rank_score(theta = -5, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
-covadj_log_rank_score(theta = 5, df = dat, treatment = "sex", time = "time", status = "status", model = ~ age + ph.karno + meal.cal)
+covadj_log_rank_score(
+    theta = 0,
+    df = dat,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~ age + ph.karno + meal.cal
+)
+covadj_log_rank_score(
+    theta = -5,
+    df = dat,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~ age + ph.karno + meal.cal
+)
+covadj_log_rank_score(
+    theta = 5,
+    df = dat,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~ age + ph.karno + meal.cal
+)
 ```
 
 ### Standard error computation
@@ -849,6 +893,7 @@ our_covadj_theta_est - robincar_theta_est
 our_covadj_theta_est_se - robincar_theta_est_se
 ```
 
+The standard error is closer, but the estimate is still a bit further off.
 We will need to dig a little bit to understand why the results are not numerically equal. It could be e.g. due to the handling of ties.
 
 ## Stratified log-rank test
@@ -958,12 +1003,17 @@ strat_derived_outcome_vals <- function(df, treatment, time, status, strata, cova
 
 So we just return the stratum specific derived outcome values, but we do not combine them yet.
 
-
-
 Let's try this out:
 
 ```{r}
-strat_dat_derived <- strat_derived_outcome_vals(dat, "sex", "time", "status", "strata", covariates = c("age", "ph.karno", "meal.cal"))
+strat_dat_derived <- strat_derived_outcome_vals(
+    dat,
+    "sex",
+    "time",
+    "status",
+    "strata",
+    covariates = c("age", "ph.karno", "meal.cal")
+)
 str(strat_dat_derived, 2)
 ```
 
@@ -1053,7 +1103,14 @@ strat_covadj_log_rank <- function(df, treatment, time, status, strata, model) {
     rownames(df) <- seq_len(nrow(df))
 
     # Calculate derived outcomes and regress them on covariates.
-    df_split_with_covs_ovals <- strat_derived_outcome_vals(df, treatment, time, status, strata = strata, covariates = all.vars(model))
+    df_split_with_covs_ovals <- strat_derived_outcome_vals(
+        df,
+        treatment,
+        time,
+        status,
+        strata = strata,
+        covariates = all.vars(model)
+    )
     strat_lm_input <- get_strat_lm_input(df_split_with_covs_ovals, model)
     beta_est <- get_strat_beta_estimates(strat_lm_input)
 
@@ -1120,7 +1177,10 @@ strat_covadj_log_rank <- function(df, treatment, time, status, strata, model) {
 
 our_strat_covadj_res <- strat_covadj_log_rank(
     dat,
-    treatment = "sex", time = "time", status = "status", strata = "strata",
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = "strata",
     model = ~ age + ph.karno + meal.cal
 )
 our_strat_covadj_res
