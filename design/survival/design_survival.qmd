@@ -87,6 +87,7 @@ Note that the class of the value is not `treatment_effect` here, because we don'
 1. If a stratum only contains a single patient, do we count this patient in `n`?
     - Question arises because this stratum then does not contribute to the statistics (summand is 0).
     - Seems we still need to count it, at least like this we match the `survival` package's result exactly.
+1. In the covariate adjusted hazard ratio estimate score function, should the regression coefficients really be fixed given the original estimate? I expected them to depend on the parameter $\vartheta$ as well, but both in the paper as well as in the supplementary material they are fixed at $\widehat{\beta}_{\text{L}}$ and $\widehat{\gamma}_{\text{SL}}$ respectively.
 
 # Prototype
 
@@ -1186,5 +1187,16 @@ our_strat_covadj_res <- strat_covadj_log_rank(
 our_strat_covadj_res
 ```
 
+## Covariate adjusted stratified hazard ratio estimate
+
+Here we need to look in the supplementary material of @YeShaoYi2023 in Section~S2.3, where they show the covariate adjusted score function for the stratified Cox model:
+
+$$
+\widehat{U}_{\text{CSL}}(\vartheta) = 
+\widehat{U}_{\text{SL}}(\vartheta) - 
+\frac{1}{n} \sum_{z} \sum_{i: Z_{i} = z} \left\{ I_i (X_i - \bar{X})^\top \widehat{\gamma}_1(\widehat{\theta}_{\text{SL}}) - (1 - I_i)(X_i - \bar{X})^\top \widehat{\gamma}_0(\widehat{\theta}_{\text{SL}}) \right\},
+$$
+
+where here the question comes up whether the regression coefficients are really fixed, or should be a function of $\vartheta$ too.
 
 # References
