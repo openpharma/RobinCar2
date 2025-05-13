@@ -606,6 +606,40 @@ our_res <- covadj_log_rank(
 our_res
 ```
 
+### Comparison with `RobinCar`
+
+```{r}
+library(RobinCar)
+robincar_lr_result <- robincar_logrank(
+    df = df_subset,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(df_subset$sex == "Male")
+)
+str(robincar_lr_result)
+
+robincar_U_CL <- robincar_lr_result$result$U
+robincar_U_CL
+
+robincar_tau_CL <- robincar_lr_result$result$statistic
+robincar_tau_CL
+```
+
+So we can compare this with our results above:
+
+```{r}
+our_res$U_CL - robincar_U_CL
+our_res$tau_CL - robincar_tau_CL
+```
+
+This is relatively close, but not yet the same.
+
 ## Covariate adjusted hazard ratio estimate
 
 We follow p. 698 in @YeShaoYi2023 to implement the covariate adjusted score function for the Cox model with log hazard ratio $\theta$:
@@ -888,7 +922,7 @@ coxph_covadj_theta_est_se
 
 So these results are different, which is expected, because with this Cox model we are estimating a conditional hazard ratio.
 
-### Comparison with RobinCar results
+### Comparison with `RobinCar` results
 
 We can also compare this with the results from RobinCar:
 
