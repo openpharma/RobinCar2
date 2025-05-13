@@ -643,14 +643,26 @@ This is relatively close, but not yet the same.
 ## Covariate adjusted hazard ratio estimate
 
 We follow p. 698 in @YeShaoYi2023 to implement the covariate adjusted score function for the Cox model with log hazard ratio $\theta$:
+
+$$
+\widehat{U}_{\text{CL}}(\vartheta) = 
+\widehat{U}_{\text{L}}(\vartheta) - 
+\frac{1}{n} \sum_{i=1}^{n} \left\{ I_i (X_i - \bar{X})^\top \widehat{\beta}_1(\widehat{\theta}_{L}) - (1 - I_i)(X_i - \bar{X})^\top \widehat{\beta}_0(\widehat{\theta}_{L}) \right\},
+$$
+
+where $\widehat{\theta}_{L}$ is the maximum partial likelihood estimate of the unadjusted log hazard ratio, which we e.g. above implemented by root-finding the function `nonadj_log_rank_score`.
+
+Note that the correction term is then fixed and not a function of $\vartheta$. This seems to be an approximation to keep the computations simple. The expectation of the correction term is zero (asymptotically), and the asymptotic variance is also the same as the one we would get if we would use the true $\widehat{\beta}_{j}(\vartheta)$ instead of the fixed $\widehat{\beta}_{j}(\widehat{\theta}_{L})$.
+
+Nevertheless, we are also going to implement the full version where the correction term is a function of $\vartheta$:
+
 $$
 \widehat{U}_{\text{CL}}(\vartheta) = 
 \widehat{U}_{\text{L}}(\vartheta) - 
 \frac{1}{n} \sum_{i=1}^{n} \left\{ I_i (X_i - \bar{X})^\top \widehat{\beta}_1(\vartheta) - (1 - I_i)(X_i - \bar{X})^\top \widehat{\beta}_0(\vartheta) \right\},
 $$
 
-where we fixed the typo that the regression coefficients depend on $\vartheta$ instead of $\widehat{\theta}_{\text{L}}$.
-As mentioned in the paper, in turn they depend on derived outcomes calculated from $\vartheta$. So we first need to have a function for that:
+So we first need to have a function for that:
 
 ### Derived outcome values depending on $\vartheta$
 
@@ -770,14 +782,18 @@ Here we don't need a new function, because we can just use the `get_beta_estimat
 
 So now we can base on that code the covariate adjusted score function. We start with one that just takes a scalar $\vartheta$, because `uniroot()` does actually not need a vectorized function. 
 
+We also add an option here to decide whether we want to use the approximation with $\hat{\beta}_{j}(\hat{\theta}_{L})$ or the full version with $\hat{\beta}_{j}(\vartheta)$: If `theta_hat` is provided, we use the approximation, otherwise we use the full version.
+Later this can be programmed more efficiently such that the correction term does not need to be recomputed for every call, but for now we just keep it simple here.
+
 ```{r}
-covadj_log_rank_score <- function(theta, df, treatment, time, status, model) {
+covadj_log_rank_score <- function(theta, df, treatment, time, status, model, theta_hat = NULL) {
     # Use row names for df such that we can see which patients are dropped etc.
     rownames(df) <- seq_len(nrow(df))
 
     # Calculate derived outcomes and regress them on covariates.
+    theta_use <- if (is.null(theta_hat)) theta else theta_hat
     df_with_covs_ovals <- derived_outcome_vals_from_theta(
-        theta,
+        theta = theta_use,
         df,
         treatment,
         time,
@@ -858,7 +874,8 @@ We have included this already in the above function.
 
 ### Comparison with unadjusted results
 
-Let's try to use this to compute the covariate adjusted log hazard ratio estimate $\hat{\theta}_{\text{CL}}$:
+Let's try to use this to compute the covariate adjusted log hazard ratio estimate $\hat{\theta}_{\text{CL}}$. 
+First in the version with the full correction term:
 
 ```{r}
 covadj_score_solution <- uniroot(
@@ -890,6 +907,26 @@ our_unadj_theta_est <- unadj_score_solution$root
 our_unadj_theta_est
 ```
 
+We can then compare this with the approximate correction term:
+
+```{r}
+covadj_score_solution_approx <- uniroot(
+    covadj_log_rank_score,
+    interval = c(-5, 5),
+    df = dat,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~ age + ph.karno + meal.cal,
+    theta_hat = our_unadj_theta_est
+)
+our_covadj_theta_est_approx <- covadj_score_solution_approx$root
+our_covadj_theta_est_approx
+our_covadj_theta_est_approx - our_covadj_theta_est
+```
+
+So we can see that the approximation works quite well.
+
 For the standard error, we get:
 
 ```{r}
@@ -905,6 +942,14 @@ our_theta_est_se
 ```
 
 So we can see that the covariate adjusted standard error is indeed smaller than the unadjusted one.
+
+Also here we can compare with the results from using the approximate correction term:
+
+```{r}
+our_covadj_theta_est_se_approx <- attr(covadj_score_solution_approx$f.root, "se_theta_CL")
+our_covadj_theta_est_se_approx
+our_covadj_theta_est_se_approx - our_covadj_theta_est_se
+```
 
 ### Comparison with `survival` results
 
@@ -954,6 +999,9 @@ So these results are very close but not numerically equal to what we obtained ea
 ```{r}
 our_covadj_theta_est - robincar_theta_est
 our_covadj_theta_est_se - robincar_theta_est_se
+
+our_covadj_theta_est_approx - robincar_theta_est
+our_covadj_theta_est_se_approx - robincar_theta_est_se
 ```
 
 The standard error is closer, but the estimate is still a bit further off.
