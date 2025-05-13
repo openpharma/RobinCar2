@@ -332,7 +332,7 @@ Now we will follow Section 3 in @YeShaoYi2023 to implement the covariate adjuste
 
 ### Derived outcome values
 
-First we need to calculate the derived outcome values, the $\hat{O}_{ij}$, for each patient $i$ in each treatment arm $j$, as defined in Equation (3) in the paper. If we denote all observed event times by $t_{(1)}, \ldots, t_{(m)}$, then the $\hat{O}_{ij}$ value is practically calculated as:
+First we need to calculate the derived outcome values, the $\hat{O}_{ij}$, for each patient $i$ in each treatment arm $j$, as defined in Equation (3) in the paper. If we denote all unique observed event times by $t_{(1)} < \dotsb < t_{(m)}$, then the $\hat{O}_{ij}$ value is practically calculated as:
 
 $$
 \hat{O}_{ij} = \sum_{k=1}^{m} 
@@ -349,9 +349,11 @@ Here we have the following quantities:
 - $d\overline{N}(t_{(k)})$: the proportion of patients having an event at time $t_{(k)}$.
 - $\overline{Y}(t_{(k)})$: the overall proportion of patients at risk at time $t_{(k)}$.
 
-One consideration here is what happens if there are ties between some of the event times. In that case, $N(t)$ would only jump at the unique event times, and the jump height would depend on the number of patients having an event at that time. However, since the other quantities are about proportions of patients at risk, and these would not change if we had ties, we can just ignore the ties for the purpose of calculating the $\hat{O}_{ij}$ values. We basically just sum the same summand more often then, according to how many patients had an event at that time.
+One consideration here is what happens if there are ties between some of the event times. In that case, $N(t)$ would only jump at the unique event times, and the jump height would depend on the number of patients having an event at that time. Here it is important that the sum is across only the unique event times, and not across all event times.
 
-This function takes the data frame with the meta data, now including the covariates specification (keeping it simple for now), sorts it by time and then adds the $\hat{O}_{ij}$ values to it.
+We also note that all patients who have an event at the same time have the same $\hat{O}_{ij}$ value, and all patients who are censored at the same time have the same $\hat{O}_{ij}$ value. To perform this correctly, the sum 
+
+This function takes the data frame with the meta data, now including the covariates specification (keeping it simple for now), sorts it by time and then adds the $\hat{O}_{ij}$ values to it. It returns the data in original order.
 
 ```{r}
 derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nrow(df)) {
@@ -381,22 +383,32 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nr
     # Patients with events.
     df_events <- df[df$status == 1L, ]
 
+    # Unique observed event times.
+    unique_times <- df_events$time |>
+        split(df_events$time) |>
+        sapply(length)
+    df_events_unique <- data.frame(
+        time = as.numeric(names(unique_times)),
+        n_pts = as.numeric(unique_times)
+    )
+
     # Add derived outcome column.
     df$O_hat <- NA_real_
 
     # Calculate quantities which are the same across patients first.
-    # These are in parallel to df_events.
+    # These are in parallel to df_events_unique.
 
-    # Proportions of patients at risk, per event time and treatment arm.
+    # Proportions of patients at risk, per unique event time and treatment arm.
     # Corresponds to \bar{Y}_1(t) and \bar{Y}_0(t).
-    at_risk_matrix <- outer(df$time, df_events$time, FUN = ">=")
+    at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
     Y_bar_1 <- colSums(df$treatment & at_risk_matrix) / n
     Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
     Y_bar <- Y_bar_0 + Y_bar_1
 
     # Proportion of patients having an event at this time.
-    # Corresponds to d\bar{N}(t).
-    dN_bar <- rep(1 / n, nrow(df_events))
+    # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
+    # therefore we see how many patients have an event at each unique time and divide that by n.
+    dN_bar <- df_events_unique$n_pts / n
 
     # Loop over all patients.
     for (i in df$index) {
@@ -409,12 +421,11 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nr
         # Time for this patient.
         t_i <- df$time[i]
 
-        # Does this patient have an event at this time? Corresponds to dN_ij(t).
-        # Careful here: we need to check the patient index, not the event time, which could tied.
-        dN_ij <- delta_i * (df_events$index == i)
+        # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
+        dN_ij <- delta_i * (df_events_unique$time == t_i)
 
-        # Is this patient at risk at this time? Corresponds to Y_ij(t).
-        Y_ij <- as.numeric(t_i >= df_events$time)
+        # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
+        Y_ij <- as.numeric(t_i >= df_events_unique$time)
 
         # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
         weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
@@ -422,11 +433,11 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nr
         # Compute martingale residuals.
         martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
 
-        # Sum across all event times.
+        # Sum across all unique event times.
         df$O_hat[i] <- sum(weights * martingale_residuals)
     }
 
-    df
+    df[order(df$index), ]
 }
 ```
 
@@ -437,7 +448,14 @@ dat_derived <- derived_outcome_vals(dat, "sex", "time", "status", covariates = c
 head(dat_derived)
 ```
 
-We can also see that the $\hat{O}_{ij}$ values here are *not* the same for the patients with tied event times.
+We can also see that the $\hat{O}_{ij}$ values here are the same for the patients with tied event times:
+
+```{r}
+unique_times_status <- table(dat_derived$time, dat_derived$status)
+which(unique_times_status > 1, arr.ind = TRUE)
+subset(dat_derived, time == 225 & status == 0)
+subset(dat_derived, time == 11 & status == 1)
+```
 
 ### Regression of derived outcome values on covariates
 
@@ -633,26 +651,36 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
     # Patients with events.
     df_events <- df[df$status == 1L, ]
 
+    # Unique observed event times.
+    unique_times <- df_events$time |>
+        split(df_events$time) |>
+        sapply(length)
+    df_events_unique <- data.frame(
+        time = as.numeric(names(unique_times)),
+        n_pts = as.numeric(unique_times)
+    )
+
     # Add derived outcome column.
     df$O_hat <- NA_real_
 
     # Calculate quantities which are the same across patients first.
-    # These are in parallel to df_events.
+    # These are in parallel to df_events_unique.
 
     # Hazard ratio.
     exp_theta <- exp(theta)
 
-    # Proportions of patients at risk, per event time and treatment arm.
+    # Proportions of patients at risk, per unique event time and treatment arm.
     # Corresponds to \exp(\vartheta) * \bar{Y}_1(t) and \bar{Y}_0(t).
     # So here theta enters.
-    at_risk_matrix <- outer(df$time, df_events$time, FUN = ">=")
+    at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
     Y_bar_1 <- exp_theta * colMeans(df$treatment & at_risk_matrix)
     Y_bar_0 <- colMeans(!df$treatment & at_risk_matrix)
     Y_bar <- Y_bar_0 + Y_bar_1
 
     # Proportion of patients having an event at this time.
-    # Corresponds to d\bar{N}(t).
-    dN_bar <- rep(1 / nrow(df), nrow(df_events))
+    # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
+    # therefore we see how many patients have an event at each unique time and divide that by n.
+    dN_bar <- df_events_unique$n_pts / n
 
     # Loop over all patients.
     for (i in df$index) {
@@ -665,12 +693,12 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
         # Time for this patient.
         t_i <- df$time[i]
 
-        # Does this patient have an event at this time? Corresponds to dN_ij(t).
-        dN_ij <- delta_i * (df_events$index == i)
+        # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
+        dN_ij <- delta_i * (df_events_unique$time == t_i)
 
-        # Is this patient at risk at this time? Corresponds to Y_ij(t).
+        # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
         # Here theta enters, too.
-        Y_ij <- as.numeric(t_i >= df_events$time) * ifelse(I_i, exp_theta, 1)
+        Y_ij <- as.numeric(t_i >= df_events_unique$time) * ifelse(I_i, exp_theta, 1)
 
         # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
         weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
@@ -678,11 +706,11 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
         # Compute martingale residuals.
         martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
 
-        # Sum across all event times.
+        # Sum across all unique event times.
         df$O_hat[i] <- sum(weights * martingale_residuals)
     }
 
-    df
+    df[order(df$index), ]
 }
 ```
 
@@ -706,7 +734,7 @@ Here we don't need a new function, because we can just use the `get_beta_estimat
 
 ### Covariate adjusted score function in $\vartheta$
 
-So now we can based on that code the covariate adjusted score function. We start with one that just takes a scalar $\vartheta$, because `uniroot()` does actually not need a vectorized function. 
+So now we can base on that code the covariate adjusted score function. We start with one that just takes a scalar $\vartheta$, because `uniroot()` does actually not need a vectorized function. 
 
 ```{r}
 covadj_log_rank_score <- function(theta, df, treatment, time, status, model) {
@@ -887,7 +915,7 @@ robincar_theta_est_se <- cl$result$se_theta_CL
 robincar_theta_est_se
 ```
 
-So these results are close but not numerically equal to what we obtained earlier:
+So these results are very close but not numerically equal to what we obtained earlier:
 
 ```{r}
 our_covadj_theta_est - robincar_theta_est
@@ -895,7 +923,6 @@ our_covadj_theta_est_se - robincar_theta_est_se
 ```
 
 The standard error is closer, but the estimate is still a bit further off.
-We will need to dig a little bit to understand why the results are not numerically equal. It could be e.g. due to the handling of ties.
 
 ## Stratified log-rank test
 
