@@ -1306,6 +1306,187 @@ $$
 \frac{1}{n} \sum_{z} \sum_{i: Z_{i} = z} \left\{ I_i (X_i - \bar{X})^\top \widehat{\gamma}_1(\widehat{\theta}_{\text{SL}}) - (1 - I_i)(X_i - \bar{X})^\top \widehat{\gamma}_0(\widehat{\theta}_{\text{SL}}) \right\},
 $$
 
-where here the question comes up whether the regression coefficients are really fixed, or should be a function of $\vartheta$ too.
+where $\widehat{\theta}_{\text{SL}}$ is the maximum partial likelihood estimate of the unadjusted stratified log hazard ratio, which we e.g. above implemented in `strat_log_rank`.
+
+Similar as above we can also implement the full version where the correction term is a function of $\vartheta$:
+
+$$
+\widehat{U}_{\text{CSL}}(\vartheta) =
+\widehat{U}_{\text{SL}}(\vartheta) -
+\frac{1}{n} \sum_{z} \sum_{i: Z_{i} = z} \left\{ I_i (X_i - \bar{X})^\top \widehat{\gamma}_1(\vartheta) - (1 - I_i)(X_i - \bar{X})^\top \widehat{\gamma}_0(\vartheta) \right\},
+$$
+
+For this we again need a function that calculates the derived outcome values depending on $\vartheta$.
+
+### Derived outcome values depending on $\vartheta$
+
+Also here we can reuse the `derived_outcome_vals_from_theta` function from above, and just apply it to each stratum:
+
+```{r}
+strat_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, strata, covariates) {
+    assert_string(strata)
+    assert_data_frame(df)
+    assert_factor(df[[strata]])
+    n <- nrow(df)
+
+    df <- na.omit(df[, c(treatment, time, status, strata, covariates)])
+    df[[strata]] <- droplevels(df[[strata]])
+    strata_levels <- levels(df[[strata]])
+
+    df_split <- split(df, f = df[[strata]])
+
+    lapply(
+        df_split,
+        FUN = derived_outcome_vals_from_theta,
+        theta = theta,
+        treatment = treatment,
+        time = time,
+        status = status,
+        covariates = covariates
+    )
+}
+```
+
+Let's try this out:
+
+```{r}
+strat_dat_derived_theta <- strat_derived_outcome_vals_from_theta(
+    theta = 1,
+    df = dat,
+    "sex",
+    "time",
+    "status",
+    "strata",
+    covariates = c("age", "ph.karno", "meal.cal")
+)
+str(strat_dat_derived_theta, 2)
+```
+
+### Covariate adjusted stratified score function in $\vartheta$
+
+```{r}
+strat_covadj_log_rank_score <- function(theta, df, treatment, time, status, strata, model, theta_hat = NULL) {
+    # Use row names for df such that we can see which patients are dropped etc.
+    rownames(df) <- seq_len(nrow(df))
+
+    # Calculate derived outcomes and regress them on covariates.
+    theta_use <- if (is.null(theta_hat)) theta else theta_hat
+    df_split_with_covs_ovals <- strat_derived_outcome_vals_from_theta(
+        theta = theta_use,
+        df,
+        treatment,
+        time,
+        status,
+        strata,
+        covariates = all.vars(model)
+    )
+    strat_lm_input <- get_strat_lm_input(df_split_with_covs_ovals, model)
+    beta_est <- get_strat_beta_estimates(strat_lm_input)
+
+    # Obtain unadjusted result for the patients included in the two linear models.
+    included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
+    df_included <- df[rownames(df) %in% included_pts, ]
+
+    unadj_strat_res <- strat_log_rank(df_included, treatment, time, status, strata)
+
+    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+    # proportion of treatment 1 in the trial.
+    pi <- mean(as.numeric(df[[treatment]]) - 1)
+
+    # Overall column wise average of design matrices.
+    strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
+    strat_X_bar <- lapply(strat_X_all, colMeans)
+
+    # Center the design matrices with this overall average.
+    has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
+    has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
+
+    X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+    X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+
+    X_0 <- do.call(rbind, X_0)
+    X_1 <- do.call(rbind, X_1)
+
+    # Compute adjustment term for U_SL.
+    n <- nrow(df_included)
+    U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+
+    # Compute adjusted U_CSL.
+    U_CSL <- unadj_strat_res$U_SL - U_SL_adj_term
+
+    # Compute adjustment term for sigma_SL2.
+    strat_n <- sapply(strat_X_all, nrow)
+    strat_use <- names(which(strat_n > 1))
+    strat_n <- strat_n[strat_use]
+    overall_n <- sum(strat_n)
+    strat_cov_X <- lapply(strat_X_all[strat_use], cov)
+    weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
+    weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
+
+    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+    sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
+
+    # Compute standard error for theta estimate.
+    g_theta_SL <- unadj_strat_res$sigma_SL2
+    var_theta_CSL <- (g_theta_SL - sigma_SL2_adj_term) / (g_theta_SL^2) / n
+    se_theta_CSL <- suppressWarnings(sqrt(var_theta_CSL))
+
+    structure(U_CSL, se_theta_CSL = se_theta_CSL)
+}
+
+strat_covadj_log_rank_score(
+    theta = 5,
+    df = dat,
+    "sex",
+    "time",
+    "status",
+    "strata",
+    model = ~ age + ph.karno + meal.cal
+)
+```
+
+Let's do the root-finding to get the estimate:
+
+```{r}
+strat_covadj_score_solution <- uniroot(
+    strat_covadj_log_rank_score,
+    interval = c(-10, 10),
+    df = dat,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = "strata",
+    model = ~ age + ph.karno + meal.cal
+)
+```
+
+
+### Comparison with `RobinCar` results
+
+We can also compare this with the results from RobinCar:
+
+```{r}
+library(RobinCar)
+cl <- robincar_covhr(
+    df = df_subset,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(df_subset$sex == "Male")
+)
+str(cl)
+
+robincar_theta_est <- cl$result$theta_CL
+robincar_theta_est
+
+robincar_theta_est_se <- cl$result$se_theta_CL
+robincar_theta_est_se
+```
+
 
 # References
