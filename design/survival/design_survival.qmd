@@ -105,7 +105,8 @@ dat <- survival::lung |>
     mutate(
         status = factor(ifelse(status == 1, "Alive", "Dead")),
         sex = factor(ifelse(sex == 1, "Male", "Female")),
-        status_numeric = as.numeric(status == "Dead")
+        status_numeric = as.numeric(status == "Dead"),
+        strata = factor(ph.ecog)
     )
 head(dat)
 ```
@@ -895,7 +896,7 @@ our_covadj_theta_est
 Let's compare this with the unadjusted hazard ratio estimate for the same, reduced, data set:
 
 ```{r}
-df_subset <- na.omit(subset(dat, select = c(time, status, status_numeric, sex, age, ph.karno, meal.cal)))
+df_subset <- na.omit(subset(dat, select = c(time, status, status_numeric, sex, age, ph.karno, meal.cal, strata)))
 unadj_score_solution <- uniroot(
     nonadj_log_rank_score,
     interval = c(-5, 5),
@@ -1367,7 +1368,7 @@ $$
 \frac{1}{n} \sum_{z} \sum_{i: Z_{i} = z} \left\{ I_i (X_i - \bar{X})^\top \widehat{\gamma}_1(\widehat{\theta}_{\text{SL}}) - (1 - I_i)(X_i - \bar{X})^\top \widehat{\gamma}_0(\widehat{\theta}_{\text{SL}}) \right\},
 $$
 
-where $\widehat{\theta}_{\text{SL}}$ is the maximum partial likelihood estimate of the unadjusted stratified log hazard ratio, which we e.g. above implemented in `strat_log_rank`.
+where $\widehat{\theta}_{\text{SL}}$ is the maximum partial likelihood estimate of the unadjusted stratified log hazard ratio, and $\widehat{U}_{\text{SL}}(\vartheta)$ is the corresponding unadjusted stratified score function, which we implemented in `strat_log_rank_score`.
 
 Similar as above we can also implement the full version where the correction term is a function of $\vartheta$:
 
@@ -1403,10 +1404,13 @@ strat_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, st
         treatment = treatment,
         time = time,
         status = status,
-        covariates = covariates
+        covariates = covariates,
+        n = n
     )
 }
 ```
+
+Again it is important here that we pass the `n` argument, which is the total number of patients across strata.
 
 Let's try this out:
 
@@ -1424,6 +1428,8 @@ str(strat_dat_derived_theta, 2)
 ```
 
 ### Covariate adjusted stratified score function in $\vartheta$
+
+Now we can finally implement the covariate adjusted stratified score function in $\vartheta$:
 
 ```{r}
 strat_covadj_log_rank_score <- function(theta, df, treatment, time, status, strata, model, theta_hat = NULL) {
@@ -1448,7 +1454,7 @@ strat_covadj_log_rank_score <- function(theta, df, treatment, time, status, stra
     included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
     df_included <- df[rownames(df) %in% included_pts, ]
 
-    unadj_strat_res_score <- strat_log_rank_score(theta, df_included, treatment, time, status, strata)
+    strat_unadj_score <- strat_log_rank_score(theta, df_included, treatment, time, status, strata)
 
     # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
     # proportion of treatment 1 in the trial.
@@ -1473,7 +1479,7 @@ strat_covadj_log_rank_score <- function(theta, df, treatment, time, status, stra
     U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
     # Compute adjusted U_CSL.
-    U_CSL <- unadj_strat_res$U_SL - U_SL_adj_term
+    U_CSL <- as.numeric(strat_unadj_score) - U_SL_adj_term
 
     # Compute adjustment term for sigma_SL2.
     strat_n <- sapply(strat_X_all, nrow)
@@ -1488,8 +1494,8 @@ strat_covadj_log_rank_score <- function(theta, df, treatment, time, status, stra
     sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
 
     # Compute standard error for theta estimate.
-    g_theta_SL <- unadj_strat_res$sigma_SL2
-    var_theta_CSL <- (g_theta_SL - sigma_SL2_adj_term) / (g_theta_SL^2) / n
+    g_theta_CSL <- attr(strat_unadj_score, "sigma_SL2")
+    var_theta_CSL <- (g_theta_CSL - sigma_SL2_adj_term) / (g_theta_CSL^2) / n
     se_theta_CSL <- suppressWarnings(sqrt(var_theta_CSL))
 
     structure(U_CSL, se_theta_CSL = se_theta_CSL)
@@ -1506,7 +1512,7 @@ strat_covadj_log_rank_score(
 )
 ```
 
-Let's do the root-finding to get the estimate:
+Let's do the root-finding to get the estimate. We will use the fixed correction term here so that we can best compare with the results from `RobinCar`.
 
 ```{r}
 strat_covadj_score_solution <- uniroot(
@@ -1517,37 +1523,50 @@ strat_covadj_score_solution <- uniroot(
     time = "time",
     status = "status",
     strata = "strata",
-    model = ~ age + ph.karno + meal.cal
+    model = ~ age + ph.karno + meal.cal,
+    theta_hat = our_strat_theta_est
 )
-```
+strat_covadj_score_solution
 
+our_strat_covadj_theta_est <- strat_covadj_score_solution$root
+our_strat_covadj_theta_est
+
+our_strat_covadj_theta_est_se <- attr(strat_covadj_score_solution$f.root, "se_theta_CSL")
+our_strat_covadj_theta_est_se
+```
 
 ### Comparison with `RobinCar` results
 
 We can also compare this with the results from RobinCar:
 
 ```{r}
-library(RobinCar)
-cl <- robincar_covhr(
+csl <- robincar_covhr(
     df = df_subset,
     treat_col = "sex",
     response_col = "time",
     event_col = "status_numeric",
-    car_strata_cols = NULL,
+    car_strata_cols = "strata", # Pass here the strata variables
     covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "simple",
-    adj_method = "CL",
+    car_scheme = "biased-coin", # Must not be "simple" here
+    adj_method = "CSL", # And here choose the strata adjustment
     ref_arm = "Female",
     p_trt = mean(df_subset$sex == "Male")
 )
-str(cl)
+str(csl)
 
-robincar_theta_est <- cl$result$theta_CL
-robincar_theta_est
+robincar_strat_theta_est <- csl$result$theta_CL
+robincar_strat_theta_est
 
-robincar_theta_est_se <- cl$result$se_theta_CL
-robincar_theta_est_se
+robincar_strat_theta_est_se <- csl$result$se_theta_CL
+robincar_strat_theta_est_se
 ```
 
+Here the function does not produce a standard error because of stratum 3 which only has a single patient.
+
+So the results are still different:
+
+```{r}
+our_strat_covadj_theta_est - robincar_strat_theta_est
+```
 
 # References
