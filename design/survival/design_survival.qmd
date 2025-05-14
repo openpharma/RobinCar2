@@ -207,7 +207,7 @@ So this is basically identical.
 Similarly as above, we can write down the score function from the partial likelihood for the Cox model with log hazard ratio $\theta$:
 
 ```{r}
-nonadj_log_rank_score <- function(theta, df, treatment, time, status) {
+nonadj_log_rank_score <- function(theta, df, treatment, time, status, n = nrow(df)) {
     assert_numeric(theta, min.len = 1L, finite = TRUE)
     assert_string(treatment)
     assert_string(time)
@@ -252,7 +252,7 @@ nonadj_log_rank_score <- function(theta, df, treatment, time, status) {
         # Increment sigma_L2.
         sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti / (Y_bar_1_ti_coxph + Y_bar_0_ti)^2
     }
-    n <- nrow(df)
+
     U_L <- U_L / n
     sigma_L2 <- sigma_L2 / n
     se_theta_L <- sqrt(1 / (n * sigma_L2))
@@ -671,7 +671,7 @@ All these function names are just placeholders for now, they can definitely be i
 Let's write this function which is very close to the above `derived_outcome_vals()` but takes as first argument a single $\vartheta$ value and returns the derived outcome values based on this log hazard ratio value.
 
 ```{r}
-derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, covariates) {
+derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, covariates, n = nrow(df)) {
     assert_number(theta)
     assert_string(treatment)
     assert_string(time)
@@ -701,6 +701,7 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
     unique_times <- df_events$time |>
         split(df_events$time) |>
         sapply(length)
+
     df_events_unique <- data.frame(
         time = as.numeric(names(unique_times)),
         n_pts = as.numeric(unique_times)
@@ -1082,66 +1083,63 @@ Again this is basically identical. So this works.
 
 ## Stratified hazard ratio estimate
 
-Similarly as above, we can write down the score function from the partial likelihood for the stratified Cox model with log hazard ratio $\theta$:
+Similarly as above, we can write down the score function from the partial likelihood for the stratified Cox model with log hazard ratio $\theta$. This is following Section~S2.3 in the supplementary material of @YeShaoYi2023, which shows that the score function is the sum of the strata specific score functions.
 
 ```{r}
 strat_log_rank_score <- function(theta, df, treatment, time, status, strata) {
-    assert_numeric(theta, min.len = 1L, finite = TRUE)
-    assert_string(treatment)
-    assert_string(time)
-    assert_string(status)
+    assert_string(strata)
     assert_data_frame(df)
-    assert_factor(df[[treatment]], n.levels = 2L)
-    assert_factor(df[[status]], levels = c("Alive", "Dead"))
-    assert_numeric(df[[time]], lower = 0)
+    assert_factor(df[[strata]])
+    n <- nrow(df)
 
-    # todo cont here.
+    df <- na.omit(df[, c(treatment, time, status, strata)])
+    df[[strata]] <- droplevels(df[[strata]])
+    strata_levels <- levels(df[[strata]])
 
-    # Standardize data set format, subset to relevant variables.
-    df <- data.frame(
-        treatment = as.numeric(df[[treatment]]) - 1L,
-        time = df[[time]],
-        status = as.numeric(df[[status]] == "Dead")
+    df_split <- split(df, f = df[[strata]])
+    strata_results <- lapply(
+        df_split,
+        FUN = nonadj_log_rank_score,
+        theta = theta,
+        treatment = treatment,
+        time = time,
+        status = status,
+        n = n
     )
 
-    # Sort by time.
-    df <- df[order(df$time), ]
-
-    # Patients with events.
-    df_events <- df[df$status == 1L, ]
-
-    # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
-    U_L <- sigma_L2 <- 0
-    for (i in seq_len(nrow(df_events))) {
-        # This event time.
-        t_i <- df_events$time[i]
-
-        # This treatment arm indicator.
-        I_i <- df_events$treatment[i]
-
-        # Proportions of patients at risk at time t_i, per arm.
-        Y_bar_1_ti <- mean(df$treatment & df$time >= t_i)
-        Y_bar_0_ti <- mean(!df$treatment & df$time >= t_i)
-
-        # Adjusted proportion of patients at risk in the treatment arm:
-        Y_bar_1_ti_coxph <- Y_bar_1_ti * exp(theta)
-
-        # Increment U_L.
-        U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
-
-        # Increment sigma_L2.
-        sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti / (Y_bar_1_ti_coxph + Y_bar_0_ti)^2
-    }
-    n <- nrow(df)
-    U_L <- U_L / n
-    sigma_L2 <- sigma_L2 / n
-    se_theta_L <- sqrt(1 / (n * sigma_L2))
-    structure(U_L, sigma_L2 = sigma_L2, se_theta_L = se_theta_L)
+    U_SL <- sum(sapply(strata_results, as.numeric))
+    sigma_SL2 <- sum(sapply(strata_results, attr, "sigma_L2"))
+    se_theta_SL <- sqrt(1 / (n * sigma_SL2))
+    structure(U_SL, sigma_SL2 = sigma_SL2, se_theta_SL = se_theta_SL)
 }
 ```
 
-We can see here that the only difference to the log rank test is the multiplication of $\bar{Y}_{1}(t)$ with the hazard ratio $\exp(\theta)$ in the score function.
+Let's try to use this to compute the stratified log hazard ratio estimate $\hat{\theta}_{\text{SL}}$:
 
+```{r}
+strat_score_solution <- uniroot(
+    strat_log_rank_score,
+    interval = c(-5, 5),
+    df = dat,
+    "sex",
+    "time",
+    "status",
+    "strata"
+)
+strat_score_solution
+our_strat_theta_est <- strat_score_solution$root
+our_strat_theta_est_se <- attr(strat_score_solution$f.root, "se_theta_SL")
+```
+
+We can compare this with the `survival` package results:
+
+```{r}
+strat_cox_check <- coxph(Surv(time, status_numeric) ~ sex + strata(strata), data = dat, ties = "breslow")
+coef(strat_cox_check) - our_strat_theta_est
+sqrt(vcov(strat_cox_check)["sexMale", "sexMale"]) - our_strat_theta_est_se
+```
+
+So this matches very well.
 
 ## Covariate adjusted stratified log-rank test
 
