@@ -355,6 +355,7 @@ One consideration here is what happens if there are ties between some of the eve
 We also note that all patients who have an event at the same time have the same $\hat{O}_{ij}$ value, and all patients who are censored at the same time have the same $\hat{O}_{ij}$ value. To perform this correctly, the sum 
 
 This function takes the data frame with the meta data, now including the covariates specification (keeping it simple for now), sorts it by time and then adds the $\hat{O}_{ij}$ values to it. It returns the data in original order.
+However, any rows with missing values in any of the required variables are omitted.
 
 ```{r}
 derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nrow(df)) {
@@ -369,14 +370,14 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nr
     assert_count(n)
     assert_true(n >= nrow(df))
 
-    # Standardize data set format, subset to relevant variables.
+    # Standardize data set format, subset to relevant variables and full observations.
     df <- data.frame(
         index = seq_len(nrow(df)),
         treatment = as.numeric(df[[treatment]]) - 1L,
         time = df[[time]],
         status = as.numeric(df[[status]] == "Dead"),
         df[covariates]
-    )
+    ) |> na.omit()
 
     # Sort by time.
     df <- df[order(df$time), ]
@@ -412,7 +413,7 @@ derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nr
     dN_bar <- df_events_unique$n_pts / n
 
     # Loop over all patients.
-    for (i in df$index) {
+    for (i in seq_len(nrow(df))) {
         # Treatment arm?
         I_i <- df$treatment[i]
 
@@ -447,6 +448,12 @@ Let's try this out:
 ```{r}
 dat_derived <- derived_outcome_vals(dat, "sex", "time", "status", covariates = c("age", "ph.karno", "meal.cal"))
 head(dat_derived)
+```
+
+We can see that the original patient number 5 has been omitted because of missing values in the covariates:
+
+```{r}
+dat[5, ]
 ```
 
 We can also see that the $\hat{O}_{ij}$ values here are the same for the patients with tied event times:
@@ -541,17 +548,14 @@ We need to be careful in formula (4): It can be (as in the example here) that no
 
 ```{r}
 covadj_log_rank <- function(df, treatment, time, status, model) {
-    # Use row names for df such that we can see which patients are dropped etc.
-    rownames(df) <- seq_len(nrow(df))
-
     # Calculate derived outcomes and regress them on covariates.
     df_with_covs_ovals <- derived_outcome_vals(df, treatment, time, status, covariates = all.vars(model))
     lm_input <- get_lm_input(df_with_covs_ovals, model)
     beta_est <- get_beta_estimates(lm_input)
 
-    # Obtain unadjusted result for the patients included in the two linear models.
-    included_pts <- union(names(lm_input[["0"]]$y), names(lm_input[["1"]]$y))
-    df_included <- df[rownames(df) %in% included_pts, ]
+    # Obtain unadjusted result for the patients included.
+    included_pts <- df_with_covs_ovals$index
+    df_included <- df[included_pts, ]
 
     unadj_res <- nonadj_log_rank(df_included, treatment, time, status)
 
@@ -611,6 +615,7 @@ our_res
 
 ```{r}
 library(RobinCar)
+df_subset <- na.omit(subset(dat, select = c(time, status, status_numeric, sex, age, ph.karno, meal.cal, strata)))
 robincar_lr_result <- robincar_logrank(
     df = df_subset,
     treat_col = "sex",
@@ -690,7 +695,7 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
         time = df[[time]],
         status = as.numeric(df[[status]] == "Dead"),
         df[covariates]
-    )
+    ) |> na.omit()
 
     # Sort by time.
     df <- df[order(df$time), ]
@@ -731,7 +736,7 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
     dN_bar <- df_events_unique$n_pts / n
 
     # Loop over all patients.
-    for (i in df$index) {
+    for (i in seq_len(nrow(df))) {
         # Treatment arm?
         I_i <- df$treatment[i]
 
@@ -789,9 +794,6 @@ Later this can be programmed more efficiently such that the correction term does
 
 ```{r}
 covadj_log_rank_score <- function(theta, df, treatment, time, status, model, theta_hat = NULL) {
-    # Use row names for df such that we can see which patients are dropped etc.
-    rownames(df) <- seq_len(nrow(df))
-
     # Calculate derived outcomes and regress them on covariates.
     theta_use <- if (is.null(theta_hat)) theta else theta_hat
     df_with_covs_ovals <- derived_outcome_vals_from_theta(
@@ -806,8 +808,8 @@ covadj_log_rank_score <- function(theta, df, treatment, time, status, model, the
     beta_est <- get_beta_estimates(lm_input)
 
     # Obtain unadjusted result for the patients included in the two linear models.
-    included_pts <- union(names(lm_input[["0"]]$y), names(lm_input[["1"]]$y))
-    df_included <- df[rownames(df) %in% included_pts, ]
+    included_pts <- df_with_covs_ovals$index
+    df_included <- df[included_pts, ]
 
     unadj_score <- nonadj_log_rank_score(theta, df_included, treatment, time, status)
 
@@ -896,7 +898,6 @@ our_covadj_theta_est
 Let's compare this with the unadjusted hazard ratio estimate for the same, reduced, data set:
 
 ```{r}
-df_subset <- na.omit(subset(dat, select = c(time, status, status_numeric, sex, age, ph.karno, meal.cal, strata)))
 unadj_score_solution <- uniroot(
     nonadj_log_rank_score,
     interval = c(-5, 5),
@@ -996,7 +997,7 @@ robincar_theta_est_se <- cl$result$se_theta_CL
 robincar_theta_est_se
 ```
 
-So these results are very close but not numerically equal to what we obtained earlier:
+So these results are very close to what we obtained earlier:
 
 ```{r}
 our_covadj_theta_est - robincar_theta_est
@@ -1006,7 +1007,7 @@ our_covadj_theta_est_approx - robincar_theta_est
 our_covadj_theta_est_se_approx - robincar_theta_est_se
 ```
 
-The standard error is closer, but the estimate is still a bit further off.
+The standard error is numerically equal, but the estimate is still a little bit further off.
 
 ## Stratified log-rank test
 
