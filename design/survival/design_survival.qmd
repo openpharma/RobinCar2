@@ -726,8 +726,8 @@ derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, 
     # Corresponds to \exp(\vartheta) * \bar{Y}_1(t) and \bar{Y}_0(t).
     # So here theta enters.
     at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
-    Y_bar_1 <- exp_theta * colMeans(df$treatment & at_risk_matrix)
-    Y_bar_0 <- colMeans(!df$treatment & at_risk_matrix)
+    Y_bar_1 <- exp_theta * colSums(df$treatment & at_risk_matrix) / n
+    Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
     Y_bar <- Y_bar_0 + Y_bar_1
 
     # Proportion of patients having an event at this time.
