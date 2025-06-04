@@ -79,7 +79,9 @@ Note that the class of the value is not `treatment_effect` here, because we don'
     - Note that this can come later of course. Was just an early idea 🙂 
 1. If we have more than two treatment arms in the data set, we would currently just compute the pairwise contrasts. 
     - Is there a more efficient way to compute the pairwise hazard ratios and tests maybe?
+      Team had the discussion for the binary case before, and ended up coding the multiarm case to simplify the reporting to the study team.
     - Is this sufficient? Or do we need to / could we compute an overall (logrank) test as well?    
+      For now it is sufficient. Multi arm case can come later maybe, as low priority.
 1. How should ties be handled?
     - The "Breslow approximation" seems simplest, see e.g. in the `survival` package's manual:
 
@@ -111,6 +113,37 @@ dat <- survival::lung |>
         strata = factor(ph.ecog)
     )
 head(dat)
+```
+
+## User interface
+
+```{r}
+robin_surv <- function(formula, data, treatment, contrast = "hazardratio", pval = "logrank", ...) {
+    attr(formula, ".Environment") <- environment()
+    assert_formula(formula)
+    assert_data_frame(data)
+    assert_formula(treatment)
+    assert_subset(all.vars(formula), names(data))
+    assert_subset(all.vars(treatment), names(data))
+    contrast <- match.arg(contrast)
+    pval <- match.arg(pval)
+
+    # Fit survival model and compute estimates
+    # (Placeholder for actual implementation)
+
+    # Return results as a list with class 'surv_effect'
+    result <- list(
+        estimates = data.frame(
+            Estimate = c(0.56365, 0.77093, 0.20728),
+            Std.Err = c(0.10074, 0.10133, 0.10683),
+            Z.Value = c(5.5952, 7.6082, 1.9402),
+            Pr.z = c(2.203e-08, 0.05235, 2.779e-14)
+        )
+    )
+
+    class(result) <- "surv_effect"
+    result
+}
 ```
 
 # References
