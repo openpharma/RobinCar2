@@ -115,10 +115,88 @@ dat <- survival::lung |>
 head(dat)
 ```
 
-## User interface
+## Extracting variables
+
+This is currently duplicating code from `predict_counterfactual.lm()`, and we can refactor this later to avoid duplication.
 
 ```{r}
-robin_surv <- function(formula, data, treatment, contrast = "hazardratio", pval = "logrank", ...) {
+h_prepare_vars <- function(formula, data, treatment) {
+    trt_vars <- h_get_vars(treatment)
+    assert_data_frame(data)
+    assert_subset(c(trt_vars$treatment, trt_vars$strata), colnames(data))
+    assert_subset(trt_vars$treatment, all.vars(formula[[3]]))
+    assert(
+        test_character(data[[trt_vars$treatment]]),
+        test_factor(data[[trt_vars$treatment]])
+    )
+
+    trt_lvls <- levels(data[[trt_vars$treatment]])
+    n_lvls <- length(trt_lvls)
+    covariates <- setdiff(all.vars(formula[[3]]), c(trt_vars$treatment, trt_vars$strata))
+
+    list(
+        treatment = trt_vars$treatment,
+        strata = trt_vars$strata,
+        covariates = covariates,
+        schema = trt_vars$schema,
+        n_levels = n_lvls,
+        levels = trt_lvls
+    )
+}
+```
+
+Let's test this:
+
+```{r}
+h_prepare_vars(
+    formula = Surv(time, status_numeric) ~ sex * strata + meal.cal + ph.ecog,
+    data = dat,
+    treatment = sex ~ strata
+)
+```
+
+If there are no strata:
+
+```{r}
+h_prepare_vars(
+    formula = Surv(time, status_numeric) ~ sex + meal.cal + ph.ecog,
+    data = dat,
+    treatment = sex ~ 1
+)
+```
+
+If there are no covariates:
+
+```{r}
+h_prepare_vars(
+    formula = Surv(time, status_numeric) ~ sex * strata,
+    data = dat,
+    treatment = sex ~ strata
+)
+```
+
+If there are no covariates and no strata:
+
+```{r}
+h_prepare_vars(
+    formula = Surv(time, status_numeric) ~ sex,
+    data = dat,
+    treatment = sex ~ 1
+)
+```
+
+## User interface
+
+This is still a placeholder mostly for now, but just to see where we want to end up with:
+
+```{r}
+robin_surv <- function(
+    formula,
+    data,
+    treatment,
+    contrast = "hazardratio",
+    pval = "logrank",
+    ...) {
     attr(formula, ".Environment") <- environment()
     assert_formula(formula)
     assert_data_frame(data)
@@ -131,19 +209,84 @@ robin_surv <- function(formula, data, treatment, contrast = "hazardratio", pval 
     # Fit survival model and compute estimates
     # (Placeholder for actual implementation)
 
-    # Return results as a list with class 'surv_effect'
+    vars <- h_prepare_vars(formula, data, treatment)
+    data[[vars$treatment]] <- as.factor(data[[vars$treatment]])
+    has_strata <- length(vars$strata) > 0
+    has_covariates <- length(vars$covariates) > 0
+
     result <- list(
-        estimates = data.frame(
-            Estimate = c(0.56365, 0.77093, 0.20728),
-            Std.Err = c(0.10074, 0.10133, 0.10683),
-            Z.Value = c(5.5952, 7.6082, 1.9402),
-            Pr.z = c(2.203e-08, 0.05235, 2.779e-14)
-        )
+        model = formula,
+        randomization = treatment,
+        schema = "pb",
+        contrast = contrast,
+        test = pval,
+        estimate = c(0.56365),
+        pair = pairwise(vars$levels),
+        equal_val = 0,
+        variance = c(0.10074),
+        z_value = c(5.5952),
+        p_value = c(2.203e-08)
     )
 
     class(result) <- "surv_effect"
     result
 }
+```
+
+We then have a print method for the `surv_effect` class:
+
+```{r}
+#' @export
+print.surv_effect <- function(x, ...) {
+    cat("Model        : ", deparse(as.formula(x$model)), "\n")
+
+    cat(
+        "Randomization: ",
+        deparse(x$randomization),
+        " (",
+        randomization_schema$schema[randomization_schema$id == x$schema],
+        ")\n"
+    )
+    contr_type <- switch(x$contrast,
+        hazardratio = "Hazard ratio"
+    )
+    cat(sprintf("\nContrast     :  %s\n", contr_type))
+
+    test_type <- switch(x$test,
+        logrank = "Log-Rank"
+    )
+    cat(sprintf("Test         :  %s\n\n", test_type))
+
+    trt_est <- x$estimate
+    trt_sd <- sqrt(x$variance)
+    z_value <- x$z_value
+    p <- x$p_value
+    coef_mat <- matrix(
+        c(
+            trt_est,
+            trt_sd,
+            z_value,
+            p
+        ),
+        nrow = length(trt_est)
+    )
+    colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
+    pair <- x$pair
+    row.names(coef_mat) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
+    stats::printCoefmat(
+        coef_mat
+    )
+}
+```
+
+Let's test this with our example data:
+
+```{r}
+robin_surv(
+    formula = Surv(time, status_numeric) ~ sex * strata + meal.cal + ph.ecog,
+    data = dat,
+    treatment = sex ~ strata
+)
 ```
 
 # References
