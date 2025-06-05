@@ -117,7 +117,7 @@ head(dat)
 
 ## Extracting variables
 
-This is currently duplicating code from `predict_counterfactual.lm()`, and we can refactor this later to avoid duplication.
+This is currently duplicating some code from `predict_counterfactual.lm()`, and we can refactor this later to avoid duplication.
 
 ```{r}
 h_prepare_vars <- function(formula, data, treatment) {
@@ -134,7 +134,20 @@ h_prepare_vars <- function(formula, data, treatment) {
     n_lvls <- length(trt_lvls)
     covariates <- setdiff(all.vars(formula[[3]]), c(trt_vars$treatment, trt_vars$strata))
 
+    # Extract survival time and censoring indicator from the left hand side of the formula.
+    lhs <- formula[[2]]
+    if (inherits(lhs, "call") && lhs[[1]] == as.name("Surv") || lhs[[1]] == as.name("survival::Surv")) {
+        surv_vars <- as.character(lhs)[-1]
+        assert_subset(surv_vars, colnames(data))
+        time_var <- surv_vars[1]
+        status_var <- surv_vars[2]
+    } else {
+        stop("Left hand side of formula must be a Surv() object.")
+    }
+
     list(
+        time = time_var,
+        status = status_var,
         treatment = trt_vars$treatment,
         strata = trt_vars$strata,
         covariates = covariates,
@@ -148,42 +161,202 @@ h_prepare_vars <- function(formula, data, treatment) {
 Let's test this:
 
 ```{r}
-h_prepare_vars(
-    formula = Surv(time, status_numeric) ~ sex * strata + meal.cal + ph.ecog,
+vars_strata_covs <- h_prepare_vars(
+    formula = survival::Surv(time, status_numeric) ~ sex * strata + meal.cal + ph.ecog,
     data = dat,
     treatment = sex ~ strata
 )
+vars_strata_covs
 ```
 
 If there are no strata:
 
 ```{r}
-h_prepare_vars(
+vars_covs <- h_prepare_vars(
     formula = Surv(time, status_numeric) ~ sex + meal.cal + ph.ecog,
     data = dat,
     treatment = sex ~ 1
 )
+vars_covs
 ```
 
 If there are no covariates:
 
 ```{r}
-h_prepare_vars(
+vars_strata <- h_prepare_vars(
     formula = Surv(time, status_numeric) ~ sex * strata,
     data = dat,
     treatment = sex ~ strata
 )
+vars_strata
 ```
 
 If there are no covariates and no strata:
 
 ```{r}
-h_prepare_vars(
+vars_simple <- h_prepare_vars(
     formula = Surv(time, status_numeric) ~ sex,
     data = dat,
     treatment = sex ~ 1
 )
+vars_simple
 ```
+
+## Computation of estimates
+
+### No strata, no covariates
+
+Here is the first low-level function that computes score function. This comes from the initial code design doc.
+
+```{r}
+h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = nrow(df)) {
+    assert_numeric(theta, min.len = 1L, finite = TRUE)
+    assert_string(treatment)
+    assert_string(time)
+    assert_string(status)
+    assert_data_frame(df)
+    assert_factor(df[[treatment]], n.levels = 2L)
+    assert_numeric(df[[status]])
+    assert_true(all(df[[status]] %in% c(0, 1)))
+    assert_numeric(df[[time]], lower = 0)
+
+    # Standardize data set format, subset to relevant variables.
+    df <- data.frame(
+        treatment = as.numeric(df[[treatment]]) - 1L,
+        time = df[[time]],
+        status = df[[status]]
+    )
+
+    # Sort by time.
+    df <- df[order(df$time), ]
+
+    # Patients with events.
+    df_events <- df[df$status == 1L, ]
+
+    # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
+    U_L <- sigma_L2 <- 0
+    for (i in seq_len(nrow(df_events))) {
+        # This event time.
+        t_i <- df_events$time[i]
+
+        # This treatment arm indicator.
+        I_i <- df_events$treatment[i]
+
+        # Proportions of patients at risk at time t_i, per arm.
+        Y_bar_1_ti <- mean(df$treatment & df$time >= t_i)
+        Y_bar_0_ti <- mean(!df$treatment & df$time >= t_i)
+
+        # Adjusted proportion of patients at risk in the treatment arm:
+        Y_bar_1_ti_coxph <- Y_bar_1_ti * exp(theta)
+
+        # Increment U_L.
+        U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
+
+        # Increment sigma_L2.
+        sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti / (Y_bar_1_ti_coxph + Y_bar_0_ti)^2
+    }
+
+    U_L <- U_L / n
+    sigma_L2 <- sigma_L2 / n
+    se_theta_L <- sqrt(1 / (n * sigma_L2))
+    structure(U_L, sigma_L2 = sigma_L2, se_theta_L = se_theta_L, n = n)
+}
+```
+
+Here is more general function that takes the score function and computes the log hazard ratio estimate and standard error using it:
+
+```{r}
+h_log_hr_est_via_score <- function(score_fun, interval = c(-10, 10), ...) {
+    score_solution <- uniroot(
+        score_fun,
+        interval = interval,
+        ...
+    )
+    list(
+        theta = score_solution$root,
+        se = attr(score_solution$f.root, "se_theta_L")
+    )
+}
+```
+
+Here is a similarly general function that computes the corresponding test:
+
+```{r}
+h_lr_test_via_score <- function(score_fun, ...) {
+    score_at_0 <- score_fun(theta = 0, ...)
+    U_L <- as.numeric(score_at_0)
+    sigma_L2 <- attr(score_at_0, "sigma_L2")
+    n <- attr(score_at_0, "n")
+    tau_L <- sqrt(n) * U_L / sqrt(sigma_L2)
+    pval <- 2 * pnorm(-abs(tau_L))
+    list(
+        U_L = U_L,
+        sigma_L2 = sigma_L2,
+        tau_L = tau_L,
+        pval = pval
+    )
+}
+```
+
+Here is the high level, general function that computes both the log hazard ratio estimate and the logrank test p-value, given the score function
+
+```{r}
+robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_level, ...) {
+    trt_levels <- vars$levels[c(control_level, exp_level)]
+    data <- data[data[[vars$treatment]] %in% trt_levels, ]
+    data[[vars$treatment]] <- droplevels(data[[vars$treatment]])
+    data[[vars$treatment]] <- relevel(data[[vars$treatment]], ref = trt_levels[1L])
+
+    args <- list(
+        score_fun = score_fun,
+        df = data,
+        ...
+    )
+    test_result <- do.call(h_lr_test_via_score, args)
+    hr_result <- do.call(h_log_hr_est_via_score, args)
+
+    list(
+        estimate = hr_result$theta,
+        se = hr_result$se,
+        test_stat = test_result$tau_L,
+        p_value = test_result$pval
+    )
+}
+```
+
+Based on this:
+
+```{r}
+robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
+    robin_surv_comparison(
+        score_fun = h_lr_score_no_strata_no_cov,
+        vars = vars,
+        data = data,
+        exp_level = exp_level,
+        control_level = control_level,
+        treatment = vars$treatment,
+        time = vars$time,
+        status = vars$status
+    )
+}
+```
+
+Let's try it out:
+
+```{r}
+robin_surv_no_strata_no_cov(
+    vars = vars_simple,
+    data = dat,
+    exp_level = 2,
+    control_level = 1
+)
+```
+
+### With strata, no covariates
+
+### No strata, with covariates
+
+### With strata and covariates
 
 ## User interface
 
@@ -211,8 +384,34 @@ robin_surv <- function(
 
     vars <- h_prepare_vars(formula, data, treatment)
     data[[vars$treatment]] <- as.factor(data[[vars$treatment]])
+
     has_strata <- length(vars$strata) > 0
     has_covariates <- length(vars$covariates) > 0
+    calc_function <- if (has_strata && has_covariates) {
+        robin_surv_strata_cov
+    } else if (has_strata) {
+        robin_surv_strata
+    } else if (has_covariates) {
+        robin_surv_cov
+    } else {
+        robin_surv_no_strata_no_cov
+    }
+
+    comparisons <- pairwise(vars$levels)
+    n_comparisons <- length(comparisons[[1]])
+    estimates <- lapply(
+        seq_len(n_comparisons),
+        function(i) {
+            exp_level <- comparisons[[1]][i]
+            control_level <- comparisons[[2]][i]
+            calc_function(
+                vars = vars,
+                data = data,
+                exp_level = exp_level,
+                control_level = control_level
+            )
+        }
+    )
 
     result <- list(
         model = formula,
@@ -221,7 +420,7 @@ robin_surv <- function(
         contrast = contrast,
         test = pval,
         estimate = c(0.56365),
-        pair = pairwise(vars$levels),
+        pair = comparisons,
         equal_val = 0,
         variance = c(0.10074),
         z_value = c(5.5952),
