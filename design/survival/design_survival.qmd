@@ -1000,4 +1000,34 @@ robin_surv(
 )
 ```
 
+If we omit the strata:
+
+```{r}
+robin_surv(
+    formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
+    data = dat,
+    treatment = sex ~ 1
+)
+```
+
+If we omit the covariates:
+
+```{r}
+robin_surv(
+    formula = Surv(time, status_numeric) ~ sex,
+    data = dat,
+    treatment = sex ~ 1
+)
+```
+
+If we just stratify:
+
+```{r}
+robin_surv(
+    formula = Surv(time, status_numeric) ~ sex * strata,
+    data = dat,
+    treatment = sex ~ strata
+)
+```
+
 # References
