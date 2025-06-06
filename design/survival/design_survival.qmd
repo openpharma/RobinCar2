@@ -103,6 +103,7 @@ As example data, also here we are going to use the NCCTG Lung Cancer Data set, w
 We are going to use the male patients as treatment arm $j = 0$ and the female patients as treatment arm $j = 1$.
 
 ```{r}
+devtools::load_all()
 library(dplyr)
 library(checkmate)
 dat <- survival::lung |>
@@ -215,10 +216,10 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
     assert_string(time)
     assert_string(status)
     assert_data_frame(df)
-    assert_factor(df[[treatment]], n.levels = 2L)
-    assert_numeric(df[[status]])
+    assert_factor(df[[treatment]], n.levels = 2L, any.missing = FALSE)
+    assert_numeric(df[[status]], any.missing = FALSE)
     assert_true(all(df[[status]] %in% c(0, 1)))
-    assert_numeric(df[[time]], lower = 0)
+    assert_numeric(df[[time]], lower = 0, any.missing = FALSE)
 
     # Standardize data set format, subset to relevant variables.
     df <- data.frame(
@@ -259,7 +260,12 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
     U_L <- U_L / n
     sigma_L2 <- sigma_L2 / n
     se_theta_L <- sqrt(1 / (n * sigma_L2))
-    structure(U_L, sigma_L2 = sigma_L2, se_theta_L = se_theta_L, n = n)
+    structure(
+        U_L,
+        sigma_L2 = sigma_L2,
+        se_theta_L = se_theta_L,
+        n = n
+    )
 }
 ```
 
@@ -354,7 +360,77 @@ robin_surv_no_strata_no_cov(
 
 ### With strata, no covariates
 
+Now we look at the stratified version. First again the score function:
+
+```{r}
+h_lr_score_strat <- function(theta, df, treatment, time, status, strata) {
+    assert_string(strata)
+    assert_data_frame(df)
+    assert_factor(df[[strata]])
+
+    df <- na.omit(df[, c(treatment, time, status, strata)])
+    n <- nrow(df)
+
+    df[[strata]] <- droplevels(df[[strata]])
+    strata_levels <- levels(df[[strata]])
+
+    df_split <- split(df, f = df[[strata]])
+    strata_results <- lapply(
+        df_split,
+        FUN = h_lr_score_no_strata_no_cov,
+        theta = theta,
+        treatment = treatment,
+        time = time,
+        status = status,
+        n = n
+    )
+
+    # We use here the standard names now, instead of U_SL etc, to be able to use the generic
+    # functions.
+    U_L <- sum(sapply(strata_results, as.numeric))
+    sigma_L2 <- sum(sapply(strata_results, attr, "sigma_L2"))
+    se_theta_L <- sqrt(1 / (n * sigma_L2))
+    structure(
+        U_L,
+        sigma_L2 = sigma_L2,
+        se_theta_L = se_theta_L,
+        n = n
+    )
+}
+```
+
+Based on this we can code the high-level function that computes the estimates and p-values:
+
+```{r}
+robin_surv_strata <- function(vars, data, exp_level, control_level) {
+    robin_surv_comparison(
+        score_fun = h_lr_score_strat,
+        vars = vars,
+        data = data,
+        exp_level = exp_level,
+        control_level = control_level,
+        treatment = vars$treatment,
+        time = vars$time,
+        status = vars$status,
+        strata = vars$strata
+    )
+}
+```
+
+Let's test this:
+
+```{r}
+robin_surv_strata(
+    vars = vars_strata,
+    data = dat,
+    exp_level = 2,
+    control_level = 1
+)
+```
+
 ### No strata, with covariates
+
+
 
 ### With strata and covariates
 
