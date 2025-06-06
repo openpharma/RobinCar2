@@ -221,7 +221,8 @@ vars_simple
 
 ### No strata, no covariates
 
-Here is the first low-level function that computes score function. This comes from the initial code design doc.
+Here is the first low-level function that computes score function. This comes mostly from the initial code design doc.
+However, we did a modification here to account for the change in the calculation of `sigma_L2` in `RobinCar:::adjust.LogRank` as it was done in a recent pull request in `RobinCar`, see [here](https://github.com/mbannick/RobinCar/pull/32).
 
 ```{r}
 h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = nrow(df)) {
@@ -248,11 +249,24 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
     # Patients with events.
     df_events <- df[df$status == 1L, ]
 
+    # Unique observed event times.
+    unique_times <- df_events$time |>
+        split(df_events$time) |>
+        sapply(length)
+    df_events_unique <- data.frame(
+        time = as.numeric(names(unique_times)),
+        n_events = as.numeric(unique_times)
+    )
+    df_events <- left_join(df_events, df_events_unique, by = "time")
+
     # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
     U_L <- sigma_L2 <- 0
     for (i in seq_len(nrow(df_events))) {
         # This event time.
         t_i <- df_events$time[i]
+
+        # Number of overall events at this time.
+        n_events_ti <- df_events$n_events[i]
 
         # This treatment arm indicator.
         I_i <- df_events$treatment[i]
@@ -268,7 +282,13 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
         U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
 
         # Increment sigma_L2.
-        sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti / (Y_bar_1_ti_coxph + Y_bar_0_ti)^2
+        Y_bar_all_ti <- Y_bar_1_ti_coxph + Y_bar_0_ti
+        sigma_L2_factor_ti <- if (n_events_ti == 1) {
+            1
+        } else {
+            (n * Y_bar_all_ti - n_events_ti) / (n * Y_bar_all_ti - 1)
+        }
+        sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti * sigma_L2_factor_ti / Y_bar_all_ti^2
     }
 
     U_L <- U_L / n
@@ -1344,5 +1364,99 @@ all.equal(
     robincar_hr_result$result$se_theta_CL
 )
 ```
+
+## With ties
+
+Now let's look at the case with ties, which we have in our original data set:
+
+```{r}
+sum(duplicated(dat$time))
+```
+
+We want to make sure that again we can match the results with `RobinCar`.
+
+### Without strata, no covariates
+
+Our results:
+
+```{r}
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex,
+    data = dat,
+    treatment = sex ~ 1
+)
+robincar2_result
+```
+
+With `RobinCar`:
+
+```{r}
+dat1 <- dat |>
+    select(time, status_numeric, sex) |>
+    na.omit()
+robincar_lr_result <- robincar_logrank(
+    df = dat1,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = NULL,
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(dat1$sex == "Male")
+)
+robincar_lr_result
+```
+
+So also this matches now well (after we included the events factor above)
+
+```{r}
+all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+)
+```
+
+For the HR:
+
+```{r}
+robincar_hr_result <- robincar_covhr(
+    df = dat1,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = NULL,
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties_1$sex == "Male")
+)
+robincar_hr_result
+```
+
+We can see that the point estimate matches very well, only the standard error is slightly different:
+
+```{r}
+stopifnot(all.equal(
+    robincar2_result$estimate,
+    robincar_hr_result$result$theta_L
+))
+all.equal(
+    robincar2_result$se,
+    robincar_hr_result$result$se_theta_L
+)
+```
+
+If we use the `survival` package here, we get:
+
+```{r}
+library(survival)
+check <- coxph(Surv(time, status_numeric) ~ sex, data = dat1, ties = "breslow")
+sqrt(vcov(check))
+```
+
+So this is the same as with `RobinCar`, and our results differ, so we need to fix that.
 
 # References
