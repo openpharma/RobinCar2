@@ -91,7 +91,11 @@ Note that the class of the value is not `treatment_effect` here, because we don'
     - Question arises because this stratum then does not contribute to the statistics (summand is 0).
     - Seems we still need to count it, at least like this we match the `survival` package's result exactly.
 1. In the covariate adjusted hazard ratio estimate score function, should the regression coefficients really be fixed given the original estimate? I expected them to depend on the parameter $\vartheta$ as well, but both in the paper as well as in the supplementary material they are fixed at $\widehat{\beta}_{\text{L}}$ and $\widehat{\gamma}_{\text{SL}}$ respectively.
-    - Has been clarified, basically fixing the regression coefficients is a more approximate version, which is computationally simpler. We can provide both options e.g. via some expert `control` argument.
+    - Has been clarified, basically fixing the regression coefficients is a more approximate version, which is computationally simpler. We can maybe provide both options e.g. via some expert `control` argument. It would be easier though to just provide the full version.
+1. Should we make the `p_trt` an argument of `robin_surv()`? 
+    - Currently we just always use the observed proportion of the relevant experimental treatment arm in the data set for the given pairwise comparison.
+1. Should we also show the test statistic and p-value from the hazard ratio estimate?
+    - Currently we just show the logrank test statistic and p-value, and only give the log hazard ratio estimate and standard error
 
 # Prototype
 
@@ -443,7 +447,7 @@ robin_surv_strata(
 
 First we need a few helper functions.
 
-Derived outcome values:
+Derived outcome values: Note that we need to have the data subsetted to complete observations already before applying this function.
 
 ```{r}
 h_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, covariates, n = nrow(df)) {
@@ -465,8 +469,8 @@ h_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status
         time = df[[time]],
         status = df[[status]],
         df[covariates]
-    ) |>
-        na.omit()
+    )
+    assert_true(!any(is.na(df)))
 
     # Sort by time.
     df <- df[order(df$time), ]
@@ -596,6 +600,10 @@ Now we can code the score function:
 
 ```{r}
 h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat = NULL) {
+    # Subset to complete records here.
+    df <- na.omit(df[c(treatment, time, status, all.vars(model))])
+    n <- nrow(df)
+
     # Calculate derived outcomes and regress them on covariates.
     theta_use <- if (is.null(theta_hat)) theta else theta_hat
     df_with_covs_ovals <- h_derived_outcome_vals_from_theta(
@@ -604,16 +612,14 @@ h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat 
         treatment,
         time,
         status,
-        covariates = all.vars(model)
+        covariates = all.vars(model),
+        n = n
     )
     lm_input <- h_get_lm_input(df_with_covs_ovals, model)
     beta_est <- h_get_beta_estimates(lm_input)
 
-    # Obtain unadjusted result for the patients included in the two linear models.
-    included_pts <- df_with_covs_ovals$index
-    df_included <- df[included_pts, ]
-    n <- nrow(df_included)
-    unadj_score <- h_lr_score_no_strata_no_cov(theta, df_included, treatment, time, status, n = n)
+    # Obtain unadjusted result.
+    unadj_score <- h_lr_score_no_strata_no_cov(theta, df, treatment, time, status, n = n)
 
     # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
     # proportion of treatment 1 in the trial.
@@ -990,43 +996,352 @@ print.surv_effect <- function(x, ...) {
 }
 ```
 
-Let's test this with our example data:
+# Examples and comparison with `RobinCar`
+
+Let's test this with our example data and compare with the results from the `RobinCar` package.
+Here we are using the latest CRAN version 1.0.
 
 ```{r}
-robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
-    data = dat,
-    treatment = sex ~ strata
-)
+library(RobinCar)
 ```
 
-If we omit the strata:
+## Without ties
+
+Let's simplify the situation first and remove the ties from the data set.
 
 ```{r}
-robin_surv(
-    formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
-    data = dat,
-    treatment = sex ~ 1
-)
+dat_no_ties <- dat |>
+    filter(!duplicated(time)) |>
+    droplevels()
 ```
 
-If we omit the covariates:
+### Without strata, no covariates
+
+The simplest version, the standard log-rank test without covariates or strata:
 
 ```{r}
-robin_surv(
+robincar2_result <- robin_surv(
     formula = Surv(time, status_numeric) ~ sex,
-    data = dat,
+    data = dat_no_ties,
     treatment = sex ~ 1
 )
+robincar2_result
 ```
+
+We can compare this with the `RobinCar` package. We need to omit subjects with missing values here manually.
+
+```{r}
+dat_no_ties_1 <- dat_no_ties |>
+    select(time, status_numeric, sex) |>
+    na.omit()
+robincar_lr_result <- robincar_logrank(
+    df = dat_no_ties_1,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = NULL,
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties_1$sex == "Male")
+)
+robincar_lr_result
+```
+
+So we get the same test statistic and thus p-value here. Note that the p-value is only computed in the `print()` method `RobinCar:::print.TTEResult()` because it is just based on the standard normal CDF at the test statistic.
+
+```{r}
+stopifnot(all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+))
+```
+
+For the hazard ratio estimate we need to use the other `RobinCar` function:
+
+```{r}
+robincar_hr_result <- robincar_covhr(
+    df = dat_no_ties_1,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = NULL,
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties_1$sex == "Male")
+)
+robincar_hr_result
+```
+
+Interestingly this presents another test statistic with corresponding p-value here. This is also only calculated inside `RobinCar:::print.TTEResult()` by dividing the log hazard ratio estimate by its standard error and computing the p-value from the standard normal CDF.
+
+We can see that the results match:
+
+```{r}
+stopifnot(all.equal(
+    robincar2_result$estimate,
+    robincar_hr_result$result$theta_L
+))
+stopifnot(all.equal(
+    robincar2_result$se,
+    robincar_hr_result$result$se_theta_L
+))
+```
+
+### Without strata, but with covariates
+
+Let's look at the case with covariates, but no strata. We can use the same formula as above, but now we add covariates:
+
+```{r}
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
+    data = dat_no_ties,
+    treatment = sex ~ 1
+)
+robincar2_result
+```
+
+With `RobinCar`:
+
+```{r}
+dat_no_ties2 <- dat_no_ties |>
+    select(time, status_numeric, sex, age, ph.karno, meal.cal) |>
+    na.omit()
+robincar_lr_result <- robincar_logrank(
+    df = dat_no_ties2,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties2$sex == "Male")
+)
+robincar_lr_result
+```
+
+We see that the results match:
+
+```{r}
+stopifnot(all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+))
+```
+
+We can also compare the hazard ratio estimate:
+
+```{r}
+robincar_hr_result <- robincar_covhr(
+    df = dat_no_ties2,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties2$sex == "Male")
+)
+robincar_hr_result
+```
+
+Here we see a difference to our results, because we don't use the approximate method with `theta_hat` in the score function. The results are very similar, though:
+
+```{r}
+all.equal(
+    robincar2_result$estimate,
+    robincar_hr_result$result$theta_CL
+)
+all.equal(
+    robincar2_result$se,
+    robincar_hr_result$result$se_theta_CL
+)
+```
+
+### With strata, but no covariates
 
 If we just stratify:
 
 ```{r}
-robin_surv(
+robincar2_result <- robin_surv(
     formula = Surv(time, status_numeric) ~ sex * strata,
-    data = dat,
+    data = dat_no_ties,
+    treatment = sex ~ pb(strata)
+)
+robincar2_result
+```
+
+With `RobinCar`:
+
+```{r}
+dat_no_ties3 <- dat_no_ties |>
+    select(time, status_numeric, sex, strata) |>
+    na.omit()
+robincar_lr_result <- robincar_logrank(
+    df = dat_no_ties3,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = NULL,
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_lr_result
+```
+
+So here the results match:
+
+```{r}
+stopifnot(all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+))
+```
+
+We can also compare the hazard ratio estimate:
+
+```{r}
+robincar_hr_result <- robincar_covhr(
+    df = dat_no_ties3,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = NULL,
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_hr_result
+```
+
+This matches perfectly:
+
+```{r}
+stopifnot(all.equal(
+    robincar2_result$estimate,
+    robincar_hr_result$result$theta_CL
+))
+stopifnot(all.equal(
+    robincar2_result$se,
+    robincar_hr_result$result$se_theta_CL
+))
+```
+
+### With strata and covariates
+
+Finally, we can combine both:
+
+```{r}
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+    data = dat_no_ties,
     treatment = sex ~ strata
+)
+robincar2_result
+```
+
+With `RobinCar`:
+
+```{r}
+dat_no_ties4 <- dat_no_ties |>
+    select(time, status_numeric, sex, strata, age, ph.karno, meal.cal) |>
+    na.omit()
+robincar_lr_result <- robincar_logrank(
+    df = dat_no_ties4,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_lr_result
+```
+
+The problem here is that there is one stratum with a single patient in the experimental arm, therefore the test statistic is `NA` here. Let's avoid that by removing this stratum from the data set:
+
+```{r}
+dat_no_ties5 <- dat_no_ties4 |>
+    filter(!(strata == "3"))
+
+robincar_lr_result <- robincar_logrank(
+    df = dat_no_ties5,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_lr_result
+```
+
+Let's also run our function again with the same data:
+
+```{r}
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+    data = dat_no_ties |> filter(!(strata == "3")),
+    treatment = sex ~ strata
+)
+robincar2_result
+```
+
+The test statistic matches well:
+
+```{r}
+all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+)
+```
+
+For the HR estimate:
+
+```{r}
+robincar_hr_result <- robincar_covhr(
+    df = dat_no_ties5,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_hr_result
+```
+
+The results are again very close:
+
+```{r}
+all.equal(
+    robincar2_result$estimate,
+    robincar_hr_result$result$theta_CL
+)
+all.equal(
+    robincar2_result$se,
+    robincar_hr_result$result$se_theta_CL
 )
 ```
 
