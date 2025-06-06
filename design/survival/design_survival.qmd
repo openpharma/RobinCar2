@@ -96,6 +96,8 @@ Note that the class of the value is not `treatment_effect` here, because we don'
     - Currently we just always use the observed proportion of the relevant experimental treatment arm in the data set for the given pairwise comparison.
 1. Should we also show the test statistic and p-value from the hazard ratio estimate?
     - Currently we just show the logrank test statistic and p-value, and only give the log hazard ratio estimate and standard error
+1. In `RobinCar` the `adjust.CovHR()` method is not consistent with `adjust.LogRank()` regarding the handling of ties: In [line 85-87](https://github.com/mbannick/RobinCar/blob/main/R/adjust-covhr.R#L85) we don't have the correction factor that we have in the log-rank test. We should probably use the correction factor for consistency?
+    - The only downside is that then we are no longer giving the same result as `surviva::coxph()`.
 
 # Prototype
 
@@ -283,7 +285,10 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
 
         # Increment sigma_L2.
         Y_bar_all_ti <- Y_bar_1_ti_coxph + Y_bar_0_ti
-        sigma_L2_factor_ti <- if (n_events_ti == 1) {
+
+        # Note: we currently don't use this factor for estimating the HR, therefore
+        # we skip this when theta != 0.
+        sigma_L2_factor_ti <- if (theta != 0 || n_events_ti == 1) {
             1
         } else {
             (n * Y_bar_all_ti - n_events_ti) / (n * Y_bar_all_ti - 1)
@@ -314,7 +319,9 @@ h_log_hr_est_via_score <- function(score_fun, interval = c(-10, 10), ...) {
     )
     list(
         theta = score_solution$root,
-        se = attr(score_solution$f.root, "se_theta_L")
+        se = attr(score_solution$f.root, "se_theta_L"),
+        sigma_L2 = attr(score_solution$f.root, "sigma_L2"),
+        n = attr(score_solution$f.root, "n")
     )
 }
 ```
@@ -333,7 +340,8 @@ h_lr_test_via_score <- function(score_fun, ...) {
         U_L = U_L,
         sigma_L2 = sigma_L2,
         tau_L = tau_L,
-        pval = pval
+        pval = pval,
+        n = n
     )
 }
 ```
@@ -359,7 +367,12 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
         estimate = hr_result$theta,
         se = hr_result$se,
         test_stat = test_result$tau_L,
-        p_value = test_result$pval
+        p_value = test_result$pval,
+        hr_n = hr_result$n,
+        hr_sigma_L2 = hr_result$sigma_L2,
+        test_U_L = test_result$U_L,
+        test_n = test_result$n,
+        test_sigma_L2 = test_result$sigma_L2
     )
 }
 ```
@@ -966,7 +979,12 @@ robin_surv <- function(
         estimate = sapply(estimates, "[[", "estimate"),
         se = sapply(estimates, "[[", "se"),
         test_stat = sapply(estimates, "[[", "test_stat"),
-        p_value = sapply(estimates, "[[", "p_value")
+        p_value = sapply(estimates, "[[", "p_value"),
+        hr_n = sapply(estimates, "[[", "hr_n"),
+        hr_sigma_L2 = sapply(estimates, "[[", "hr_sigma_L2"),
+        test_n = sapply(estimates, "[[", "test_n"),
+        test_sigma_L2 = sapply(estimates, "[[", "test_sigma_L2"),
+        test_score = sapply(estimates, "[[", "test_U_L")
     )
 
     class(result) <- "surv_effect"
@@ -1409,13 +1427,22 @@ robincar_lr_result <- robincar_logrank(
 robincar_lr_result
 ```
 
-So also this matches now well (after we included the events factor above)
+So also this matches now well (after we included the events factor above), on all the statistics reported:
 
 ```{r}
-all.equal(
+stopifnot(all.equal(
     robincar2_result$test_stat,
     robincar_lr_result$result$statistic
-)
+))
+stopifnot(all.equal(
+    robincar2_result$test_score,
+    robincar_lr_result$result$U
+))
+stopifnot(all.equal(
+    sqrt(robincar2_result$test_sigma_L2 /
+        robincar2_result$test_n),
+    robincar_lr_result$result$se
+))
 ```
 
 For the HR:
@@ -1431,22 +1458,22 @@ robincar_hr_result <- robincar_covhr(
     car_scheme = "simple",
     adj_method = "CL",
     ref_arm = "Female",
-    p_trt = mean(dat_no_ties_1$sex == "Male")
+    p_trt = mean(dat1$sex == "Male")
 )
 robincar_hr_result
 ```
 
-We can see that the point estimate matches very well, only the standard error is slightly different:
+We can see that the point estimate matches very well, and after skipping the correction factor the standard error is also the same:
 
 ```{r}
 stopifnot(all.equal(
     robincar2_result$estimate,
     robincar_hr_result$result$theta_L
 ))
-all.equal(
+stopifnot(all.equal(
     robincar2_result$se,
     robincar_hr_result$result$se_theta_L
-)
+))
 ```
 
 If we use the `survival` package here, we get:
@@ -1457,6 +1484,6 @@ check <- coxph(Surv(time, status_numeric) ~ sex, data = dat1, ties = "breslow")
 sqrt(vcov(check))
 ```
 
-So this is the same as with `RobinCar`, and our results differ, so we need to fix that.
+So this is the same value.
 
 # References
