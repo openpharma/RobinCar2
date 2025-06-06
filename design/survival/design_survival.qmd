@@ -146,13 +146,23 @@ h_prepare_vars <- function(formula, data, treatment) {
         stop("Left hand side of formula must be a Surv() object.")
     }
 
+    # Extract model without left hand side and without treatment and strata variables.
+    model <- as.formula(as.call(as.list(formula)[-2L]))
+    update_string <- if (length(trt_vars$strata)) {
+        paste0("~ . - ", trt_vars$treatment, "*", trt_vars$strata)
+    } else {
+        paste("~ . -", trt_vars$treatment)
+    }
+    model <- update(model, as.formula(update_string))
+
     list(
         time = time_var,
         status = status_var,
         treatment = trt_vars$treatment,
         strata = trt_vars$strata,
-        covariates = covariates,
         schema = trt_vars$schema,
+        covariates = covariates,
+        model = model,
         n_levels = n_lvls,
         levels = trt_lvls
     )
@@ -163,7 +173,7 @@ Let's test this:
 
 ```{r}
 vars_strata_covs <- h_prepare_vars(
-    formula = survival::Surv(time, status_numeric) ~ sex * strata + meal.cal + ph.ecog,
+    formula = survival::Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
     data = dat,
     treatment = sex ~ strata
 )
@@ -174,7 +184,7 @@ If there are no strata:
 
 ```{r}
 vars_covs <- h_prepare_vars(
-    formula = Surv(time, status_numeric) ~ sex + meal.cal + ph.ecog,
+    formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
     data = dat,
     treatment = sex ~ 1
 )
@@ -368,9 +378,10 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata) {
     assert_data_frame(df)
     assert_factor(df[[strata]])
 
-    df <- na.omit(df[, c(treatment, time, status, strata)])
+    # Question: Is this in the right place here? Or should it be after the na.omit()?
     n <- nrow(df)
 
+    df <- na.omit(df[, c(treatment, time, status, strata)])
     df[[strata]] <- droplevels(df[[strata]])
     strata_levels <- levels(df[[strata]])
 
@@ -385,19 +396,19 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata) {
         n = n
     )
 
-    # We use here the standard names now, instead of U_SL etc, to be able to use the generic
-    # functions.
-    U_L <- sum(sapply(strata_results, as.numeric))
-    sigma_L2 <- sum(sapply(strata_results, attr, "sigma_L2"))
-    se_theta_L <- sqrt(1 / (n * sigma_L2))
+    U_SL <- sum(sapply(strata_results, as.numeric))
+    sigma_SL2 <- sum(sapply(strata_results, attr, "sigma_L2"))
+    se_theta_SL <- sqrt(1 / (n * sigma_SL2))
     structure(
-        U_L,
-        sigma_L2 = sigma_L2,
-        se_theta_L = se_theta_L,
+        U_SL,
+        sigma_L2 = sigma_SL2,
+        se_theta_L = se_theta_SL,
         n = n
     )
 }
 ```
+
+Note that in the return attributes we use standard `sigma_L2` and `se_theta_L` names, so that we can use the same `h_log_hr_est_via_score()` and `h_lr_test_via_score()` functions as before.
 
 Based on this we can code the high-level function that computes the estimates and p-values:
 
@@ -430,13 +441,446 @@ robin_surv_strata(
 
 ### No strata, with covariates
 
+First we need a few helper functions.
 
+Derived outcome values:
+
+```{r}
+h_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, covariates, n = nrow(df)) {
+    assert_number(theta)
+    assert_string(treatment)
+    assert_string(time)
+    assert_string(status)
+    assert_character(covariates)
+    assert_data_frame(df)
+    assert_factor(df[[treatment]], n.levels = 2L)
+    assert_numeric(df[[status]])
+    assert_true(all(df[[status]] %in% c(0, 1)))
+    assert_numeric(df[[time]], lower = 0)
+
+    # Standardize data set format, subset to relevant variables.
+    df <- data.frame(
+        index = seq_len(nrow(df)),
+        treatment = as.numeric(df[[treatment]]) - 1L,
+        time = df[[time]],
+        status = df[[status]],
+        df[covariates]
+    ) |>
+        na.omit()
+
+    # Sort by time.
+    df <- df[order(df$time), ]
+
+    # Patients with events.
+    df_events <- df[df$status == 1L, ]
+
+    # Unique observed event times.
+    unique_times <- df_events$time |>
+        split(df_events$time) |>
+        sapply(length)
+
+    df_events_unique <- data.frame(
+        time = as.numeric(names(unique_times)),
+        n_pts = as.numeric(unique_times)
+    )
+
+    # Add derived outcome column.
+    df$O_hat <- NA_real_
+
+    # Calculate quantities which are the same across patients first.
+    # These are in parallel to df_events_unique.
+
+    # Hazard ratio.
+    exp_theta <- exp(theta)
+
+    # Proportions of patients at risk, per unique event time and treatment arm.
+    # Corresponds to \exp(\vartheta) * \bar{Y}_1(t) and \bar{Y}_0(t).
+    # So here theta enters.
+    at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
+    Y_bar_1 <- exp_theta * colSums(df$treatment & at_risk_matrix) / n
+    Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
+    Y_bar <- Y_bar_0 + Y_bar_1
+
+    # Proportion of patients having an event at this time.
+    # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
+    # therefore we see how many patients have an event at each unique time and divide that by n.
+    dN_bar <- df_events_unique$n_pts / n
+
+    # Loop over all patients.
+    for (i in seq_len(nrow(df))) {
+        # Treatment arm?
+        I_i <- df$treatment[i]
+
+        # Event in this patient?
+        delta_i <- df$status[i] == 1L
+
+        # Time for this patient.
+        t_i <- df$time[i]
+
+        # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
+        dN_ij <- delta_i * (df_events_unique$time == t_i)
+
+        # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
+        # Here theta enters, too.
+        Y_ij <- as.numeric(t_i >= df_events_unique$time) * ifelse(I_i, exp_theta, 1)
+
+        # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
+        weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
+
+        # Compute martingale residuals.
+        martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
+
+        # Sum across all unique event times.
+        df$O_hat[i] <- sum(weights * martingale_residuals)
+    }
+
+    df[order(df$index), ]
+}
+```
+
+Linear model input:
+
+```{r}
+h_get_lm_input <- function(df, model) {
+    assert_data_frame(df)
+    assert_formula(model)
+    assert_subset(all.vars(model), names(df))
+
+    # Add outcome, remove intercept:
+    model <- update(model, O_hat ~ . - 1)
+    df_by_trt <- split(df, f = df$treatment)
+    lapply(
+        df_by_trt,
+        function(this_df) {
+            mf <- model.frame(model, data = this_df)
+            X <- model.matrix(model, data = mf)
+            y <- model.response(mf)
+            list(X = X, y = y)
+        }
+    )
+}
+```
+
+Linear model coefficient estimates:
+
+```{r}
+h_get_beta_estimates <- function(lm_input) {
+    assert_list(lm_input, types = "list")
+    assert_names(names(lm_input), identical.to = c("0", "1"))
+
+    # Fit the model separately for each treatment arm.
+    beta_est <- list()
+
+    for (group in names(lm_input)) {
+        # Get the design matrix for this treatment arm.
+        X <- lm_input[[group]]$X
+
+        # Center it.
+        X <- scale(X, center = TRUE, scale = FALSE)
+
+        # Get the derived outcome values, the response.
+        y <- lm_input[[group]]$y
+
+        # Fit the model without intercept.
+        lm_fit <- lm.fit(X, y)
+
+        # Get the coefficients.
+        beta_est[[group]] <- lm_fit$coefficients
+    }
+
+    beta_est
+}
+```
+
+Now we can code the score function:
+
+```{r}
+h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat = NULL) {
+    # Calculate derived outcomes and regress them on covariates.
+    theta_use <- if (is.null(theta_hat)) theta else theta_hat
+    df_with_covs_ovals <- h_derived_outcome_vals_from_theta(
+        theta = theta_use,
+        df,
+        treatment,
+        time,
+        status,
+        covariates = all.vars(model)
+    )
+    lm_input <- h_get_lm_input(df_with_covs_ovals, model)
+    beta_est <- h_get_beta_estimates(lm_input)
+
+    # Obtain unadjusted result for the patients included in the two linear models.
+    included_pts <- df_with_covs_ovals$index
+    df_included <- df[included_pts, ]
+    n <- nrow(df_included)
+    unadj_score <- h_lr_score_no_strata_no_cov(theta, df_included, treatment, time, status, n = n)
+
+    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+    # proportion of treatment 1 in the trial.
+    pi <- mean(as.numeric(df[[treatment]]) - 1)
+
+    # Overall column wise average of design matrices.
+    X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
+    X_bar <- colMeans(X_all)
+
+    # Center the design matrices with this overall average.
+    X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
+    X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
+
+    # Compute adjustment term for U_L.
+    U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+
+    # Compute adjusted U_CL.
+    U_CL <- as.numeric(unadj_score) - U_L_adj_term
+
+    # Compute adjustment term for sigma_L2.
+    cov_X <- cov(X_all)
+    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+    sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
+
+    # Compute standard error for theta estimate.
+    g_theta_CL <- attr(unadj_score, "sigma_L2")
+    var_theta_CL <- (g_theta_CL - sigma_L2_adj_term) / (g_theta_CL^2) / n
+    se_theta_CL <- suppressWarnings(sqrt(var_theta_CL))
+
+    structure(
+        U_CL,
+        se_theta_L = se_theta_CL,
+        sigma_L2 = g_theta_CL - sigma_L2_adj_term,
+        n = n
+    )
+}
+```
+
+Based on this we can code the high-level function that computes the estimates and p-values:
+
+```{r}
+robin_surv_cov <- function(vars, data, exp_level, control_level) {
+    robin_surv_comparison(
+        score_fun = h_lr_score_cov,
+        vars = vars,
+        data = data,
+        exp_level = exp_level,
+        control_level = control_level,
+        treatment = vars$treatment,
+        time = vars$time,
+        status = vars$status,
+        model = vars$model
+    )
+}
+```
+
+Let's test this:
+
+```{r}
+robin_surv_cov(
+    vars = vars_covs,
+    data = dat,
+    exp_level = 2,
+    control_level = 1
+)
+```
+
+We note that currently we don't use the approximate version with `theta_hat` in the score function. Given that the results are so similar, maybe we can just skip that?
 
 ### With strata and covariates
 
+Now finally with strata and covariates.
+
+First again the derived outcome values function, but now stratified:
+
+```{r}
+h_strat_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, strata, covariates) {
+    assert_string(strata)
+    assert_data_frame(df)
+    assert_factor(df[[strata]])
+
+    # Question: Is this in the right place here? Or should it be after the na.omit()?
+    n <- nrow(df)
+
+    df <- na.omit(df[, c(treatment, time, status, strata, covariates)])
+    df[[strata]] <- droplevels(df[[strata]])
+    strata_levels <- levels(df[[strata]])
+
+    df_split <- split(df, f = df[[strata]])
+
+    lapply(
+        df_split,
+        FUN = h_derived_outcome_vals_from_theta,
+        theta = theta,
+        treatment = treatment,
+        time = time,
+        status = status,
+        covariates = covariates,
+        n = n
+    )
+}
+```
+
+Then the linear model input function, but now stratified:
+
+```{r}
+h_get_strat_lm_input <- function(df_split, model) {
+    assert_list(df_split, types = "data.frame")
+    lapply(df_split, h_get_lm_input, model = model)
+}
+```
+
+Getting the linear model coefficient estimates, but now stratified:
+
+```{r}
+h_get_strat_beta_estimates <- function(strat_lm_input) {
+    assert_list(strat_lm_input, types = "list")
+    assert_list(strat_lm_input[[1]], types = "list")
+    assert_names(names(strat_lm_input[[1]]), identical.to = c("0", "1"))
+
+    # Get coefficient estimates separately for each treatment arm.
+    beta_est <- list()
+
+    for (group in c("0", "1")) {
+        XtXs <- list()
+        Xtys <- list()
+
+        for (stratum in names(strat_lm_input)) {
+            if (group %in% names(strat_lm_input[[stratum]])) {
+                # Get the design matrix for this treatment arm.
+                X <- strat_lm_input[[stratum]][[group]]$X
+
+                # Center it.
+                X <- scale(X, center = TRUE, scale = FALSE)
+
+                # Get the derived outcome values, the response.
+                y <- strat_lm_input[[stratum]][[group]]$y
+
+                # Save the cross products.
+                XtXs[[stratum]] <- crossprod(X)
+                Xtys[[stratum]] <- crossprod(X, y)
+            }
+        }
+
+        # Sum across strata.
+        XtX <- Reduce("+", XtXs)
+        Xty <- Reduce("+", Xtys)
+
+        # Get the coefficients.
+        beta_est[[group]] <- solve(XtX, Xty)
+    }
+
+    beta_est
+}
+```
+
+This is now the score function:
+
+```{r}
+h_lr_score_strat_cov <- function(theta, df, treatment, time, status, strata, model, theta_hat = NULL) {
+    # Use row names for df such that we can see which patients are dropped etc.
+    rownames(df) <- seq_len(nrow(df))
+
+    # Calculate derived outcomes and regress them on covariates.
+    theta_use <- if (is.null(theta_hat)) theta else theta_hat
+    df_split_with_covs_ovals <- h_strat_derived_outcome_vals_from_theta(
+        theta = theta_use,
+        df,
+        treatment,
+        time,
+        status,
+        strata,
+        covariates = all.vars(model)
+    )
+    strat_lm_input <- h_get_strat_lm_input(df_split_with_covs_ovals, model)
+    beta_est <- h_get_strat_beta_estimates(strat_lm_input)
+
+    # Obtain unadjusted result for the patients included in the two linear models.
+    included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
+    df_included <- df[rownames(df) %in% included_pts, ]
+
+    strat_unadj_score <- h_lr_score_strat(theta, df_included, treatment, time, status, strata)
+
+    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+    # proportion of treatment 1 in the trial.
+    pi <- mean(as.numeric(df[[treatment]]) - 1)
+
+    # Overall column wise average of design matrices.
+    strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
+    strat_X_bar <- lapply(strat_X_all, colMeans)
+
+    # Center the design matrices with this overall average.
+    has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
+    has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
+
+    X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+    X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+
+    X_0 <- do.call(rbind, X_0)
+    X_1 <- do.call(rbind, X_1)
+
+    # Compute adjustment term for U_SL.
+    n <- nrow(df_included)
+    U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+
+    # Compute adjusted U_CSL.
+    U_CSL <- as.numeric(strat_unadj_score) - U_SL_adj_term
+
+    # Compute adjustment term for sigma_SL2.
+    strat_n <- sapply(strat_X_all, nrow)
+    strat_use <- names(which(strat_n > 1))
+    strat_n <- strat_n[strat_use]
+    overall_n <- sum(strat_n)
+    strat_cov_X <- lapply(strat_X_all[strat_use], cov)
+    weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
+    weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
+
+    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+    sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
+
+    # Compute standard error for theta estimate.
+    g_theta_CSL <- attr(strat_unadj_score, "sigma_L2")
+    var_theta_CSL <- (g_theta_CSL - sigma_SL2_adj_term) / (g_theta_CSL^2) / n
+    se_theta_CSL <- suppressWarnings(sqrt(var_theta_CSL))
+
+    structure(
+        U_CSL,
+        se_theta_L = se_theta_CSL,
+        sigma_L2 = g_theta_CSL - sigma_SL2_adj_term,
+        n = n
+    )
+}
+```
+
+Based on this we can code the high-level function that computes the estimates and p-values:
+
+```{r}
+robin_surv_strata_cov <- function(vars, data, exp_level, control_level) {
+    robin_surv_comparison(
+        score_fun = h_lr_score_strat_cov,
+        vars = vars,
+        data = data,
+        exp_level = exp_level,
+        control_level = control_level,
+        treatment = vars$treatment,
+        time = vars$time,
+        status = vars$status,
+        strata = vars$strata,
+        model = vars$model
+    )
+}
+```
+
+Let's test this:
+
+```{r}
+robin_surv_strata_cov(
+    vars = vars_strata_covs,
+    data = dat,
+    exp_level = 2,
+    control_level = 1
+)
+```
+
 ## User interface
 
-This is still a placeholder mostly for now, but just to see where we want to end up with:
+This is how the user can analyze the data:
 
 ```{r}
 robin_surv <- function(
@@ -454,9 +898,6 @@ robin_surv <- function(
     assert_subset(all.vars(treatment), names(data))
     contrast <- match.arg(contrast)
     pval <- match.arg(pval)
-
-    # Fit survival model and compute estimates
-    # (Placeholder for actual implementation)
 
     vars <- h_prepare_vars(formula, data, treatment)
     data[[vars$treatment]] <- as.factor(data[[vars$treatment]])
@@ -492,15 +933,14 @@ robin_surv <- function(
     result <- list(
         model = formula,
         randomization = treatment,
-        schema = "pb",
+        schema = vars$schema,
         contrast = contrast,
         test = pval,
-        estimate = c(0.56365),
         pair = comparisons,
-        equal_val = 0,
-        variance = c(0.10074),
-        z_value = c(5.5952),
-        p_value = c(2.203e-08)
+        estimate = sapply(estimates, "[[", "estimate"),
+        se = sapply(estimates, "[[", "se"),
+        test_stat = sapply(estimates, "[[", "test_stat"),
+        p_value = sapply(estimates, "[[", "p_value")
     )
 
     class(result) <- "surv_effect"
@@ -532,18 +972,14 @@ print.surv_effect <- function(x, ...) {
     )
     cat(sprintf("Test         :  %s\n\n", test_type))
 
-    trt_est <- x$estimate
-    trt_sd <- sqrt(x$variance)
-    z_value <- x$z_value
-    p <- x$p_value
     coef_mat <- matrix(
         c(
-            trt_est,
-            trt_sd,
-            z_value,
-            p
+            x$estimate,
+            x$se,
+            x$test_stat,
+            x$p_value
         ),
-        nrow = length(trt_est)
+        nrow = length(x$estimate)
     )
     colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
     pair <- x$pair
@@ -558,7 +994,7 @@ Let's test this with our example data:
 
 ```{r}
 robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata + meal.cal + ph.ecog,
+    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
     data = dat,
     treatment = sex ~ strata
 )
