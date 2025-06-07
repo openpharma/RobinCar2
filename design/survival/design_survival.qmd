@@ -1396,7 +1396,6 @@ We want to make sure that again we can match the results with `RobinCar`.
 ### Without strata, no covariates
 
 Our results:
-
 ```{r}
 robincar2_result <- robin_surv(
     formula = Surv(time, status_numeric) ~ sex,
@@ -1485,5 +1484,318 @@ sqrt(vcov(check))
 ```
 
 So this is the same value.
+
+### Without strata, but with covariates
+
+Let's look at the case with covariates, but no strata. We can use the same formula as above, but now we add covariates:
+
+```{r}
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
+    data = dat,
+    treatment = sex ~ 1,
+)
+robincar2_result
+```
+
+With `RobinCar`:
+
+```{r}
+dat2 <- dat |>
+    select(time, status_numeric, sex, age, ph.karno, meal.cal) |>
+    na.omit()
+robincar_lr_result <- robincar_logrank(
+    df = dat2,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(dat2$sex == "Male")
+)
+robincar_lr_result
+```
+
+So this matches perfectly:
+
+```{r}
+stopifnot(all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+))
+```
+
+For the HR estimate:
+
+```{r}
+robincar_hr_result <- robincar_covhr(
+    df = dat2,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = NULL,
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "simple",
+    adj_method = "CL",
+    ref_arm = "Female",
+    p_trt = mean(dat2$sex == "Male")
+)
+robincar_hr_result
+```
+
+We can see that this is very close:
+
+```{r}
+all.equal(
+    robincar2_result$estimate,
+    robincar_hr_result$result$theta_CL
+)
+all.equal(
+    robincar2_result$se,
+    robincar_hr_result$result$se_theta_CL
+)
+```
+
+Since we don't use the approximate method with `theta_hat` in the score function, we get a slightly different value here. The results are very similar, though.
+
+### With strata, but no covariates
+
+Let's look at the case with strata, but no covariates:
+
+```{r}
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex * strata,
+    data = dat,
+    treatment = sex ~ pb(strata)
+)
+robincar2_result
+```
+
+With `RobinCar`:
+
+```{r}
+dat3 <- dat |>
+    select(time, status_numeric, sex, strata) |>
+    na.omit()
+robincar_lr_result <- robincar_logrank(
+    df = dat3,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = NULL,
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat3$sex == "Male")
+)
+robincar_lr_result
+```
+
+So here the results differ slightly:
+
+```{r}
+all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+)
+```
+
+Let's see whether it is because of the strata 3 with only a single male patient:
+
+```{r}
+dat3a <- dat3 |>
+    filter(!(strata == "3"))
+
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex * strata,
+    data = dat3a,
+    treatment = sex ~ pb(strata)
+)
+robincar2_result
+
+robincar_lr_result <- robincar_logrank(
+    df = dat3a,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = NULL,
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat3a$sex == "Male")
+)
+robincar_lr_result
+
+all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+)
+```
+
+We still see the same relative difference, so it is not just because of this too small stratum.
+
+We can also look at the `survival` result:
+
+```{r}
+check <- survdiff(Surv(time, status_numeric) ~ sex + strata(strata), data = dat3)
+check
+all.equal(
+    robincar2_result$test_stat^2,
+    check$chisq
+)
+all.equal(
+    robincar_lr_result$result$statistic^2,
+    check$chisq
+)
+```
+
+So the `survival` result matches the `RobinCar` result, but not our result, so we need to fix that.
+
+--------------------------------------------------
+TODO cont here
+--------------------------------------------------
+
+We can also compare the hazard ratio estimate:
+
+```{r}
+robincar_hr_result <- robincar_covhr(
+    df = dat_no_ties3,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = NULL,
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_hr_result
+```
+
+This matches perfectly:
+
+```{r}
+stopifnot(all.equal(
+    robincar2_result$estimate,
+    robincar_hr_result$result$theta_CL
+))
+stopifnot(all.equal(
+    robincar2_result$se,
+    robincar_hr_result$result$se_theta_CL
+))
+```
+
+### With strata and covariates
+
+Finally, we can combine both:
+
+```{r}
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+    data = dat_no_ties,
+    treatment = sex ~ strata
+)
+robincar2_result
+```
+
+With `RobinCar`:
+
+```{r}
+dat_no_ties4 <- dat_no_ties |>
+    select(time, status_numeric, sex, strata, age, ph.karno, meal.cal) |>
+    na.omit()
+robincar_lr_result <- robincar_logrank(
+    df = dat_no_ties4,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_lr_result
+```
+
+The problem here is that there is one stratum with a single patient in the experimental arm, therefore the test statistic is `NA` here. Let's avoid that by removing this stratum from the data set:
+
+```{r}
+dat_no_ties5 <- dat_no_ties4 |>
+    filter(!(strata == "3"))
+
+robincar_lr_result <- robincar_logrank(
+    df = dat_no_ties5,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_lr_result
+```
+
+Let's also run our function again with the same data:
+
+```{r}
+robincar2_result <- robin_surv(
+    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+    data = dat_no_ties |> filter(!(strata == "3")),
+    treatment = sex ~ strata
+)
+robincar2_result
+```
+
+The test statistic matches well:
+
+```{r}
+all.equal(
+    robincar2_result$test_stat,
+    robincar_lr_result$result$statistic
+)
+```
+
+For the HR estimate:
+
+```{r}
+robincar_hr_result <- robincar_covhr(
+    df = dat_no_ties5,
+    treat_col = "sex",
+    response_col = "time",
+    event_col = "status_numeric",
+    car_strata_cols = "strata",
+    covariate_cols = c("age", "ph.karno", "meal.cal"),
+    car_scheme = "permuted-block",
+    adj_method = "CSL",
+    ref_arm = "Female",
+    p_trt = mean(dat_no_ties3$sex == "Male")
+)
+robincar_hr_result
+```
+
+The results are again very close:
+
+```{r}
+all.equal(
+    robincar2_result$estimate,
+    robincar_hr_result$result$theta_CL
+)
+all.equal(
+    robincar2_result$se,
+    robincar_hr_result$result$se_theta_CL
+)
+```
+
 
 # References
