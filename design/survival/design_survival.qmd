@@ -1,6 +1,8 @@
 ---
 title: "Design Doc for Survival Analysis with RobinCar2"
 author: Daniel Sabanes Bove
+date: "`r format(Sys.Date(), '%d %b %Y')`"
+date-format: long
 bibliography: references.bib
 number-sections: true
 ---
@@ -97,7 +99,8 @@ Note that the class of the value is not `treatment_effect` here, because we don'
 1. Should we also show the test statistic and p-value from the hazard ratio estimate?
     - Currently we just show the logrank test statistic and p-value, and only give the log hazard ratio estimate and standard error
 1. In `RobinCar` the `adjust.CovHR()` method is not consistent with `adjust.LogRank()` regarding the handling of ties: In [line 85-87](https://github.com/mbannick/RobinCar/blob/main/R/adjust-covhr.R#L85) we don't have the correction factor that we have in the log-rank test. We should probably use the correction factor for consistency?
-    - The only downside is that then we are no longer giving the same result as `surviva::coxph()`.
+    - The only downside is that then we are no longer giving the same result as `survival::coxph()`.
+    - It seems this inconsistency is already accepted between `survival::coxph()` and `survival::survdiff()`, so we can just follow the `RobinCar` implementation here.
 
 # Prototype
 
