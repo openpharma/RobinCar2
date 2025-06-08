@@ -16,12 +16,12 @@ We are going to use the male patients as treatment arm $j = 0$ and the female pa
 library(dplyr)
 library(checkmate)
 dat <- survival::lung |>
-    mutate(
-        status = factor(ifelse(status == 1, "Alive", "Dead")),
-        sex = factor(ifelse(sex == 1, "Male", "Female")),
-        status_numeric = as.numeric(status == "Dead"),
-        strata = factor(ph.ecog)
-    )
+  mutate(
+    status = factor(ifelse(status == 1, "Alive", "Dead")),
+    sex = factor(ifelse(sex == 1, "Male", "Female")),
+    status_numeric = as.numeric(status == "Dead"),
+    strata = factor(ph.ecog)
+  )
 head(dat)
 ```
 
@@ -42,62 +42,62 @@ We will see later when prototyping the stratified version why we need the `n` ar
 
 ```{r}
 nonadj_log_rank <- function(df, treatment, time, status, n = nrow(df)) {
-    assert_string(treatment)
-    assert_string(time)
-    assert_string(status)
-    assert_data_frame(df)
-    assert_factor(df[[treatment]], n.levels = 2L)
-    assert_factor(df[[status]], levels = c("Alive", "Dead"))
-    assert_numeric(df[[time]], lower = 0)
-    assert_count(n)
-    assert_true(n >= nrow(df))
+  assert_string(treatment)
+  assert_string(time)
+  assert_string(status)
+  assert_data_frame(df)
+  assert_factor(df[[treatment]], n.levels = 2L)
+  assert_factor(df[[status]], levels = c("Alive", "Dead"))
+  assert_numeric(df[[time]], lower = 0)
+  assert_count(n)
+  assert_true(n >= nrow(df))
 
-    # Standardize data set format, subset to relevant variables.
-    df <- data.frame(
-        treatment = as.numeric(df[[treatment]]) - 1L,
-        time = df[[time]],
-        status = as.numeric(df[[status]] == "Dead")
-    )
+  # Standardize data set format, subset to relevant variables.
+  df <- data.frame(
+    treatment = as.numeric(df[[treatment]]) - 1L,
+    time = df[[time]],
+    status = as.numeric(df[[status]] == "Dead")
+  )
 
-    # Sort by time.
-    df <- df[order(df$time), ]
+  # Sort by time.
+  df <- df[order(df$time), ]
 
-    # Patients with events.
-    df_events <- df[df$status == 1L, ]
+  # Patients with events.
+  df_events <- df[df$status == 1L, ]
 
-    # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
-    U_L <- sigma_L2 <- 0
-    for (i in seq_len(nrow(df_events))) {
-        # This event time.
-        t_i <- df_events$time[i]
+  # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
+  U_L <- sigma_L2 <- 0
+  for (i in seq_len(nrow(df_events))) {
+    # This event time.
+    t_i <- df_events$time[i]
 
-        # This treatment arm indicator.
-        I_i <- df_events$treatment[i]
+    # This treatment arm indicator.
+    I_i <- df_events$treatment[i]
 
-        # Proportions of patients at risk at time t_i, per arm.
-        Y_bar_1_ti <- sum(df$treatment & df$time >= t_i) / n
-        Y_bar_0_ti <- sum(!df$treatment & df$time >= t_i) / n
+    # Proportions of patients at risk at time t_i, per arm.
+    Y_bar_1_ti <- sum(df$treatment & df$time >= t_i) / n
+    Y_bar_0_ti <- sum(!df$treatment & df$time >= t_i) / n
 
-        # Overall proportion of patients at risk at time t_i.
-        Y_bar_ti <- Y_bar_0_ti + Y_bar_1_ti
+    # Overall proportion of patients at risk at time t_i.
+    Y_bar_ti <- Y_bar_0_ti + Y_bar_1_ti
 
-        # Increment U_L.
-        U_L <- U_L + (I_i - Y_bar_1_ti / Y_bar_ti)
+    # Increment U_L.
+    U_L <- U_L + (I_i - Y_bar_1_ti / Y_bar_ti)
 
-        # Increment sigma_L2.
-        sigma_L2 <- sigma_L2 + Y_bar_1_ti * Y_bar_0_ti / Y_bar_ti^2
-    }
+    # Increment sigma_L2.
+    sigma_L2 <- sigma_L2 + Y_bar_1_ti * Y_bar_0_ti / Y_bar_ti^2
+  }
 
-    U_L <- U_L / n
-    sigma_L2 <- sigma_L2 / n
-    tau_L <- sqrt(n) * U_L / sqrt(sigma_L2)
-    pval <- 2 * pnorm(-abs(tau_L))
-    list(
-        U_L = U_L,
-        sigma_L2 = sigma_L2,
-        tau_L = tau_L,
-        pval = pval
-    )
+  U_L <- U_L / n
+  sigma_L2 <- sigma_L2 / n
+  tau_L <- sqrt(n) * U_L / sqrt(sigma_L2)
+  pval <- 2 * pnorm(-abs(tau_L))
+  list(
+    U_L = U_L,
+    sigma_L2 = sigma_L2,
+    tau_L = tau_L,
+    pval = pval
+  )
 }
 
 our_res <- nonadj_log_rank(dat, "sex", "time", "status")
@@ -133,55 +133,55 @@ Similarly as above, we can write down the score function from the partial likeli
 
 ```{r}
 nonadj_log_rank_score <- function(theta, df, treatment, time, status, n = nrow(df)) {
-    assert_numeric(theta, min.len = 1L, finite = TRUE)
-    assert_string(treatment)
-    assert_string(time)
-    assert_string(status)
-    assert_data_frame(df)
-    assert_factor(df[[treatment]], n.levels = 2L)
-    assert_factor(df[[status]], levels = c("Alive", "Dead"))
-    assert_numeric(df[[time]], lower = 0)
+  assert_numeric(theta, min.len = 1L, finite = TRUE)
+  assert_string(treatment)
+  assert_string(time)
+  assert_string(status)
+  assert_data_frame(df)
+  assert_factor(df[[treatment]], n.levels = 2L)
+  assert_factor(df[[status]], levels = c("Alive", "Dead"))
+  assert_numeric(df[[time]], lower = 0)
 
-    # Standardize data set format, subset to relevant variables.
-    df <- data.frame(
-        treatment = as.numeric(df[[treatment]]) - 1L,
-        time = df[[time]],
-        status = as.numeric(df[[status]] == "Dead")
-    )
+  # Standardize data set format, subset to relevant variables.
+  df <- data.frame(
+    treatment = as.numeric(df[[treatment]]) - 1L,
+    time = df[[time]],
+    status = as.numeric(df[[status]] == "Dead")
+  )
 
-    # Sort by time.
-    df <- df[order(df$time), ]
+  # Sort by time.
+  df <- df[order(df$time), ]
 
-    # Patients with events.
-    df_events <- df[df$status == 1L, ]
+  # Patients with events.
+  df_events <- df[df$status == 1L, ]
 
-    # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
-    U_L <- sigma_L2 <- 0
-    for (i in seq_len(nrow(df_events))) {
-        # This event time.
-        t_i <- df_events$time[i]
+  # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
+  U_L <- sigma_L2 <- 0
+  for (i in seq_len(nrow(df_events))) {
+    # This event time.
+    t_i <- df_events$time[i]
 
-        # This treatment arm indicator.
-        I_i <- df_events$treatment[i]
+    # This treatment arm indicator.
+    I_i <- df_events$treatment[i]
 
-        # Proportions of patients at risk at time t_i, per arm.
-        Y_bar_1_ti <- mean(df$treatment & df$time >= t_i)
-        Y_bar_0_ti <- mean(!df$treatment & df$time >= t_i)
+    # Proportions of patients at risk at time t_i, per arm.
+    Y_bar_1_ti <- mean(df$treatment & df$time >= t_i)
+    Y_bar_0_ti <- mean(!df$treatment & df$time >= t_i)
 
-        # Adjusted proportion of patients at risk in the treatment arm:
-        Y_bar_1_ti_coxph <- Y_bar_1_ti * exp(theta)
+    # Adjusted proportion of patients at risk in the treatment arm:
+    Y_bar_1_ti_coxph <- Y_bar_1_ti * exp(theta)
 
-        # Increment U_L.
-        U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
+    # Increment U_L.
+    U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
 
-        # Increment sigma_L2.
-        sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti / (Y_bar_1_ti_coxph + Y_bar_0_ti)^2
-    }
+    # Increment sigma_L2.
+    sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti / (Y_bar_1_ti_coxph + Y_bar_0_ti)^2
+  }
 
-    U_L <- U_L / n
-    sigma_L2 <- sigma_L2 / n
-    se_theta_L <- sqrt(1 / (n * sigma_L2))
-    structure(U_L, sigma_L2 = sigma_L2, se_theta_L = se_theta_L)
+  U_L <- U_L / n
+  sigma_L2 <- sigma_L2 / n
+  se_theta_L <- sqrt(1 / (n * sigma_L2))
+  structure(U_L, sigma_L2 = sigma_L2, se_theta_L = se_theta_L)
 }
 ```
 
@@ -210,12 +210,12 @@ Let's see if we can match the `survival` results accordingly, by solving the sco
 
 ```{r}
 score_solution <- uniroot(
-    nonadj_log_rank_score,
-    interval = c(-10, 10),
-    df = dat,
-    treatment = "sex",
-    time = "time",
-    status = "status"
+  nonadj_log_rank_score,
+  interval = c(-10, 10),
+  df = dat,
+  treatment = "sex",
+  time = "time",
+  status = "status"
 )
 our_theta_est <- score_solution$root
 our_theta_est
@@ -283,87 +283,87 @@ However, any rows with missing values in any of the required variables are omitt
 
 ```{r}
 derived_outcome_vals <- function(df, treatment, time, status, covariates, n = nrow(df)) {
-    assert_string(treatment)
-    assert_string(time)
-    assert_string(status)
-    assert_character(covariates)
-    assert_data_frame(df)
-    assert_factor(df[[treatment]], n.levels = 2L)
-    assert_factor(df[[status]], levels = c("Alive", "Dead"))
-    assert_numeric(df[[time]], lower = 0)
-    assert_count(n)
-    assert_true(n >= nrow(df))
+  assert_string(treatment)
+  assert_string(time)
+  assert_string(status)
+  assert_character(covariates)
+  assert_data_frame(df)
+  assert_factor(df[[treatment]], n.levels = 2L)
+  assert_factor(df[[status]], levels = c("Alive", "Dead"))
+  assert_numeric(df[[time]], lower = 0)
+  assert_count(n)
+  assert_true(n >= nrow(df))
 
-    # Standardize data set format, subset to relevant variables and full observations.
-    df <- data.frame(
-        index = seq_len(nrow(df)),
-        treatment = as.numeric(df[[treatment]]) - 1L,
-        time = df[[time]],
-        status = as.numeric(df[[status]] == "Dead"),
-        df[covariates]
-    ) |> na.omit()
+  # Standardize data set format, subset to relevant variables and full observations.
+  df <- data.frame(
+    index = seq_len(nrow(df)),
+    treatment = as.numeric(df[[treatment]]) - 1L,
+    time = df[[time]],
+    status = as.numeric(df[[status]] == "Dead"),
+    df[covariates]
+  ) |> na.omit()
 
-    # Sort by time.
-    df <- df[order(df$time), ]
+  # Sort by time.
+  df <- df[order(df$time), ]
 
-    # Patients with events.
-    df_events <- df[df$status == 1L, ]
+  # Patients with events.
+  df_events <- df[df$status == 1L, ]
 
-    # Unique observed event times.
-    unique_times <- df_events$time |>
-        split(df_events$time) |>
-        sapply(length)
-    df_events_unique <- data.frame(
-        time = as.numeric(names(unique_times)),
-        n_pts = as.numeric(unique_times)
-    )
+  # Unique observed event times.
+  unique_times <- df_events$time |>
+    split(df_events$time) |>
+    sapply(length)
+  df_events_unique <- data.frame(
+    time = as.numeric(names(unique_times)),
+    n_pts = as.numeric(unique_times)
+  )
 
-    # Add derived outcome column.
-    df$O_hat <- NA_real_
+  # Add derived outcome column.
+  df$O_hat <- NA_real_
 
-    # Calculate quantities which are the same across patients first.
-    # These are in parallel to df_events_unique.
+  # Calculate quantities which are the same across patients first.
+  # These are in parallel to df_events_unique.
 
-    # Proportions of patients at risk, per unique event time and treatment arm.
-    # Corresponds to \bar{Y}_1(t) and \bar{Y}_0(t).
-    at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
-    Y_bar_1 <- colSums(df$treatment & at_risk_matrix) / n
-    Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
-    Y_bar <- Y_bar_0 + Y_bar_1
+  # Proportions of patients at risk, per unique event time and treatment arm.
+  # Corresponds to \bar{Y}_1(t) and \bar{Y}_0(t).
+  at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
+  Y_bar_1 <- colSums(df$treatment & at_risk_matrix) / n
+  Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
+  Y_bar <- Y_bar_0 + Y_bar_1
 
-    # Proportion of patients having an event at this time.
-    # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
-    # therefore we see how many patients have an event at each unique time and divide that by n.
-    dN_bar <- df_events_unique$n_pts / n
+  # Proportion of patients having an event at this time.
+  # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
+  # therefore we see how many patients have an event at each unique time and divide that by n.
+  dN_bar <- df_events_unique$n_pts / n
 
-    # Loop over all patients.
-    for (i in seq_len(nrow(df))) {
-        # Treatment arm?
-        I_i <- df$treatment[i]
+  # Loop over all patients.
+  for (i in seq_len(nrow(df))) {
+    # Treatment arm?
+    I_i <- df$treatment[i]
 
-        # Event in this patient?
-        delta_i <- df$status[i] == 1L
+    # Event in this patient?
+    delta_i <- df$status[i] == 1L
 
-        # Time for this patient.
-        t_i <- df$time[i]
+    # Time for this patient.
+    t_i <- df$time[i]
 
-        # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
-        dN_ij <- delta_i * (df_events_unique$time == t_i)
+    # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
+    dN_ij <- delta_i * (df_events_unique$time == t_i)
 
-        # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
-        Y_ij <- as.numeric(t_i >= df_events_unique$time)
+    # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
+    Y_ij <- as.numeric(t_i >= df_events_unique$time)
 
-        # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
-        weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
+    # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
+    weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
 
-        # Compute martingale residuals.
-        martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
+    # Compute martingale residuals.
+    martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
 
-        # Sum across all unique event times.
-        df$O_hat[i] <- sum(weights * martingale_residuals)
-    }
+    # Sum across all unique event times.
+    df$O_hat[i] <- sum(weights * martingale_residuals)
+  }
 
-    df[order(df$index), ]
+  df[order(df$index), ]
 }
 ```
 
@@ -399,22 +399,22 @@ Let's first write a function that returns the original, i.e. non-centered, desig
 
 ```{r}
 get_lm_input <- function(df, model) {
-    assert_data_frame(df)
-    assert_formula(model)
-    assert_subset(all.vars(model), names(df))
+  assert_data_frame(df)
+  assert_formula(model)
+  assert_subset(all.vars(model), names(df))
 
-    # Add outcome, remove intercept:
-    model <- update(model, O_hat ~ . - 1)
-    df_by_trt <- split(df, f = df$treatment)
-    lapply(
-        df_by_trt,
-        function(this_df) {
-            mf <- model.frame(model, data = this_df)
-            X <- model.matrix(model, data = mf)
-            y <- model.response(mf)
-            list(X = X, y = y)
-        }
-    )
+  # Add outcome, remove intercept:
+  model <- update(model, O_hat ~ . - 1)
+  df_by_trt <- split(df, f = df$treatment)
+  lapply(
+    df_by_trt,
+    function(this_df) {
+      mf <- model.frame(model, data = this_df)
+      X <- model.matrix(model, data = mf)
+      y <- model.response(mf)
+      list(X = X, y = y)
+    }
+  )
 }
 ```
 
@@ -431,30 +431,30 @@ Now we can estimate the regression coefficients, using this input:
 
 ```{r}
 get_beta_estimates <- function(lm_input) {
-    assert_list(lm_input, types = "list")
-    assert_names(names(lm_input), identical.to = c("0", "1"))
+  assert_list(lm_input, types = "list")
+  assert_names(names(lm_input), identical.to = c("0", "1"))
 
-    # Fit the model separately for each treatment arm.
-    beta_est <- list()
+  # Fit the model separately for each treatment arm.
+  beta_est <- list()
 
-    for (group in names(lm_input)) {
-        # Get the design matrix for this treatment arm.
-        X <- lm_input[[group]]$X
+  for (group in names(lm_input)) {
+    # Get the design matrix for this treatment arm.
+    X <- lm_input[[group]]$X
 
-        # Center it.
-        X <- scale(X, center = TRUE, scale = FALSE)
+    # Center it.
+    X <- scale(X, center = TRUE, scale = FALSE)
 
-        # Get the derived outcome values, the response.
-        y <- lm_input[[group]]$y
+    # Get the derived outcome values, the response.
+    y <- lm_input[[group]]$y
 
-        # Fit the model without intercept.
-        lm_fit <- lm.fit(X, y)
+    # Fit the model without intercept.
+    lm_fit <- lm.fit(X, y)
 
-        # Get the coefficients.
-        beta_est[[group]] <- lm_fit$coefficients
-    }
+    # Get the coefficients.
+    beta_est[[group]] <- lm_fit$coefficients
+  }
 
-    beta_est
+  beta_est
 }
 ```
 
@@ -472,65 +472,65 @@ We need to be careful in formula (4): It can be (as in the example here) that no
 
 ```{r}
 covadj_log_rank <- function(df, treatment, time, status, model) {
-    # Calculate derived outcomes and regress them on covariates.
-    df_with_covs_ovals <- derived_outcome_vals(df, treatment, time, status, covariates = all.vars(model))
-    lm_input <- get_lm_input(df_with_covs_ovals, model)
-    beta_est <- get_beta_estimates(lm_input)
+  # Calculate derived outcomes and regress them on covariates.
+  df_with_covs_ovals <- derived_outcome_vals(df, treatment, time, status, covariates = all.vars(model))
+  lm_input <- get_lm_input(df_with_covs_ovals, model)
+  beta_est <- get_beta_estimates(lm_input)
 
-    # Obtain unadjusted result for the patients included.
-    included_pts <- df_with_covs_ovals$index
-    df_included <- df[included_pts, ]
+  # Obtain unadjusted result for the patients included.
+  included_pts <- df_with_covs_ovals$index
+  df_included <- df[included_pts, ]
 
-    unadj_res <- nonadj_log_rank(df_included, treatment, time, status)
+  unadj_res <- nonadj_log_rank(df_included, treatment, time, status)
 
-    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
-    # proportion of treatment 1 in the trial.
-    pi <- mean(as.numeric(df[[treatment]]) - 1)
+  # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+  # proportion of treatment 1 in the trial.
+  pi <- mean(as.numeric(df[[treatment]]) - 1)
 
-    # Overall column wise average of design matrices.
-    X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
-    X_bar <- colMeans(X_all)
+  # Overall column wise average of design matrices.
+  X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
+  X_bar <- colMeans(X_all)
 
-    # Center the design matrices with this overall average.
-    X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
-    X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
+  # Center the design matrices with this overall average.
+  X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
+  X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
 
-    # Compute adjustment term for U_L.
-    n <- nrow(df_included)
-    U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+  # Compute adjustment term for U_L.
+  n <- nrow(df_included)
+  U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
-    # Compute adjusted U_CL.
-    U_CL <- unadj_res$U_L - U_L_adj_term
+  # Compute adjusted U_CL.
+  U_CL <- unadj_res$U_L - U_L_adj_term
 
-    # Compute adjustment term for sigma_L2.
-    cov_X <- cov(X_all)
-    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
-    sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
+  # Compute adjustment term for sigma_L2.
+  cov_X <- cov(X_all)
+  beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+  sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
 
-    # Compute adjusted sigma_CL2.
-    sigma_CL2 <- unadj_res$sigma_L2 - sigma_L2_adj_term
+  # Compute adjusted sigma_CL2.
+  sigma_CL2 <- unadj_res$sigma_L2 - sigma_L2_adj_term
 
-    # Compute adjusted test statistic.
-    tau_CL <- sqrt(n) * U_CL / sqrt(sigma_CL2)
+  # Compute adjusted test statistic.
+  tau_CL <- sqrt(n) * U_CL / sqrt(sigma_CL2)
 
-    pval <- 2 * pnorm(-abs(tau_CL))
+  pval <- 2 * pnorm(-abs(tau_CL))
 
-    # Return results.
-    list(
-        U_CL = U_CL,
-        sigma_CL2 = sigma_CL2,
-        tau_CL = tau_CL,
-        pval = pval,
-        unadj_res = unadj_res
-    )
+  # Return results.
+  list(
+    U_CL = U_CL,
+    sigma_CL2 = sigma_CL2,
+    tau_CL = tau_CL,
+    pval = pval,
+    unadj_res = unadj_res
+  )
 }
 
 our_res <- covadj_log_rank(
-    dat,
-    treatment = "sex",
-    time = "time",
-    status = "status",
-    model = ~ age + ph.karno + meal.cal
+  dat,
+  treatment = "sex",
+  time = "time",
+  status = "status",
+  model = ~ age + ph.karno + meal.cal
 )
 our_res
 ```
@@ -541,16 +541,16 @@ our_res
 library(RobinCar)
 df_subset <- na.omit(subset(dat, select = c(time, status, status_numeric, sex, age, ph.karno, meal.cal, strata)))
 robincar_lr_result <- robincar_logrank(
-    df = df_subset,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(df_subset$sex == "Male")
+  df = df_subset,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(df_subset$sex == "Male")
 )
 str(robincar_lr_result)
 
@@ -602,92 +602,92 @@ Let's write this function which is very close to the above `derived_outcome_vals
 
 ```{r}
 derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, covariates, n = nrow(df)) {
-    assert_number(theta)
-    assert_string(treatment)
-    assert_string(time)
-    assert_string(status)
-    assert_character(covariates)
-    assert_data_frame(df)
-    assert_factor(df[[treatment]], n.levels = 2L)
-    assert_factor(df[[status]], levels = c("Alive", "Dead"))
-    assert_numeric(df[[time]], lower = 0)
+  assert_number(theta)
+  assert_string(treatment)
+  assert_string(time)
+  assert_string(status)
+  assert_character(covariates)
+  assert_data_frame(df)
+  assert_factor(df[[treatment]], n.levels = 2L)
+  assert_factor(df[[status]], levels = c("Alive", "Dead"))
+  assert_numeric(df[[time]], lower = 0)
 
-    # Standardize data set format, subset to relevant variables.
-    df <- data.frame(
-        index = seq_len(nrow(df)),
-        treatment = as.numeric(df[[treatment]]) - 1L,
-        time = df[[time]],
-        status = as.numeric(df[[status]] == "Dead"),
-        df[covariates]
-    ) |> na.omit()
+  # Standardize data set format, subset to relevant variables.
+  df <- data.frame(
+    index = seq_len(nrow(df)),
+    treatment = as.numeric(df[[treatment]]) - 1L,
+    time = df[[time]],
+    status = as.numeric(df[[status]] == "Dead"),
+    df[covariates]
+  ) |> na.omit()
 
-    # Sort by time.
-    df <- df[order(df$time), ]
+  # Sort by time.
+  df <- df[order(df$time), ]
 
-    # Patients with events.
-    df_events <- df[df$status == 1L, ]
+  # Patients with events.
+  df_events <- df[df$status == 1L, ]
 
-    # Unique observed event times.
-    unique_times <- df_events$time |>
-        split(df_events$time) |>
-        sapply(length)
+  # Unique observed event times.
+  unique_times <- df_events$time |>
+    split(df_events$time) |>
+    sapply(length)
 
-    df_events_unique <- data.frame(
-        time = as.numeric(names(unique_times)),
-        n_pts = as.numeric(unique_times)
-    )
+  df_events_unique <- data.frame(
+    time = as.numeric(names(unique_times)),
+    n_pts = as.numeric(unique_times)
+  )
 
-    # Add derived outcome column.
-    df$O_hat <- NA_real_
+  # Add derived outcome column.
+  df$O_hat <- NA_real_
 
-    # Calculate quantities which are the same across patients first.
-    # These are in parallel to df_events_unique.
+  # Calculate quantities which are the same across patients first.
+  # These are in parallel to df_events_unique.
 
-    # Hazard ratio.
-    exp_theta <- exp(theta)
+  # Hazard ratio.
+  exp_theta <- exp(theta)
 
-    # Proportions of patients at risk, per unique event time and treatment arm.
-    # Corresponds to \exp(\vartheta) * \bar{Y}_1(t) and \bar{Y}_0(t).
-    # So here theta enters.
-    at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
-    Y_bar_1 <- exp_theta * colSums(df$treatment & at_risk_matrix) / n
-    Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
-    Y_bar <- Y_bar_0 + Y_bar_1
+  # Proportions of patients at risk, per unique event time and treatment arm.
+  # Corresponds to \exp(\vartheta) * \bar{Y}_1(t) and \bar{Y}_0(t).
+  # So here theta enters.
+  at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
+  Y_bar_1 <- exp_theta * colSums(df$treatment & at_risk_matrix) / n
+  Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
+  Y_bar <- Y_bar_0 + Y_bar_1
 
-    # Proportion of patients having an event at this time.
-    # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
-    # therefore we see how many patients have an event at each unique time and divide that by n.
-    dN_bar <- df_events_unique$n_pts / n
+  # Proportion of patients having an event at this time.
+  # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
+  # therefore we see how many patients have an event at each unique time and divide that by n.
+  dN_bar <- df_events_unique$n_pts / n
 
-    # Loop over all patients.
-    for (i in seq_len(nrow(df))) {
-        # Treatment arm?
-        I_i <- df$treatment[i]
+  # Loop over all patients.
+  for (i in seq_len(nrow(df))) {
+    # Treatment arm?
+    I_i <- df$treatment[i]
 
-        # Event in this patient?
-        delta_i <- df$status[i] == 1L
+    # Event in this patient?
+    delta_i <- df$status[i] == 1L
 
-        # Time for this patient.
-        t_i <- df$time[i]
+    # Time for this patient.
+    t_i <- df$time[i]
 
-        # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
-        dN_ij <- delta_i * (df_events_unique$time == t_i)
+    # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
+    dN_ij <- delta_i * (df_events_unique$time == t_i)
 
-        # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
-        # Here theta enters, too.
-        Y_ij <- as.numeric(t_i >= df_events_unique$time) * ifelse(I_i, exp_theta, 1)
+    # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
+    # Here theta enters, too.
+    Y_ij <- as.numeric(t_i >= df_events_unique$time) * ifelse(I_i, exp_theta, 1)
 
-        # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
-        weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
+    # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
+    weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
 
-        # Compute martingale residuals.
-        martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
+    # Compute martingale residuals.
+    martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
 
-        # Sum across all unique event times.
-        df$O_hat[i] <- sum(weights * martingale_residuals)
-    }
+    # Sum across all unique event times.
+    df$O_hat[i] <- sum(weights * martingale_residuals)
+  }
 
-    df[order(df$index), ]
+  df[order(df$index), ]
 }
 ```
 
@@ -695,12 +695,12 @@ Let's try this out:
 
 ```{r}
 dat_derived_theta <- derived_outcome_vals_from_theta(
-    theta = 1,
-    dat,
-    "sex",
-    "time",
-    "status",
-    covariates = c("age", "ph.karno", "meal.cal")
+  theta = 1,
+  dat,
+  "sex",
+  "time",
+  "status",
+  covariates = c("age", "ph.karno", "meal.cal")
 )
 head(dat_derived_theta)
 ```
@@ -718,80 +718,80 @@ Later this can be programmed more efficiently such that the correction term does
 
 ```{r}
 covadj_log_rank_score <- function(theta, df, treatment, time, status, model, theta_hat = NULL) {
-    # Calculate derived outcomes and regress them on covariates.
-    theta_use <- if (is.null(theta_hat)) theta else theta_hat
-    df_with_covs_ovals <- derived_outcome_vals_from_theta(
-        theta = theta_use,
-        df,
-        treatment,
-        time,
-        status,
-        covariates = all.vars(model)
-    )
-    lm_input <- get_lm_input(df_with_covs_ovals, model)
-    beta_est <- get_beta_estimates(lm_input)
+  # Calculate derived outcomes and regress them on covariates.
+  theta_use <- if (is.null(theta_hat)) theta else theta_hat
+  df_with_covs_ovals <- derived_outcome_vals_from_theta(
+    theta = theta_use,
+    df,
+    treatment,
+    time,
+    status,
+    covariates = all.vars(model)
+  )
+  lm_input <- get_lm_input(df_with_covs_ovals, model)
+  beta_est <- get_beta_estimates(lm_input)
 
-    # Obtain unadjusted result for the patients included in the two linear models.
-    included_pts <- df_with_covs_ovals$index
-    df_included <- df[included_pts, ]
+  # Obtain unadjusted result for the patients included in the two linear models.
+  included_pts <- df_with_covs_ovals$index
+  df_included <- df[included_pts, ]
 
-    unadj_score <- nonadj_log_rank_score(theta, df_included, treatment, time, status)
+  unadj_score <- nonadj_log_rank_score(theta, df_included, treatment, time, status)
 
-    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
-    # proportion of treatment 1 in the trial.
-    pi <- mean(as.numeric(df[[treatment]]) - 1)
+  # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+  # proportion of treatment 1 in the trial.
+  pi <- mean(as.numeric(df[[treatment]]) - 1)
 
-    # Overall column wise average of design matrices.
-    X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
-    X_bar <- colMeans(X_all)
+  # Overall column wise average of design matrices.
+  X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
+  X_bar <- colMeans(X_all)
 
-    # Center the design matrices with this overall average.
-    X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
-    X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
+  # Center the design matrices with this overall average.
+  X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
+  X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
 
-    # Compute adjustment term for U_L.
-    n <- nrow(df_included)
-    U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+  # Compute adjustment term for U_L.
+  n <- nrow(df_included)
+  U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
-    # Compute adjusted U_CL.
-    U_CL <- as.numeric(unadj_score) - U_L_adj_term
+  # Compute adjusted U_CL.
+  U_CL <- as.numeric(unadj_score) - U_L_adj_term
 
-    # Compute adjustment term for sigma_L2.
-    cov_X <- cov(X_all)
-    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
-    sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
+  # Compute adjustment term for sigma_L2.
+  cov_X <- cov(X_all)
+  beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+  sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
 
-    # Compute standard error for theta estimate.
-    g_theta_CL <- attr(unadj_score, "sigma_L2")
-    var_theta_CL <- (g_theta_CL - sigma_L2_adj_term) / (g_theta_CL^2) / n
-    se_theta_CL <- suppressWarnings(sqrt(var_theta_CL))
+  # Compute standard error for theta estimate.
+  g_theta_CL <- attr(unadj_score, "sigma_L2")
+  var_theta_CL <- (g_theta_CL - sigma_L2_adj_term) / (g_theta_CL^2) / n
+  se_theta_CL <- suppressWarnings(sqrt(var_theta_CL))
 
-    structure(U_CL, se_theta_CL = se_theta_CL)
+  structure(U_CL, se_theta_CL = se_theta_CL)
 }
 
 covadj_log_rank_score(
-    theta = 0,
-    df = dat,
-    treatment = "sex",
-    time = "time",
-    status = "status",
-    model = ~ age + ph.karno + meal.cal
+  theta = 0,
+  df = dat,
+  treatment = "sex",
+  time = "time",
+  status = "status",
+  model = ~ age + ph.karno + meal.cal
 )
 covadj_log_rank_score(
-    theta = -5,
-    df = dat,
-    treatment = "sex",
-    time = "time",
-    status = "status",
-    model = ~ age + ph.karno + meal.cal
+  theta = -5,
+  df = dat,
+  treatment = "sex",
+  time = "time",
+  status = "status",
+  model = ~ age + ph.karno + meal.cal
 )
 covadj_log_rank_score(
-    theta = 5,
-    df = dat,
-    treatment = "sex",
-    time = "time",
-    status = "status",
-    model = ~ age + ph.karno + meal.cal
+  theta = 5,
+  df = dat,
+  treatment = "sex",
+  time = "time",
+  status = "status",
+  model = ~ age + ph.karno + meal.cal
 )
 ```
 
@@ -807,13 +807,13 @@ First in the version with the full correction term:
 
 ```{r}
 covadj_score_solution <- uniroot(
-    covadj_log_rank_score,
-    interval = c(-5, 5),
-    df = dat,
-    treatment = "sex",
-    time = "time",
-    status = "status",
-    model = ~ age + ph.karno + meal.cal
+  covadj_log_rank_score,
+  interval = c(-5, 5),
+  df = dat,
+  treatment = "sex",
+  time = "time",
+  status = "status",
+  model = ~ age + ph.karno + meal.cal
 )
 our_covadj_theta_est <- covadj_score_solution$root
 our_covadj_theta_est
@@ -823,12 +823,12 @@ Let's compare this with the unadjusted hazard ratio estimate for the same, reduc
 
 ```{r}
 unadj_score_solution <- uniroot(
-    nonadj_log_rank_score,
-    interval = c(-5, 5),
-    df = df_subset,
-    treatment = "sex",
-    time = "time",
-    status = "status"
+  nonadj_log_rank_score,
+  interval = c(-5, 5),
+  df = df_subset,
+  treatment = "sex",
+  time = "time",
+  status = "status"
 )
 our_unadj_theta_est <- unadj_score_solution$root
 our_unadj_theta_est
@@ -838,14 +838,14 @@ We can then compare this with the approximate correction term:
 
 ```{r}
 covadj_score_solution_approx <- uniroot(
-    covadj_log_rank_score,
-    interval = c(-5, 5),
-    df = dat,
-    treatment = "sex",
-    time = "time",
-    status = "status",
-    model = ~ age + ph.karno + meal.cal,
-    theta_hat = our_unadj_theta_est
+  covadj_log_rank_score,
+  interval = c(-5, 5),
+  df = dat,
+  treatment = "sex",
+  time = "time",
+  status = "status",
+  model = ~ age + ph.karno + meal.cal,
+  theta_hat = our_unadj_theta_est
 )
 our_covadj_theta_est_approx <- covadj_score_solution_approx$root
 our_covadj_theta_est_approx
@@ -901,16 +901,16 @@ We can also compare this with the results from RobinCar:
 ```{r}
 library(RobinCar)
 cl <- robincar_covhr(
-    df = df_subset,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(df_subset$sex == "Male")
+  df = df_subset,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(df_subset$sex == "Male")
 )
 str(cl)
 
@@ -943,35 +943,35 @@ For passing the strata information, we use for now a single factor variable, whe
 
 ```{r}
 strat_log_rank <- function(df, treatment, time, status, strata) {
-    assert_string(strata)
-    assert_data_frame(df)
-    assert_factor(df[[strata]])
-    n <- nrow(df)
+  assert_string(strata)
+  assert_data_frame(df)
+  assert_factor(df[[strata]])
+  n <- nrow(df)
 
-    df <- na.omit(df[, c(treatment, time, status, strata)])
-    df[[strata]] <- droplevels(df[[strata]])
-    strata_levels <- levels(df[[strata]])
+  df <- na.omit(df[, c(treatment, time, status, strata)])
+  df[[strata]] <- droplevels(df[[strata]])
+  strata_levels <- levels(df[[strata]])
 
-    df_split <- split(df, f = df[[strata]])
-    strata_results <- lapply(
-        df_split,
-        FUN = nonadj_log_rank,
-        treatment = treatment,
-        time = time,
-        status = status,
-        n = n
-    )
+  df_split <- split(df, f = df[[strata]])
+  strata_results <- lapply(
+    df_split,
+    FUN = nonadj_log_rank,
+    treatment = treatment,
+    time = time,
+    status = status,
+    n = n
+  )
 
-    U_SL <- sum(sapply(strata_results, "[[", "U_L"))
-    sigma_SL2 <- sum(sapply(strata_results, "[[", "sigma_L2"))
-    tau_SL <- sqrt(n) * U_SL / sqrt(sigma_SL2)
-    pval <- 2 * pnorm(-abs(tau_SL))
-    list(
-        U_SL = U_SL,
-        sigma_SL2 = sigma_SL2,
-        tau_SL = tau_SL,
-        pval = pval
-    )
+  U_SL <- sum(sapply(strata_results, "[[", "U_L"))
+  sigma_SL2 <- sum(sapply(strata_results, "[[", "sigma_L2"))
+  tau_SL <- sqrt(n) * U_SL / sqrt(sigma_SL2)
+  pval <- 2 * pnorm(-abs(tau_SL))
+  list(
+    U_SL = U_SL,
+    sigma_SL2 = sigma_SL2,
+    tau_SL = tau_SL,
+    pval = pval
+  )
 }
 ```
 
@@ -1013,30 +1013,30 @@ Similarly as above, we can write down the score function from the partial likeli
 
 ```{r}
 strat_log_rank_score <- function(theta, df, treatment, time, status, strata) {
-    assert_string(strata)
-    assert_data_frame(df)
-    assert_factor(df[[strata]])
-    n <- nrow(df)
+  assert_string(strata)
+  assert_data_frame(df)
+  assert_factor(df[[strata]])
+  n <- nrow(df)
 
-    df <- na.omit(df[, c(treatment, time, status, strata)])
-    df[[strata]] <- droplevels(df[[strata]])
-    strata_levels <- levels(df[[strata]])
+  df <- na.omit(df[, c(treatment, time, status, strata)])
+  df[[strata]] <- droplevels(df[[strata]])
+  strata_levels <- levels(df[[strata]])
 
-    df_split <- split(df, f = df[[strata]])
-    strata_results <- lapply(
-        df_split,
-        FUN = nonadj_log_rank_score,
-        theta = theta,
-        treatment = treatment,
-        time = time,
-        status = status,
-        n = n
-    )
+  df_split <- split(df, f = df[[strata]])
+  strata_results <- lapply(
+    df_split,
+    FUN = nonadj_log_rank_score,
+    theta = theta,
+    treatment = treatment,
+    time = time,
+    status = status,
+    n = n
+  )
 
-    U_SL <- sum(sapply(strata_results, as.numeric))
-    sigma_SL2 <- sum(sapply(strata_results, attr, "sigma_L2"))
-    se_theta_SL <- sqrt(1 / (n * sigma_SL2))
-    structure(U_SL, sigma_SL2 = sigma_SL2, se_theta_SL = se_theta_SL)
+  U_SL <- sum(sapply(strata_results, as.numeric))
+  sigma_SL2 <- sum(sapply(strata_results, attr, "sigma_L2"))
+  se_theta_SL <- sqrt(1 / (n * sigma_SL2))
+  structure(U_SL, sigma_SL2 = sigma_SL2, se_theta_SL = se_theta_SL)
 }
 ```
 
@@ -1044,13 +1044,13 @@ Let's try to use this to compute the stratified log hazard ratio estimate $\hat{
 
 ```{r}
 strat_score_solution <- uniroot(
-    strat_log_rank_score,
-    interval = c(-5, 5),
-    df = dat,
-    "sex",
-    "time",
-    "status",
-    "strata"
+  strat_log_rank_score,
+  interval = c(-5, 5),
+  df = dat,
+  "sex",
+  "time",
+  "status",
+  "strata"
 )
 strat_score_solution
 our_strat_theta_est <- strat_score_solution$root
@@ -1075,26 +1075,26 @@ For the covariate adjusted version of the stratified log-rank test, we first cal
 
 ```{r}
 strat_derived_outcome_vals <- function(df, treatment, time, status, strata, covariates) {
-    assert_string(strata)
-    assert_data_frame(df)
-    assert_factor(df[[strata]])
-    n <- nrow(df)
+  assert_string(strata)
+  assert_data_frame(df)
+  assert_factor(df[[strata]])
+  n <- nrow(df)
 
-    df <- na.omit(df[, c(treatment, time, status, strata, covariates)])
-    df[[strata]] <- droplevels(df[[strata]])
-    strata_levels <- levels(df[[strata]])
+  df <- na.omit(df[, c(treatment, time, status, strata, covariates)])
+  df[[strata]] <- droplevels(df[[strata]])
+  strata_levels <- levels(df[[strata]])
 
-    df_split <- split(df, f = df[[strata]])
+  df_split <- split(df, f = df[[strata]])
 
-    lapply(
-        df_split,
-        FUN = derived_outcome_vals,
-        treatment = treatment,
-        time = time,
-        status = status,
-        covariates = covariates,
-        n = n
-    )
+  lapply(
+    df_split,
+    FUN = derived_outcome_vals,
+    treatment = treatment,
+    time = time,
+    status = status,
+    covariates = covariates,
+    n = n
+  )
 }
 ```
 
@@ -1104,12 +1104,12 @@ Let's try this out:
 
 ```{r}
 strat_dat_derived <- strat_derived_outcome_vals(
-    dat,
-    "sex",
-    "time",
-    "status",
-    "strata",
-    covariates = c("age", "ph.karno", "meal.cal")
+  dat,
+  "sex",
+  "time",
+  "status",
+  "strata",
+  covariates = c("age", "ph.karno", "meal.cal")
 )
 str(strat_dat_derived, 2)
 ```
@@ -1122,8 +1122,8 @@ Again we start with the function to get the design matrices and response vectors
 
 ```{r}
 get_strat_lm_input <- function(df_split, model) {
-    assert_list(df_split, types = "data.frame")
-    lapply(df_split, get_lm_input, model = model)
+  assert_list(df_split, types = "data.frame")
+  lapply(df_split, get_lm_input, model = model)
 }
 ```
 
@@ -1140,43 +1140,43 @@ Now we can estimate the global (across all strata) regression coefficients for e
 
 ```{r}
 get_strat_beta_estimates <- function(strat_lm_input) {
-    assert_list(strat_lm_input, types = "list")
-    assert_list(strat_lm_input[[1]], types = "list")
-    assert_names(names(strat_lm_input[[1]]), identical.to = c("0", "1"))
+  assert_list(strat_lm_input, types = "list")
+  assert_list(strat_lm_input[[1]], types = "list")
+  assert_names(names(strat_lm_input[[1]]), identical.to = c("0", "1"))
 
-    # Get coefficient estimates separately for each treatment arm.
-    beta_est <- list()
+  # Get coefficient estimates separately for each treatment arm.
+  beta_est <- list()
 
-    for (group in c("0", "1")) {
-        XtXs <- list()
-        Xtys <- list()
+  for (group in c("0", "1")) {
+    XtXs <- list()
+    Xtys <- list()
 
-        for (stratum in names(strat_lm_input)) {
-            if (group %in% names(strat_lm_input[[stratum]])) {
-                # Get the design matrix for this treatment arm.
-                X <- strat_lm_input[[stratum]][[group]]$X
+    for (stratum in names(strat_lm_input)) {
+      if (group %in% names(strat_lm_input[[stratum]])) {
+        # Get the design matrix for this treatment arm.
+        X <- strat_lm_input[[stratum]][[group]]$X
 
-                # Center it.
-                X <- scale(X, center = TRUE, scale = FALSE)
+        # Center it.
+        X <- scale(X, center = TRUE, scale = FALSE)
 
-                # Get the derived outcome values, the response.
-                y <- strat_lm_input[[stratum]][[group]]$y
+        # Get the derived outcome values, the response.
+        y <- strat_lm_input[[stratum]][[group]]$y
 
-                # Save the cross products.
-                XtXs[[stratum]] <- crossprod(X)
-                Xtys[[stratum]] <- crossprod(X, y)
-            }
-        }
-
-        # Sum across strata.
-        XtX <- Reduce("+", XtXs)
-        Xty <- Reduce("+", Xtys)
-
-        # Get the coefficients.
-        beta_est[[group]] <- solve(XtX, Xty)
+        # Save the cross products.
+        XtXs[[stratum]] <- crossprod(X)
+        Xtys[[stratum]] <- crossprod(X, y)
+      }
     }
 
-    beta_est
+    # Sum across strata.
+    XtX <- Reduce("+", XtXs)
+    Xty <- Reduce("+", Xtys)
+
+    # Get the coefficients.
+    beta_est[[group]] <- solve(XtX, Xty)
+  }
+
+  beta_est
 }
 ```
 
@@ -1196,89 +1196,89 @@ We see that the formula is essentially the same as the one for the non-stratifie
 
 ```{r}
 strat_covadj_log_rank <- function(df, treatment, time, status, strata, model) {
-    # Use row names for df such that we can see which patients are dropped etc.
-    rownames(df) <- seq_len(nrow(df))
+  # Use row names for df such that we can see which patients are dropped etc.
+  rownames(df) <- seq_len(nrow(df))
 
-    # Calculate derived outcomes and regress them on covariates.
-    df_split_with_covs_ovals <- strat_derived_outcome_vals(
-        df,
-        treatment,
-        time,
-        status,
-        strata = strata,
-        covariates = all.vars(model)
-    )
-    strat_lm_input <- get_strat_lm_input(df_split_with_covs_ovals, model)
-    beta_est <- get_strat_beta_estimates(strat_lm_input)
+  # Calculate derived outcomes and regress them on covariates.
+  df_split_with_covs_ovals <- strat_derived_outcome_vals(
+    df,
+    treatment,
+    time,
+    status,
+    strata = strata,
+    covariates = all.vars(model)
+  )
+  strat_lm_input <- get_strat_lm_input(df_split_with_covs_ovals, model)
+  beta_est <- get_strat_beta_estimates(strat_lm_input)
 
-    # Obtain unadjusted result for the patients included in the two linear models.
-    included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
-    df_included <- df[rownames(df) %in% included_pts, ]
+  # Obtain unadjusted result for the patients included in the two linear models.
+  included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
+  df_included <- df[rownames(df) %in% included_pts, ]
 
-    unadj_strat_res <- strat_log_rank(df_included, treatment, time, status, strata)
+  unadj_strat_res <- strat_log_rank(df_included, treatment, time, status, strata)
 
-    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
-    # proportion of treatment 1 in the trial.
-    pi <- mean(as.numeric(df[[treatment]]) - 1)
+  # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+  # proportion of treatment 1 in the trial.
+  pi <- mean(as.numeric(df[[treatment]]) - 1)
 
-    # Overall column wise average of design matrices.
-    strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
-    strat_X_bar <- lapply(strat_X_all, colMeans)
+  # Overall column wise average of design matrices.
+  strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
+  strat_X_bar <- lapply(strat_X_all, colMeans)
 
-    # Center the design matrices with this overall average.
-    has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
-    has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
+  # Center the design matrices with this overall average.
+  has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
+  has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
 
-    X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
-    X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+  X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+  X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
 
-    X_0 <- do.call(rbind, X_0)
-    X_1 <- do.call(rbind, X_1)
+  X_0 <- do.call(rbind, X_0)
+  X_1 <- do.call(rbind, X_1)
 
-    # Compute adjustment term for U_SL.
-    n <- nrow(df_included)
-    U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+  # Compute adjustment term for U_SL.
+  n <- nrow(df_included)
+  U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
-    # Compute adjusted U_CSL.
-    U_CSL <- unadj_strat_res$U_SL - U_SL_adj_term
+  # Compute adjusted U_CSL.
+  U_CSL <- unadj_strat_res$U_SL - U_SL_adj_term
 
-    # Compute adjustment term for sigma_SL2.
-    strat_n <- sapply(strat_X_all, nrow)
-    strat_use <- names(which(strat_n > 1))
-    strat_n <- strat_n[strat_use]
-    overall_n <- sum(strat_n)
-    strat_cov_X <- lapply(strat_X_all[strat_use], cov)
-    weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
-    weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
+  # Compute adjustment term for sigma_SL2.
+  strat_n <- sapply(strat_X_all, nrow)
+  strat_use <- names(which(strat_n > 1))
+  strat_n <- strat_n[strat_use]
+  overall_n <- sum(strat_n)
+  strat_cov_X <- lapply(strat_X_all[strat_use], cov)
+  weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
+  weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
 
-    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
-    sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
+  beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+  sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
 
-    # Compute adjusted sigma_CSL2.
-    sigma_CSL2 <- unadj_strat_res$sigma_SL2 - sigma_SL2_adj_term
+  # Compute adjusted sigma_CSL2.
+  sigma_CSL2 <- unadj_strat_res$sigma_SL2 - sigma_SL2_adj_term
 
-    # Compute adjusted test statistic.
-    tau_CSL <- sqrt(n) * U_CSL / sqrt(sigma_CSL2)
+  # Compute adjusted test statistic.
+  tau_CSL <- sqrt(n) * U_CSL / sqrt(sigma_CSL2)
 
-    pval <- 2 * pnorm(-abs(tau_CSL))
+  pval <- 2 * pnorm(-abs(tau_CSL))
 
-    # Return results.
-    list(
-        U_CSL = U_CSL,
-        sigma_CSL2 = sigma_CSL2,
-        tau_CSL = tau_CSL,
-        pval = pval,
-        unadj_strat_res = unadj_strat_res
-    )
+  # Return results.
+  list(
+    U_CSL = U_CSL,
+    sigma_CSL2 = sigma_CSL2,
+    tau_CSL = tau_CSL,
+    pval = pval,
+    unadj_strat_res = unadj_strat_res
+  )
 }
 
 our_strat_covadj_res <- strat_covadj_log_rank(
-    dat,
-    treatment = "sex",
-    time = "time",
-    status = "status",
-    strata = "strata",
-    model = ~ age + ph.karno + meal.cal
+  dat,
+  treatment = "sex",
+  time = "time",
+  status = "status",
+  strata = "strata",
+  model = ~ age + ph.karno + meal.cal
 )
 our_strat_covadj_res
 ```
@@ -1311,27 +1311,27 @@ Also here we can reuse the `derived_outcome_vals_from_theta` function from above
 
 ```{r}
 strat_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, strata, covariates) {
-    assert_string(strata)
-    assert_data_frame(df)
-    assert_factor(df[[strata]])
-    n <- nrow(df)
+  assert_string(strata)
+  assert_data_frame(df)
+  assert_factor(df[[strata]])
+  n <- nrow(df)
 
-    df <- na.omit(df[, c(treatment, time, status, strata, covariates)])
-    df[[strata]] <- droplevels(df[[strata]])
-    strata_levels <- levels(df[[strata]])
+  df <- na.omit(df[, c(treatment, time, status, strata, covariates)])
+  df[[strata]] <- droplevels(df[[strata]])
+  strata_levels <- levels(df[[strata]])
 
-    df_split <- split(df, f = df[[strata]])
+  df_split <- split(df, f = df[[strata]])
 
-    lapply(
-        df_split,
-        FUN = derived_outcome_vals_from_theta,
-        theta = theta,
-        treatment = treatment,
-        time = time,
-        status = status,
-        covariates = covariates,
-        n = n
-    )
+  lapply(
+    df_split,
+    FUN = derived_outcome_vals_from_theta,
+    theta = theta,
+    treatment = treatment,
+    time = time,
+    status = status,
+    covariates = covariates,
+    n = n
+  )
 }
 ```
 
@@ -1341,13 +1341,13 @@ Let's try this out:
 
 ```{r}
 strat_dat_derived_theta <- strat_derived_outcome_vals_from_theta(
-    theta = 1,
-    df = dat,
-    "sex",
-    "time",
-    "status",
-    "strata",
-    covariates = c("age", "ph.karno", "meal.cal")
+  theta = 1,
+  df = dat,
+  "sex",
+  "time",
+  "status",
+  "strata",
+  covariates = c("age", "ph.karno", "meal.cal")
 )
 str(strat_dat_derived_theta, 2)
 ```
@@ -1358,82 +1358,82 @@ Now we can finally implement the covariate adjusted stratified score function in
 
 ```{r}
 strat_covadj_log_rank_score <- function(theta, df, treatment, time, status, strata, model, theta_hat = NULL) {
-    # Use row names for df such that we can see which patients are dropped etc.
-    rownames(df) <- seq_len(nrow(df))
+  # Use row names for df such that we can see which patients are dropped etc.
+  rownames(df) <- seq_len(nrow(df))
 
-    # Calculate derived outcomes and regress them on covariates.
-    theta_use <- if (is.null(theta_hat)) theta else theta_hat
-    df_split_with_covs_ovals <- strat_derived_outcome_vals_from_theta(
-        theta = theta_use,
-        df,
-        treatment,
-        time,
-        status,
-        strata,
-        covariates = all.vars(model)
-    )
-    strat_lm_input <- get_strat_lm_input(df_split_with_covs_ovals, model)
-    beta_est <- get_strat_beta_estimates(strat_lm_input)
+  # Calculate derived outcomes and regress them on covariates.
+  theta_use <- if (is.null(theta_hat)) theta else theta_hat
+  df_split_with_covs_ovals <- strat_derived_outcome_vals_from_theta(
+    theta = theta_use,
+    df,
+    treatment,
+    time,
+    status,
+    strata,
+    covariates = all.vars(model)
+  )
+  strat_lm_input <- get_strat_lm_input(df_split_with_covs_ovals, model)
+  beta_est <- get_strat_beta_estimates(strat_lm_input)
 
-    # Obtain unadjusted result for the patients included in the two linear models.
-    included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
-    df_included <- df[rownames(df) %in% included_pts, ]
+  # Obtain unadjusted result for the patients included in the two linear models.
+  included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
+  df_included <- df[rownames(df) %in% included_pts, ]
 
-    strat_unadj_score <- strat_log_rank_score(theta, df_included, treatment, time, status, strata)
+  strat_unadj_score <- strat_log_rank_score(theta, df_included, treatment, time, status, strata)
 
-    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
-    # proportion of treatment 1 in the trial.
-    pi <- mean(as.numeric(df[[treatment]]) - 1)
+  # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+  # proportion of treatment 1 in the trial.
+  pi <- mean(as.numeric(df[[treatment]]) - 1)
 
-    # Overall column wise average of design matrices.
-    strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
-    strat_X_bar <- lapply(strat_X_all, colMeans)
+  # Overall column wise average of design matrices.
+  strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
+  strat_X_bar <- lapply(strat_X_all, colMeans)
 
-    # Center the design matrices with this overall average.
-    has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
-    has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
+  # Center the design matrices with this overall average.
+  has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
+  has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
 
-    X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
-    X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+  X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+  X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
 
-    X_0 <- do.call(rbind, X_0)
-    X_1 <- do.call(rbind, X_1)
+  X_0 <- do.call(rbind, X_0)
+  X_1 <- do.call(rbind, X_1)
 
-    # Compute adjustment term for U_SL.
-    n <- nrow(df_included)
-    U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+  # Compute adjustment term for U_SL.
+  n <- nrow(df_included)
+  U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
-    # Compute adjusted U_CSL.
-    U_CSL <- as.numeric(strat_unadj_score) - U_SL_adj_term
+  # Compute adjusted U_CSL.
+  U_CSL <- as.numeric(strat_unadj_score) - U_SL_adj_term
 
-    # Compute adjustment term for sigma_SL2.
-    strat_n <- sapply(strat_X_all, nrow)
-    strat_use <- names(which(strat_n > 1))
-    strat_n <- strat_n[strat_use]
-    overall_n <- sum(strat_n)
-    strat_cov_X <- lapply(strat_X_all[strat_use], cov)
-    weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
-    weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
+  # Compute adjustment term for sigma_SL2.
+  strat_n <- sapply(strat_X_all, nrow)
+  strat_use <- names(which(strat_n > 1))
+  strat_n <- strat_n[strat_use]
+  overall_n <- sum(strat_n)
+  strat_cov_X <- lapply(strat_X_all[strat_use], cov)
+  weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
+  weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
 
-    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
-    sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
+  beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+  sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
 
-    # Compute standard error for theta estimate.
-    g_theta_CSL <- attr(strat_unadj_score, "sigma_SL2")
-    var_theta_CSL <- (g_theta_CSL - sigma_SL2_adj_term) / (g_theta_CSL^2) / n
-    se_theta_CSL <- suppressWarnings(sqrt(var_theta_CSL))
+  # Compute standard error for theta estimate.
+  g_theta_CSL <- attr(strat_unadj_score, "sigma_SL2")
+  var_theta_CSL <- (g_theta_CSL - sigma_SL2_adj_term) / (g_theta_CSL^2) / n
+  se_theta_CSL <- suppressWarnings(sqrt(var_theta_CSL))
 
-    structure(U_CSL, se_theta_CSL = se_theta_CSL)
+  structure(U_CSL, se_theta_CSL = se_theta_CSL)
 }
 
 strat_covadj_log_rank_score(
-    theta = 5,
-    df = dat,
-    "sex",
-    "time",
-    "status",
-    "strata",
-    model = ~ age + ph.karno + meal.cal
+  theta = 5,
+  df = dat,
+  "sex",
+  "time",
+  "status",
+  "strata",
+  model = ~ age + ph.karno + meal.cal
 )
 ```
 
@@ -1441,15 +1441,15 @@ Let's do the root-finding to get the estimate. We will use the fixed correction 
 
 ```{r}
 strat_covadj_score_solution <- uniroot(
-    strat_covadj_log_rank_score,
-    interval = c(-10, 10),
-    df = dat,
-    treatment = "sex",
-    time = "time",
-    status = "status",
-    strata = "strata",
-    model = ~ age + ph.karno + meal.cal,
-    theta_hat = our_strat_theta_est
+  strat_covadj_log_rank_score,
+  interval = c(-10, 10),
+  df = dat,
+  treatment = "sex",
+  time = "time",
+  status = "status",
+  strata = "strata",
+  model = ~ age + ph.karno + meal.cal,
+  theta_hat = our_strat_theta_est
 )
 strat_covadj_score_solution
 
@@ -1466,16 +1466,16 @@ We can also compare this with the results from RobinCar:
 
 ```{r}
 csl <- robincar_covhr(
-    df = df_subset,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata", # Pass here the strata variables
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "biased-coin", # Must not be "simple" here
-    adj_method = "CSL", # And here choose the strata adjustment
-    ref_arm = "Female",
-    p_trt = mean(df_subset$sex == "Male")
+  df = df_subset,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata", # Pass here the strata variables
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "biased-coin", # Must not be "simple" here
+  adj_method = "CSL", # And here choose the strata adjustment
+  ref_arm = "Female",
+  p_trt = mean(df_subset$sex == "Male")
 )
 str(csl)
 
