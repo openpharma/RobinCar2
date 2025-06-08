@@ -226,8 +226,49 @@ vars_simple
 Here is the first low-level function that computes score function. This comes mostly from the initial code design doc.
 However, we did a modification here to account for the change in the calculation of `sigma_L2` in `RobinCar:::adjust.LogRank` as it was done in a recent pull request in `RobinCar`, see [here](https://github.com/mbannick/RobinCar/pull/32).
 
+But first we need a little helper function, which calculates the number of events for each unique event time.
+
 ```{r}
-h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = nrow(df)) {
+h_n_events_per_time <- function(df, time, status) {
+    assert_data_frame(df)
+    assert_string(time)
+    assert_string(status)
+    assert_numeric(df[[time]], any.missing = FALSE)
+    assert_numeric(df[[status]], any.missing = FALSE)
+    assert_true(all(df[[status]] %in% c(0, 1)))
+
+    # Patients with events.
+    df_events <- df[df[[status]] == 1, ]
+
+    # Be careful in the case when there are no events at all.
+    if (nrow(df_events) == 0) {
+        return(data.frame(time = numeric(0), n_events = numeric(0)))
+    }
+    unique_times <- df_events$time |>
+        split(df_events$time) |>
+        sapply(length)
+    data.frame(
+        time = as.numeric(names(unique_times)),
+        n_events = as.numeric(unique_times)
+    )
+}
+```
+
+Quick check:
+
+```{r}
+head(h_n_events_per_time(dat, "time", "status_numeric"))
+```
+
+```{r}
+h_lr_score_no_strata_no_cov <- function(
+    theta,
+    df,
+    treatment,
+    time,
+    status,
+    n = nrow(df)
+) {
     assert_numeric(theta, min.len = 1L, finite = TRUE)
     assert_string(treatment)
     assert_string(time)
@@ -239,30 +280,25 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
     assert_numeric(df[[time]], lower = 0, any.missing = FALSE)
 
     # Standardize data set format, subset to relevant variables.
-    df <- data.frame(
+    df_stand <- data.frame(
         treatment = as.numeric(df[[treatment]]) - 1L,
         time = df[[time]],
         status = df[[status]]
     )
 
     # Sort by time.
-    df <- df[order(df$time), ]
+    df_stand <- df_stand[order(df_stand$time), ]
 
     # Patients with events.
-    df_events <- df[df$status == 1L, ]
+    df_events <- df_stand[df_stand$status == 1L, ]
 
-    # Unique observed event times.
-    unique_times <- df_events$time |>
-        split(df_events$time) |>
-        sapply(length)
-    df_events_unique <- data.frame(
-        time = as.numeric(names(unique_times)),
-        n_events = as.numeric(unique_times)
-    )
-    df_events <- left_join(df_events, df_events_unique, by = "time")
+    # Add number of events per unique event time.
+    df_events_per_time <- h_n_events_per_time(df_stand, "time", "status")
+    df_events <- left_join(df_events, df_events_per_time, by = "time")
 
     # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
     U_L <- sigma_L2 <- 0
+    sigma_L2_inc <- numeric(length = nrow(df_events))
     for (i in seq_len(nrow(df_events))) {
         # This event time.
         t_i <- df_events$time[i]
@@ -274,8 +310,11 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
         I_i <- df_events$treatment[i]
 
         # Proportions of patients at risk at time t_i, per arm.
-        Y_bar_1_ti <- mean(df$treatment & df$time >= t_i)
-        Y_bar_0_ti <- mean(!df$treatment & df$time >= t_i)
+
+        # Note: Also here we need to use sum divided by n, otherwise
+        # we will get wrong results when there are ties.
+        Y_bar_1_ti <- sum(df_stand$treatment & df_stand$time >= t_i) / n
+        Y_bar_0_ti <- sum(!df_stand$treatment & df_stand$time >= t_i) / n
 
         # Adjusted proportion of patients at risk in the treatment arm:
         Y_bar_1_ti_coxph <- Y_bar_1_ti * exp(theta)
@@ -293,9 +332,9 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
         } else {
             (n * Y_bar_all_ti - n_events_ti) / (n * Y_bar_all_ti - 1)
         }
-        sigma_L2 <- sigma_L2 + Y_bar_1_ti_coxph * Y_bar_0_ti * sigma_L2_factor_ti / Y_bar_all_ti^2
+        sigma_L2_inc[i] <- Y_bar_1_ti_coxph * Y_bar_0_ti * sigma_L2_factor_ti / Y_bar_all_ti^2
+        sigma_L2 <- sigma_L2 + sigma_L2_inc[i]
     }
-
     U_L <- U_L / n
     sigma_L2 <- sigma_L2 / n
     se_theta_L <- sqrt(1 / (n * sigma_L2))
@@ -303,7 +342,8 @@ h_lr_score_no_strata_no_cov <- function(theta, df, treatment, time, status, n = 
         U_L,
         sigma_L2 = sigma_L2,
         se_theta_L = se_theta_L,
-        n = n
+        n = n,
+        sigma_L2_inc = sigma_L2_inc
     )
 }
 ```
@@ -407,7 +447,7 @@ robin_surv_no_strata_no_cov(
 
 ### With strata, no covariates
 
-Now we look at the stratified version. First again the score function:
+Now we look at the stratified version. First again the score function, where we are now careful to pass the number of events per time point from the overall data frame, instead of computing this later separate by stratum:
 
 ```{r}
 h_lr_score_strat <- function(theta, df, treatment, time, status, strata) {
@@ -432,7 +472,6 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata) {
         status = status,
         n = n
     )
-
     U_SL <- sum(sapply(strata_results, as.numeric))
     sigma_SL2 <- sum(sapply(strata_results, attr, "sigma_L2"))
     se_theta_SL <- sqrt(1 / (n * sigma_SL2))
@@ -734,10 +773,9 @@ h_strat_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, 
     assert_data_frame(df)
     assert_factor(df[[strata]])
 
-    # Question: Is this in the right place here? Or should it be after the na.omit()?
+    assert_true(!any(is.na(df)))
     n <- nrow(df)
 
-    df <- na.omit(df[, c(treatment, time, status, strata, covariates)])
     df[[strata]] <- droplevels(df[[strata]])
     strata_levels <- levels(df[[strata]])
 
@@ -813,8 +851,9 @@ This is now the score function:
 
 ```{r}
 h_lr_score_strat_cov <- function(theta, df, treatment, time, status, strata, model, theta_hat = NULL) {
-    # Use row names for df such that we can see which patients are dropped etc.
-    rownames(df) <- seq_len(nrow(df))
+    # Subset to complete records here.
+    df <- na.omit(df[c(treatment, time, status, strata, all.vars(model))])
+    n <- nrow(df)
 
     # Calculate derived outcomes and regress them on covariates.
     theta_use <- if (is.null(theta_hat)) theta else theta_hat
@@ -830,11 +869,8 @@ h_lr_score_strat_cov <- function(theta, df, treatment, time, status, strata, mod
     strat_lm_input <- h_get_strat_lm_input(df_split_with_covs_ovals, model)
     beta_est <- h_get_strat_beta_estimates(strat_lm_input)
 
-    # Obtain unadjusted result for the patients included in the two linear models.
-    included_pts <- unlist(lapply(strat_lm_input, \(l) union(names(l[["0"]]$y), names(l[["1"]]$y))))
-    df_included <- df[rownames(df) %in% included_pts, ]
-
-    strat_unadj_score <- h_lr_score_strat(theta, df_included, treatment, time, status, strata)
+    # Obtain unadjusted results.
+    strat_unadj_score <- h_lr_score_strat(theta, df, treatment, time, status, strata)
 
     # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
     # proportion of treatment 1 in the trial.
@@ -855,7 +891,6 @@ h_lr_score_strat_cov <- function(theta, df, treatment, time, status, strata, mod
     X_1 <- do.call(rbind, X_1)
 
     # Compute adjustment term for U_SL.
-    n <- nrow(df_included)
     U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
     # Compute adjusted U_CSL.
@@ -928,7 +963,8 @@ robin_surv <- function(
     treatment,
     contrast = "hazardratio",
     pval = "logrank",
-    ...) {
+    ...
+) {
     attr(formula, ".Environment") <- environment()
     assert_formula(formula)
     assert_data_frame(data)
@@ -1006,14 +1042,10 @@ print.surv_effect <- function(x, ...) {
         randomization_schema$schema[randomization_schema$id == x$schema],
         ")\n"
     )
-    contr_type <- switch(x$contrast,
-        hazardratio = "Hazard ratio"
-    )
+    contr_type <- switch(x$contrast, hazardratio = "Hazard ratio")
     cat(sprintf("\nContrast     :  %s\n", contr_type))
 
-    test_type <- switch(x$test,
-        logrank = "Log-Rank"
-    )
+    test_type <- switch(x$test, logrank = "Log-Rank")
     cat(sprintf("Test         :  %s\n\n", test_type))
 
     coef_mat <- matrix(
@@ -1426,7 +1458,7 @@ robincar_lr_result <- robincar_logrank(
 robincar_lr_result
 ```
 
-So also this matches now well (after we included the events factor above), on all the statistics reported:
+So also this matches now very well (after we included the events factor above), on all the statistics reported:
 
 ```{r}
 stopifnot(all.equal(
@@ -1438,8 +1470,10 @@ stopifnot(all.equal(
     robincar_lr_result$result$U
 ))
 stopifnot(all.equal(
-    sqrt(robincar2_result$test_sigma_L2 /
-        robincar2_result$test_n),
+    sqrt(
+        robincar2_result$test_sigma_L2 /
+            robincar2_result$test_n
+    ),
     robincar_lr_result$result$se
 ))
 ```
@@ -1595,49 +1629,39 @@ robincar_lr_result <- robincar_logrank(
 robincar_lr_result
 ```
 
-So here the results differ slightly:
+So here the results agree now:
 
 ```{r}
-all.equal(
+stopifnot(all.equal(
     robincar2_result$test_stat,
     robincar_lr_result$result$statistic
+))
+```
+
+This needed quite some debugging to get to, in the end it was as simple as changing from `mean()` to `sum() / n` in the function `h_lr_score_no_strata_no_cov()`.
+
+First I thought the problem came from this:
+
+- The new variance formula `ssig_l = .data$event * .data$Y0 * .data$Y1 * (.data$Y - .data$n.events) / .data$Y^2 / (.data$Y-1)` in [`RobinCar:::adjust.LogRank()`](https://github.com/mbannick/RobinCar/blob/main/R/adjust-logrank.R#L21) can lead to `NaN` values when `Y == 1`.
+- In the example above we had in particular the following observations with this problem:
+
+```{r}
+data.frame(
+    event = c(0, 0, 1),
+    Y0 = c(0L, 0L, 0L),
+    Y1 = c(1L, 1L, 1L),
+    Y = c(1L, 1L, 1L),
+    n.events = c(0, 0, 1),
+    ssig_l = c(NaN, NaN, NaN),
+    row.names = c(63L, 176L, 226L)
 )
 ```
 
-Let's see whether it is because of the strata 3 with only a single male patient:
+- The correct `ssig_l` value should be 0 for all these (which are ignored in the sum anyway), so then it does not matter actually.
 
-```{r}
-dat3a <- dat3 |>
-    filter(!(strata == "3"))
+Then I thought the difference comes from the fact that we are splitting up the data in strata before counting the number of events, while `RobinCar` only splits up the data *after* the event counting and calculation of the summands for `ssig_l` (which correspond to our `sigma_L2` per stratum).
 
-robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata,
-    data = dat3a,
-    treatment = sex ~ pb(strata)
-)
-robincar2_result
-
-robincar_lr_result <- robincar_logrank(
-    df = dat3a,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = NULL,
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat3a$sex == "Male")
-)
-robincar_lr_result
-
-all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic
-)
-```
-
-We still see the same relative difference, so it is not just because of this too small stratum.
+- But it is actually not true. The number of events are calculated separately per stratum, see [here](https://github.com/mbannick/RobinCar/blob/main/R/adjust-tte.R#L48).
 
 We can also look at the `survival` result:
 
@@ -1654,17 +1678,13 @@ all.equal(
 )
 ```
 
-So the `survival` result matches the `RobinCar` result, but not our result, so we need to fix that.
-
---------------------------------------------------
-TODO cont here
---------------------------------------------------
+So the `survival` result matches, too.
 
 We can also compare the hazard ratio estimate:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat_no_ties3,
+    df = dat3,
     treat_col = "sex",
     response_col = "time",
     event_col = "status_numeric",
@@ -1673,7 +1693,7 @@ robincar_hr_result <- robincar_covhr(
     car_scheme = "permuted-block",
     adj_method = "CSL",
     ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+    p_trt = mean(dat3$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1698,7 +1718,7 @@ Finally, we can combine both:
 ```{r}
 robincar2_result <- robin_surv(
     formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
-    data = dat_no_ties,
+    data = dat,
     treatment = sex ~ strata
 )
 robincar2_result
@@ -1707,11 +1727,11 @@ robincar2_result
 With `RobinCar`:
 
 ```{r}
-dat_no_ties4 <- dat_no_ties |>
+dat4 <- dat |>
     select(time, status_numeric, sex, strata, age, ph.karno, meal.cal) |>
     na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat_no_ties4,
+    df = dat4,
     treat_col = "sex",
     response_col = "time",
     event_col = "status_numeric",
@@ -1728,11 +1748,11 @@ robincar_lr_result
 The problem here is that there is one stratum with a single patient in the experimental arm, therefore the test statistic is `NA` here. Let's avoid that by removing this stratum from the data set:
 
 ```{r}
-dat_no_ties5 <- dat_no_ties4 |>
+dat5 <- dat4 |>
     filter(!(strata == "3"))
 
 robincar_lr_result <- robincar_logrank(
-    df = dat_no_ties5,
+    df = dat5,
     treat_col = "sex",
     response_col = "time",
     event_col = "status_numeric",
@@ -1741,17 +1761,17 @@ robincar_lr_result <- robincar_logrank(
     car_scheme = "permuted-block",
     adj_method = "CSL",
     ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+    p_trt = mean(dat5$sex == "Male")
 )
 robincar_lr_result
 ```
 
-Let's also run our function again with the same data:
+Let's also run our function again with the same data. Here we make it more challenging for the function by not filtering out rows with missing values, so that we can see how it handles this:
 
 ```{r}
 robincar2_result <- robin_surv(
     formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
-    data = dat_no_ties |> filter(!(strata == "3")),
+    data = dat |> filter(!(strata == "3")),
     treatment = sex ~ strata
 )
 robincar2_result
@@ -1760,17 +1780,17 @@ robincar2_result
 The test statistic matches well:
 
 ```{r}
-all.equal(
+stopifnot(all.equal(
     robincar2_result$test_stat,
     robincar_lr_result$result$statistic
-)
+))
 ```
 
 For the HR estimate:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat_no_ties5,
+    df = dat5,
     treat_col = "sex",
     response_col = "time",
     event_col = "status_numeric",
@@ -1779,7 +1799,7 @@ robincar_hr_result <- robincar_covhr(
     car_scheme = "permuted-block",
     adj_method = "CSL",
     ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+    p_trt = mean(dat5$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1796,6 +1816,5 @@ all.equal(
     robincar_hr_result$result$se_theta_CL
 )
 ```
-
 
 # References
