@@ -20,3 +20,5 @@ images
 design
 data-raw
 ^vignettes/articles$
+^[\.]?air\.toml$
+^\.vscode$
