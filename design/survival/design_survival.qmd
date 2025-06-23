@@ -17,11 +17,11 @@ The proposal for the user interface is the function call of the form:
 #| eval: false
 
 robin_surv(
-    Surv(time, event) ~ treatment * s1 + covariates,
-    data = df,
-    treatment = pb(s1),
-    contrast = "hazardratio",
-    test = "logrank"
+  Surv(time, event) ~ treatment * s1 + covariates,
+  data = df,
+  treatment = pb(s1),
+  contrast = "hazardratio",
+  test = "logrank"
 )
 ```
 
@@ -134,12 +134,12 @@ devtools::load_all()
 library(dplyr)
 library(checkmate)
 dat <- survival::lung |>
-    mutate(
-        status = factor(ifelse(status == 1, "Alive", "Dead")),
-        sex = factor(ifelse(sex == 1, "Male", "Female")),
-        status_numeric = as.numeric(status == "Dead"),
-        strata = factor(ph.ecog)
-    )
+  mutate(
+    status = factor(ifelse(status == 1, "Alive", "Dead")),
+    sex = factor(ifelse(sex == 1, "Male", "Female")),
+    status_numeric = as.numeric(status == "Dead"),
+    strata = factor(ph.ecog)
+  )
 head(dat)
 ```
 
@@ -149,50 +149,50 @@ This is currently duplicating some code from `predict_counterfactual.lm()`, and 
 
 ```{r}
 h_prepare_vars <- function(formula, data, treatment) {
-    trt_vars <- h_get_vars(treatment)
-    assert_data_frame(data)
-    assert_subset(c(trt_vars$treatment, trt_vars$strata), colnames(data))
-    assert_subset(trt_vars$treatment, all.vars(formula[[3]]))
-    assert(
-        test_character(data[[trt_vars$treatment]]),
-        test_factor(data[[trt_vars$treatment]])
-    )
+  trt_vars <- h_get_vars(treatment)
+  assert_data_frame(data)
+  assert_subset(c(trt_vars$treatment, trt_vars$strata), colnames(data))
+  assert_subset(trt_vars$treatment, all.vars(formula[[3]]))
+  assert(
+    test_character(data[[trt_vars$treatment]]),
+    test_factor(data[[trt_vars$treatment]])
+  )
 
-    trt_lvls <- levels(data[[trt_vars$treatment]])
-    n_lvls <- length(trt_lvls)
-    covariates <- setdiff(all.vars(formula[[3]]), c(trt_vars$treatment, trt_vars$strata))
+  trt_lvls <- levels(data[[trt_vars$treatment]])
+  n_lvls <- length(trt_lvls)
+  covariates <- setdiff(all.vars(formula[[3]]), c(trt_vars$treatment, trt_vars$strata))
 
-    # Extract survival time and censoring indicator from the left hand side of the formula.
-    lhs <- formula[[2]]
-    if (inherits(lhs, "call") && lhs[[1]] == as.name("Surv") || lhs[[1]] == as.name("survival::Surv")) {
-        surv_vars <- as.character(lhs)[-1]
-        assert_subset(surv_vars, colnames(data))
-        time_var <- surv_vars[1]
-        status_var <- surv_vars[2]
-    } else {
-        stop("Left hand side of formula must be a Surv() object.")
-    }
+  # Extract survival time and censoring indicator from the left hand side of the formula.
+  lhs <- formula[[2]]
+  if (inherits(lhs, "call") && lhs[[1]] == as.name("Surv") || lhs[[1]] == as.name("survival::Surv")) {
+    surv_vars <- as.character(lhs)[-1]
+    assert_subset(surv_vars, colnames(data))
+    time_var <- surv_vars[1]
+    status_var <- surv_vars[2]
+  } else {
+    stop("Left hand side of formula must be a Surv() object.")
+  }
 
-    # Extract model without left hand side and without treatment and strata variables.
-    model <- as.formula(as.call(as.list(formula)[-2L]))
-    update_string <- if (length(trt_vars$strata)) {
-        paste0("~ . - ", trt_vars$treatment, "*", trt_vars$strata)
-    } else {
-        paste("~ . -", trt_vars$treatment)
-    }
-    model <- update(model, as.formula(update_string))
+  # Extract model without left hand side and without treatment and strata variables.
+  model <- as.formula(as.call(as.list(formula)[-2L]))
+  update_string <- if (length(trt_vars$strata)) {
+    paste0("~ . - ", trt_vars$treatment, "*", trt_vars$strata)
+  } else {
+    paste("~ . -", trt_vars$treatment)
+  }
+  model <- update(model, as.formula(update_string))
 
-    list(
-        time = time_var,
-        status = status_var,
-        treatment = trt_vars$treatment,
-        strata = trt_vars$strata,
-        schema = trt_vars$schema,
-        covariates = covariates,
-        model = model,
-        n_levels = n_lvls,
-        levels = trt_lvls
-    )
+  list(
+    time = time_var,
+    status = status_var,
+    treatment = trt_vars$treatment,
+    strata = trt_vars$strata,
+    schema = trt_vars$schema,
+    covariates = covariates,
+    model = model,
+    n_levels = n_lvls,
+    levels = trt_lvls
+  )
 }
 ```
 
@@ -200,9 +200,9 @@ Let's test this:
 
 ```{r}
 vars_strata_covs <- h_prepare_vars(
-    formula = survival::Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
-    data = dat,
-    treatment = sex ~ strata
+  formula = survival::Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+  data = dat,
+  treatment = sex ~ strata
 )
 vars_strata_covs
 ```
@@ -211,9 +211,9 @@ If there are no strata:
 
 ```{r}
 vars_covs <- h_prepare_vars(
-    formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
-    data = dat,
-    treatment = sex ~ 1
+  formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
+  data = dat,
+  treatment = sex ~ 1
 )
 vars_covs
 ```
@@ -222,9 +222,9 @@ If there are no covariates:
 
 ```{r}
 vars_strata <- h_prepare_vars(
-    formula = Surv(time, status_numeric) ~ sex * strata,
-    data = dat,
-    treatment = sex ~ strata
+  formula = Surv(time, status_numeric) ~ sex * strata,
+  data = dat,
+  treatment = sex ~ strata
 )
 vars_strata
 ```
@@ -233,9 +233,9 @@ If there are no covariates and no strata:
 
 ```{r}
 vars_simple <- h_prepare_vars(
-    formula = Surv(time, status_numeric) ~ sex,
-    data = dat,
-    treatment = sex ~ 1
+  formula = Surv(time, status_numeric) ~ sex,
+  data = dat,
+  treatment = sex ~ 1
 )
 vars_simple
 ```
@@ -251,27 +251,27 @@ But first we need a little helper function, which calculates the number of event
 
 ```{r}
 h_n_events_per_time <- function(df, time, status) {
-    assert_data_frame(df)
-    assert_string(time)
-    assert_string(status)
-    assert_numeric(df[[time]], any.missing = FALSE)
-    assert_numeric(df[[status]], any.missing = FALSE)
-    assert_true(all(df[[status]] %in% c(0, 1)))
+  assert_data_frame(df)
+  assert_string(time)
+  assert_string(status)
+  assert_numeric(df[[time]], any.missing = FALSE)
+  assert_numeric(df[[status]], any.missing = FALSE)
+  assert_true(all(df[[status]] %in% c(0, 1)))
 
-    # Patients with events.
-    df_events <- df[df[[status]] == 1, ]
+  # Patients with events.
+  df_events <- df[df[[status]] == 1, ]
 
-    # Be careful in the case when there are no events at all.
-    if (nrow(df_events) == 0) {
-        return(data.frame(time = numeric(0), n_events = numeric(0)))
-    }
-    unique_times <- df_events$time |>
-        split(df_events$time) |>
-        sapply(length)
-    data.frame(
-        time = as.numeric(names(unique_times)),
-        n_events = as.numeric(unique_times)
-    )
+  # Be careful in the case when there are no events at all.
+  if (nrow(df_events) == 0) {
+    return(data.frame(time = numeric(0), n_events = numeric(0)))
+  }
+  unique_times <- df_events$time |>
+    split(df_events$time) |>
+    sapply(length)
+  data.frame(
+    time = as.numeric(names(unique_times)),
+    n_events = as.numeric(unique_times)
+  )
 }
 ```
 
@@ -289,82 +289,82 @@ h_lr_score_no_strata_no_cov <- function(
     time,
     status,
     n = nrow(df)) {
-    assert_numeric(theta, min.len = 1L, finite = TRUE)
-    assert_string(treatment)
-    assert_string(time)
-    assert_string(status)
-    assert_data_frame(df)
-    assert_factor(df[[treatment]], n.levels = 2L, any.missing = FALSE)
-    assert_numeric(df[[status]], any.missing = FALSE)
-    assert_true(all(df[[status]] %in% c(0, 1)))
-    assert_numeric(df[[time]], lower = 0, any.missing = FALSE)
+  assert_numeric(theta, min.len = 1L, finite = TRUE)
+  assert_string(treatment)
+  assert_string(time)
+  assert_string(status)
+  assert_data_frame(df)
+  assert_factor(df[[treatment]], n.levels = 2L, any.missing = FALSE)
+  assert_numeric(df[[status]], any.missing = FALSE)
+  assert_true(all(df[[status]] %in% c(0, 1)))
+  assert_numeric(df[[time]], lower = 0, any.missing = FALSE)
 
-    # Standardize data set format, subset to relevant variables.
-    df_stand <- data.frame(
-        treatment = as.numeric(df[[treatment]]) - 1L,
-        time = df[[time]],
-        status = df[[status]]
-    )
+  # Standardize data set format, subset to relevant variables.
+  df_stand <- data.frame(
+    treatment = as.numeric(df[[treatment]]) - 1L,
+    time = df[[time]],
+    status = df[[status]]
+  )
 
-    # Sort by time.
-    df_stand <- df_stand[order(df_stand$time), ]
+  # Sort by time.
+  df_stand <- df_stand[order(df_stand$time), ]
 
-    # Patients with events.
-    df_events <- df_stand[df_stand$status == 1L, ]
+  # Patients with events.
+  df_events <- df_stand[df_stand$status == 1L, ]
 
-    # Add number of events per unique event time.
-    df_events_per_time <- h_n_events_per_time(df_stand, "time", "status")
-    df_events <- left_join(df_events, df_events_per_time, by = "time")
+  # Add number of events per unique event time.
+  df_events_per_time <- h_n_events_per_time(df_stand, "time", "status")
+  df_events <- left_join(df_events, df_events_per_time, by = "time")
 
-    # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
-    U_L <- sigma_L2 <- 0
-    sigma_L2_inc <- numeric(length = nrow(df_events))
-    for (i in seq_len(nrow(df_events))) {
-        # This event time.
-        t_i <- df_events$time[i]
+  # Calculate the log rank statistic U_L and the variance sigma_L2 iteratively.
+  U_L <- sigma_L2 <- 0
+  sigma_L2_inc <- numeric(length = nrow(df_events))
+  for (i in seq_len(nrow(df_events))) {
+    # This event time.
+    t_i <- df_events$time[i]
 
-        # Number of overall events at this time.
-        n_events_ti <- df_events$n_events[i]
+    # Number of overall events at this time.
+    n_events_ti <- df_events$n_events[i]
 
-        # This treatment arm indicator.
-        I_i <- df_events$treatment[i]
+    # This treatment arm indicator.
+    I_i <- df_events$treatment[i]
 
-        # Proportions of patients at risk at time t_i, per arm.
+    # Proportions of patients at risk at time t_i, per arm.
 
-        # Note: Also here we need to use sum divided by n, otherwise
-        # we will get wrong results when there are ties.
-        Y_bar_1_ti <- sum(df_stand$treatment & df_stand$time >= t_i) / n
-        Y_bar_0_ti <- sum(!df_stand$treatment & df_stand$time >= t_i) / n
+    # Note: Also here we need to use sum divided by n, otherwise
+    # we will get wrong results when there are ties.
+    Y_bar_1_ti <- sum(df_stand$treatment & df_stand$time >= t_i) / n
+    Y_bar_0_ti <- sum(!df_stand$treatment & df_stand$time >= t_i) / n
 
-        # Adjusted proportion of patients at risk in the treatment arm:
-        Y_bar_1_ti_coxph <- Y_bar_1_ti * exp(theta)
+    # Adjusted proportion of patients at risk in the treatment arm:
+    Y_bar_1_ti_coxph <- Y_bar_1_ti * exp(theta)
 
-        # Increment U_L.
-        U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
+    # Increment U_L.
+    U_L <- U_L + (I_i - Y_bar_1_ti_coxph / (Y_bar_1_ti_coxph + Y_bar_0_ti))
 
-        # Increment sigma_L2.
-        Y_bar_all_ti <- Y_bar_1_ti_coxph + Y_bar_0_ti
+    # Increment sigma_L2.
+    Y_bar_all_ti <- Y_bar_1_ti_coxph + Y_bar_0_ti
 
-        # Note: we currently don't use this factor for estimating the HR, therefore
-        # we skip this when theta != 0.
-        sigma_L2_factor_ti <- if (theta != 0 || n_events_ti == 1) {
-            1
-        } else {
-            (n * Y_bar_all_ti - n_events_ti) / (n * Y_bar_all_ti - 1)
-        }
-        sigma_L2_inc[i] <- Y_bar_1_ti_coxph * Y_bar_0_ti * sigma_L2_factor_ti / Y_bar_all_ti^2
-        sigma_L2 <- sigma_L2 + sigma_L2_inc[i]
+    # Note: we currently don't use this factor for estimating the HR, therefore
+    # we skip this when theta != 0.
+    sigma_L2_factor_ti <- if (theta != 0 || n_events_ti == 1) {
+      1
+    } else {
+      (n * Y_bar_all_ti - n_events_ti) / (n * Y_bar_all_ti - 1)
     }
-    U_L <- U_L / n
-    sigma_L2 <- sigma_L2 / n
-    se_theta_L <- sqrt(1 / (n * sigma_L2))
-    structure(
-        U_L,
-        sigma_L2 = sigma_L2,
-        se_theta_L = se_theta_L,
-        n = n,
-        sigma_L2_inc = sigma_L2_inc
-    )
+    sigma_L2_inc[i] <- Y_bar_1_ti_coxph * Y_bar_0_ti * sigma_L2_factor_ti / Y_bar_all_ti^2
+    sigma_L2 <- sigma_L2 + sigma_L2_inc[i]
+  }
+  U_L <- U_L / n
+  sigma_L2 <- sigma_L2 / n
+  se_theta_L <- sqrt(1 / (n * sigma_L2))
+  structure(
+    U_L,
+    sigma_L2 = sigma_L2,
+    se_theta_L = se_theta_L,
+    n = n,
+    sigma_L2_inc = sigma_L2_inc
+  )
 }
 ```
 
@@ -372,17 +372,17 @@ Here is more general function that takes the score function and computes the log
 
 ```{r}
 h_log_hr_est_via_score <- function(score_fun, interval = c(-10, 10), ...) {
-    score_solution <- uniroot(
-        score_fun,
-        interval = interval,
-        ...
-    )
-    list(
-        theta = score_solution$root,
-        se = attr(score_solution$f.root, "se_theta_L"),
-        sigma_L2 = attr(score_solution$f.root, "sigma_L2"),
-        n = attr(score_solution$f.root, "n")
-    )
+  score_solution <- uniroot(
+    score_fun,
+    interval = interval,
+    ...
+  )
+  list(
+    theta = score_solution$root,
+    se = attr(score_solution$f.root, "se_theta_L"),
+    sigma_L2 = attr(score_solution$f.root, "sigma_L2"),
+    n = attr(score_solution$f.root, "n")
+  )
 }
 ```
 
@@ -390,19 +390,19 @@ Here is a similarly general function that computes the corresponding test:
 
 ```{r}
 h_lr_test_via_score <- function(score_fun, ...) {
-    score_at_0 <- score_fun(theta = 0, ...)
-    U_L <- as.numeric(score_at_0)
-    sigma_L2 <- attr(score_at_0, "sigma_L2")
-    n <- attr(score_at_0, "n")
-    tau_L <- sqrt(n) * U_L / sqrt(sigma_L2)
-    pval <- 2 * pnorm(-abs(tau_L))
-    list(
-        U_L = U_L,
-        sigma_L2 = sigma_L2,
-        tau_L = tau_L,
-        pval = pval,
-        n = n
-    )
+  score_at_0 <- score_fun(theta = 0, ...)
+  U_L <- as.numeric(score_at_0)
+  sigma_L2 <- attr(score_at_0, "sigma_L2")
+  n <- attr(score_at_0, "n")
+  tau_L <- sqrt(n) * U_L / sqrt(sigma_L2)
+  pval <- 2 * pnorm(-abs(tau_L))
+  list(
+    U_L = U_L,
+    sigma_L2 = sigma_L2,
+    tau_L = tau_L,
+    pval = pval,
+    n = n
+  )
 }
 ```
 
@@ -411,40 +411,40 @@ Since we want the approximate version of the covariate-adjusted score function, 
 
 ```{r}
 robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_level, unadj_score_fun = NULL, ...) {
-    trt_levels <- vars$levels[c(control_level, exp_level)]
-    data <- data[data[[vars$treatment]] %in% trt_levels, ]
-    data[[vars$treatment]] <- droplevels(data[[vars$treatment]])
-    data[[vars$treatment]] <- relevel(data[[vars$treatment]], ref = trt_levels[1L])
+  trt_levels <- vars$levels[c(control_level, exp_level)]
+  data <- data[data[[vars$treatment]] %in% trt_levels, ]
+  data[[vars$treatment]] <- droplevels(data[[vars$treatment]])
+  data[[vars$treatment]] <- relevel(data[[vars$treatment]], ref = trt_levels[1L])
 
-    args <- list(
-        score_fun = score_fun,
-        df = data,
-        ...
-    )
-    test_result <- do.call(h_lr_test_via_score, args)
+  args <- list(
+    score_fun = score_fun,
+    df = data,
+    ...
+  )
+  test_result <- do.call(h_lr_test_via_score, args)
 
-    if (!is.null(unadj_score_fun)) {
-        assert_function(unadj_score_fun)
-        assert_true(!is.null(vars$covariates))
-        unadj_args <- args[names(args) != "model"]
-        unadj_args$score_fun <- unadj_score_fun
-        # Get theta_hat from the unadjusted score function.
-        unadj_hr_result <- do.call(h_log_hr_est_via_score, unadj_args)
-        args$theta_hat <- unadj_hr_result$theta
-    }
-    hr_result <- do.call(h_log_hr_est_via_score, args)
+  if (!is.null(unadj_score_fun)) {
+    assert_function(unadj_score_fun)
+    assert_true(!is.null(vars$covariates))
+    unadj_args <- args[names(args) != "model"]
+    unadj_args$score_fun <- unadj_score_fun
+    # Get theta_hat from the unadjusted score function.
+    unadj_hr_result <- do.call(h_log_hr_est_via_score, unadj_args)
+    args$theta_hat <- unadj_hr_result$theta
+  }
+  hr_result <- do.call(h_log_hr_est_via_score, args)
 
-    list(
-        estimate = hr_result$theta,
-        se = hr_result$se,
-        test_stat = test_result$tau_L,
-        p_value = test_result$pval,
-        hr_n = hr_result$n,
-        hr_sigma_L2 = hr_result$sigma_L2,
-        test_U_L = test_result$U_L,
-        test_n = test_result$n,
-        test_sigma_L2 = test_result$sigma_L2
-    )
+  list(
+    estimate = hr_result$theta,
+    se = hr_result$se,
+    test_stat = test_result$tau_L,
+    p_value = test_result$pval,
+    hr_n = hr_result$n,
+    hr_sigma_L2 = hr_result$sigma_L2,
+    test_U_L = test_result$U_L,
+    test_n = test_result$n,
+    test_sigma_L2 = test_result$sigma_L2
+  )
 }
 ```
 
@@ -452,16 +452,16 @@ Based on this:
 
 ```{r}
 robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
-    robin_surv_comparison(
-        score_fun = h_lr_score_no_strata_no_cov,
-        vars = vars,
-        data = data,
-        exp_level = exp_level,
-        control_level = control_level,
-        treatment = vars$treatment,
-        time = vars$time,
-        status = vars$status
-    )
+  robin_surv_comparison(
+    score_fun = h_lr_score_no_strata_no_cov,
+    vars = vars,
+    data = data,
+    exp_level = exp_level,
+    control_level = control_level,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status
+  )
 }
 ```
 
@@ -469,10 +469,10 @@ Let's try it out:
 
 ```{r}
 robin_surv_no_strata_no_cov(
-    vars = vars_simple,
-    data = dat,
-    exp_level = 2,
-    control_level = 1
+  vars = vars_simple,
+  data = dat,
+  exp_level = 2,
+  control_level = 1
 )
 ```
 
@@ -482,36 +482,36 @@ Now we look at the stratified version. First again the score function, where we 
 
 ```{r}
 h_lr_score_strat <- function(theta, df, treatment, time, status, strata) {
-    assert_string(strata)
-    assert_data_frame(df)
-    assert_factor(df[[strata]])
+  assert_string(strata)
+  assert_data_frame(df)
+  assert_factor(df[[strata]])
 
-    # Question: Is this in the right place here? Or should it be after the na.omit()?
-    n <- nrow(df)
+  # Question: Is this in the right place here? Or should it be after the na.omit()?
+  n <- nrow(df)
 
-    df <- na.omit(df[, c(treatment, time, status, strata)])
-    df[[strata]] <- droplevels(df[[strata]])
-    strata_levels <- levels(df[[strata]])
+  df <- na.omit(df[, c(treatment, time, status, strata)])
+  df[[strata]] <- droplevels(df[[strata]])
+  strata_levels <- levels(df[[strata]])
 
-    df_split <- split(df, f = df[[strata]])
-    strata_results <- lapply(
-        df_split,
-        FUN = h_lr_score_no_strata_no_cov,
-        theta = theta,
-        treatment = treatment,
-        time = time,
-        status = status,
-        n = n
-    )
-    U_SL <- sum(sapply(strata_results, as.numeric))
-    sigma_SL2 <- sum(sapply(strata_results, attr, "sigma_L2"))
-    se_theta_SL <- sqrt(1 / (n * sigma_SL2))
-    structure(
-        U_SL,
-        sigma_L2 = sigma_SL2,
-        se_theta_L = se_theta_SL,
-        n = n
-    )
+  df_split <- split(df, f = df[[strata]])
+  strata_results <- lapply(
+    df_split,
+    FUN = h_lr_score_no_strata_no_cov,
+    theta = theta,
+    treatment = treatment,
+    time = time,
+    status = status,
+    n = n
+  )
+  U_SL <- sum(sapply(strata_results, as.numeric))
+  sigma_SL2 <- sum(sapply(strata_results, attr, "sigma_L2"))
+  se_theta_SL <- sqrt(1 / (n * sigma_SL2))
+  structure(
+    U_SL,
+    sigma_L2 = sigma_SL2,
+    se_theta_L = se_theta_SL,
+    n = n
+  )
 }
 ```
 
@@ -521,17 +521,17 @@ Based on this we can code the high-level function that computes the estimates an
 
 ```{r}
 robin_surv_strata <- function(vars, data, exp_level, control_level) {
-    robin_surv_comparison(
-        score_fun = h_lr_score_strat,
-        vars = vars,
-        data = data,
-        exp_level = exp_level,
-        control_level = control_level,
-        treatment = vars$treatment,
-        time = vars$time,
-        status = vars$status,
-        strata = vars$strata
-    )
+  robin_surv_comparison(
+    score_fun = h_lr_score_strat,
+    vars = vars,
+    data = data,
+    exp_level = exp_level,
+    control_level = control_level,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status,
+    strata = vars$strata
+  )
 }
 ```
 
@@ -539,10 +539,10 @@ Let's test this:
 
 ```{r}
 robin_surv_strata(
-    vars = vars_strata,
-    data = dat,
-    exp_level = 2,
-    control_level = 1
+  vars = vars_strata,
+  data = dat,
+  exp_level = 2,
+  control_level = 1
 )
 ```
 
@@ -554,94 +554,94 @@ Derived outcome values: Note that we need to have the data subsetted to complete
 
 ```{r}
 h_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, covariates, n = nrow(df)) {
-    assert_number(theta)
-    assert_string(treatment)
-    assert_string(time)
-    assert_string(status)
-    assert_character(covariates)
-    assert_data_frame(df)
-    assert_factor(df[[treatment]], n.levels = 2L)
-    assert_numeric(df[[status]])
-    assert_true(all(df[[status]] %in% c(0, 1)))
-    assert_numeric(df[[time]], lower = 0)
+  assert_number(theta)
+  assert_string(treatment)
+  assert_string(time)
+  assert_string(status)
+  assert_character(covariates)
+  assert_data_frame(df)
+  assert_factor(df[[treatment]], n.levels = 2L)
+  assert_numeric(df[[status]])
+  assert_true(all(df[[status]] %in% c(0, 1)))
+  assert_numeric(df[[time]], lower = 0)
 
-    # Standardize data set format, subset to relevant variables.
-    df <- data.frame(
-        index = seq_len(nrow(df)),
-        treatment = as.numeric(df[[treatment]]) - 1L,
-        time = df[[time]],
-        status = df[[status]],
-        df[covariates]
-    )
-    assert_true(!any(is.na(df)))
+  # Standardize data set format, subset to relevant variables.
+  df <- data.frame(
+    index = seq_len(nrow(df)),
+    treatment = as.numeric(df[[treatment]]) - 1L,
+    time = df[[time]],
+    status = df[[status]],
+    df[covariates]
+  )
+  assert_true(!any(is.na(df)))
 
-    # Sort by time.
-    df <- df[order(df$time), ]
+  # Sort by time.
+  df <- df[order(df$time), ]
 
-    # Patients with events.
-    df_events <- df[df$status == 1L, ]
+  # Patients with events.
+  df_events <- df[df$status == 1L, ]
 
-    # Unique observed event times.
-    unique_times <- df_events$time |>
-        split(df_events$time) |>
-        sapply(length)
+  # Unique observed event times.
+  unique_times <- df_events$time |>
+    split(df_events$time) |>
+    sapply(length)
 
-    df_events_unique <- data.frame(
-        time = as.numeric(names(unique_times)),
-        n_pts = as.numeric(unique_times)
-    )
+  df_events_unique <- data.frame(
+    time = as.numeric(names(unique_times)),
+    n_pts = as.numeric(unique_times)
+  )
 
-    # Add derived outcome column.
-    df$O_hat <- NA_real_
+  # Add derived outcome column.
+  df$O_hat <- NA_real_
 
-    # Calculate quantities which are the same across patients first.
-    # These are in parallel to df_events_unique.
+  # Calculate quantities which are the same across patients first.
+  # These are in parallel to df_events_unique.
 
-    # Hazard ratio.
-    exp_theta <- exp(theta)
+  # Hazard ratio.
+  exp_theta <- exp(theta)
 
-    # Proportions of patients at risk, per unique event time and treatment arm.
-    # Corresponds to \exp(\vartheta) * \bar{Y}_1(t) and \bar{Y}_0(t).
-    # So here theta enters.
-    at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
-    Y_bar_1 <- exp_theta * colSums(df$treatment & at_risk_matrix) / n
-    Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
-    Y_bar <- Y_bar_0 + Y_bar_1
+  # Proportions of patients at risk, per unique event time and treatment arm.
+  # Corresponds to \exp(\vartheta) * \bar{Y}_1(t) and \bar{Y}_0(t).
+  # So here theta enters.
+  at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
+  Y_bar_1 <- exp_theta * colSums(df$treatment & at_risk_matrix) / n
+  Y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
+  Y_bar <- Y_bar_0 + Y_bar_1
 
-    # Proportion of patients having an event at this time.
-    # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
-    # therefore we see how many patients have an event at each unique time and divide that by n.
-    dN_bar <- df_events_unique$n_pts / n
+  # Proportion of patients having an event at this time.
+  # Corresponds to d\bar{N}(t). Here we need to be careful about tied event times,
+  # therefore we see how many patients have an event at each unique time and divide that by n.
+  dN_bar <- df_events_unique$n_pts / n
 
-    # Loop over all patients.
-    for (i in seq_len(nrow(df))) {
-        # Treatment arm?
-        I_i <- df$treatment[i]
+  # Loop over all patients.
+  for (i in seq_len(nrow(df))) {
+    # Treatment arm?
+    I_i <- df$treatment[i]
 
-        # Event in this patient?
-        delta_i <- df$status[i] == 1L
+    # Event in this patient?
+    delta_i <- df$status[i] == 1L
 
-        # Time for this patient.
-        t_i <- df$time[i]
+    # Time for this patient.
+    t_i <- df$time[i]
 
-        # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
-        dN_ij <- delta_i * (df_events_unique$time == t_i)
+    # Does this patient have an event at this unique event time? Corresponds to dN_ij(t).
+    dN_ij <- delta_i * (df_events_unique$time == t_i)
 
-        # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
-        # Here theta enters, too.
-        Y_ij <- as.numeric(t_i >= df_events_unique$time) * ifelse(I_i, exp_theta, 1)
+    # Is this patient at risk at this unique event time? Corresponds to Y_ij(t).
+    # Here theta enters, too.
+    Y_ij <- as.numeric(t_i >= df_events_unique$time) * ifelse(I_i, exp_theta, 1)
 
-        # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
-        weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
+    # Calculate the weights, Y_bar in opposite treatment arm divided by Y_bar overall.
+    weights <- (I_i * Y_bar_0 + (1 - I_i) * Y_bar_1) / Y_bar
 
-        # Compute martingale residuals.
-        martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
+    # Compute martingale residuals.
+    martingale_residuals <- dN_ij - Y_ij * dN_bar / Y_bar
 
-        # Sum across all unique event times.
-        df$O_hat[i] <- sum(weights * martingale_residuals)
-    }
+    # Sum across all unique event times.
+    df$O_hat[i] <- sum(weights * martingale_residuals)
+  }
 
-    df[order(df$index), ]
+  df[order(df$index), ]
 }
 ```
 
@@ -649,22 +649,22 @@ Linear model input:
 
 ```{r}
 h_get_lm_input <- function(df, model) {
-    assert_data_frame(df)
-    assert_formula(model)
-    assert_subset(all.vars(model), names(df))
+  assert_data_frame(df)
+  assert_formula(model)
+  assert_subset(all.vars(model), names(df))
 
-    # Add outcome, remove intercept:
-    model <- update(model, O_hat ~ . - 1)
-    df_by_trt <- split(df, f = df$treatment)
-    lapply(
-        df_by_trt,
-        function(this_df) {
-            mf <- model.frame(model, data = this_df)
-            X <- model.matrix(model, data = mf)
-            y <- model.response(mf)
-            list(X = X, y = y)
-        }
-    )
+  # Add outcome, remove intercept:
+  model <- update(model, O_hat ~ . - 1)
+  df_by_trt <- split(df, f = df$treatment)
+  lapply(
+    df_by_trt,
+    function(this_df) {
+      mf <- model.frame(model, data = this_df)
+      X <- model.matrix(model, data = mf)
+      y <- model.response(mf)
+      list(X = X, y = y)
+    }
+  )
 }
 ```
 
@@ -672,30 +672,30 @@ Linear model coefficient estimates:
 
 ```{r}
 h_get_beta_estimates <- function(lm_input) {
-    assert_list(lm_input, types = "list")
-    assert_names(names(lm_input), identical.to = c("0", "1"))
+  assert_list(lm_input, types = "list")
+  assert_names(names(lm_input), identical.to = c("0", "1"))
 
-    # Fit the model separately for each treatment arm.
-    beta_est <- list()
+  # Fit the model separately for each treatment arm.
+  beta_est <- list()
 
-    for (group in names(lm_input)) {
-        # Get the design matrix for this treatment arm.
-        X <- lm_input[[group]]$X
+  for (group in names(lm_input)) {
+    # Get the design matrix for this treatment arm.
+    X <- lm_input[[group]]$X
 
-        # Center it.
-        X <- scale(X, center = TRUE, scale = FALSE)
+    # Center it.
+    X <- scale(X, center = TRUE, scale = FALSE)
 
-        # Get the derived outcome values, the response.
-        y <- lm_input[[group]]$y
+    # Get the derived outcome values, the response.
+    y <- lm_input[[group]]$y
 
-        # Fit the model without intercept.
-        lm_fit <- lm.fit(X, y)
+    # Fit the model without intercept.
+    lm_fit <- lm.fit(X, y)
 
-        # Get the coefficients.
-        beta_est[[group]] <- lm_fit$coefficients
-    }
+    # Get the coefficients.
+    beta_est[[group]] <- lm_fit$coefficients
+  }
 
-    beta_est
+  beta_est
 }
 ```
 
@@ -703,60 +703,60 @@ Now we can code the score function:
 
 ```{r}
 h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat = theta) {
-    # Subset to complete records here.
-    df <- na.omit(df[c(treatment, time, status, all.vars(model))])
-    n <- nrow(df)
+  # Subset to complete records here.
+  df <- na.omit(df[c(treatment, time, status, all.vars(model))])
+  n <- nrow(df)
 
-    # Calculate derived outcomes and regress them on covariates based on theta_hat.
-    df_with_covs_ovals <- h_derived_outcome_vals_from_theta(
-        theta = theta_hat,
-        df,
-        treatment,
-        time,
-        status,
-        covariates = all.vars(model),
-        n = n
-    )
-    lm_input <- h_get_lm_input(df_with_covs_ovals, model)
-    beta_est <- h_get_beta_estimates(lm_input)
+  # Calculate derived outcomes and regress them on covariates based on theta_hat.
+  df_with_covs_ovals <- h_derived_outcome_vals_from_theta(
+    theta = theta_hat,
+    df,
+    treatment,
+    time,
+    status,
+    covariates = all.vars(model),
+    n = n
+  )
+  lm_input <- h_get_lm_input(df_with_covs_ovals, model)
+  beta_est <- h_get_beta_estimates(lm_input)
 
-    # Obtain unadjusted result.
-    unadj_score <- h_lr_score_no_strata_no_cov(theta, df, treatment, time, status, n = n)
+  # Obtain unadjusted result.
+  unadj_score <- h_lr_score_no_strata_no_cov(theta, df, treatment, time, status, n = n)
 
-    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
-    # proportion of treatment 1 in the trial.
-    pi <- mean(as.numeric(df[[treatment]]) - 1)
+  # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+  # proportion of treatment 1 in the trial.
+  pi <- mean(as.numeric(df[[treatment]]) - 1)
 
-    # Overall column wise average of design matrices.
-    X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
-    X_bar <- colMeans(X_all)
+  # Overall column wise average of design matrices.
+  X_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
+  X_bar <- colMeans(X_all)
 
-    # Center the design matrices with this overall average.
-    X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
-    X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
+  # Center the design matrices with this overall average.
+  X_0 <- scale(lm_input[["0"]]$X, center = X_bar, scale = FALSE)
+  X_1 <- scale(lm_input[["1"]]$X, center = X_bar, scale = FALSE)
 
-    # Compute adjustment term for U_L.
-    U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+  # Compute adjustment term for U_L.
+  U_L_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
-    # Compute adjusted U_CL.
-    U_CL <- as.numeric(unadj_score) - U_L_adj_term
+  # Compute adjusted U_CL.
+  U_CL <- as.numeric(unadj_score) - U_L_adj_term
 
-    # Compute adjustment term for sigma_L2.
-    cov_X <- cov(X_all)
-    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
-    sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
+  # Compute adjustment term for sigma_L2.
+  cov_X <- cov(X_all)
+  beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+  sigma_L2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_X %*% beta_est_sum)
 
-    # Compute standard error for theta estimate.
-    g_theta_CL <- attr(unadj_score, "sigma_L2")
-    var_theta_CL <- (g_theta_CL - sigma_L2_adj_term) / (g_theta_CL^2) / n
-    se_theta_CL <- suppressWarnings(sqrt(var_theta_CL))
+  # Compute standard error for theta estimate.
+  g_theta_CL <- attr(unadj_score, "sigma_L2")
+  var_theta_CL <- (g_theta_CL - sigma_L2_adj_term) / (g_theta_CL^2) / n
+  se_theta_CL <- suppressWarnings(sqrt(var_theta_CL))
 
-    structure(
-        U_CL,
-        se_theta_L = se_theta_CL,
-        sigma_L2 = g_theta_CL - sigma_L2_adj_term,
-        n = n
-    )
+  structure(
+    U_CL,
+    se_theta_L = se_theta_CL,
+    sigma_L2 = g_theta_CL - sigma_L2_adj_term,
+    n = n
+  )
 }
 ```
 
@@ -764,18 +764,18 @@ Based on this we can code the high-level function that computes the estimates an
 
 ```{r}
 robin_surv_cov <- function(vars, data, exp_level, control_level) {
-    robin_surv_comparison(
-        score_fun = h_lr_score_cov,
-        unadj_score_fun = h_lr_score_no_strata_no_cov,
-        vars = vars,
-        data = data,
-        exp_level = exp_level,
-        control_level = control_level,
-        treatment = vars$treatment,
-        time = vars$time,
-        status = vars$status,
-        model = vars$model
-    )
+  robin_surv_comparison(
+    score_fun = h_lr_score_cov,
+    unadj_score_fun = h_lr_score_no_strata_no_cov,
+    vars = vars,
+    data = data,
+    exp_level = exp_level,
+    control_level = control_level,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status,
+    model = vars$model
+  )
 }
 ```
 
@@ -783,10 +783,10 @@ Let's test this:
 
 ```{r}
 robin_surv_cov(
-    vars = vars_covs,
-    data = dat,
-    exp_level = 2,
-    control_level = 1
+  vars = vars_covs,
+  data = dat,
+  exp_level = 2,
+  control_level = 1
 )
 ```
 
@@ -798,28 +798,28 @@ First again the derived outcome values function, but now stratified:
 
 ```{r}
 h_strat_derived_outcome_vals_from_theta <- function(theta, df, treatment, time, status, strata, covariates) {
-    assert_string(strata)
-    assert_data_frame(df)
-    assert_factor(df[[strata]])
+  assert_string(strata)
+  assert_data_frame(df)
+  assert_factor(df[[strata]])
 
-    assert_true(!any(is.na(df)))
-    n <- nrow(df)
+  assert_true(!any(is.na(df)))
+  n <- nrow(df)
 
-    df[[strata]] <- droplevels(df[[strata]])
-    strata_levels <- levels(df[[strata]])
+  df[[strata]] <- droplevels(df[[strata]])
+  strata_levels <- levels(df[[strata]])
 
-    df_split <- split(df, f = df[[strata]])
+  df_split <- split(df, f = df[[strata]])
 
-    lapply(
-        df_split,
-        FUN = h_derived_outcome_vals_from_theta,
-        theta = theta,
-        treatment = treatment,
-        time = time,
-        status = status,
-        covariates = covariates,
-        n = n
-    )
+  lapply(
+    df_split,
+    FUN = h_derived_outcome_vals_from_theta,
+    theta = theta,
+    treatment = treatment,
+    time = time,
+    status = status,
+    covariates = covariates,
+    n = n
+  )
 }
 ```
 
@@ -827,8 +827,8 @@ Then the linear model input function, but now stratified:
 
 ```{r}
 h_get_strat_lm_input <- function(df_split, model) {
-    assert_list(df_split, types = "data.frame")
-    lapply(df_split, h_get_lm_input, model = model)
+  assert_list(df_split, types = "data.frame")
+  lapply(df_split, h_get_lm_input, model = model)
 }
 ```
 
@@ -836,43 +836,43 @@ Getting the linear model coefficient estimates, but now stratified:
 
 ```{r}
 h_get_strat_beta_estimates <- function(strat_lm_input) {
-    assert_list(strat_lm_input, types = "list")
-    assert_list(strat_lm_input[[1]], types = "list")
-    assert_names(names(strat_lm_input[[1]]), identical.to = c("0", "1"))
+  assert_list(strat_lm_input, types = "list")
+  assert_list(strat_lm_input[[1]], types = "list")
+  assert_names(names(strat_lm_input[[1]]), identical.to = c("0", "1"))
 
-    # Get coefficient estimates separately for each treatment arm.
-    beta_est <- list()
+  # Get coefficient estimates separately for each treatment arm.
+  beta_est <- list()
 
-    for (group in c("0", "1")) {
-        XtXs <- list()
-        Xtys <- list()
+  for (group in c("0", "1")) {
+    XtXs <- list()
+    Xtys <- list()
 
-        for (stratum in names(strat_lm_input)) {
-            if (group %in% names(strat_lm_input[[stratum]])) {
-                # Get the design matrix for this treatment arm.
-                X <- strat_lm_input[[stratum]][[group]]$X
+    for (stratum in names(strat_lm_input)) {
+      if (group %in% names(strat_lm_input[[stratum]])) {
+        # Get the design matrix for this treatment arm.
+        X <- strat_lm_input[[stratum]][[group]]$X
 
-                # Center it.
-                X <- scale(X, center = TRUE, scale = FALSE)
+        # Center it.
+        X <- scale(X, center = TRUE, scale = FALSE)
 
-                # Get the derived outcome values, the response.
-                y <- strat_lm_input[[stratum]][[group]]$y
+        # Get the derived outcome values, the response.
+        y <- strat_lm_input[[stratum]][[group]]$y
 
-                # Save the cross products.
-                XtXs[[stratum]] <- crossprod(X)
-                Xtys[[stratum]] <- crossprod(X, y)
-            }
-        }
-
-        # Sum across strata.
-        XtX <- Reduce("+", XtXs)
-        Xty <- Reduce("+", Xtys)
-
-        # Get the coefficients.
-        beta_est[[group]] <- solve(XtX, Xty)
+        # Save the cross products.
+        XtXs[[stratum]] <- crossprod(X)
+        Xtys[[stratum]] <- crossprod(X, y)
+      }
     }
 
-    beta_est
+    # Sum across strata.
+    XtX <- Reduce("+", XtXs)
+    Xty <- Reduce("+", Xtys)
+
+    # Get the coefficients.
+    beta_est[[group]] <- solve(XtX, Xty)
+  }
+
+  beta_est
 }
 ```
 
@@ -880,73 +880,73 @@ This is now the score function:
 
 ```{r}
 h_lr_score_strat_cov <- function(theta, df, treatment, time, status, strata, model, theta_hat = theta) {
-    # Subset to complete records here.
-    df <- na.omit(df[c(treatment, time, status, strata, all.vars(model))])
-    n <- nrow(df)
+  # Subset to complete records here.
+  df <- na.omit(df[c(treatment, time, status, strata, all.vars(model))])
+  n <- nrow(df)
 
-    # Calculate derived outcomes and regress them on covariates.
-    df_split_with_covs_ovals <- h_strat_derived_outcome_vals_from_theta(
-        theta = theta_hat,
-        df,
-        treatment,
-        time,
-        status,
-        strata,
-        covariates = all.vars(model)
-    )
-    strat_lm_input <- h_get_strat_lm_input(df_split_with_covs_ovals, model)
-    beta_est <- h_get_strat_beta_estimates(strat_lm_input)
+  # Calculate derived outcomes and regress them on covariates.
+  df_split_with_covs_ovals <- h_strat_derived_outcome_vals_from_theta(
+    theta = theta_hat,
+    df,
+    treatment,
+    time,
+    status,
+    strata,
+    covariates = all.vars(model)
+  )
+  strat_lm_input <- h_get_strat_lm_input(df_split_with_covs_ovals, model)
+  beta_est <- h_get_strat_beta_estimates(strat_lm_input)
 
-    # Obtain unadjusted results.
-    strat_unadj_score <- h_lr_score_strat(theta, df, treatment, time, status, strata)
+  # Obtain unadjusted results.
+  strat_unadj_score <- h_lr_score_strat(theta, df, treatment, time, status, strata)
 
-    # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
-    # proportion of treatment 1 in the trial.
-    pi <- mean(as.numeric(df[[treatment]]) - 1)
+  # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+  # proportion of treatment 1 in the trial.
+  pi <- mean(as.numeric(df[[treatment]]) - 1)
 
-    # Overall column wise average of design matrices.
-    strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
-    strat_X_bar <- lapply(strat_X_all, colMeans)
+  # Overall column wise average of design matrices.
+  strat_X_all <- lapply(strat_lm_input, \(l) rbind(l[["0"]]$X, l[["1"]]$X))
+  strat_X_bar <- lapply(strat_X_all, colMeans)
 
-    # Center the design matrices with this overall average.
-    has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
-    has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
+  # Center the design matrices with this overall average.
+  has_X_0 <- names(which(sapply(strat_lm_input, \(l) "0" %in% names(l))))
+  has_X_1 <- names(which(sapply(strat_lm_input, \(l) "1" %in% names(l))))
 
-    X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
-    X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+  X_0 <- lapply(has_X_0, \(n) scale(strat_lm_input[[n]][["0"]]$X, center = strat_X_bar[[n]], scale = FALSE))
+  X_1 <- lapply(has_X_1, \(n) scale(strat_lm_input[[n]][["1"]]$X, center = strat_X_bar[[n]], scale = FALSE))
 
-    X_0 <- do.call(rbind, X_0)
-    X_1 <- do.call(rbind, X_1)
+  X_0 <- do.call(rbind, X_0)
+  X_1 <- do.call(rbind, X_1)
 
-    # Compute adjustment term for U_SL.
-    U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
+  # Compute adjustment term for U_SL.
+  U_SL_adj_term <- (sum(X_1 %*% beta_est[["1"]]) - sum(X_0 %*% beta_est[["0"]])) / n
 
-    # Compute adjusted U_CSL.
-    U_CSL <- as.numeric(strat_unadj_score) - U_SL_adj_term
+  # Compute adjusted U_CSL.
+  U_CSL <- as.numeric(strat_unadj_score) - U_SL_adj_term
 
-    # Compute adjustment term for sigma_SL2.
-    strat_n <- sapply(strat_X_all, nrow)
-    strat_use <- names(which(strat_n > 1))
-    strat_n <- strat_n[strat_use]
-    overall_n <- sum(strat_n)
-    strat_cov_X <- lapply(strat_X_all[strat_use], cov)
-    weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
-    weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
+  # Compute adjustment term for sigma_SL2.
+  strat_n <- sapply(strat_X_all, nrow)
+  strat_use <- names(which(strat_n > 1))
+  strat_n <- strat_n[strat_use]
+  overall_n <- sum(strat_n)
+  strat_cov_X <- lapply(strat_X_all[strat_use], cov)
+  weighted_cov_X <- Map(\(x, n) x * n / overall_n, strat_cov_X, strat_n)
+  weighted_sum_cov_X <- Reduce("+", weighted_cov_X)
 
-    beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
-    sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
+  beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+  sigma_SL2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_X %*% beta_est_sum)
 
-    # Compute standard error for theta estimate.
-    g_theta_CSL <- attr(strat_unadj_score, "sigma_L2")
-    var_theta_CSL <- (g_theta_CSL - sigma_SL2_adj_term) / (g_theta_CSL^2) / n
-    se_theta_CSL <- suppressWarnings(sqrt(var_theta_CSL))
+  # Compute standard error for theta estimate.
+  g_theta_CSL <- attr(strat_unadj_score, "sigma_L2")
+  var_theta_CSL <- (g_theta_CSL - sigma_SL2_adj_term) / (g_theta_CSL^2) / n
+  se_theta_CSL <- suppressWarnings(sqrt(var_theta_CSL))
 
-    structure(
-        U_CSL,
-        se_theta_L = se_theta_CSL,
-        sigma_L2 = g_theta_CSL - sigma_SL2_adj_term,
-        n = n
-    )
+  structure(
+    U_CSL,
+    se_theta_L = se_theta_CSL,
+    sigma_L2 = g_theta_CSL - sigma_SL2_adj_term,
+    n = n
+  )
 }
 ```
 
@@ -954,19 +954,19 @@ Based on this we can code the high-level function that computes the estimates an
 
 ```{r}
 robin_surv_strata_cov <- function(vars, data, exp_level, control_level) {
-    robin_surv_comparison(
-        score_fun = h_lr_score_strat_cov,
-        unadj_score_fun = h_lr_score_strat,
-        vars = vars,
-        data = data,
-        exp_level = exp_level,
-        control_level = control_level,
-        treatment = vars$treatment,
-        time = vars$time,
-        status = vars$status,
-        strata = vars$strata,
-        model = vars$model
-    )
+  robin_surv_comparison(
+    score_fun = h_lr_score_strat_cov,
+    unadj_score_fun = h_lr_score_strat,
+    vars = vars,
+    data = data,
+    exp_level = exp_level,
+    control_level = control_level,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status,
+    strata = vars$strata,
+    model = vars$model
+  )
 }
 ```
 
@@ -974,10 +974,10 @@ Let's test this:
 
 ```{r}
 robin_surv_strata_cov(
-    vars = vars_strata_covs,
-    data = dat,
-    exp_level = 2,
-    control_level = 1
+  vars = vars_strata_covs,
+  data = dat,
+  exp_level = 2,
+  control_level = 1
 )
 ```
 
@@ -993,74 +993,74 @@ robin_surv <- function(
     contrast = "hazardratio",
     test = "logrank",
     ...) {
-    attr(formula, ".Environment") <- environment()
-    assert_formula(formula)
-    assert_data_frame(data)
-    assert_formula(treatment)
-    assert_subset(all.vars(formula), names(data))
-    assert_subset(all.vars(treatment), names(data))
-    contrast <- match.arg(contrast)
-    test <- match.arg(test)
+  attr(formula, ".Environment") <- environment()
+  assert_formula(formula)
+  assert_data_frame(data)
+  assert_formula(treatment)
+  assert_subset(all.vars(formula), names(data))
+  assert_subset(all.vars(treatment), names(data))
+  contrast <- match.arg(contrast)
+  test <- match.arg(test)
 
-    vars <- h_prepare_vars(formula, data, treatment)
-    data[[vars$treatment]] <- as.factor(data[[vars$treatment]])
-    # Subset to complete records here, so that we can use this for the strata/events tabulation.
-    data <- na.omit(data[c(vars$treatment, vars$time, vars$status, vars$strata, vars$covariates)])
-    events_table <- h_events_table(data, vars)
+  vars <- h_prepare_vars(formula, data, treatment)
+  data[[vars$treatment]] <- as.factor(data[[vars$treatment]])
+  # Subset to complete records here, so that we can use this for the strata/events tabulation.
+  data <- na.omit(data[c(vars$treatment, vars$time, vars$status, vars$strata, vars$covariates)])
+  events_table <- h_events_table(data, vars)
 
-    has_strata <- length(vars$strata) > 0
-    has_covariates <- length(vars$covariates) > 0
-    calc_function <- if (has_strata && has_covariates) {
-        robin_surv_strata_cov
-    } else if (has_strata) {
-        robin_surv_strata
-    } else if (has_covariates) {
-        robin_surv_cov
-    } else {
-        robin_surv_no_strata_no_cov
-    }
+  has_strata <- length(vars$strata) > 0
+  has_covariates <- length(vars$covariates) > 0
+  calc_function <- if (has_strata && has_covariates) {
+    robin_surv_strata_cov
+  } else if (has_strata) {
+    robin_surv_strata
+  } else if (has_covariates) {
+    robin_surv_cov
+  } else {
+    robin_surv_no_strata_no_cov
+  }
 
-    comparisons <- pairwise(vars$levels)
-    n_comparisons <- length(comparisons[[1]])
-    estimates <- lapply(
-        seq_len(n_comparisons),
-        function(i) {
-            exp_level <- comparisons[[1]][i]
-            control_level <- comparisons[[2]][i]
-            calc_function(
-                vars = vars,
-                data = data,
-                exp_level = exp_level,
-                control_level = control_level
-            )
-        }
-    )
-
-    result <- list(
-        model = formula,
+  comparisons <- pairwise(vars$levels)
+  n_comparisons <- length(comparisons[[1]])
+  estimates <- lapply(
+    seq_len(n_comparisons),
+    function(i) {
+      exp_level <- comparisons[[1]][i]
+      control_level <- comparisons[[2]][i]
+      calc_function(
         vars = vars,
         data = data,
-        events_table = events_table,
-        randomization = treatment,
-        schema = vars$schema,
-        contrast = contrast,
-        test = test,
-        pair = comparisons,
-        estimate = sapply(estimates, "[[", "estimate"),
-        se = sapply(estimates, "[[", "se"),
-        test_stat = sapply(estimates, "[[", "test_stat"),
-        p_value = sapply(estimates, "[[", "p_value"),
-        hr_n = sapply(estimates, "[[", "hr_n"),
-        hr_sigma_L2 = sapply(estimates, "[[", "hr_sigma_L2"),
-        test_n = sapply(estimates, "[[", "test_n"),
-        test_sigma_L2 = sapply(estimates, "[[", "test_sigma_L2"),
-        test_score = sapply(estimates, "[[", "test_U_L")
-    )
-    result$hr_coef_mat <- h_hr_coef_mat(result)
-    result$test_mat <- h_test_mat(result)
+        exp_level = exp_level,
+        control_level = control_level
+      )
+    }
+  )
 
-    class(result) <- "surv_effect"
-    result
+  result <- list(
+    model = formula,
+    vars = vars,
+    data = data,
+    events_table = events_table,
+    randomization = treatment,
+    schema = vars$schema,
+    contrast = contrast,
+    test = test,
+    pair = comparisons,
+    estimate = sapply(estimates, "[[", "estimate"),
+    se = sapply(estimates, "[[", "se"),
+    test_stat = sapply(estimates, "[[", "test_stat"),
+    p_value = sapply(estimates, "[[", "p_value"),
+    hr_n = sapply(estimates, "[[", "hr_n"),
+    hr_sigma_L2 = sapply(estimates, "[[", "hr_sigma_L2"),
+    test_n = sapply(estimates, "[[", "test_n"),
+    test_sigma_L2 = sapply(estimates, "[[", "test_sigma_L2"),
+    test_score = sapply(estimates, "[[", "test_U_L")
+  )
+  result$hr_coef_mat <- h_hr_coef_mat(result)
+  result$test_mat <- h_test_mat(result)
+
+  class(result) <- "surv_effect"
+  result
 }
 ```
 
@@ -1068,21 +1068,21 @@ We use a little helper function to prepare the hazard ratio coefficients matrix:
 
 ```{r}
 h_hr_coef_mat <- function(x) {
-    z_value <- x$estimate / x$se
-    p_value <- 2 * pnorm(-abs(z_value))
-    ret <- matrix(
-        c(
-            x$estimate,
-            x$se,
-            z_value,
-            p_value
-        ),
-        nrow = length(x$estimate)
-    )
-    colnames(ret) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
-    pair <- x$pair
-    row.names(ret) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
-    ret
+  z_value <- x$estimate / x$se
+  p_value <- 2 * pnorm(-abs(z_value))
+  ret <- matrix(
+    c(
+      x$estimate,
+      x$se,
+      z_value,
+      p_value
+    ),
+    nrow = length(x$estimate)
+  )
+  colnames(ret) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
+  pair <- x$pair
+  row.names(ret) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
+  ret
 }
 ```
 
@@ -1090,17 +1090,17 @@ Similary for the test results matrix:
 
 ```{r}
 h_test_mat <- function(x) {
-    ret <- matrix(
-        c(
-            x$test_stat,
-            x$p_value
-        ),
-        nrow = length(x$estimate)
-    )
-    colnames(ret) <- c("Test Stat.", "Pr(>|z|)")
-    pair <- x$pair
-    row.names(ret) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
-    ret
+  ret <- matrix(
+    c(
+      x$test_stat,
+      x$p_value
+    ),
+    nrow = length(x$estimate)
+  )
+  colnames(ret) <- c("Test Stat.", "Pr(>|z|)")
+  pair <- x$pair
+  row.names(ret) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
+  ret
 }
 ```
 
@@ -1108,34 +1108,34 @@ And we have a helper to prepare the events table. We stick here to using base R 
 
 ```{r}
 h_events_table <- function(data, vars) {
-    assert_data_frame(data)
-    assert_subset(vars$treatment, names(data))
-    assert_subset(vars$time, names(data))
-    assert_subset(vars$status, names(data))
-    assert_subset(vars$strata, names(data))
+  assert_data_frame(data)
+  assert_subset(vars$treatment, names(data))
+  assert_subset(vars$time, names(data))
+  assert_subset(vars$status, names(data))
+  assert_subset(vars$strata, names(data))
 
-    tab <- table(data[c(vars$strata, vars$treatment, vars$status)])
+  tab <- table(data[c(vars$strata, vars$treatment, vars$status)])
 
-    if (length(vars$strata)) {
-        tab_patients <- tab[, , "0", drop = FALSE] + tab[, , "1", drop = FALSE]
-        tab_events <- tab[, , "1", drop = FALSE]
-    } else {
-        tab_patients <- tab[, "0", drop = FALSE] + tab[, "1", drop = FALSE]
-        tab_events <- tab[, "1", drop = FALSE]
-    }
-    df_patients <- as.data.frame(tab_patients)[, c(vars$strata, vars$treatment, "Freq")]
-    colnames(df_patients)[colnames(df_patients) == "Freq"] <- "Patients"
-    df_events <- as.data.frame(tab_events)[, c(vars$strata, vars$treatment, "Freq")]
-    colnames(df_events)[colnames(df_events) == "Freq"] <- "Events"
-    df <- merge(
-        df_patients,
-        df_events,
-        by = c(vars$strata, vars$treatment)
-    )
-    keep_rows <- which(df$Patients > 0)
-    df <- df[keep_rows, ]
-    rownames(df) <- NULL
-    df
+  if (length(vars$strata)) {
+    tab_patients <- tab[, , "0", drop = FALSE] + tab[, , "1", drop = FALSE]
+    tab_events <- tab[, , "1", drop = FALSE]
+  } else {
+    tab_patients <- tab[, "0", drop = FALSE] + tab[, "1", drop = FALSE]
+    tab_events <- tab[, "1", drop = FALSE]
+  }
+  df_patients <- as.data.frame(tab_patients)[, c(vars$strata, vars$treatment, "Freq")]
+  colnames(df_patients)[colnames(df_patients) == "Freq"] <- "Patients"
+  df_events <- as.data.frame(tab_events)[, c(vars$strata, vars$treatment, "Freq")]
+  colnames(df_events)[colnames(df_events) == "Freq"] <- "Events"
+  df <- merge(
+    df_patients,
+    df_events,
+    by = c(vars$strata, vars$treatment)
+  )
+  keep_rows <- which(df$Patients > 0)
+  df <- df[keep_rows, ]
+  rownames(df) <- NULL
+  df
 }
 ```
 
@@ -1152,36 +1152,36 @@ We then have a print method for the `surv_effect` class:
 ```{r}
 #' @export
 print.surv_effect <- function(x, ...) {
-    cat("Model        : ", deparse(as.formula(x$model)), "\n")
+  cat("Model        : ", deparse(as.formula(x$model)), "\n")
 
-    cat(
-        "Randomization: ",
-        deparse(x$randomization),
-        " (",
-        randomization_schema$schema[randomization_schema$id == x$schema],
-        ")\n"
-    )
-    contr_type <- switch(x$contrast,
-        hazardratio = "Hazard ratio"
-    )
-    cat(sprintf("\nContrast     :  %s\n\n", contr_type))
+  cat(
+    "Randomization: ",
+    deparse(x$randomization),
+    " (",
+    randomization_schema$schema[randomization_schema$id == x$schema],
+    ")\n"
+  )
+  contr_type <- switch(x$contrast,
+    hazardratio = "Hazard ratio"
+  )
+  cat(sprintf("\nContrast     :  %s\n\n", contr_type))
 
-    stats::printCoefmat(
-        x$hr_coef_mat
-    )
+  stats::printCoefmat(
+    x$hr_coef_mat
+  )
 
-    cat("\n")
+  cat("\n")
 
-    test_type <- switch(x$test,
-        logrank = "Log-Rank"
-    )
-    cat(sprintf("Test         :  %s\n\n", test_type))
+  test_type <- switch(x$test,
+    logrank = "Log-Rank"
+  )
+  cat(sprintf("Test         :  %s\n\n", test_type))
 
-    stats::printCoefmat(
-        x$test_mat,
-        tst.ind = 1L,
-        has.Pvalue = TRUE
-    )
+  stats::printCoefmat(
+    x$test_mat,
+    tst.ind = 1L,
+    has.Pvalue = TRUE
+  )
 }
 ```
 
@@ -1196,14 +1196,14 @@ table.default <- function(x, ...) base::table(x, ...)
 
 #' @export
 table.surv_effect <- function(object, ...) {
-    cat(
-        "Number of patients and events per",
-        ifelse(length(object$vars$strata), " stratum and ", " "),
-        "treatment arm:\n",
-        sep = ""
-    )
-    print(object$events_table)
-    invisible(object)
+  cat(
+    "Number of patients and events per",
+    ifelse(length(object$vars$strata), " stratum and ", " "),
+    "treatment arm:\n",
+    sep = ""
+  )
+  print(object$events_table)
+  invisible(object)
 }
 ```
 
@@ -1222,8 +1222,8 @@ Let's simplify the situation first and remove the ties from the data set.
 
 ```{r}
 dat_no_ties <- dat |>
-    filter(!duplicated(time)) |>
-    droplevels()
+  filter(!duplicated(time)) |>
+  droplevels()
 ```
 
 ### Without strata, no covariates
@@ -1232,9 +1232,9 @@ The simplest version, the standard log-rank test without covariates or strata:
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex,
-    data = dat_no_ties,
-    treatment = sex ~ 1
+  formula = Surv(time, status_numeric) ~ sex,
+  data = dat_no_ties,
+  treatment = sex ~ 1
 )
 robincar2_result
 table(robincar2_result)
@@ -1244,19 +1244,19 @@ We can compare this with the `RobinCar` package. We need to omit subjects with m
 
 ```{r}
 dat_no_ties_1 <- dat_no_ties |>
-    select(time, status_numeric, sex) |>
-    na.omit()
+  select(time, status_numeric, sex) |>
+  na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat_no_ties_1,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = NULL,
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties_1$sex == "Male")
+  df = dat_no_ties_1,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = NULL,
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties_1$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1265,8 +1265,8 @@ So we get the same test statistic and thus p-value here. Note that the p-value i
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic
+  robincar2_result$test_stat,
+  robincar_lr_result$result$statistic
 ))
 ```
 
@@ -1274,16 +1274,16 @@ For the hazard ratio estimate we need to use the other `RobinCar` function:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat_no_ties_1,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = NULL,
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties_1$sex == "Male")
+  df = dat_no_ties_1,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = NULL,
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties_1$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1294,12 +1294,12 @@ We can see that the results match:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$estimate,
-    robincar_hr_result$result$theta_L
+  robincar2_result$estimate,
+  robincar_hr_result$result$theta_L
 ))
 stopifnot(all.equal(
-    robincar2_result$se,
-    robincar_hr_result$result$se_theta_L
+  robincar2_result$se,
+  robincar_hr_result$result$se_theta_L
 ))
 ```
 
@@ -1309,9 +1309,9 @@ Let's look at the case with covariates, but no strata. We can use the same formu
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
-    data = dat_no_ties,
-    treatment = sex ~ 1
+  formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
+  data = dat_no_ties,
+  treatment = sex ~ 1
 )
 robincar2_result
 table(robincar2_result)
@@ -1321,19 +1321,19 @@ With `RobinCar`:
 
 ```{r}
 dat_no_ties2 <- dat_no_ties |>
-    select(time, status_numeric, sex, age, ph.karno, meal.cal) |>
-    na.omit()
+  select(time, status_numeric, sex, age, ph.karno, meal.cal) |>
+  na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat_no_ties2,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties2$sex == "Male")
+  df = dat_no_ties2,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties2$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1342,8 +1342,8 @@ We see that the log-rank test results match:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic
+  robincar2_result$test_stat,
+  robincar_lr_result$result$statistic
 ))
 ```
 
@@ -1351,16 +1351,16 @@ We can also compare the hazard ratio estimate:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat_no_ties2,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties2$sex == "Male")
+  df = dat_no_ties2,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties2$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1369,12 +1369,12 @@ Here we also now get a match on the log HR estimate, because we use the approxim
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$estimate,
-    robincar_hr_result$result$theta_CL
+  robincar2_result$estimate,
+  robincar_hr_result$result$theta_CL
 ))
 all.equal(
-    robincar2_result$se,
-    robincar_hr_result$result$se_theta_CL
+  robincar2_result$se,
+  robincar_hr_result$result$se_theta_CL
 )
 ```
 
@@ -1386,9 +1386,9 @@ If we just stratify:
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata,
-    data = dat_no_ties,
-    treatment = sex ~ pb(strata)
+  formula = Surv(time, status_numeric) ~ sex * strata,
+  data = dat_no_ties,
+  treatment = sex ~ pb(strata)
 )
 robincar2_result
 table(robincar2_result)
@@ -1398,19 +1398,19 @@ With `RobinCar`:
 
 ```{r}
 dat_no_ties3 <- dat_no_ties |>
-    select(time, status_numeric, sex, strata) |>
-    na.omit()
+  select(time, status_numeric, sex, strata) |>
+  na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat_no_ties3,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = NULL,
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+  df = dat_no_ties3,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = NULL,
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties3$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1419,8 +1419,8 @@ So here the results match:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic
+  robincar2_result$test_stat,
+  robincar_lr_result$result$statistic
 ))
 ```
 
@@ -1428,16 +1428,16 @@ We can also compare the hazard ratio estimate:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat_no_ties3,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = NULL,
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+  df = dat_no_ties3,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = NULL,
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties3$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1446,12 +1446,12 @@ This matches perfectly:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$estimate,
-    robincar_hr_result$result$theta_CL
+  robincar2_result$estimate,
+  robincar_hr_result$result$theta_CL
 ))
 stopifnot(all.equal(
-    robincar2_result$se,
-    robincar_hr_result$result$se_theta_CL
+  robincar2_result$se,
+  robincar_hr_result$result$se_theta_CL
 ))
 ```
 
@@ -1461,9 +1461,9 @@ Finally, we can combine both:
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
-    data = dat_no_ties,
-    treatment = sex ~ strata
+  formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+  data = dat_no_ties,
+  treatment = sex ~ strata
 )
 robincar2_result
 ```
@@ -1472,19 +1472,19 @@ With `RobinCar`:
 
 ```{r}
 dat_no_ties4 <- dat_no_ties |>
-    select(time, status_numeric, sex, strata, age, ph.karno, meal.cal) |>
-    na.omit()
+  select(time, status_numeric, sex, strata, age, ph.karno, meal.cal) |>
+  na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat_no_ties4,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+  df = dat_no_ties4,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties3$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1493,19 +1493,19 @@ The problem here is that there is one stratum with a single patient in the exper
 
 ```{r}
 dat_no_ties5 <- dat_no_ties4 |>
-    filter(!(strata == "3"))
+  filter(!(strata == "3"))
 
 robincar_lr_result <- robincar_logrank(
-    df = dat_no_ties5,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+  df = dat_no_ties5,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties3$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1514,9 +1514,9 @@ Let's also run our function again with the same data:
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
-    data = dat_no_ties |> filter(!(strata == "3")),
-    treatment = sex ~ strata
+  formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+  data = dat_no_ties |> filter(!(strata == "3")),
+  treatment = sex ~ strata
 )
 robincar2_result
 ```
@@ -1525,9 +1525,9 @@ The test statistic matches well:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic,
-    tolerance = 1e-4
+  robincar2_result$test_stat,
+  robincar_lr_result$result$statistic,
+  tolerance = 1e-4
 ))
 ```
 
@@ -1535,16 +1535,16 @@ For the HR estimate:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat_no_ties5,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+  df = dat_no_ties5,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties3$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1553,12 +1553,12 @@ The results are again very close:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$estimate,
-    robincar_hr_result$result$theta_CL
+  robincar2_result$estimate,
+  robincar_hr_result$result$theta_CL
 ))
 all.equal(
-    robincar2_result$se,
-    robincar_hr_result$result$se_theta_CL
+  robincar2_result$se,
+  robincar_hr_result$result$se_theta_CL
 )
 ```
 
@@ -1577,9 +1577,9 @@ We want to make sure that again we can match the results with `RobinCar`.
 Our results:
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex,
-    data = dat,
-    treatment = sex ~ 1
+  formula = Surv(time, status_numeric) ~ sex,
+  data = dat,
+  treatment = sex ~ 1
 )
 robincar2_result
 ```
@@ -1588,19 +1588,19 @@ With `RobinCar`:
 
 ```{r}
 dat1 <- dat |>
-    select(time, status_numeric, sex) |>
-    na.omit()
+  select(time, status_numeric, sex) |>
+  na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat1,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = NULL,
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(dat1$sex == "Male")
+  df = dat1,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = NULL,
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(dat1$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1609,19 +1609,19 @@ So also this matches now very well (after we included the events factor above), 
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic
+  robincar2_result$test_stat,
+  robincar_lr_result$result$statistic
 ))
 stopifnot(all.equal(
-    robincar2_result$test_score,
-    robincar_lr_result$result$U
+  robincar2_result$test_score,
+  robincar_lr_result$result$U
 ))
 stopifnot(all.equal(
-    sqrt(
-        robincar2_result$test_sigma_L2 /
-            robincar2_result$test_n
-    ),
-    robincar_lr_result$result$se
+  sqrt(
+    robincar2_result$test_sigma_L2 /
+      robincar2_result$test_n
+  ),
+  robincar_lr_result$result$se
 ))
 ```
 
@@ -1629,16 +1629,16 @@ For the HR:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat1,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = NULL,
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(dat1$sex == "Male")
+  df = dat1,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = NULL,
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(dat1$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1647,12 +1647,12 @@ We can see that the point estimate matches very well, and after skipping the cor
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$estimate,
-    robincar_hr_result$result$theta_L
+  robincar2_result$estimate,
+  robincar_hr_result$result$theta_L
 ))
 stopifnot(all.equal(
-    robincar2_result$se,
-    robincar_hr_result$result$se_theta_L
+  robincar2_result$se,
+  robincar_hr_result$result$se_theta_L
 ))
 ```
 
@@ -1672,9 +1672,9 @@ Let's look at the case with covariates, but no strata. We can use the same formu
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
-    data = dat,
-    treatment = sex ~ 1,
+  formula = Surv(time, status_numeric) ~ sex + age + ph.karno + meal.cal,
+  data = dat,
+  treatment = sex ~ 1,
 )
 robincar2_result
 ```
@@ -1683,19 +1683,19 @@ With `RobinCar`:
 
 ```{r}
 dat2 <- dat |>
-    select(time, status_numeric, sex, age, ph.karno, meal.cal) |>
-    na.omit()
+  select(time, status_numeric, sex, age, ph.karno, meal.cal) |>
+  na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat2,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(dat2$sex == "Male")
+  df = dat2,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(dat2$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1704,8 +1704,8 @@ So this matches perfectly:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic
+  robincar2_result$test_stat,
+  robincar_lr_result$result$statistic
 ))
 ```
 
@@ -1713,16 +1713,16 @@ For the HR estimate:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat2,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = NULL,
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "simple",
-    adj_method = "CL",
-    ref_arm = "Female",
-    p_trt = mean(dat2$sex == "Male")
+  df = dat2,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = NULL,
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "Female",
+  p_trt = mean(dat2$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1731,12 +1731,12 @@ We can see that this is very close:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$estimate,
-    robincar_hr_result$result$theta_CL
+  robincar2_result$estimate,
+  robincar_hr_result$result$theta_CL
 ))
 all.equal(
-    robincar2_result$se,
-    robincar_hr_result$result$se_theta_CL
+  robincar2_result$se,
+  robincar_hr_result$result$se_theta_CL
 )
 ```
 
@@ -1748,9 +1748,9 @@ Let's look at the case with strata, but no covariates:
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata,
-    data = dat,
-    treatment = sex ~ pb(strata)
+  formula = Surv(time, status_numeric) ~ sex * strata,
+  data = dat,
+  treatment = sex ~ pb(strata)
 )
 robincar2_result
 ```
@@ -1759,19 +1759,19 @@ With `RobinCar`:
 
 ```{r}
 dat3 <- dat |>
-    select(time, status_numeric, sex, strata) |>
-    na.omit()
+  select(time, status_numeric, sex, strata) |>
+  na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat3,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = NULL,
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat3$sex == "Male")
+  df = dat3,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = NULL,
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat3$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1780,8 +1780,8 @@ So here the results agree now:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic
+  robincar2_result$test_stat,
+  robincar_lr_result$result$statistic
 ))
 ```
 
@@ -1794,13 +1794,13 @@ First I thought the problem came from this:
 
 ```{r}
 data.frame(
-    event = c(0, 0, 1),
-    Y0 = c(0L, 0L, 0L),
-    Y1 = c(1L, 1L, 1L),
-    Y = c(1L, 1L, 1L),
-    n.events = c(0, 0, 1),
-    ssig_l = c(NaN, NaN, NaN),
-    row.names = c(63L, 176L, 226L)
+  event = c(0, 0, 1),
+  Y0 = c(0L, 0L, 0L),
+  Y1 = c(1L, 1L, 1L),
+  Y = c(1L, 1L, 1L),
+  n.events = c(0, 0, 1),
+  ssig_l = c(NaN, NaN, NaN),
+  row.names = c(63L, 176L, 226L)
 )
 ```
 
@@ -1816,12 +1816,12 @@ We can also look at the `survival` result:
 check <- survdiff(Surv(time, status_numeric) ~ sex + strata(strata), data = dat3)
 check
 all.equal(
-    robincar2_result$test_stat^2,
-    check$chisq
+  robincar2_result$test_stat^2,
+  check$chisq
 )
 all.equal(
-    robincar_lr_result$result$statistic^2,
-    check$chisq
+  robincar_lr_result$result$statistic^2,
+  check$chisq
 )
 ```
 
@@ -1831,16 +1831,16 @@ We can also compare the hazard ratio estimate:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat3,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = NULL,
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat3$sex == "Male")
+  df = dat3,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = NULL,
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat3$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1849,12 +1849,12 @@ This matches perfectly:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$estimate,
-    robincar_hr_result$result$theta_CL
+  robincar2_result$estimate,
+  robincar_hr_result$result$theta_CL
 ))
 stopifnot(all.equal(
-    robincar2_result$se,
-    robincar_hr_result$result$se_theta_CL
+  robincar2_result$se,
+  robincar_hr_result$result$se_theta_CL
 ))
 ```
 
@@ -1864,9 +1864,9 @@ Finally, we can combine both:
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
-    data = dat,
-    treatment = sex ~ strata
+  formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+  data = dat,
+  treatment = sex ~ strata
 )
 robincar2_result
 ```
@@ -1875,19 +1875,19 @@ With `RobinCar`:
 
 ```{r}
 dat4 <- dat |>
-    select(time, status_numeric, sex, strata, age, ph.karno, meal.cal) |>
-    na.omit()
+  select(time, status_numeric, sex, strata, age, ph.karno, meal.cal) |>
+  na.omit()
 robincar_lr_result <- robincar_logrank(
-    df = dat4,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat_no_ties3$sex == "Male")
+  df = dat4,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat_no_ties3$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1896,19 +1896,19 @@ The problem here is that there is one stratum with a single patient in the exper
 
 ```{r}
 dat5 <- dat4 |>
-    filter(!(strata == "3"))
+  filter(!(strata == "3"))
 
 robincar_lr_result <- robincar_logrank(
-    df = dat5,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat5$sex == "Male")
+  df = dat5,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat5$sex == "Male")
 )
 robincar_lr_result
 ```
@@ -1917,9 +1917,9 @@ Let's also run our function again with the same data. Here we make it more chall
 
 ```{r}
 robincar2_result <- robin_surv(
-    formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
-    data = dat |> filter(!(strata == "3")),
-    treatment = sex ~ strata
+  formula = Surv(time, status_numeric) ~ sex * strata + age + ph.karno + meal.cal,
+  data = dat |> filter(!(strata == "3")),
+  treatment = sex ~ strata
 )
 robincar2_result
 ```
@@ -1928,8 +1928,8 @@ The test statistic matches well:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$test_stat,
-    robincar_lr_result$result$statistic
+  robincar2_result$test_stat,
+  robincar_lr_result$result$statistic
 ))
 ```
 
@@ -1937,16 +1937,16 @@ For the HR estimate:
 
 ```{r}
 robincar_hr_result <- robincar_covhr(
-    df = dat5,
-    treat_col = "sex",
-    response_col = "time",
-    event_col = "status_numeric",
-    car_strata_cols = "strata",
-    covariate_cols = c("age", "ph.karno", "meal.cal"),
-    car_scheme = "permuted-block",
-    adj_method = "CSL",
-    ref_arm = "Female",
-    p_trt = mean(dat5$sex == "Male")
+  df = dat5,
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status_numeric",
+  car_strata_cols = "strata",
+  covariate_cols = c("age", "ph.karno", "meal.cal"),
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(dat5$sex == "Male")
 )
 robincar_hr_result
 ```
@@ -1955,12 +1955,12 @@ The results are again very close:
 
 ```{r}
 stopifnot(all.equal(
-    robincar2_result$estimate,
-    robincar_hr_result$result$theta_CL
+  robincar2_result$estimate,
+  robincar_hr_result$result$theta_CL
 ))
 all.equal(
-    robincar2_result$se,
-    robincar_hr_result$result$se_theta_CL
+  robincar2_result$se,
+  robincar_hr_result$result$se_theta_CL
 )
 ```
 
