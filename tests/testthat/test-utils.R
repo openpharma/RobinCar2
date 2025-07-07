@@ -41,3 +41,83 @@ test_that("h_get_vars works for formula with schemas", {
   res <- expect_silent(h_get_vars(a ~ strata(b)))
   expect_identical(res, list(treatment = "a", schema = "sp", strata = "b"))
 })
+
+test_that("h_prep_survival_vars works with strata", {
+  result <- expect_silent(h_prep_survival_vars(
+    formula = survival::Surv(time, status) ~ sex * strata + age + ph.karno + meal.cal,
+    data = surv_dat,
+    treatment = sex ~ strata
+  ))
+  expected <- list(
+    time = "time",
+    status = "status",
+    treatment = "sex",
+    strata = "strata",
+    schema = "sp",
+    covariates = c("age", "ph.karno", "meal.cal"),
+    model = ~ age + ph.karno + meal.cal,
+    n_levels = 2L,
+    levels = c("Female", "Male")
+  )
+  expect_equal(result, expected, ignore_formula_env = TRUE)
+})
+
+test_that("h_prep_survival_vars works without strata", {
+  result <- expect_silent(h_prep_survival_vars(
+    formula = survival::Surv(time, status) ~ sex + age + ph.karno + meal.cal,
+    data = surv_dat,
+    treatment = sex ~ 1
+  ))
+  expected <- list(
+    time = "time",
+    status = "status",
+    treatment = "sex",
+    strata = character(),
+    schema = "sp",
+    covariates = c("age", "ph.karno", "meal.cal"),
+    model = ~ age + ph.karno + meal.cal,
+    n_levels = 2L,
+    levels = c("Female", "Male")
+  )
+  expect_equal(result, expected, ignore_formula_env = TRUE)
+})
+
+test_that("h_prep_survival_vars works without covariates", {
+  result <- expect_silent(h_prep_survival_vars(
+    formula = survival::Surv(time, status) ~ sex * strata,
+    data = surv_dat,
+    treatment = sex ~ strata
+  ))
+  expected <- list(
+    time = "time",
+    status = "status",
+    treatment = "sex",
+    strata = "strata",
+    schema = "sp",
+    covariates = character(),
+    model = ~1,
+    n_levels = 2L,
+    levels = c("Female", "Male")
+  )
+  expect_equal(result, expected, ignore_formula_env = TRUE)
+})
+
+test_that("h_prep_survival_vars works without covariates and without strata", {
+  result <- expect_silent(h_prep_survival_vars(
+    formula = survival::Surv(time, status) ~ sex,
+    data = surv_dat,
+    treatment = sex ~ 1
+  ))
+  expected <- list(
+    time = "time",
+    status = "status",
+    treatment = "sex",
+    strata = character(),
+    schema = "sp",
+    covariates = character(),
+    model = ~1,
+    n_levels = 2L,
+    levels = c("Female", "Male")
+  )
+  expect_equal(result, expected, ignore_formula_env = TRUE)
+})

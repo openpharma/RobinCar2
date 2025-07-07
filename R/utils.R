@@ -38,6 +38,73 @@ h_get_vars <- function(treatment) {
   )
 }
 
+#' Prepare Survival Variables
+#'
+#' @param formula (`formula`) with a left hand side of the form `Surv(time, status)`.
+#' @param data (`data.frame`) containing the variables in the formula.
+#' @inheritParams h_get_vars
+#'
+#' @return A list containing the following elements:
+#' - `time`: Name of the time variable.
+#' - `status`: Name of the status variable.
+#' - `treatment`: Name of the treatment variable.
+#' - `strata`: Name of the strata variable.
+#' - `schema`: Randomization schema.
+#' - `covariates`: Names of the covariates in the model.
+#' - `model`: A formula only including the covariates, but not treatment or strata variables.
+#' - `n_levels`: Number of treatment levels.
+#' - `levels`: Names of the treatment levels.
+#'
+#' @keywords internal
+h_prep_survival_vars <- function(formula, data, treatment) {
+  trt_vars <- h_get_vars(treatment)
+  assert_data_frame(data)
+  assert_formula(formula)
+  assert_true(identical(length(formula), 3L))
+  assert_subset(c(trt_vars$treatment, trt_vars$strata), colnames(data))
+  assert_subset(trt_vars$treatment, all.vars(formula[[3]]))
+  assert(
+    test_character(data[[trt_vars$treatment]]),
+    test_factor(data[[trt_vars$treatment]])
+  )
+
+  trt_lvls <- levels(data[[trt_vars$treatment]])
+  n_lvls <- length(trt_lvls)
+  covariates <- setdiff(all.vars(formula[[3]]), c(trt_vars$treatment, trt_vars$strata))
+
+  # Extract survival time and censoring indicator from the left hand side of the formula.
+  lhs <- formula[[2]]
+  if (inherits(lhs, "call") && (lhs[[1]] == as.name("Surv") || lhs[[1]] == as.name("survival::Surv"))) {
+    surv_vars <- as.character(lhs)[-1]
+    assert_subset(surv_vars, colnames(data))
+    time_var <- surv_vars[1]
+    status_var <- surv_vars[2]
+  } else {
+    stop("Left hand side of formula must be a Surv() object.")
+  }
+
+  # Extract model without left hand side and without treatment and strata variables.
+  model <- as.formula(as.call(as.list(formula)[-2L]))
+  update_string <- if (length(trt_vars$strata)) {
+    paste0("~ . - ", trt_vars$treatment, "*", trt_vars$strata)
+  } else {
+    paste("~ . -", trt_vars$treatment)
+  }
+  model <- update(model, as.formula(update_string))
+
+  list(
+    time = time_var,
+    status = status_var,
+    treatment = trt_vars$treatment,
+    strata = trt_vars$strata,
+    schema = trt_vars$schema,
+    covariates = covariates,
+    model = model,
+    n_levels = n_lvls,
+    levels = trt_lvls
+  )
+}
+
 #' Block Sum of a matrix
 #' @keywords internal
 block_sum <- function(x, n) {
