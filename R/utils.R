@@ -105,6 +105,38 @@ h_prep_survival_vars <- function(formula, data, treatment) {
   )
 }
 
+#' Count Number of Events per Unique Event Time
+#'
+#' This function counts the number of events at each unique event time point in a survival dataset.
+#'
+#' @details If there are no events in the dataset, it returns an empty `data.frame`.
+#'
+#' @param df (`data.frame`) containing the survival data.
+#' @param time (`string`) name of the time variable.
+#' @param status (`string`) name of the status variable, where 1 indicates an event and 0 indicates censoring.
+#' @return A `data.frame` with two columns: `time` and `n_events`, where `n_events` is the
+#'   number of events at each time point.
+#' @keywords internal
+h_n_events_per_time <- function(df, time, status) {
+  assert_data_frame(df)
+  assert_string(time)
+  assert_string(status)
+  assert_numeric(df[[time]], any.missing = FALSE)
+  assert_numeric(df[[status]], any.missing = FALSE)
+  assert_true(all(df[[status]] %in% c(0, 1)))
+
+  has_event <- df[[status]] == 1
+  df_events <- df[has_event, , drop = FALSE]
+  if (nrow(df_events) == 0) {
+    return(data.frame(time = numeric(0), n_events = integer(0)))
+  }
+  times_count <- table(df_events[[time]])
+  data.frame(
+    time = as.numeric(names(times_count)),
+    n_events = as.integer(times_count)
+  )
+}
+
 #' Block Sum of a matrix
 #' @keywords internal
 block_sum <- function(x, n) {

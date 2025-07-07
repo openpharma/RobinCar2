@@ -121,3 +121,33 @@ test_that("h_prep_survival_vars works without covariates and without strata", {
   )
   expect_equal(result, expected, ignore_formula_env = TRUE)
 })
+
+test_that("h_n_events_per_time works as expected", {
+  result <- expect_silent(h_n_events_per_time(
+    surv_dat,
+    time = "time",
+    status = "status"
+  ))
+
+  expect_data_frame(result)
+  expect_numeric(result$time)
+  expect_true(!any(duplicated(result$time)))
+  expect_true(all(result$time %in% surv_dat$time))
+  expect_integer(result$n_events)
+  expect_true(sum(result$n_events) == sum(surv_dat$status))
+})
+
+test_that("h_n_events_per_time works when there are no events", {
+  surv_dat_no_events <- surv_dat
+  surv_dat_no_events$status <- 0
+
+  result <- expect_silent(h_n_events_per_time(
+    surv_dat_no_events,
+    time = "time",
+    status = "status"
+  ))
+
+  expect_data_frame(result, nrows = 0L)
+  expect_numeric(result$time)
+  expect_integer(result$n_events)
+})
