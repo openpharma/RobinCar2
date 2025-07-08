@@ -109,3 +109,18 @@ test_that("robin_surv_comparison works as expected without covariate adjustment"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
+
+test_that("robin_surv_no_strata_no_cov works as expected", {
+  vars <- h_prep_survival_vars(
+    formula = survival::Surv(time, status) ~ sex,
+    data = surv_dat,
+    treatment = sex ~ 1
+  )
+  result <- robin_surv_no_strata_no_cov(
+    vars = vars,
+    data = surv_dat,
+    exp_level = 1,
+    control_level = 2
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})

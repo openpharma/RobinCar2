@@ -17,7 +17,7 @@ A list containing:
 \item \code{u_l}: The log-rank score statistic.
 \item \code{sigma_l2}: The variance of the log-rank statistic.
 \item \code{tau_l}: The log-rank test statistic.
-\item \code{pval}: The p-value of the log-rank test.
+\item \code{pval}: The two-sided p-value of the log-rank test.
 \item \code{n}: The number of observations used in the calculation.
 }
 }

@@ -92,8 +92,8 @@ h_lr_score_no_strata_no_cov <- function(
     } else {
       (n * y_bar_all_ti - n_events_ti) / (n * y_bar_all_ti - 1)
     }
-    sigma_l2_adjustment <- y_bar_1_ti_coxph * y_bar_0_ti * sigma_l2_factor_ti / y_bar_all_ti^2
-    sigma_l2 <- sigma_l2 + sigma_l2_adjustment
+    sigma_l2_summand <- y_bar_1_ti_coxph * y_bar_0_ti * sigma_l2_factor_ti / y_bar_all_ti^2
+    sigma_l2 <- sigma_l2 + sigma_l2_summand
   }
   u_l <- u_l / n
   sigma_l2 <- sigma_l2 / n
@@ -159,7 +159,7 @@ h_log_hr_est_via_score <- function(score_fun, interval = c(-10, 10), ...) {
 #' - `u_l`: The log-rank score statistic.
 #' - `sigma_l2`: The variance of the log-rank statistic.
 #' - `tau_l`: The log-rank test statistic.
-#' - `pval`: The p-value of the log-rank test.
+#' - `pval`: The two-sided p-value of the log-rank test.
 #' - `n`: The number of observations used in the calculation.
 #'
 #' @keywords internal
@@ -206,7 +206,7 @@ h_lr_test_via_score <- function(score_fun, ...) {
 #' - `hr_n`: The number of observations used in the estimation.
 #' - `hr_sigma_l2`: The variance of the log-rank statistic used in the estimation.
 #' - `test_stat`: The log-rank test statistic.
-#' - `p_value`: The p-value of the log-rank test.
+#' - `p_value`: The two-sided p-value of the log-rank test.
 #' - `test_score`: The log-rank score statistic.
 #' - `test_n`: The number of observations used in the log-rank test.
 #' - `test_sigma_l2`: The variance of the log-rank statistic used in the log-rank test.
@@ -267,5 +267,26 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
     test_score = test_result$u_l,
     test_n = test_result$n,
     test_sigma_l2 = test_result$sigma_l2
+  )
+}
+
+#' Survival Comparison without Strata or Covariates
+#'
+#' This is a simple wrapper around [robin_surv_comparison()] called with the log-rank score function
+#' [h_lr_score_no_strata_no_cov()] without strata or covariates.
+#'
+#' @inheritParams robin_surv_comparison
+#' @return See [robin_surv_comparison()].
+#' @keywords internal
+robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
+  robin_surv_comparison(
+    score_fun = h_lr_score_no_strata_no_cov,
+    vars = vars,
+    data = data,
+    exp_level = exp_level,
+    control_level = control_level,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status
   )
 }

@@ -1,0 +1,102 @@
+---
+title: "Survival Analysis with RobinCar2"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{Survival Analysis with RobinCar2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib  
+header-includes:
+  - \usepackage{amsmath}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`RobinCar2` implements survival analysis methods for testing treatment effects with log-rank tests and estimating hazard ratios using score functions. This vignette provides an overview of the underlying algorithms.
+
+# Overview of Survival Analysis Methods
+
+# Details of the Methods
+
+## Standard analysis without strata or covariates
+
+Following Section 2 in @YeShaoYi2023, the score function from the partial likelihood under the Cox proportional hazards model $\lambda_{1}(t) = \lambda_{0}(t) \exp(\theta)$ is given by:
+
+$$
+\begin{align*}
+U_{L}(\theta) 
+&= 
+\frac{1}{n} \sum_{i=1}^{n} \int_{0}^{\tau} 
+\left\{
+I_{i} - \frac{\exp(\theta) \overline{Y}_{1}(t)}{\overline{Y}_{0}(t) + \exp(\theta) \overline{Y}_{1}(t)}
+\right\}
+dN_i(t)\\
+&=
+\frac{1}{n} \sum_{j=1}^{m}
+I_{j} - \frac{\exp(\theta) \overline{Y}_{1}(t_{j})}{\overline{Y}_{0}(t_{j}) + \exp(\theta) \overline{Y}_{1}(t_{j})}
+\end{align*}
+$$
+
+where we switched from the summation over all patients $i = 1, \dotsc, n$ to the summation over all patients with events $j = 1, \dotsc, m$ where $m \leq n$. 
+The treatment indicator is $I_{j} = 1$ if patient $j$ is in treatment group 1, and $I_{j} = 0$ if patient $j$ is in treatment group 0. The proportions of patients at risk at time $t_{j}$, per arm $k = 0, 1$ is given by
+
+$$
+\overline{Y}_{k}(t_{j}) = \frac{1}{n} \sum_{i=1}^{n} \mathbb{I}(I_{i} = k) \mathbb{I}(t_{i} \geq t_{j})
+$$
+
+where $t_{i}$ is the potentially right-censored time of patient $i$ and $\mathbb{I}(\cdot)$ is the indicator function.
+
+The corresponding variance estimate is given by this adapted version using the correction factor $c_{\theta}(t)$ which accounts for ties in the survival times in the log-rank test. 
+
+$$
+\begin{align*}
+\sigma_{L}^{2}(\theta)
+&=
+\frac{1}{n} \sum_{i=1}^{n} \int_{0}^{\tau}
+\frac{\exp(\theta) \overline{Y}_{0}(t) \overline{Y}_{1}(t) c_{\theta}(t)}{\overline{Y}_{\theta}(t)^{2}}
+dN_i(t)
+\\
+&= 
+\frac{1}{n} \sum_{j=1}^{m}
+\frac{\exp(\theta) \overline{Y}_{0}(t_{j}) \overline{Y}_{1}(t_{j}) c_{\theta}(t_{j})}{\overline{Y}_{\theta}(t_{j})^{2}}
+\end{align*}
+$$
+
+where we abbreviated 
+
+$$
+\overline{Y}_{\theta}(t) = \overline{Y}_{0}(t) + \exp(\theta) \overline{Y}_{1}(t)
+$$
+
+and similarly
+
+$$
+\overline{Y}_{\theta}(t_{j}) = \overline{Y}_{0}(t_{j}) + \exp(\theta) \overline{Y}_{1}(t_{j}).
+$$
+
+Let the number of events at time $t_{j}$ be denoted by $m(t_{j}) = \sum_{i=1}^{n} \mathbb{I}(t_{i} = t_{j})$. We define then the correction factor $c_{\theta}(t_{j})$ as follows:
+
+$$
+c_{\theta}(t_{j}) = 
+\begin{cases}
+1 & \text{if } m(t_{j}) = 1 \\
+\frac{n \overline{Y}_{\theta}(t_{j}) - m(t_{j})}{n \overline{Y}_{\theta}(t_{j}) - 1} & \text{if } m(t_{j}) > 1
+\end{cases}
+$$
+
+Furthermore, we note that this correction factor is only used when calculating the log-rank test statistic, which is given at $\theta = 0$ by
+
+$$
+\mathcal{T}_{L} = \sqrt{n} U_{L}(0) / \sigma_{L}(0).
+$$
+
+However, when we estimate the log hazard ratio $\theta$ by finding the root $\hat{\theta}$ of the score function such that $U_{L}(\hat{\theta}) = 0$, we set $c_{\theta}(t_{j}) \equiv 1$.
+
+This score function and the variance estimator are implemented in the internal function `RobinCar2:::h_lr_score_no_strata_no_cov()`.
+
+# References
