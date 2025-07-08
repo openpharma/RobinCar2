@@ -55,3 +55,27 @@ test_that("h_lr_score_no_strata_no_cov works as expected with multiple theta val
   })
   expect_identical(as.numeric(result), expected)
 })
+
+test_that("h_log_hr_est_via_score works as expected", {
+  result <- h_log_hr_est_via_score(
+    h_lr_score_no_strata_no_cov,
+    df = surv_dat,
+    treatment = "sex",
+    time = "time",
+    status = "status"
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
+test_that("h_log_hr_est_via_score extends the search interval as needed", {
+  result <- h_log_hr_est_via_score(
+    h_lr_score_no_strata_no_cov,
+    interval = c(-0.2, 0.2),
+    df = surv_dat,
+    treatment = "sex",
+    time = "time",
+    status = "status"
+  )
+  expect_true(result$theta > 0.2)
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})

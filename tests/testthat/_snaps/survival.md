@@ -10,3 +10,13 @@
 
     structure(0.00479534279339572, sigma_l2 = 0.158585973213507, se_theta_l = 0.166303040954794, n = 228L)
 
+# h_log_hr_est_via_score works as expected
+
+    list(theta = 0.530398178935407, se = 0.167180884723583, sigma_l2 = 0.156924919527366, 
+        n = 228L)
+
+# h_log_hr_est_via_score extends the search interval as needed
+
+    list(theta = 0.530397994806822, se = 0.167180879290955, sigma_l2 = 0.156924929726076, 
+        n = 228L)
+

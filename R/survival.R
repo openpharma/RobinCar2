@@ -105,3 +105,43 @@ h_lr_score_no_strata_no_cov <- function(
     n = n
   )
 }
+
+#' Estimate Log Hazard Ratio via Score Function
+#'
+#' This function estimates the log hazard ratio by finding the root of the log-rank score function.
+#'
+#' @details This deactivates the ties factor correction in the score function by passing
+#' `use_ties_factor = FALSE` to the `score_fun`.
+#'
+#' @param score_fun (`function`) The log-rank score function to be used for estimation.
+#' @param interval (`numeric`) A numeric vector of length 2 specifying the interval in which to search for the root.
+#' @param ... Additional arguments passed to `score_fun`.
+#' @return A list containing:
+#' - `theta`: The estimated log hazard ratio.
+#' - `se`: The standard error of the estimated log hazard ratio.
+#' - `sigma_L2`: The variance of the log-rank statistic.
+#' - `n`: The number of observations used in the calculation.
+#'
+#' @keywords internal
+h_log_hr_est_via_score <- function(score_fun, interval = c(-10, 10), ...) {
+  assert_function(score_fun, args = c("theta", "use_ties_factor"))
+  assert_numeric(interval, len = 2L, finite = TRUE)
+  assert_true(interval[1] < interval[2])
+
+  score_solution <- stats::uniroot(
+    score_fun,
+    interval = interval,
+    extendInt = "yes",
+    check.conv = TRUE,
+    use_ties_factor = FALSE,
+    ...
+  )
+  solution_attrs <- attributes(score_solution$f.root)
+
+  list(
+    theta = score_solution$root,
+    se = solution_attrs$se_theta_l,
+    sigma_l2 = solution_attrs$sigma_l2,
+    n = solution_attrs$n
+  )
+}
