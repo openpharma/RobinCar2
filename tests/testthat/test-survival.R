@@ -90,3 +90,22 @@ test_that("h_lr_test_via_score works as expected", {
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
+
+test_that("robin_surv_comparison works as expected without covariate adjustment", {
+  vars <- h_prep_survival_vars(
+    formula = survival::Surv(time, status) ~ sex,
+    data = surv_dat,
+    treatment = sex ~ 1
+  )
+  result <- robin_surv_comparison(
+    score_fun = h_lr_score_no_strata_no_cov,
+    vars = vars,
+    data = surv_dat,
+    exp_level = 2,
+    control_level = 1,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})

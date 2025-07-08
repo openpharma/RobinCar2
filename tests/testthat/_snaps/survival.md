@@ -25,3 +25,10 @@
     list(u_l = 0.0895537761860842, sigma_l2 = 0.17706769289317, tau_l = 3.21352484896035, 
         pval = 0.0013111645203555, n = 228L)
 
+# robin_surv_comparison works as expected without covariate adjustment
+
+    list(estimate = 0.530398178935407, se = 0.167180884723583, hr_n = 228L, 
+        hr_sigma_l2 = 0.156924919527366, test_stat = 3.21352484896035, 
+        p_value = 0.0013111645203555, test_score = 0.0895537761860842, 
+        test_n = 228L, test_sigma_l2 = 0.17706769289317)
+

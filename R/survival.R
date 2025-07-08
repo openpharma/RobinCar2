@@ -183,3 +183,89 @@ h_lr_test_via_score <- function(score_fun, ...) {
     n = n
   )
 }
+
+#' Log Hazard Ratio Estimation and Log-Rank Test via Score Function
+#'
+#' This function combines the estimation of the log hazard ratio and the log-rank test
+#' using a score function. Only two treatment arms are being compared and the `data` is subset accordingly.
+#'
+#' @details If an unadjusted score function is provided in `unadj_score_fun`, then it is used to estimate the
+#' log hazard ratio first. This unadjusted log hazard ratio estimate is then passed on to the adjusted
+#' score function `score_fun` as `theta_hat`. This is required when the score function is adjusted for covariates.
+#'
+#' @param score_fun (`function`) The log-rank score function to be used for both estimation and testing.
+#' @param vars (`list`) A list containing `levels`, `treatment`, and `covariates`.
+#' @param data (`data.frame`) The data frame containing the survival data.
+#' @param exp_level (`count`) Level of the experimental treatment arm.
+#' @param control_level (`count`) Level of the control treatment arm.
+#' @param unadj_score_fun (`function` or `NULL`) Optional unadjusted score function, see details.
+#' @param ... Additional arguments passed to `score_fun`.
+#' @return A list containing:
+#' - `estimate`: The estimated log hazard ratio.
+#' - `se`: The standard error of the estimated log hazard ratio.
+#' - `hr_n`: The number of observations used in the estimation.
+#' - `hr_sigma_l2`: The variance of the log-rank statistic used in the estimation.
+#' - `test_stat`: The log-rank test statistic.
+#' - `p_value`: The p-value of the log-rank test.
+#' - `test_score`: The log-rank score statistic.
+#' - `test_n`: The number of observations used in the log-rank test.
+#' - `test_sigma_l2`: The variance of the log-rank statistic used in the log-rank test.
+#'
+#' @keywords internal
+robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_level, unadj_score_fun = NULL, ...) {
+  assert_list(vars)
+  assert_names(names(vars), must.include = c("levels", "treatment", "covariates"))
+  assert_character(vars$levels, min.len = 2L)
+  assert_data_frame(data)
+  assert_string(vars$treatment)
+  assert_true(is.factor(data[[vars$treatment]]))
+  assert_count(exp_level)
+  assert_count(control_level)
+  assert_true(exp_level != control_level)
+
+  # Subset data to the two treatment arms of interest.
+  trt_levels <- vars$levels[c(control_level, exp_level)]
+  in_trt_scope <- data[[vars$treatment]] %in% trt_levels
+  data <- data[in_trt_scope, , drop = FALSE]
+  data[[vars$treatment]] <- droplevels(data[[vars$treatment]])
+  data[[vars$treatment]] <- stats::relevel(data[[vars$treatment]], ref = trt_levels[1L])
+
+  # Prepare arguments for the test and estimation calls below.
+  args <- list(
+    score_fun = score_fun,
+    df = data,
+    ...
+  )
+
+  # Perform the log-rank test via the score function.
+  test_result <- do.call(h_lr_test_via_score, args)
+
+  # If an unadjusted score function is provided, use it to estimate the log hazard ratio first.
+  if (!is.null(unadj_score_fun)) {
+    assert_function(unadj_score_fun)
+    assert_true(length(vars$covariates) > 0)
+    unadj_args <- args[names(args) != "model"]
+    unadj_args$score_fun <- unadj_score_fun
+    # Get theta_hat from the unadjusted score function.
+    unadj_hr_result <- do.call(h_log_hr_est_via_score, unadj_args)
+    # Add this to the arguments for the adjusted score function call below.
+    args$theta_hat <- unadj_hr_result$theta
+  } else {
+    # We enforce to have no covariates in this case.
+    assert_true(length(vars$covariates) == 0L)
+  }
+  # Estimate the log hazard ratio via the score function.
+  hr_result <- do.call(h_log_hr_est_via_score, args)
+
+  list(
+    estimate = hr_result$theta,
+    se = hr_result$se,
+    hr_n = hr_result$n,
+    hr_sigma_l2 = hr_result$sigma_l2,
+    test_stat = test_result$tau_l,
+    p_value = test_result$pval,
+    test_score = test_result$u_l,
+    test_n = test_result$n,
+    test_sigma_l2 = test_result$sigma_l2
+  )
+}
