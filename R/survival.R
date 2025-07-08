@@ -145,3 +145,41 @@ h_log_hr_est_via_score <- function(score_fun, interval = c(-10, 10), ...) {
     n = solution_attrs$n
   )
 }
+
+#' Log-Rank Test via Score Function
+#'
+#' This function performs a log-rank test using the score function.
+#'
+#' @details This activates the ties factor correction in the score function by passing
+#'   `use_ties_factor = TRUE` to the `score_fun`.
+#'
+#' @param score_fun (`function`) The log-rank score function to be used for testing.
+#' @param ... Additional arguments passed to `score_fun`.
+#' @return A list containing:
+#' - `u_l`: The log-rank score statistic.
+#' - `sigma_l2`: The variance of the log-rank statistic.
+#' - `tau_l`: The log-rank test statistic.
+#' - `pval`: The p-value of the log-rank test.
+#' - `n`: The number of observations used in the calculation.
+#'
+#' @keywords internal
+h_lr_test_via_score <- function(score_fun, ...) {
+  assert_function(score_fun, args = c("theta", "use_ties_factor"))
+
+  score_res <- score_fun(theta = 0, use_ties_factor = TRUE, ...)
+  u_l <- as.numeric(score_res)
+  score_attrs <- attributes(score_res)
+
+  sigma_l2 <- score_attrs$sigma_l2
+  n <- score_attrs$n
+  tau_l <- sqrt(n) * u_l / sqrt(sigma_l2)
+  pval <- 2 * stats::pnorm(-abs(tau_l))
+
+  list(
+    u_l = u_l,
+    sigma_l2 = sigma_l2,
+    tau_l = tau_l,
+    pval = pval,
+    n = n
+  )
+}
