@@ -42,13 +42,14 @@ test_that("h_get_vars works for formula with schemas", {
   expect_identical(res, list(treatment = "a", schema = "sp", strata = "b"))
 })
 
-test_that("h_prep_survival_vars works with strata", {
-  result <- expect_silent(h_prep_survival_vars(
+test_that("h_prep_survival_input works with strata", {
+  result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex * strata + age + ph.karno + meal.cal,
     data = surv_dat,
     treatment = sex ~ strata
   ))
   expected <- list(
+    data = surv_dat,
     time = "time",
     status = "status",
     treatment = "sex",
@@ -62,13 +63,14 @@ test_that("h_prep_survival_vars works with strata", {
   expect_equal(result, expected, ignore_formula_env = TRUE)
 })
 
-test_that("h_prep_survival_vars works without strata", {
-  result <- expect_silent(h_prep_survival_vars(
+test_that("h_prep_survival_input works without strata", {
+  result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex + age + ph.karno + meal.cal,
     data = surv_dat,
     treatment = sex ~ 1
   ))
   expected <- list(
+    data = surv_dat,
     time = "time",
     status = "status",
     treatment = "sex",
@@ -82,13 +84,14 @@ test_that("h_prep_survival_vars works without strata", {
   expect_equal(result, expected, ignore_formula_env = TRUE)
 })
 
-test_that("h_prep_survival_vars works without covariates", {
-  result <- expect_silent(h_prep_survival_vars(
+test_that("h_prep_survival_input works without covariates", {
+  result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex * strata,
     data = surv_dat,
     treatment = sex ~ strata
   ))
   expected <- list(
+    data = surv_dat,
     time = "time",
     status = "status",
     treatment = "sex",
@@ -102,13 +105,43 @@ test_that("h_prep_survival_vars works without covariates", {
   expect_equal(result, expected, ignore_formula_env = TRUE)
 })
 
-test_that("h_prep_survival_vars works without covariates and without strata", {
-  result <- expect_silent(h_prep_survival_vars(
+test_that("h_prep_survival_input works without covariates and without strata", {
+  result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex,
     data = surv_dat,
     treatment = sex ~ 1
   ))
   expected <- list(
+    data = surv_dat,
+    time = "time",
+    status = "status",
+    treatment = "sex",
+    strata = character(),
+    schema = "sp",
+    covariates = character(),
+    model = ~1,
+    n_levels = 2L,
+    levels = c("Female", "Male")
+  )
+  expect_equal(result, expected, ignore_formula_env = TRUE)
+})
+
+test_that("h_prep_survival_input works also with a Surv object created earlier", {
+  surv_obj <- with(surv_dat, survival::Surv(time, status))
+  # This works with coxph e.g.:
+  example <- survival::coxph(surv_obj ~ sex, data = surv_dat)
+  result <- expect_silent(h_prep_survival_input(
+    formula = surv_obj ~ sex,
+    # We have another restriction here to avoid ambiguity, therefore
+    # need to remove the time and status columns from the data.
+    data = subset(surv_dat, select = -c(time, status)),
+    treatment = sex ~ 1
+  ))
+  expected <- list(
+    data = cbind(
+      subset(surv_dat, select = -c(time, status)),
+      subset(surv_dat, select = c(time, status))
+    ), # The two removed columns have been added back.
     time = "time",
     status = "status",
     treatment = "sex",

@@ -92,33 +92,33 @@ test_that("h_lr_test_via_score works as expected", {
 })
 
 test_that("robin_surv_comparison works as expected without covariate adjustment", {
-  vars <- h_prep_survival_vars(
+  input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex,
     data = surv_dat,
     treatment = sex ~ 1
   )
   result <- robin_surv_comparison(
     score_fun = h_lr_score_no_strata_no_cov,
-    vars = vars,
-    data = surv_dat,
+    vars = input,
+    data = input$data,
     exp_level = 2,
     control_level = 1,
-    treatment = vars$treatment,
-    time = vars$time,
-    status = vars$status
+    treatment = input$treatment,
+    time = input$time,
+    status = input$status
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
 test_that("robin_surv_no_strata_no_cov works as expected", {
-  vars <- h_prep_survival_vars(
+  input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex,
     data = surv_dat,
     treatment = sex ~ 1
   )
   result <- robin_surv_no_strata_no_cov(
-    vars = vars,
-    data = surv_dat,
+    vars = input,
+    data = input$data,
     exp_level = 1,
     control_level = 2
   )

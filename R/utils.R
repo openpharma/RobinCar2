@@ -38,13 +38,22 @@ h_get_vars <- function(treatment) {
   )
 }
 
-#' Prepare Survival Variables
+#' Prepare Survival Input
 #'
 #' @param formula (`formula`) with a left hand side of the form `Surv(time, status)`.
 #' @param data (`data.frame`) containing the variables in the formula.
 #' @inheritParams h_get_vars
 #'
+#' @details Note that `formula` can also contain an externally defined [survival::Surv]
+#'   object. In this case, the `time` and `status` variables are extracted
+#'   and added to the `data` input. Note that it is up to the user to ensure that in this
+#'   case the column binding is correct, i.e., that the rows of the `data` match
+#'   with the rows of the `Surv` object. In addition, the same named variables must not appear
+#'   in both the `data` and the `Surv` object, to avoid ambiguity (this is a difference
+#'   vs. the behavior of [survival::coxph] for better transparency).
+#'
 #' @return A list containing the following elements:
+#' - `data`: The potentially updated data set.
 #' - `time`: Name of the time variable.
 #' - `status`: Name of the status variable.
 #' - `treatment`: Name of the treatment variable.
@@ -56,7 +65,7 @@ h_get_vars <- function(treatment) {
 #' - `levels`: Names of the treatment levels.
 #'
 #' @keywords internal
-h_prep_survival_vars <- function(formula, data, treatment) {
+h_prep_survival_input <- function(formula, data, treatment) {
   trt_vars <- h_get_vars(treatment)
   assert_data_frame(data)
   assert_formula(formula)
@@ -79,6 +88,17 @@ h_prep_survival_vars <- function(formula, data, treatment) {
     assert_subset(surv_vars, colnames(data))
     time_var <- surv_vars[1]
     status_var <- surv_vars[2]
+  } else if (survival::is.Surv(lhs_evaluated <- try(eval(lhs), silent = TRUE))) {
+    assert_true(identical(attr(lhs_evaluated, "type"), "right"))
+    lhs_matrix <- as.matrix(lhs_evaluated)
+    assert_true(identical(nrow(lhs_matrix), nrow(data)))
+    lhs_names <- colnames(lhs_matrix)
+    time_var <- lhs_names[1]
+    status_var <- lhs_names[2]
+    if (any(c(time_var, status_var) %in% names(data))) {
+      stop("Ambiguous names provided in Surv object and in data")
+    }
+    data <- cbind(data, lhs_matrix)
   } else {
     stop("Left hand side of formula must be a Surv() object.")
   }
@@ -93,6 +113,7 @@ h_prep_survival_vars <- function(formula, data, treatment) {
   model <- update(model, as.formula(update_string))
 
   list(
+    data = data,
     time = time_var,
     status = status_var,
     treatment = trt_vars$treatment,
