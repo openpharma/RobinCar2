@@ -54,7 +54,7 @@ If family is \code{MASS::negative.binomial(NA)}, the function will use \code{MAS
 \examples{
 robin_glm(
   y ~ treatment * s1,
-  data = dummy_data,
+  data = glm_data,
   treatment = treatment ~ s1, contrast = "difference"
 )
 }

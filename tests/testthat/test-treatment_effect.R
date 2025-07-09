@@ -154,7 +154,7 @@ test_that("treatment_effect works as expected for custom contrast", {
 
 test_that("treatment_effect works for lm/glm object", {
   expect_snapshot(treatment_effect(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff))
-  expect_snapshot(treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff, data = dummy_data))
+  expect_snapshot(treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff, data = glm_data))
 })
 
 test_that("treatment_effect works if variance is not used", {
@@ -166,7 +166,8 @@ test_that("treatment_effect works if pair is defined", {
     treatment_effect(
       fit_binom,
       pair = against_ref(c("pbo", "trt1", "trt2")),
-      treatment = treatment ~ s1, eff_measure = h_diff
+      treatment = treatment ~ s1,
+      eff_measure = h_diff
     )
   )
 })

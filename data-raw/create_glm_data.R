@@ -1,4 +1,4 @@
-#' Create permute-block randomization dummy data
+#' Create permute-block randomization example data for use in GLMs.
 
 library(dplyr)
 #' Set seed to ensure reproducibility
@@ -7,7 +7,7 @@ set.seed(20240408)
 n <- 600
 block <- c("trt1", "trt1", "trt2", "trt2", "pbo", "pbo")
 
-dummy_data <- tibble(
+glm_data <- tibble(
   s1 = sample(c("a", "b"), replace = TRUE, size = n),
   s2 = sample(c("c", "d"), replace = TRUE, size = n),
   covar = rnorm(n),
@@ -17,8 +17,13 @@ dummy_data <- tibble(
   mutate(treatment = unlist(replicate(ceiling(n() / length(block)), sample(block)))[seq_len(n())]) %>%
   ungroup() %>%
   mutate(
-    y = covar * 0.2 + 0.4 * (s1 == "a") - 0.1 * (s2 == "c") +
-      0.6 * (treatment == "trt1") + 0.8 * (treatment == "trt2") + rnorm(n),
+    y = covar *
+      0.2 +
+      0.4 * (s1 == "a") -
+      0.1 * (s2 == "c") +
+      0.6 * (treatment == "trt1") +
+      0.8 * (treatment == "trt2") +
+      rnorm(n),
     y_b = ifelse(y > 0.6, 1L, 0L)
   ) %>%
   mutate(
@@ -28,4 +33,4 @@ dummy_data <- tibble(
   ) %>%
   select(id, treatment, s1, s2, covar, y, y_b)
 
-usethis::use_data(dummy_data, overwrite = TRUE)
+usethis::use_data(glm_data, overwrite = TRUE)
