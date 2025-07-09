@@ -45,11 +45,11 @@ test_that("h_get_vars works for formula with schemas", {
 test_that("h_prep_survival_input works with strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex * strata + age + ph.karno + meal.cal,
-    data = surv_dat,
+    data = surv_data,
     treatment = sex ~ strata
   ))
   expected <- list(
-    data = surv_dat,
+    data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
@@ -66,11 +66,11 @@ test_that("h_prep_survival_input works with strata", {
 test_that("h_prep_survival_input works without strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex + age + ph.karno + meal.cal,
-    data = surv_dat,
+    data = surv_data,
     treatment = sex ~ 1
   ))
   expected <- list(
-    data = surv_dat,
+    data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
@@ -87,11 +87,11 @@ test_that("h_prep_survival_input works without strata", {
 test_that("h_prep_survival_input works without covariates", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex * strata,
-    data = surv_dat,
+    data = surv_data,
     treatment = sex ~ strata
   ))
   expected <- list(
-    data = surv_dat,
+    data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
@@ -108,11 +108,11 @@ test_that("h_prep_survival_input works without covariates", {
 test_that("h_prep_survival_input works without covariates and without strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ sex,
-    data = surv_dat,
+    data = surv_data,
     treatment = sex ~ 1
   ))
   expected <- list(
-    data = surv_dat,
+    data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
@@ -127,20 +127,20 @@ test_that("h_prep_survival_input works without covariates and without strata", {
 })
 
 test_that("h_prep_survival_input works also with a Surv object created earlier", {
-  surv_obj <- with(surv_dat, survival::Surv(time, status))
+  surv_obj <- with(surv_data, survival::Surv(time, status))
   # This works with coxph e.g.:
-  example <- survival::coxph(surv_obj ~ sex, data = surv_dat)
+  example <- survival::coxph(surv_obj ~ sex, data = surv_data)
   result <- expect_silent(h_prep_survival_input(
     formula = surv_obj ~ sex,
     # We have another restriction here to avoid ambiguity, therefore
     # need to remove the time and status columns from the data.
-    data = subset(surv_dat, select = -c(time, status)),
+    data = subset(surv_data, select = -c(time, status)),
     treatment = sex ~ 1
   ))
   expected <- list(
     data = cbind(
-      subset(surv_dat, select = -c(time, status)),
-      subset(surv_dat, select = c(time, status))
+      subset(surv_data, select = -c(time, status)),
+      subset(surv_data, select = c(time, status))
     ), # The two removed columns have been added back.
     time = "time",
     status = "status",
@@ -157,7 +157,7 @@ test_that("h_prep_survival_input works also with a Surv object created earlier",
 
 test_that("h_n_events_per_time works as expected", {
   result <- expect_silent(h_n_events_per_time(
-    surv_dat,
+    surv_data,
     time = "time",
     status = "status"
   ))
@@ -165,13 +165,13 @@ test_that("h_n_events_per_time works as expected", {
   expect_data_frame(result)
   expect_numeric(result$time)
   expect_true(!any(duplicated(result$time)))
-  expect_true(all(result$time %in% surv_dat$time))
+  expect_true(all(result$time %in% surv_data$time))
   expect_integer(result$n_events)
-  expect_true(sum(result$n_events) == sum(surv_dat$status))
+  expect_true(sum(result$n_events) == sum(surv_data$status))
 })
 
 test_that("h_n_events_per_time works when there are no events", {
-  surv_dat_no_events <- surv_dat
+  surv_dat_no_events <- surv_data
   surv_dat_no_events$status <- 0
 
   result <- expect_silent(h_n_events_per_time(
