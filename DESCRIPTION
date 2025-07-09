@@ -38,6 +38,7 @@ Imports:
     MASS,
     sandwich,
     stats,
+    survival,
     utils
 Suggests:
     knitr,
