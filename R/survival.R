@@ -131,8 +131,8 @@ h_log_hr_est_via_score <- function(score_fun, interval = c(-10, 10), ...) {
   score_solution <- stats::uniroot(
     score_fun,
     interval = interval,
-    extendInt = "yes",
-    check.conv = TRUE,
+    extendInt = "yes", # If the root is not found in the interval, extend the interval.
+    check.conv = TRUE, # If the root cannot be found, an error is thrown.
     use_ties_factor = FALSE,
     ...
   )
