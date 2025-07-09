@@ -151,10 +151,14 @@ h_n_events_per_time <- function(df, time, status) {
   if (nrow(df_events) == 0) {
     return(data.frame(time = numeric(0), n_events = integer(0)))
   }
-  times_count <- table(df_events[[time]])
+  times_count <- aggregate(
+    df_events[[status]],
+    by = list(time = df_events[[time]]),
+    FUN = length
+  )
   data.frame(
-    time = as.numeric(names(times_count)),
-    n_events = as.integer(times_count)
+    time = times_count$time,
+    n_events = times_count$x
   )
 }
 
