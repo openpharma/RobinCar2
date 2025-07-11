@@ -48,3 +48,17 @@ test_that("h_get_lm_input works as expected", {
   expect_matrix(result[["1"]][["X"]], ncol = 2L, nrow = 2L)
   expect_numeric(result[["1"]][["y"]], len = 2L)
 })
+
+test_that("h_get_beta_estimates works as expected", {
+  set.seed(941)
+  nobs <- 10
+  df <- data.frame(
+    treatment = factor(sample(c(0, 1), nobs, replace = TRUE)),
+    covariate1 = rnorm(nobs),
+    covariate2 = rnorm(nobs),
+    O_hat = rnorm(nobs)
+  )
+  lm_input <- h_get_lm_input(df, model = ~ covariate1 + covariate2)
+  result <- h_get_beta_estimates(lm_input)
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})

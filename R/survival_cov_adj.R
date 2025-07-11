@@ -118,15 +118,53 @@ h_get_lm_input <- function(df, model) {
   assert_factor(df$treatment)
 
   # Add outcome, remove intercept:
-  model <- update(model, O_hat ~ . - 1)
+  model <- stats::update(model, O_hat ~ . - 1)
   df_by_trt <- split(df, f = df$treatment)
   lapply(
     df_by_trt,
     function(this_df) {
-      mf <- model.frame(model, data = this_df)
-      x <- model.matrix(model, data = mf)
-      y <- model.response(mf)
+      mf <- stats::model.frame(model, data = this_df)
+      x <- stats::model.matrix(model, data = mf)
+      y <- stats::model.response(mf)
       list(X = x, y = y)
     }
   )
+}
+
+#' Calculate Coefficient Estimates from Linear Model Input
+#'
+#' This function calculates the coefficient estimates for each treatment arm from the linear model input data.
+#'
+#' @param lm_input (`list`) A list containing the linear model input data for each treatment arm, as returned by
+#'   [h_get_lm_input()].
+#' @return A list containing the coefficient estimates for each treatment arm.
+#'
+#' @keywords internal
+h_get_beta_estimates <- function(lm_input) {
+  assert_list(lm_input, types = "list")
+
+  # Fit the model separately for each treatment arm.
+  beta_est <- list()
+
+  for (group in names(lm_input)) {
+    assert_matrix(lm_input[[group]]$X, any.missing = FALSE)
+    assert_numeric(lm_input[[group]]$y, any.missing = FALSE)
+
+    # Get the design matrix for this treatment arm.
+    x <- lm_input[[group]]$X
+
+    # Center it.
+    x <- scale(x, center = TRUE, scale = FALSE)
+
+    # Get the derived outcome values, the response.
+    y <- lm_input[[group]]$y
+
+    # Fit the model without intercept.
+    lm_fit <- stats::lm.fit(x, y, singular.ok = FALSE)
+
+    # Save the coefficients.
+    beta_est[[group]] <- lm_fit$coefficients
+  }
+
+  beta_est
 }
