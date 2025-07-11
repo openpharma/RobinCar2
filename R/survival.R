@@ -136,7 +136,8 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
   if (!is.null(unadj_score_fun)) {
     assert_function(unadj_score_fun)
     assert_true(length(vars$covariates) > 0)
-    unadj_args <- args[names(args) != "model"]
+    args_to_drop <- c("model", "se_method")
+    unadj_args <- args[!(names(args) %in% args_to_drop)]
     unadj_args$score_fun <- unadj_score_fun
     # Get theta_hat from the unadjusted score function.
     unadj_hr_result <- do.call(h_log_hr_est_via_score, unadj_args)
@@ -210,7 +211,7 @@ robin_surv_strata <- function(vars, data, exp_level, control_level) {
 #'   [h_lr_score_cov()] and [h_lr_score_no_strata_no_cov()] (which is used to find the unadjusted
 #'   log hazard ratio estimate).
 #' @keywords internal
-robin_surv_cov <- function(vars, data, exp_level, control_level) {
+robin_surv_cov <- function(vars, data, exp_level, control_level, ...) {
   robin_surv_comparison(
     score_fun = h_lr_score_cov,
     unadj_score_fun = h_lr_score_no_strata_no_cov,
@@ -221,6 +222,7 @@ robin_surv_cov <- function(vars, data, exp_level, control_level) {
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
-    model = vars$model
+    model = vars$model,
+    ...
   )
 }

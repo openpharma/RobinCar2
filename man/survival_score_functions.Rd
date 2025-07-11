@@ -35,7 +35,8 @@ h_lr_score_cov(
   status,
   model,
   theta_hat = theta,
-  use_ties_factor = TRUE
+  use_ties_factor = TRUE,
+  se_method = c("adjusted", "unadjusted")
 )
 }
 \arguments{
@@ -62,6 +63,11 @@ when calculating the score test statistic, but not when estimating the log hazar
 \item{model}{(\code{formula}) The model formula for covariate adjustment, e.g., \code{~ cov1 + cov2}.}
 
 \item{theta_hat}{(\code{number}) The estimated log hazard ratio when not adjusting for covariates.}
+
+\item{se_method}{(\code{string}) The method for calculating the standard error of the log hazard ratio estimate
+when adjusting for covariates. Options are "adjusted" (default) and "unadjusted". The "adjusted" method
+follows the publication, whereas the "unadjusted" method guarantees that the standard error is always
+smaller than the unadjusted standard error.}
 }
 \value{
 The score function value(s), with the following attributes:

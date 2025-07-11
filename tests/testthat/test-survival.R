@@ -228,7 +228,8 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    se_method = "unadjusted" # To get the exact match with RobinCar.
   )
   robincar_result <- if (run_robin_car) {
     robincar_args <- list(
@@ -256,5 +257,5 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
   expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
   expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-4)
-  expect_equal(result$se, robincar_result$se, tolerance = 2e-4)
+  expect_equal(result$se, robincar_result$se, tolerance = 1e-4)
 })

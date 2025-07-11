@@ -26,3 +26,11 @@
 
     structure(0.0851266162073163, se_theta_l = 0.156595350460101, sigma_l2 = 0.176209700432439, n = 228L)
 
+# h_lr_score_cov works when using the unadjusted standard error option
+
+    structure(0.0850667744102501, se_theta_l = 0.159015041100831, sigma_l2 = 0.170735177622095, n = 228L)
+
+---
+
+    structure(0.0850667744102501, se_theta_l = 0.156579398029655, sigma_l2 = 0.176173801156959, n = 228L)
+

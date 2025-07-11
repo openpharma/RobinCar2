@@ -17,6 +17,10 @@
 #'   when used in stratified analyses computations.
 #' @param use_ties_factor (`flag`) Whether to use the ties factor in the variance calculation. This is used
 #'   when calculating the score test statistic, but not when estimating the log hazard ratio.
+#' @param se_method (`string`) The method for calculating the standard error of the log hazard ratio estimate
+#'   when adjusting for covariates. Options are "adjusted" (default) and "unadjusted". The "adjusted" method
+#'   follows the publication, whereas the "unadjusted" method guarantees that the standard error is always
+#'   smaller than the unadjusted standard error.
 #' @return The score function value(s), with the following attributes:
 #'   - `sigma_l2`: The variance of the log-rank statistic.
 #'   - `se_theta_l`: The corresponding standard error term for the log hazard ratio.
@@ -125,7 +129,7 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
   assert_data_frame(df)
   assert_factor(df[[strata]])
 
-  df <- na.omit(df[, c(treatment, time, status, strata)])
+  df <- stats::na.omit(df[, c(treatment, time, status, strata)])
   n <- nrow(df)
 
   df[[strata]] <- droplevels(df[[strata]])
@@ -156,7 +160,17 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
 
 #' @describeIn survival_score_functions with covariates but without strata.
 #' @keywords internal
-h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat = theta, use_ties_factor = TRUE) {
+h_lr_score_cov <- function(
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  se_method = c("adjusted", "unadjusted")
+) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -165,6 +179,7 @@ h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat 
   covariates <- all.vars(model)
   assert_subset(c(treatment, time, status, covariates), names(df))
   assert_factor(df[[treatment]], n.levels = 2L, any.missing = FALSE)
+  se_method <- match.arg(se_method)
 
   # Subset to complete records here.
   df <- stats::na.omit(df[c(treatment, time, status, covariates)])
@@ -194,6 +209,22 @@ h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat 
     use_ties_factor = use_ties_factor
   )
 
+  # Define standard error calculation.
+  g_theta_cl <- if (se_method == "adjusted") {
+    attr(unadj_score, "sigma_l2")
+  } else {
+    unadj_score_theta_hat <- h_lr_score_no_strata_no_cov(
+      theta = theta_hat, # Here is the only difference.
+      df = df,
+      treatment = treatment,
+      time = time,
+      status = status,
+      n = n,
+      use_ties_factor = use_ties_factor
+    )
+    attr(unadj_score_theta_hat, "sigma_l2")
+  }
+
   # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
   # proportion of treatment 1 in the trial.
   pi <- mean(as.numeric(df[[treatment]]) - 1)
@@ -217,8 +248,7 @@ h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat 
   beta_est_sum <- beta_est[[1]] + beta_est[[2]]
   sigma_l2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_x %*% beta_est_sum)
 
-  # Compute standard error for theta estimate.
-  g_theta_cl <- attr(unadj_score, "sigma_l2")
+  # Compute standard error for theta estimate, based on above results incl. choice for `g_theta_cl`.
   sigma_cl2 <- g_theta_cl - sigma_l2_adj_term
   var_theta_cl <- sigma_cl2 / (g_theta_cl^2) / n
   se_theta_cl <- suppressWarnings(sqrt(var_theta_cl))

@@ -11,7 +11,7 @@ robin_surv_no_strata_no_cov(vars, data, exp_level, control_level)
 
 robin_surv_strata(vars, data, exp_level, control_level)
 
-robin_surv_cov(vars, data, exp_level, control_level)
+robin_surv_cov(vars, data, exp_level, control_level, ...)
 }
 \arguments{
 \item{vars}{(\code{list}) A list containing \code{levels}, \code{treatment}, and \code{covariates}.}
@@ -21,6 +21,8 @@ robin_surv_cov(vars, data, exp_level, control_level)
 \item{exp_level}{(\code{count}) Level of the experimental treatment arm.}
 
 \item{control_level}{(\code{count}) Level of the control treatment arm.}
+
+\item{...}{Additional arguments passed to \code{score_fun}.}
 }
 \value{
 See \code{\link[=robin_surv_comparison]{robin_surv_comparison()}}.
