@@ -9,7 +9,7 @@ NULL
 #' @exportS3Method
 #' @keywords internal
 print.prediction_cf <- function(x, level = 0.95, ...) {
-  assert_number(level, lower = 0.5, upper = 1)
+  assert_number(level, lower = 0, upper = 1)
   cat("Model        : ", deparse(as.formula(x$fit)), "\n")
   cat(
     "Randomization: ",

@@ -35,6 +35,26 @@ treatment_effect.prediction_cf <- function(
   trt_jac <- eff_jacobian(object$estimate[pair[[1]]], object$estimate[pair[[2]]])
   trt_jac_mat <- jac_mat(trt_jac, pair)
   equal_val <- eff_measure(object$estimate[1], object$estimate[1])
+
+  if (is.null(object$variance)) {
+    trt_sd <- rep(NA, length(object))
+  } else {
+    trt_sd <- sqrt(diag(object$variance))
+  }
+  z_value <- as.numeric(trt_effect - equal_val) / trt_sd
+  p <- 2 * pnorm(abs(z_value), lower.tail = FALSE)
+  coef_mat <- matrix(
+    c(
+      trt_effect,
+      trt_sd,
+      z_value,
+      p
+    ),
+    nrow = length(trt_effect)
+  )
+  colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
+  row.names(coef_mat) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
+
   structure(
     list(
       estimate = trt_effect,
@@ -45,7 +65,8 @@ treatment_effect.prediction_cf <- function(
       fit = object$fit,
       treatment = object$treatment_formula,
       variance = trt_jac_mat %*% object$variance %*% t(trt_jac_mat),
-      jacobian = trt_jac_mat
+      jacobian = trt_jac_mat,
+      coef_mat = coef_mat
     ),
     class = "treatment_effect"
   )
@@ -160,26 +181,7 @@ eff_jacob <- function(f) {
 print.treatment_effect <- function(x, level = 0.95, ...) {
   print(x$marginal_mean, signif.legend = FALSE, level = level)
   cat(sprintf("\nContrast     :  %s\n", x$contrast))
-  if (is.null(x$variance)) {
-    trt_sd <- rep(NA, length(x))
-  } else {
-    trt_sd <- sqrt(diag(x$variance))
-  }
-  z_value <- as.numeric(x$estimate - x$equal_val) / trt_sd
-  p <- 2 * pnorm(abs(z_value), lower.tail = FALSE)
-  coef_mat <- matrix(
-    c(
-      x$estimate,
-      trt_sd,
-      z_value,
-      p
-    ),
-    nrow = length(x$estimate)
-  )
-  colnames(coef_mat) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
-  pair <- x$pair
-  row.names(coef_mat) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
   stats::printCoefmat(
-    coef_mat
+    x$coef_mat
   )
 }
