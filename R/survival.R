@@ -162,13 +162,19 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
   )
 }
 
-#' Survival Comparison without Strata or Covariates
+#' Survival Comparison Functions
 #'
-#' This is a simple wrapper around [robin_surv_comparison()] called with the log-rank score function
-#' [h_lr_score_no_strata_no_cov()] without strata or covariates.
+#' These are simple wrappers around [robin_surv_comparison()] called with the corresponding log-rank score
+#' functions.
 #'
 #' @inheritParams robin_surv_comparison
 #' @return See [robin_surv_comparison()].
+#'
+#' @name survival_comparison_functions
+NULL
+
+#' @describeIn survival_comparison_functions without strata and without covariates, based on
+#'   [h_lr_score_no_strata_no_cov()].
 #' @keywords internal
 robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
   robin_surv_comparison(
@@ -180,5 +186,22 @@ robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status
+  )
+}
+
+#' @describeIn survival_comparison_functions without strata and without covariates, based on
+#'   [h_lr_score_strat()].
+#' @keywords internal
+robin_surv_strata <- function(vars, data, exp_level, control_level) {
+  robin_surv_comparison(
+    score_fun = h_lr_score_strat,
+    vars = vars,
+    data = data,
+    exp_level = exp_level,
+    control_level = control_level,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status,
+    strata = vars$strata
   )
 }
