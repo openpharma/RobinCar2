@@ -11,6 +11,7 @@
 #' @param time (`string`) The name of the time variable in `df`, representing the survival time.
 #' @param status (`string`) The name of the status variable in `df`, with 0 for censored and 1 for event.
 #' @param strata (`string`) The name of the strata variable in `df`, which must be a factor.
+#' @param covariates (`character`) The column names in `df` to be used for covariate adjustment.
 #' @param n (`count`) The number of observations. Note that this can be higher than the number of rows
 #'   when used in stratified analyses computations.
 #' @param use_ties_factor (`flag`) Whether to use the ties factor in the variance calculation. This is used

@@ -46,6 +46,8 @@ when used in stratified analyses computations.}
 when calculating the score test statistic, but not when estimating the log hazard ratio.}
 
 \item{strata}{(\code{string}) The name of the strata variable in \code{df}, which must be a factor.}
+
+\item{covariates}{(\code{character}) The column names in \code{df} to be used for covariate adjustment.}
 }
 \value{
 The score function value(s), with the following attributes:
