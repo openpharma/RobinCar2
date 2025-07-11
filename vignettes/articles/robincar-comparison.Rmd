@@ -30,7 +30,7 @@ As such, RobinCar and RobinCar2 share many methods. Please use this vignette as 
 
 ## RobinCar2 and RobinCar produce the same results when run with the same settings on the same data
 
-RobinCar2 has a testing suite that ensures that the outputs are identical between RobinCar and RobinCar2. The comparisons use the `dummy_data` dataset included in RobinCar2. The outputs for the point estimates and variance estimates are compared under a variety of settings, including:
+RobinCar2 has a testing suite that ensures that the outputs are identical between RobinCar and RobinCar2. The comparisons use the `glm_data` dataset included in RobinCar2. The outputs for the point estimates and variance estimates are compared under a variety of settings, including:
 
 -   Marginal means and treatment contrasts, for the difference, relative risk, odds ratio, and a custom contrast.
 -   Under Gaussian, binomial, Poisson, and negative binomial (known and unknown dispersion parameters) working models.
@@ -44,10 +44,10 @@ or view the report at RobinCar2 Validation Report.
 
 The interface for users is very similar between RobinCar and RobinCar2, though RobinCar2 has some more streamlined use. Users of RobinCar should find RobinCar2 at least as user-friendly and not have trouble switching between packages.
 
-Here we provide an example of using a *logistic regression working model* with *stratified permuted block randomization*, and the `dummy_data` provided in the package. We output the treatment contrast.
+Here we provide an example of using a *logistic regression working model* with *stratified permuted block randomization*, and the `glm_data` provided in the package. We output the treatment contrast.
 
 ```         
-head(dummy_data)
+head(glm_data)
 ```
 
 ### RobinCar
@@ -56,7 +56,7 @@ Here is the call in RobinCar, and the output:
 
 ```{r, eval=T}
 robincar_glm(
-  df = dummy_data,
+  df = glm_data,
   treat_col = "treatment",
   response_col = "y_b",
   formula = y_b ~ treatment * s1 + covar,
@@ -73,7 +73,7 @@ In RobinCar2, all of the randomization information, including the name of the tr
 
 ```{r, eval=T}
 robin_glm(
-  data = dummy_data,
+  data = glm_data,
   formula = y_b ~ treatment * s1 + covar,
   treatment = treatment ~ pb(s1),
   family = binomial(link = "logit")

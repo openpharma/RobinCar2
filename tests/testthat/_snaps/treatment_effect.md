@@ -24,7 +24,7 @@
 
     Code
       treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff,
-      data = dummy_data)
+      data = glm_data)
     Output
       Model        :  y ~ treatment * s1 + covar 
       Randomization:  treatment ~ s1  ( Simple )
