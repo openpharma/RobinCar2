@@ -29,3 +29,22 @@ test_that("h_derived_outcome_vals works as expected", {
   )
   expect_equal(head_result, head_expected, tolerance = 1e-4, ignore_attr = TRUE)
 })
+
+test_that("h_get_lm_input works as expected", {
+  set.seed(941)
+  df <- data.frame(
+    index = 1:5,
+    treatment = factor(c(0, 1, 0, 1, 0)),
+    covariate1 = rnorm(5),
+    covariate2 = rnorm(5),
+    O_hat = rnorm(5)
+  )
+  result <- h_get_lm_input(df, model = ~ covariate1 + covariate2)
+  expect_list(result, len = 2L)
+  expect_list(result[["0"]], len = 2L)
+  expect_matrix(result[["0"]][["X"]], ncol = 2L, nrow = 3L)
+  expect_numeric(result[["0"]][["y"]], len = 3L)
+  expect_list(result[["1"]], len = 2L)
+  expect_matrix(result[["1"]][["X"]], ncol = 2L, nrow = 2L)
+  expect_numeric(result[["1"]][["y"]], len = 2L)
+})

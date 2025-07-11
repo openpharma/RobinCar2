@@ -98,3 +98,35 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   # Return in original order.
   df[order(df$index), , drop = FALSE]
 }
+
+#' Get Linear Model Input Data
+#'
+#' This function prepares the input data for a linear model based on the provided data frame and model formula.
+#'
+#' @param df (`data.frame`) Including the covariates needed for the `model`, as well as the derived outcome `O_hat`
+#'   and the `treatment` factor.
+#' @param model (`formula`) The right-hand side only model formula.
+#' @return A list containing for each element of the `treatment` factor a list with the
+#'   corresponding model matrix `X` and the response vector `y`.
+#'
+#' @keywords internal
+h_get_lm_input <- function(df, model) {
+  assert_data_frame(df)
+  assert_formula(model)
+  assert_true(length(model) == 2L) # Ensures right-hand side only formula.
+  assert_subset(c("treatment", "O_hat", all.vars(model)), names(df))
+  assert_factor(df$treatment)
+
+  # Add outcome, remove intercept:
+  model <- update(model, O_hat ~ . - 1)
+  df_by_trt <- split(df, f = df$treatment)
+  lapply(
+    df_by_trt,
+    function(this_df) {
+      mf <- model.frame(model, data = this_df)
+      x <- model.matrix(model, data = mf)
+      y <- model.response(mf)
+      list(X = x, y = y)
+    }
+  )
+}
