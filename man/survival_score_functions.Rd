@@ -4,6 +4,7 @@
 \alias{survival_score_functions}
 \alias{h_lr_score_no_strata_no_cov}
 \alias{h_lr_score_strat}
+\alias{h_lr_score_cov}
 \title{Log-Rank Score Functions for Survival Analysis}
 \usage{
 h_lr_score_no_strata_no_cov(
@@ -25,9 +26,20 @@ h_lr_score_strat(
   strata,
   use_ties_factor = TRUE
 )
+
+h_lr_score_cov(
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE
+)
 }
 \arguments{
-\item{theta}{(\code{numeric}) The assumed log hazard ratio(s) of the second vs. the first level of the
+\item{theta}{(\code{number}) The assumed log hazard ratio of the second vs. the first level of the
 treatment arm variable.}
 
 \item{df}{(\code{data.frame}) The data frame containing the survival data.}
@@ -47,7 +59,9 @@ when calculating the score test statistic, but not when estimating the log hazar
 
 \item{strata}{(\code{string}) The name of the strata variable in \code{df}, which must be a factor.}
 
-\item{covariates}{(\code{character}) The column names in \code{df} to be used for covariate adjustment.}
+\item{model}{(\code{formula}) The model formula for covariate adjustment, e.g., \code{~ cov1 + cov2}.}
+
+\item{theta_hat}{(\code{number}) The estimated log hazard ratio when not adjusting for covariates.}
 }
 \value{
 The score function value(s), with the following attributes:
@@ -61,11 +75,17 @@ The score function value(s), with the following attributes:
 These functions compute the log-rank score statistics for a survival analysis.
 Depending on the function, these are stratified and/or adjusted for covariates.
 }
+\details{
+Note that for the not covariate adjusted score functions, these also work
+with a \code{numeric} \code{theta} vector of length > 1.
+}
 \section{Functions}{
 \itemize{
 \item \code{h_lr_score_no_strata_no_cov()}: without strata or covariates.
 
 \item \code{h_lr_score_strat()}: with strata but without covariates.
+
+\item \code{h_lr_score_cov()}: with covariates but without strata.
 
 }}
 \keyword{internal}

@@ -3,6 +3,7 @@
 #' This function computes the derived outcome values based on a given log hazard ratio.
 #'
 #' @inheritParams survival_score_functions
+#' @param covariates (`character`) The column names in `df` to be used for covariate adjustment.
 #' @return A data frame containing the same data as the input `df`, but restructured with standardized column names
 #'   `index`, `treatment`, `time`, `status`, the covariates, and an additional column `O_hat` containing the
 #'   derived outcome values.
@@ -28,7 +29,8 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   # Standardize data set format, subset to relevant variables.
   df <- data.frame(
     index = seq_len(nrow(df)),
-    treatment = as.numeric(df[[treatment]]) - 1L,
+    treatment = df[[treatment]],
+    treatment_numeric = as.numeric(df[[treatment]]) - 1L,
     time = df[[time]],
     status = df[[status]],
     df[covariates]
@@ -58,8 +60,8 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   # Corresponds to \exp(\theta) * \bar{Y}_1(t) and \bar{Y}_0(t).
   # So here theta enters.
   at_risk_matrix <- outer(df$time, df_events_unique$time, FUN = ">=")
-  y_bar_1 <- exp_theta * colSums(df$treatment & at_risk_matrix) / n
-  y_bar_0 <- colSums(!df$treatment & at_risk_matrix) / n
+  y_bar_1 <- exp_theta * colSums(df$treatment_numeric & at_risk_matrix) / n
+  y_bar_0 <- colSums(!df$treatment_numeric & at_risk_matrix) / n
   y_bar <- y_bar_0 + y_bar_1
 
   # Proportion of patients having an event at this time.
@@ -70,7 +72,7 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   # Loop over all patients.
   for (i in seq_len(nrow(df))) {
     # Treatment arm?
-    trt_i <- df$treatment[i]
+    trt_i <- df$treatment_numeric[i]
 
     # Event in this patient?
     delta_i <- df$status[i] == 1
@@ -95,8 +97,9 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
     df$O_hat[i] <- sum(weights * martingale_residuals)
   }
 
-  # Return in original order.
-  df[order(df$index), , drop = FALSE]
+  # Return in original order with relevant columns only.
+  include_cols <- c("index", "treatment", "time", "status", "O_hat", covariates)
+  df[order(df$index), include_cols, drop = FALSE]
 }
 
 #' Get Linear Model Input Data

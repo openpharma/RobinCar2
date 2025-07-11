@@ -15,7 +15,7 @@ h_derived_outcome_vals(
 )
 }
 \arguments{
-\item{theta}{(\code{numeric}) The assumed log hazard ratio(s) of the second vs. the first level of the
+\item{theta}{(\code{number}) The assumed log hazard ratio of the second vs. the first level of the
 treatment arm variable.}
 
 \item{df}{(\code{data.frame}) The data frame containing the survival data.}

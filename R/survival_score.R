@@ -3,7 +3,7 @@
 #' These functions compute the log-rank score statistics for a survival analysis.
 #' Depending on the function, these are stratified and/or adjusted for covariates.
 #'
-#' @param theta (`numeric`) The assumed log hazard ratio(s) of the second vs. the first level of the
+#' @param theta (`number`) The assumed log hazard ratio of the second vs. the first level of the
 #'   treatment arm variable.
 #' @param df (`data.frame`) The data frame containing the survival data.
 #' @param treatment (`string`) The name of the treatment arm variable in `df`. It should be a factor with
@@ -11,7 +11,8 @@
 #' @param time (`string`) The name of the time variable in `df`, representing the survival time.
 #' @param status (`string`) The name of the status variable in `df`, with 0 for censored and 1 for event.
 #' @param strata (`string`) The name of the strata variable in `df`, which must be a factor.
-#' @param covariates (`character`) The column names in `df` to be used for covariate adjustment.
+#' @param model (`formula`) The model formula for covariate adjustment, e.g., `~ cov1 + cov2`.
+#' @param theta_hat (`number`) The estimated log hazard ratio when not adjusting for covariates.
 #' @param n (`count`) The number of observations. Note that this can be higher than the number of rows
 #'   when used in stratified analyses computations.
 #' @param use_ties_factor (`flag`) Whether to use the ties factor in the variance calculation. This is used
@@ -21,6 +22,8 @@
 #'   - `se_theta_l`: The corresponding standard error term for the log hazard ratio.
 #'   - `n`: The number of observations used in the calculation.
 #'
+#' @details Note that for the not covariate adjusted score functions, these also work
+#'   with a `numeric` `theta` vector of length > 1.
 #' @name survival_score_functions
 NULL
 
@@ -147,6 +150,83 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
     u_sl,
     sigma_l2 = sigma_sl2,
     se_theta_l = se_theta_sl,
+    n = n
+  )
+}
+
+#' @describeIn survival_score_functions with covariates but without strata.
+#' @keywords internal
+h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat = theta, use_ties_factor = TRUE) {
+  assert_data_frame(df)
+  assert_string(treatment)
+  assert_string(time)
+  assert_string(status)
+  assert_formula(model)
+  covariates <- all.vars(model)
+  assert_subset(c(treatment, time, status, covariates), names(df))
+  assert_factor(df[[treatment]], levels = c("0", "1"), any.missing = FALSE)
+
+  # Subset to complete records here.
+  df <- stats::na.omit(df[c(treatment, time, status, covariates)])
+  n <- nrow(df)
+
+  # Calculate derived outcomes and regress them on covariates based on theta_hat.
+  df_with_covs_ovals <- h_derived_outcome_vals(
+    theta = theta_hat,
+    df = df,
+    treatment = treatment,
+    time = time,
+    status = status,
+    covariates = covariates,
+    n = n
+  )
+  lm_input <- h_get_lm_input(df = df_with_covs_ovals, model = model)
+  beta_est <- h_get_beta_estimates(lm_input)
+
+  # Obtain unadjusted result.
+  unadj_score <- h_lr_score_no_strata_no_cov(
+    theta = theta,
+    df = df,
+    treatment = treatment,
+    time = time,
+    status = status,
+    n = n,
+    use_ties_factor = use_ties_factor
+  )
+
+  # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
+  # proportion of treatment 1 in the trial.
+  pi <- mean(as.numeric(df[[treatment]]) - 1)
+
+  # Overall column wise average of design matrices.
+  x_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
+  x_bar <- colMeans(x_all)
+
+  # Center the design matrices with this overall average.
+  x_0 <- scale(lm_input[["0"]]$X, center = x_bar, scale = FALSE)
+  x_1 <- scale(lm_input[["1"]]$X, center = x_bar, scale = FALSE)
+
+  # Compute adjustment term for the score.
+  u_l_adj_term <- (sum(x_1 %*% beta_est[["1"]]) - sum(x_0 %*% beta_est[["0"]])) / n
+
+  # Compute adjusted score statistic.
+  u_cl <- as.numeric(unadj_score) - u_l_adj_term
+
+  # Compute adjustment term for the variance estimate.
+  cov_x <- stats::cov(x_all)
+  beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+  sigma_l2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_x %*% beta_est_sum)
+
+  # Compute standard error for theta estimate.
+  g_theta_cl <- attr(unadj_score, "sigma_l2")
+  sigma_cl2 <- g_theta_cl - sigma_l2_adj_term
+  var_theta_cl <- sigma_cl2 / (g_theta_cl^2) / n
+  se_theta_cl <- suppressWarnings(sqrt(var_theta_cl))
+
+  structure(
+    u_cl,
+    se_theta_l = se_theta_cl,
+    sigma_l2 = sigma_cl2,
     n = n
   )
 }

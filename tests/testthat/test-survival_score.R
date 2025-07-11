@@ -105,3 +105,32 @@ test_that("h_lr_score_strat works as expected with multiple theta values", {
   })
   expect_identical(as.numeric(result), expected)
 })
+
+test_that("h_lr_score_cov works as expected with default options", {
+  surv_data_recoded <- surv_data |>
+    dplyr::mutate(treatment = factor(as.numeric(sex == "Female")))
+  result <- h_lr_score_cov(
+    theta = 0,
+    df = surv_data_recoded,
+    treatment = "treatment",
+    time = "time",
+    status = "status",
+    model = ~age
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
+test_that("h_lr_score_cov works as expected when not using ties factor", {
+  surv_data_recoded <- surv_data |>
+    dplyr::mutate(treatment = factor(as.numeric(sex == "Female")))
+  result <- h_lr_score_cov(
+    theta = 0,
+    df = surv_data_recoded,
+    treatment = "treatment",
+    time = "time",
+    status = "status",
+    model = ~age,
+    use_ties_factor = FALSE
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
