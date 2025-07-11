@@ -107,12 +107,10 @@ test_that("h_lr_score_strat works as expected with multiple theta values", {
 })
 
 test_that("h_lr_score_cov works as expected with default options", {
-  surv_data_recoded <- surv_data |>
-    dplyr::mutate(treatment = factor(as.numeric(sex == "Female")))
   result <- h_lr_score_cov(
     theta = 0,
-    df = surv_data_recoded,
-    treatment = "treatment",
+    df = surv_data,
+    treatment = "sex",
     time = "time",
     status = "status",
     model = ~age
@@ -121,12 +119,10 @@ test_that("h_lr_score_cov works as expected with default options", {
 })
 
 test_that("h_lr_score_cov works as expected when not using ties factor", {
-  surv_data_recoded <- surv_data |>
-    dplyr::mutate(treatment = factor(as.numeric(sex == "Female")))
   result <- h_lr_score_cov(
     theta = 0,
-    df = surv_data_recoded,
-    treatment = "treatment",
+    df = surv_data,
+    treatment = "sex",
     time = "time",
     status = "status",
     model = ~age,

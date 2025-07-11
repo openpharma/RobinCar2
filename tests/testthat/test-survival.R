@@ -81,3 +81,18 @@ test_that("robin_surv_strata works as expected", {
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
+
+test_that("robin_surv_cov works as expected", {
+  input <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ sex + age,
+    data = surv_data,
+    treatment = sex ~ 1
+  )
+  result <- robin_surv_cov(
+    vars = input,
+    data = input$data,
+    exp_level = 1,
+    control_level = 2
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})

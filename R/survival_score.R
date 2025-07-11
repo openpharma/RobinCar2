@@ -53,7 +53,7 @@ h_lr_score_no_strata_no_cov <- function(
 
   # Standardize data set format, subset to relevant variables.
   df_stand <- data.frame(
-    treatment = as.numeric(df[[treatment]]) - 1L,
+    treatment_numeric = as.numeric(df[[treatment]]) - 1L,
     time = df[[time]],
     status = df[[status]]
   )
@@ -78,14 +78,14 @@ h_lr_score_no_strata_no_cov <- function(
     n_events_ti <- df_events$n_events[i]
 
     # This treatment arm indicator.
-    trt_i <- df_events$treatment[i]
+    trt_i <- df_events$treatment_numeric[i]
 
     # Proportions of patients at risk at time t_i, per arm.
 
     # Note: Also here we need to use sum divided by n, otherwise
     # we will get wrong results when there are ties.
-    y_bar_1_ti <- sum(df_stand$treatment & df_stand$time >= t_i) / n
-    y_bar_0_ti <- sum(!df_stand$treatment & df_stand$time >= t_i) / n
+    y_bar_1_ti <- sum(df_stand$treatment_numeric & df_stand$time >= t_i) / n
+    y_bar_0_ti <- sum(!df_stand$treatment_numeric & df_stand$time >= t_i) / n
 
     # Adjusted proportion of patients at risk in the treatment arm:
     y_bar_1_ti_coxph <- y_bar_1_ti * exp(theta)
@@ -164,7 +164,7 @@ h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat 
   assert_formula(model)
   covariates <- all.vars(model)
   assert_subset(c(treatment, time, status, covariates), names(df))
-  assert_factor(df[[treatment]], levels = c("0", "1"), any.missing = FALSE)
+  assert_factor(df[[treatment]], n.levels = 2L, any.missing = FALSE)
 
   # Subset to complete records here.
   df <- stats::na.omit(df[c(treatment, time, status, covariates)])
@@ -199,22 +199,22 @@ h_lr_score_cov <- function(theta, df, treatment, time, status, model, theta_hat 
   pi <- mean(as.numeric(df[[treatment]]) - 1)
 
   # Overall column wise average of design matrices.
-  x_all <- rbind(lm_input[["0"]]$X, lm_input[["1"]]$X)
+  x_all <- rbind(lm_input[[1]]$X, lm_input[[2]]$X)
   x_bar <- colMeans(x_all)
 
   # Center the design matrices with this overall average.
-  x_0 <- scale(lm_input[["0"]]$X, center = x_bar, scale = FALSE)
-  x_1 <- scale(lm_input[["1"]]$X, center = x_bar, scale = FALSE)
+  x_0 <- scale(lm_input[[1]]$X, center = x_bar, scale = FALSE)
+  x_1 <- scale(lm_input[[2]]$X, center = x_bar, scale = FALSE)
 
   # Compute adjustment term for the score.
-  u_l_adj_term <- (sum(x_1 %*% beta_est[["1"]]) - sum(x_0 %*% beta_est[["0"]])) / n
+  u_l_adj_term <- (sum(x_1 %*% beta_est[[2]]) - sum(x_0 %*% beta_est[[1]])) / n
 
   # Compute adjusted score statistic.
   u_cl <- as.numeric(unadj_score) - u_l_adj_term
 
   # Compute adjustment term for the variance estimate.
   cov_x <- stats::cov(x_all)
-  beta_est_sum <- beta_est[["0"]] + beta_est[["1"]]
+  beta_est_sum <- beta_est[[1]] + beta_est[[2]]
   sigma_l2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_x %*% beta_est_sum)
 
   # Compute standard error for theta estimate.

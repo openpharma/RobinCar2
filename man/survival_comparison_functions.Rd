@@ -4,11 +4,14 @@
 \alias{survival_comparison_functions}
 \alias{robin_surv_no_strata_no_cov}
 \alias{robin_surv_strata}
+\alias{robin_surv_cov}
 \title{Survival Comparison Functions}
 \usage{
 robin_surv_no_strata_no_cov(vars, data, exp_level, control_level)
 
 robin_surv_strata(vars, data, exp_level, control_level)
+
+robin_surv_cov(vars, data, exp_level, control_level)
 }
 \arguments{
 \item{vars}{(\code{list}) A list containing \code{levels}, \code{treatment}, and \code{covariates}.}
@@ -33,6 +36,10 @@ functions.
 
 \item \code{robin_surv_strata()}: without strata and without covariates, based on
 \code{\link[=h_lr_score_strat]{h_lr_score_strat()}}.
+
+\item \code{robin_surv_cov()}: without strata and without covariates, based on
+\code{\link[=h_lr_score_cov]{h_lr_score_cov()}} and \code{\link[=h_lr_score_no_strata_no_cov]{h_lr_score_no_strata_no_cov()}} (which is used to find the unadjusted
+log hazard ratio estimate).
 
 }}
 \keyword{internal}

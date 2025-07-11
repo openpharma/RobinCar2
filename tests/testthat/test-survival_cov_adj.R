@@ -13,11 +13,9 @@ test_that("h_derived_outcome_vals works as expected", {
   head_result <- result[seq_len(6), ]
   head_expected <- data.frame(
     index = 1:6,
-    treatment = c(1, 1, 1, 0, 0, 1),
+    treatment = factor(c("Male", "Male", "Male", "Female", "Female", "Male")),
     time = c(455, 210, 1022, 310, 361, 218),
     status = c(1, 1, 0, 1, 1, 1),
-    age = c(68, 57, 74, 68, 71, 53),
-    ph.karno = c(90, 90, 50, 70, 60, 70),
     O_hat = c(
       -0.059407303167448,
       0.280849881485069,
@@ -25,7 +23,9 @@ test_that("h_derived_outcome_vals works as expected", {
       0.128415337453864,
       0.0645341495986705,
       0.27539351150966
-    )
+    ),
+    age = c(68, 57, 74, 68, 71, 53),
+    ph.karno = c(90, 90, 50, 70, 60, 70)
   )
   expect_equal(head_result, head_expected, tolerance = 1e-4, ignore_attr = TRUE)
 })

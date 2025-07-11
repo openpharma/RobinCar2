@@ -205,3 +205,22 @@ robin_surv_strata <- function(vars, data, exp_level, control_level) {
     strata = vars$strata
   )
 }
+
+#' @describeIn survival_comparison_functions without strata and without covariates, based on
+#'   [h_lr_score_cov()] and [h_lr_score_no_strata_no_cov()] (which is used to find the unadjusted
+#'   log hazard ratio estimate).
+#' @keywords internal
+robin_surv_cov <- function(vars, data, exp_level, control_level) {
+  robin_surv_comparison(
+    score_fun = h_lr_score_cov,
+    unadj_score_fun = h_lr_score_no_strata_no_cov,
+    vars = vars,
+    data = data,
+    exp_level = exp_level,
+    control_level = control_level,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status,
+    model = vars$model
+  )
+}
