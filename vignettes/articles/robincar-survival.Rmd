@@ -99,4 +99,69 @@ However, when we estimate the log hazard ratio $\theta$ by finding the root $\ha
 
 This score function and the variance estimator are implemented in the internal function `RobinCar2:::h_lr_score_no_strata_no_cov()`.
 
+## Stratified analysis without covariates
+
+Following Section S2.3 in @YeShaoYi2023, the score function for the stratified log-rank test is given by:
+
+$$
+\begin{align*}
+U_{SL}(\theta) 
+&= 
+\frac{1}{n} \sum_{z} \sum_{i: Z_{i} = z} \int_{0}^{\tau} 
+\left\{
+I_{i} - \frac{\exp(\theta) \overline{Y}_{z1}(t)}{\overline{Y}_{z0}(t) + \exp(\theta) \overline{Y}_{z1}(t)}
+\right\}
+dN_i(t)\\
+&=
+\frac{1}{n} \sum_{z} \sum_{j(z)}
+I_{j} - \frac{\exp(\theta) \overline{Y}_{z1}(t_{j})}{\overline{Y}_{z0}(t_{j}) + \exp(\theta) \overline{Y}_{z1}(t_{j})}
+\end{align*}
+$$
+
+where the last sum is over the unique event times $j$ in stratum $z$, therefore written here simply as indices $j(z)$. 
+The proportions of patients at risk at time $t_{j}$, per arm $k = 0, 1$ in stratum $z$ are denoted by $\overline{Y}_{zk}(t_{j})$. Importantly, the proportion is with regards to the total number of patients across all strata, not just within stratum $z$.
+
+So we can see that the score function is a sum over strata $z$ of the standard log-rank score function.
+In the same way, the variance estimator $\sigma_{SL}^{2}(\theta)$ is the sum over strata $z$ of the standard log-rank variance estimator $\sigma_{L}^{2}(\theta)$. 
+
+One small important detail is that the number of patients $n$ in the denominator is always the total number of patients across all strata, not the number of patients in stratum $z$. This is the reason why the standard log-rank score function `RobinCar2:::h_lr_score_no_strata_no_cov()` has an argument `n`, which is used here by the stratified log-rank score function `RobinCar2:::h_lr_score_strat()` to pass on the total number of patients.
+
+## Covariate adjusted analysis without strata
+
+A little bit more complex is the calculation of the score function for the covariate adjusted log-rank test, which following Section 3 in @YeShaoYi2023 is given by:
+
+$$
+U_{CL}(\theta) =
+U_{L}(\theta) - \frac{1}{n} \sum_{i=1}^{n} 
+\{
+I_{i}(X_{i} - \overline{X})^{\top} \hat{\beta}_{1}(\theta_{L}) - 
+(1 - I_{i})(X_{i} - \overline{X})^{\top} \hat{\beta}_{0}(\theta_{L}) 
+\}.
+$$
+
+Here we have to explain a lot of notation. The score function is based on the standard log-rank score function $U_{L}(\theta)$, but we subtract a correction term that accounts for the covariates $X_{i}$ of patient $i$. The covariates are assumed to be centered, i.e. $\overline{X} = \frac{1}{n} \sum_{i=1}^{n} X_{i}$ is the mean of the covariates across all patients.
+
+Interestingly on the right hand side we see also $\theta_{L}$. This is supposed to be the log hazard ratio estimated by the standard log-rank analysis, i.e. $\hat{\theta}_{L}$, when finding the root of $U_{CL}(\theta)$ to estimate the log hazard ratio $\hat{\theta}_{CL}$. The reason for this is that the asymptotic guaranteed efficiency gain of the covariate adjusted log hazard ratio estimator is only proven using this version of the score function, see Section 3 in @YeShaoYi2023. On the other hand, for calculating the covariate adjusted log-rank score test statistic, we set both $\theta = 0$ and $\theta_{L} = 0$.
+
+How are the regression coefficients $\hat{\beta}_{1}$ and $\hat{\beta}_{0}$ estimated given a log hazard ratio $\theta$? 
+First, the so-called derived outcomes need to be calculated. These are defined for patient $i$ in treatment arm $j = 0,1$ as:
+
+$$
+\begin{align*}
+O_{ij}(\theta) 
+&= \int_{0}^{\tau} 
+\frac{
+  \{\exp(\theta) \overline{Y}_{1}(t)\}^{(1-j)}
+  \{\overline{Y}_{0}(t)\}^{j}
+}{\exp(\theta) \overline{Y}_{1}(t) + \overline{Y}_{0}(t)} 
+\left\{ 
+  dN_{ij}(t) - 
+\frac{Y_{ij}(t) \exp(\theta) d\overline{N}(t)}
+{\exp(\theta) \overline{Y}_{1}(t) + \overline{Y}_{0}(t)} 
+\right\}
+\\
+&= 
+
+$$
+
 # References
