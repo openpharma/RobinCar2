@@ -110,7 +110,7 @@ h_prep_survival_input <- function(formula, data, treatment) {
   } else {
     paste("~ . -", trt_vars$treatment)
   }
-  model <- update(model, as.formula(update_string))
+  model <- stats::update(model, as.formula(update_string))
 
   list(
     data = data,
@@ -151,7 +151,7 @@ h_n_events_per_time <- function(df, time, status) {
   if (nrow(df_events) == 0) {
     return(data.frame(time = numeric(0), n_events = integer(0)))
   }
-  times_count <- aggregate(
+  times_count <- stats::aggregate(
     df_events[[status]],
     by = list(time = df_events[[time]]),
     FUN = length
