@@ -48,12 +48,10 @@ robin_glm <- function(
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
   }
-  if (identical(contrast, "difference")) {
-    difference(pc, pair = pair)
-  } else if (identical(contrast, "risk_ratio")) {
-    risk_ratio(pc, pair = pair)
-  } else if (identical(contrast, "odds_ratio")) {
-    odds_ratio(pc, pair = pair)
+
+  if (test_string(contrast) &&
+    contrast %in% c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio", "log_odds_ratio")) {
+    get(contrast)(pc, pair = pair)
   } else {
     assert_function(contrast, args = c("x", "y"))
     assert_function(contrast_jac, null.ok = TRUE, args = c("x", "y"))

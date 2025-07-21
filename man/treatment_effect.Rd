@@ -5,6 +5,8 @@
 \alias{difference}
 \alias{risk_ratio}
 \alias{odds_ratio}
+\alias{log_risk_ratio}
+\alias{log_odds_ratio}
 \title{Treatment Effect}
 \usage{
 treatment_effect(
@@ -20,6 +22,10 @@ difference(object, ...)
 risk_ratio(object, ...)
 
 odds_ratio(object, ...)
+
+log_risk_ratio(object, ...)
+
+log_odds_ratio(object, ...)
 }
 \arguments{
 \item{object}{Object from which to obtain treatment effect.}
@@ -44,6 +50,7 @@ A list of \code{treatment_effect} object with following elements:
 \item \code{treatment}: the treatment assignment.
 \item \code{variance}: the variance of the treatment effect.
 \item \code{jacobian}: the Jacobian matrix.
+\item \code{contrast_mat}: contrast summary matrix.
 }
 }
 \description{

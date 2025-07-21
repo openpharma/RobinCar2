@@ -7,6 +7,10 @@
 \alias{h_jac_ratio}
 \alias{h_odds_ratio}
 \alias{h_jac_odds_ratio}
+\alias{h_log_ratio}
+\alias{h_jac_log_ratio}
+\alias{h_log_odds_ratio}
+\alias{h_jac_log_odds_ratio}
 \alias{eff_jacob}
 \alias{pairwise}
 \alias{against_ref}
@@ -24,6 +28,14 @@ h_jac_ratio(x, y)
 h_odds_ratio(x, y)
 
 h_jac_odds_ratio(x, y)
+
+h_log_ratio(x, y)
+
+h_jac_log_ratio(x, y)
+
+h_log_odds_ratio(x, y)
+
+h_jac_log_odds_ratio(x, y)
 
 eff_jacob(f)
 

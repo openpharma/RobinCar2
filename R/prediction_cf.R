@@ -20,20 +20,25 @@ print.prediction_cf <- function(x, level = 0.95, ...) {
   )
   cat("Variance Type: ", x$variance_name, "\n")
   cat("Marginal Mean: \n")
-  trt_sd <- sqrt(diag(x$variance))
-  m_mat <- matrix(
-    c(
-      x$estimate,
-      trt_sd,
-      x$estimate + trt_sd * qnorm(0.5 - level / 2),
-      x$estimate + trt_sd * qnorm(0.5 + level / 2)
-    ),
-    nrow = length(x$estimate)
-  )
-  colnames(m_mat) <- c("Estimate", "Std.Err", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
-  row.names(m_mat) <- names(x$estimate)
   stats::printCoefmat(
-    m_mat,
+    confint(x, level = level),
     ...
   )
+}
+
+#' @export
+confint.prediction_cf <- function(object, parm, level = 0.95, ...) {
+  trt_sd <- sqrt(diag(object$variance))
+  m_mat <- matrix(
+    c(
+      object$estimate,
+      trt_sd,
+      object$estimate + trt_sd * qnorm(0.5 - level / 2),
+      object$estimate + trt_sd * qnorm(0.5 + level / 2)
+    ),
+    nrow = length(object$estimate)
+  )
+  colnames(m_mat) <- c("Estimate", "Std.Err", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
+  row.names(m_mat) <- names(object$estimate)
+  m_mat
 }
