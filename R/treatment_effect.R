@@ -36,7 +36,7 @@ treatment_effect.prediction_cf <- function(
   trt_jac <- eff_jacobian(object$estimate[pair[[1]]], object$estimate[pair[[2]]])
   trt_jac_mat <- jac_mat(trt_jac, pair)
   equal_val <- eff_measure(object$estimate[1], object$estimate[1])
-  
+
 
   contrast_var <- trt_jac_mat %*% object$variance %*% t(trt_jac_mat)
 
