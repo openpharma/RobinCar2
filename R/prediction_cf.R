@@ -27,9 +27,10 @@ print.prediction_cf <- function(x, level = 0.95, ...) {
 }
 
 #' @export
+#' @rdname confint
 confint.prediction_cf <- function(object, parm, level = 0.95, ...) {
   trt_sd <- sqrt(diag(object$variance))
-  m_mat <- matrix(
+  ret <- matrix(
     c(
       object$estimate,
       trt_sd,
@@ -38,7 +39,7 @@ confint.prediction_cf <- function(object, parm, level = 0.95, ...) {
     ),
     nrow = length(object$estimate)
   )
-  colnames(m_mat) <- c("Estimate", "Std.Err", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
-  row.names(m_mat) <- names(object$estimate)
-  m_mat
+  colnames(ret) <- c("Estimate", "Std.Err", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
+  row.names(ret) <- names(object$estimate)
+  ret
 }

@@ -59,13 +59,15 @@ robin_glm <- function(
         )
       )
     }
-    get(contrast)(pc, pair = pair)
+    get(contrast)(pc, pair = pair, contrast_name = contrast)
   } else {
     assert_function(contrast, args = c("x", "y"))
     assert_function(contrast_jac, null.ok = TRUE, args = c("x", "y"))
     if (is.null(contrast_jac)) {
       contrast_jac <- eff_jacob(contrast)
     }
-    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair)
+    contrast_name_full <- deparse(substitute(contrast))
+    contrast_name <- paste(contrast_name_full[1], if (length(contrast_name_full) > 1) "...")
+    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair, contrast_name = contrast_name)
   }
 }

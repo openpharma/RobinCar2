@@ -5,6 +5,7 @@
 #' @param pair (`contrast`) Contrast choices.
 #' @param eff_measure (`function`) Treatment effect measurement function.
 #' @param eff_jacobian (`function`) Treatment effect jacobian function.
+#' @param contrast_name (`string`) Name of the contrast.
 #' @param ... Additional arguments for variance.
 #' @return A list of `treatment_effect` object with following elements:
 #' - `estimate`: estimate of the treatment effect.
@@ -27,9 +28,10 @@ treatment_effect <- function(
 
 #' @export
 treatment_effect.prediction_cf <- function(
-    object, pair = pairwise(names(object$estimate)), eff_measure, eff_jacobian = eff_jacob(eff_measure), ...) {
+    object, pair = pairwise(names(object$estimate)), eff_measure, eff_jacobian = eff_jacob(eff_measure), contrast_name = deparse(substitute(eff_measure)), ...) {
   assert_function(eff_measure)
   assert_class(pair, "contrast")
+  assert_string(contrast_name)
   # make sure levels match
   pair <- update_levels(pair, names(object$estimate))
   trt_effect <- unname(eff_measure(object$estimate[pair[[1]]], object$estimate[pair[[2]]]))
@@ -63,7 +65,7 @@ treatment_effect.prediction_cf <- function(
     list(
       estimate = trt_effect,
       pair = pair,
-      contrast = deparse(substitute(eff_measure)),
+      contrast = contrast_name,
       equal_val = equal_val,
       marginal_mean = object,
       fit = object$fit,
@@ -223,4 +225,29 @@ print.treatment_effect <- function(x, level = 0.95, ...) {
   stats::printCoefmat(
     x$contrast_mat
   )
+}
+
+#' Confidence interval function.
+#' @rdname confint
+#' @export
+#' @param transform `(function)` A transform function.
+confint.treatment_effect <- function(x, parm, level = 0.95, transform, ...) {
+  ret <- matrix(
+    c(
+      x$contrast_mat[, "Estimate"],
+      x$contrast_mat[, "Estimate"] + x$contrast_mat[, "Std.Err"] * qnorm(0.5 - level / 2),
+      x$contrast_mat[, "Estimate"] + x$contrast_mat[, "Std.Err"] * qnorm(0.5 + level / 2)
+    ),
+    nrow = nrow(x$contrast_mat)
+  )
+  colnames(ret) <- c("Estimate", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
+  row.names(ret) <- row.names(x$contrast_mat)
+  if (missing(transform)) {
+    if (x$contrast %in% c("log_odds_ratio", "log_risk_ratio", "h_log_odds_ratio", "h_log_risk_ratio")) {
+      transform <- exp
+    } else {
+      transform <- identity
+    }
+  }
+  transform(ret)
 }
