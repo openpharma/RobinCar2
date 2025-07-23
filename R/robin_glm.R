@@ -51,6 +51,14 @@ robin_glm <- function(
 
   if (test_string(contrast) &&
     contrast %in% c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio", "log_odds_ratio")) {
+    if (contrast %in% c("odds_ratio", "risk_ratio")) {
+      warning(
+        c(
+          "Consider using the log transformation `log_odds_ratio` and `log_risk_ratio` ",
+          "to replace `odds_ratio` and `risk_ratio` to improve the performance of normal approximation."
+        )
+      )
+    }
     get(contrast)(pc, pair = pair)
   } else {
     assert_function(contrast, args = c("x", "y"))
