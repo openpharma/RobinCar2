@@ -22,7 +22,7 @@
 #' @export
 treatment_effect <- function(
     object, pair = pairwise(names(object$estimate)), eff_measure,
-    eff_jacobian = eff_jacob(eff_measure), ...) {
+    eff_jacobian = eff_jacob(eff_measure), contrast_name, ...) {
   UseMethod("treatment_effect")
 }
 
@@ -82,7 +82,7 @@ treatment_effect.prediction_cf <- function(
 #' @export
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
-    object, pair, eff_measure, eff_jacobian = eff_jacob(eff_measure),
+    object, pair, eff_measure, eff_jacobian = eff_jacob(eff_measure), contrast_name = deparse(substitute(eff_measure)),
     vcov = "vcovG", vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, data = data, treatment, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
@@ -93,7 +93,7 @@ treatment_effect.lm <- function(
 
 #' @export
 treatment_effect.glm <- function(
-    object, pair, eff_measure, eff_jacobian = eff_jacob(eff_measure),
+    object, pair, eff_measure, eff_jacobian = eff_jacob(eff_measure), contrast_name = deparse(substitute(eff_measure)),
     vcov = "vcovG", vcov_args = list(), treatment, data = find_data(object), ...) {
   pc <- predict_counterfactual(object, treatment, data, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
@@ -108,7 +108,7 @@ difference <- function(object, ...) {
 }
 #' @rdname treatment_effect
 risk_ratio <- function(object, ...) {
-  treatment_effect(object, eff_measure = h_ratio, eff_jacobian = h_jac_ratio, ...)
+  treatment_effect(object, eff_measure = h_risk_ratio, eff_jacobian = h_jac_risk_ratio, ...)
 }
 #' @rdname treatment_effect
 odds_ratio <- function(object, ...) {
@@ -130,7 +130,7 @@ log_odds_ratio <- function(object, ...) {
 #' @return Vector of contrasts, or matrix of jacobians.
 #' @examples
 #' h_diff(1:3, 4:6)
-#' h_jac_ratio(1:3, 4:6)
+#' h_jac_risk_ratio(1:3, 4:6)
 #' @export
 h_diff <- function(x, y) {
   assert_numeric(x)
@@ -149,7 +149,7 @@ h_jac_diff <- function(x, y) {
 
 #' @rdname contrast
 #' @export
-h_ratio <- function(x, y) {
+h_risk_ratio <- function(x, y) {
   assert_numeric(x, lower = 0)
   assert_numeric(y, lower = 0, len = length(x))
   x / y
@@ -157,7 +157,7 @@ h_ratio <- function(x, y) {
 
 #' @rdname contrast
 #' @export
-h_jac_ratio <- function(x, y) {
+h_jac_risk_ratio <- function(x, y) {
   assert_numeric(x, lower = 0)
   assert_numeric(y, lower = 0, len = length(x))
   cbind(1 / y, -x / y^2)
@@ -168,7 +168,7 @@ h_jac_ratio <- function(x, y) {
 h_odds_ratio <- function(x, y) {
   assert_numeric(x, lower = 0, upper = 1)
   assert_numeric(y, lower = 0, upper = 1, len = length(x))
-  h_ratio(x / (1 - x), y / (1 - y))
+  h_risk_ratio(x / (1 - x), y / (1 - y))
 }
 
 #' @rdname contrast
@@ -182,7 +182,7 @@ h_jac_odds_ratio <- function(x, y) {
 #' @rdname contrast
 #' @export
 h_log_ratio <- function(x, y) {
-  log(h_ratio(x, y))
+  log(h_risk_ratio(x, y))
 }
 
 #' @rdname contrast
@@ -229,25 +229,44 @@ print.treatment_effect <- function(x, level = 0.95, ...) {
 
 #' Confidence interval function.
 #' @rdname confint
+#' @param object Object to construct confidence interval.
+#' @param parm (`character` or `integer`) Names of the parameters to construct confidence interval.
+#' @param level (`numeric`) Confidence level.
+#' @param transform (`function`) Transform function.
+#' @param ... Not used.
 #' @export
-#' @param transform `(function)` A transform function.
-confint.treatment_effect <- function(x, parm, level = 0.95, transform, ...) {
+#' @return A `matrix` of the confidence interval.
+confint.treatment_effect <- function(object, parm, level = 0.95, transform, ...) {
+  assert_number(level, lower = 0, upper = 1)
+  if (!missing(parm)) {
+    assert(
+      check_integerish(parm, lower = 1, upper = nrow(object$contrast_mat)),
+      check_subset(parm, row.names(object$contrast_mat))
+    )
+  }
+  if (!missing(transform)) {
+    assert_function(transform)
+  }
   ret <- matrix(
     c(
-      x$contrast_mat[, "Estimate"],
-      x$contrast_mat[, "Estimate"] + x$contrast_mat[, "Std.Err"] * qnorm(0.5 - level / 2),
-      x$contrast_mat[, "Estimate"] + x$contrast_mat[, "Std.Err"] * qnorm(0.5 + level / 2)
+      object$contrast_mat[, "Estimate"],
+      object$contrast_mat[, "Estimate"] + object$contrast_mat[, "Std.Err"] * qnorm(0.5 - level / 2),
+      object$contrast_mat[, "Estimate"] + object$contrast_mat[, "Std.Err"] * qnorm(0.5 + level / 2)
     ),
-    nrow = nrow(x$contrast_mat)
+    nrow = nrow(object$contrast_mat)
   )
   colnames(ret) <- c("Estimate", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
-  row.names(ret) <- row.names(x$contrast_mat)
+  row.names(ret) <- row.names(object$contrast_mat)
   if (missing(transform)) {
-    if (x$contrast %in% c("log_odds_ratio", "log_risk_ratio", "h_log_odds_ratio", "h_log_risk_ratio")) {
+    if (object$contrast %in% c("log_odds_ratio", "log_risk_ratio", "h_log_odds_ratio", "h_log_risk_ratio")) {
       transform <- exp
     } else {
       transform <- identity
     }
   }
-  transform(ret)
+  if (missing(parm)) {
+    transform(ret)
+  } else {
+    transform(ret[parm, ])
+  }
 }

@@ -7,10 +7,21 @@
 \usage{
 \method{confint}{prediction_cf}(object, parm, level = 0.95, ...)
 
-\method{confint}{treatment_effect}(x, parm, level = 0.95, transform, ...)
+\method{confint}{treatment_effect}(object, parm, level = 0.95, transform, ...)
 }
 \arguments{
-\item{transform}{\verb{(function)} A transform function.}
+\item{object}{Object to construct confidence interval.}
+
+\item{parm}{(\code{character} or \code{integer}) Names of the parameters to construct confidence interval.}
+
+\item{level}{(\code{numeric}) Confidence level.}
+
+\item{...}{Not used.}
+
+\item{transform}{(\code{function}) Transform function.}
+}
+\value{
+A \code{matrix} of the confidence interval.
 }
 \description{
 Confidence interval function.

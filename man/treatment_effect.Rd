@@ -14,6 +14,7 @@ treatment_effect(
   pair = pairwise(names(object$estimate)),
   eff_measure,
   eff_jacobian = eff_jacob(eff_measure),
+  contrast_name,
   ...
 )
 
@@ -36,9 +37,9 @@ log_odds_ratio(object, ...)
 
 \item{eff_jacobian}{(\code{function}) Treatment effect jacobian function.}
 
-\item{...}{Additional arguments for variance.}
-
 \item{contrast_name}{(\code{string}) Name of the contrast.}
+
+\item{...}{Additional arguments for variance.}
 }
 \value{
 A list of \code{treatment_effect} object with following elements:

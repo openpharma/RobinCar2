@@ -29,6 +29,13 @@ print.prediction_cf <- function(x, level = 0.95, ...) {
 #' @export
 #' @rdname confint
 confint.prediction_cf <- function(object, parm, level = 0.95, ...) {
+  assert_number(level, lower = 0, upper = 1)
+  if (!missing(parm)) {
+    assert(
+      check_integerish(parm, lower = 1, upper = length(object$estimate)),
+      check_subset(parm, names(object$estimate))
+    )
+  }
   trt_sd <- sqrt(diag(object$variance))
   ret <- matrix(
     c(
