@@ -31,12 +31,6 @@ robin_glm <- function(
   # If so, use MASS::glm.nb instead of glm.
   assert_subset(all.vars(formula), names(data))
   assert_subset(all.vars(treatment), names(data))
-  if (identical(family$family, "Negative Binomial(NA)")) {
-    fit <- MASS::glm.nb(formula, data = data, ...)
-  } else {
-    fit <- glm(formula, family = family, data = data, ...)
-  }
-  pc <- predict_counterfactual(fit, treatment, data, variance = vcov, vcov_args = vcov_args)
   has_interaction <- h_interaction(formula, treatment)
   use_vcovhc <- identical(vcov, "vcovHC") || identical(vcov, vcovHC)
   if (use_vcovhc && (has_interaction || !identical(contrast, "difference"))) {
@@ -45,6 +39,13 @@ robin_glm <- function(
       "using a linear model without treatment-covariate interactions; see the 2023 FDA guidance."
     )
   }
+
+  if (identical(family$family, "Negative Binomial(NA)")) {
+    fit <- MASS::glm.nb(formula, data = data, ...)
+  } else {
+    fit <- glm(formula, family = family, data = data, ...)
+  }
+  pc <- eval(bquote(predict_counterfactual(fit, treatment, data, vcov = .(substitute(vcov)), vcov_args = vcov_args)))
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
   }
