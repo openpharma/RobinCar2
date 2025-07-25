@@ -103,7 +103,8 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
     vcov <- match.fun(vcov)
     mm_variance <- do.call(vcov, c(list(ret), vcov_args))
   } else if (test_function(vcov)) {
-    variance_name <- deparse(substitute(vcov))
+    variance_name_full <- deparse(substitute(vcov))
+    variance_name <- paste(variance_name_full[1], if (length(variance_name_full) > 1) "...")
     mm_variance <- do.call(vcov, c(list(ret), vcov_args))
   } else {
     variance_name <- NULL
@@ -116,5 +117,5 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
 
 #' @export
 predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit), vcov = "vcovG", vcov_args = list(), ...) {
-  predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, vcov = vcov, vcov_args = vcov_args, ...)
+  eval(bquote(predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, vcov = .(substitute(vcov)), vcov_args = vcov_args)))
 }

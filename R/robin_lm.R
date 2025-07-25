@@ -34,7 +34,14 @@ robin_lm <- function(
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
   }
-  difference(pc, pair = pair)
+  trt_eff <- difference(pc, pair = pair)
+  structure(
+    list(
+      marginal_mean = pc,
+      contrast = trt_eff
+    ),
+    class = "robin_output"
+  )
 }
 
 h_interaction <- function(formula, treatment) {

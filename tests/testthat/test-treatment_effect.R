@@ -30,33 +30,33 @@ test_that("h_jac_diff work as expected", {
   )
 })
 
-test_that("h_ratio works as expected", {
+test_that("h_risk_ratio works as expected", {
   x <- c(1, 3, 2)
   y <- c(2, 3, 1)
   expect_identical(
-    h_ratio(x, y),
+    h_risk_ratio(x, y),
     c(1 / 2, 1, 2)
   )
   x <- c(1, 2)
   y <- c(2, 4)
   expect_identical(
-    h_ratio(x, y),
+    h_risk_ratio(x, y),
     c(1 / 2, 1 / 2)
   )
 })
 
-test_that("h_jac_ratio work as expected", {
+test_that("h_jac_risk_ratio work as expected", {
   x <- c(0.2, 0.5, 0.6)
   y <- c(0.4, 0.2, 0.3)
   expect_identical(
-    h_jac_ratio(x, y),
+    h_jac_risk_ratio(x, y),
     matrix(c(2.5, 5, 10 / 3, -1.25, -12.5, -20 / 3), nrow = 3),
     tolerance = 1e-8
   )
   x <- c(0.2, 0.5)
   y <- c(0.5, 0.2)
   expect_identical(
-    h_jac_ratio(x, y),
+    h_jac_risk_ratio(x, y),
     matrix(c(2, 5, -0.8, -12.5), nrow = 2),
     tolerance = 1e-8
   )
