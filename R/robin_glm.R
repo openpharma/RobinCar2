@@ -69,7 +69,7 @@ robin_glm <- function(
     }
     contrast_name_full <- deparse(substitute(contrast))
     contrast_name <- paste(contrast_name_full[1], if (length(contrast_name_full) > 1) "...")
-    trt_eff <-treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair, contrast_name = contrast_name)
+    trt_eff <- treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair, contrast_name = contrast_name)
   }
   structure(
     list(
