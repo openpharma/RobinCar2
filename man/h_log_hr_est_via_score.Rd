@@ -4,7 +4,7 @@
 \alias{h_log_hr_est_via_score}
 \title{Estimate Log Hazard Ratio via Score Function}
 \usage{
-h_log_hr_est_via_score(score_fun, interval = c(-10, 10), ...)
+h_log_hr_est_via_score(score_fun, interval = c(-5, 5), ...)
 }
 \arguments{
 \item{score_fun}{(\code{function}) The log-rank score function to be used for estimation.}

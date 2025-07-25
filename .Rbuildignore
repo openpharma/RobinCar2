@@ -19,6 +19,7 @@ workflows.md
 images
 design
 data-raw
+tests-raw
 ^vignettes/articles$
 ^[\.]?air\.toml$
 ^\.vscode$

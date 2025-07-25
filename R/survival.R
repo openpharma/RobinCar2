@@ -26,6 +26,7 @@ h_log_hr_est_via_score <- function(score_fun, interval = c(-5, 5), ...) {
     extendInt = "yes", # If the root is not found in the interval, extend the interval.
     check.conv = TRUE, # If the root cannot be found, an error is thrown.
     use_ties_factor = FALSE,
+    tol = .Machine$double.eps^0.1, # Use a small tolerance for convergence.
     ...
   )
   solution_attrs <- attributes(score_solution$f.root)
