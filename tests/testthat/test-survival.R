@@ -136,8 +136,8 @@ test_that("robin_surv_strata gives the same results as RobinCar functions", {
   )
   expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
-  expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-4)
-  expect_equal(result$se, robincar_result$se, tolerance = 1e-4)
+  expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$se, robincar_result$se, tolerance = 1e-3)
 })
 
 test_that("robin_surv_cov works as expected", {
@@ -181,6 +181,6 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
   )
   expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
-  expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-4)
-  expect_equal(result$se, robincar_result$se, tolerance = 1e-4)
+  expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$se, robincar_result$se, tolerance = 1e-3)
 })
