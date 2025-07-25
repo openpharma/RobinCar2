@@ -60,7 +60,7 @@ robin_glm <- function(
         )
       )
     }
-    get(contrast)(pc, pair = pair, contrast_name = contrast)
+    trt_eff <- get(contrast)(pc, pair = pair, contrast_name = contrast)
   } else {
     assert_function(contrast, args = c("x", "y"))
     assert_function(contrast_jac, null.ok = TRUE, args = c("x", "y"))
@@ -69,6 +69,20 @@ robin_glm <- function(
     }
     contrast_name_full <- deparse(substitute(contrast))
     contrast_name <- paste(contrast_name_full[1], if (length(contrast_name_full) > 1) "...")
-    treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair, contrast_name = contrast_name)
+    trt_eff <-treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair, contrast_name = contrast_name)
   }
+  structure(
+    list(
+      marginal_mean = pc,
+      contrast = trt_eff
+    ),
+    class = "robin_output"
+  )
+}
+
+#' @export
+print.robin_output <- function(x, ...) {
+  print(x$marginal_mean)
+  cat(sprintf("\nContrast     :  %s\n", x$contrast$contrast))
+  print(x$contrast)
 }

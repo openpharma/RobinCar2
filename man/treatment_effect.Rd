@@ -48,9 +48,6 @@ A list of \code{treatment_effect} object with following elements:
 \item \code{pair}: \code{contrast} object indicating the pairwise treatment effect.
 \item \code{contrast}: name of the contrast function.
 \item \code{euqal_val}: the value for no treatment effect given the contrast.
-\item \code{marginal_mean}: the \code{prediction_cf} object.
-\item \code{fit}: the fitted model.
-\item \code{treatment}: the treatment assignment.
 \item \code{variance}: the variance of the treatment effect.
 \item \code{jacobian}: the Jacobian matrix.
 \item \code{contrast_mat}: contrast summary matrix.

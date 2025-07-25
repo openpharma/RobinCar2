@@ -12,9 +12,6 @@
 #' - `pair`: `contrast` object indicating the pairwise treatment effect.
 #' - `contrast`: name of the contrast function.
 #' - `euqal_val`: the value for no treatment effect given the contrast.
-#' - `marginal_mean`: the `prediction_cf` object.
-#' - `fit`: the fitted model.
-#' - `treatment`: the treatment assignment.
 #' - `variance`: the variance of the treatment effect.
 #' - `jacobian`: the Jacobian matrix.
 #' - `contrast_mat`: contrast summary matrix.
@@ -67,9 +64,6 @@ treatment_effect.prediction_cf <- function(
       pair = pair,
       contrast = contrast_name,
       equal_val = equal_val,
-      marginal_mean = object,
-      fit = object$fit,
-      treatment = object$treatment_formula,
       variance = contrast_var,
       jacobian = trt_jac_mat,
       contrast_mat = contrast_mat
@@ -219,9 +213,7 @@ eff_jacob <- function(f) {
 }
 
 #' @export
-print.treatment_effect <- function(x, level = 0.95, ...) {
-  print(x$marginal_mean, signif.legend = FALSE, level = level)
-  cat(sprintf("\nContrast     :  %s\n", x$contrast))
+print.treatment_effect <- function(x, ...) {
   stats::printCoefmat(
     x$contrast_mat
   )
