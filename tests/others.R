@@ -1,9 +1,11 @@
 # Other tests which don't work within the testthat framework.
+library(RobinCar2)
 
+# test: "h_prep_survival_input works with survival::Surv objects"
 surv_obj <- with(surv_data, survival::Surv(time, status))
 # This works with coxph e.g.:
 example <- survival::coxph(surv_obj ~ sex, data = surv_data)
-result <- h_prep_survival_input(
+result <- RobinCar2:::h_prep_survival_input(
   formula = surv_obj ~ sex,
   # We have another restriction here to avoid ambiguity, therefore
   # need to remove the time and status columns from the data.
