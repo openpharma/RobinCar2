@@ -15,7 +15,7 @@
 #' - `n`: The number of observations used in the calculation.
 #'
 #' @keywords internal
-h_log_hr_est_via_score <- function(score_fun, interval = c(-10, 10), ...) {
+h_log_hr_est_via_score <- function(score_fun, interval = c(-5, 5), ...) {
   assert_function(score_fun, args = c("theta", "use_ties_factor"))
   assert_numeric(interval, len = 2L, finite = TRUE)
   assert_true(interval[1] < interval[2])
