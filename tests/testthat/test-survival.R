@@ -1,33 +1,3 @@
-# Whether to actually run RobinCar functions in the tests.
-# By default, the saved numbers will be used instead.
-run_robin_car <- FALSE
-
-# Calculate RobinCar results given the function arguments lists.
-calc_robin_car <- function(args) {
-  has_covariates <- !is.null(args$covariate_cols)
-
-  lr_result <- do.call(RobinCar::robincar_logrank, args)
-  hr_result <- do.call(RobinCar::robincar_covhr, args)
-  n <- nrow(args$df)
-
-  c(
-    with(
-      lr_result$result,
-      list(
-        test_stat = statistic,
-        test_sigma_l2 = n * se^2
-      )
-    ),
-    with(
-      hr_result$result,
-      list(
-        estimate = ifelse(has_covariates, theta_CL, theta_L),
-        se = ifelse(has_covariates, se_theta_CL, se_theta_L)
-      )
-    )
-  )
-}
-
 test_that("h_log_hr_est_via_score works as expected", {
   result <- h_log_hr_est_via_score(
     h_lr_score_no_strata_no_cov,
@@ -112,29 +82,14 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
     exp_level = 2,
     control_level = 1
   )
-  robincar_result <- if (run_robin_car) {
-    robincar_args <- list(
-      df = input$data,
-      treat_col = "ecog",
-      response_col = "time",
-      event_col = "status",
-      car_strata_cols = NULL,
-      covariate_cols = NULL,
-      car_scheme = "simple",
-      adj_method = "CL",
-      ref_arm = "0",
-      p_trt = mean(input$data$ecog == "1")
-    )
-    calc_robin_car(robincar_args)
-  } else {
-    # These values are extracted from above RobinCar (version 1.0.0) results.
-    list(
-      test_stat = -0.6188324,
-      test_sigma_l2 = 0.1782103,
-      estimate = -0.1131005,
-      se = 0.1830198
-    )
-  }
+  # These values are extracted from RobinCar (version 1.0.0) results, see
+  # `tests-raw/test-survival.R`.
+  robincar_result <- list(
+    test_stat = -0.6188324,
+    test_sigma_l2 = 0.1782103,
+    estimate = -0.1131005,
+    se = 0.1830198
+  )
   expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
   expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-4)
@@ -171,29 +126,14 @@ test_that("robin_surv_strata gives the same results as RobinCar functions", {
     exp_level = 2,
     control_level = 1
   )
-  robincar_result <- if (run_robin_car) {
-    robincar_args <- list(
-      df = input$data,
-      treat_col = "ecog",
-      response_col = "time",
-      event_col = "status",
-      car_strata_cols = "sex",
-      covariate_cols = NULL,
-      car_scheme = "permuted-block",
-      adj_method = "CSL",
-      ref_arm = "0",
-      p_trt = mean(input$data$ecog == "1")
-    )
-    calc_robin_car(robincar_args)
-  } else {
-    # These values are extracted from above RobinCar (version 1.0.0) results.
-    list(
-      test_stat = -0.6171326,
-      test_sigma_l2 = 0.1749327,
-      estimate = -0.1138251,
-      se = 0.1847554
-    )
-  }
+  # These values are extracted from RobinCar (version 1.0.0) results, see
+  # `tests-raw/test-survival.R`.
+  robincar_result <- list(
+    test_stat = -0.6171326,
+    test_sigma_l2 = 0.1749327,
+    estimate = -0.1138251,
+    se = 0.1847554
+  )
   expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
   expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-4)
@@ -231,29 +171,14 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
     control_level = 1,
     se_method = "unadjusted" # To get the exact match with RobinCar.
   )
-  robincar_result <- if (run_robin_car) {
-    robincar_args <- list(
-      df = input$data,
-      treat_col = "ecog",
-      response_col = "time",
-      event_col = "status",
-      car_strata_cols = NULL,
-      covariate_cols = "age",
-      car_scheme = "simple",
-      adj_method = "CL",
-      ref_arm = "0",
-      p_trt = mean(input$data$ecog == "1")
-    )
-    calc_robin_car(robincar_args)
-  } else {
-    # These values are extracted from above RobinCar (version 1.0.0) results.
-    list(
-      test_stat = -0.4309412,
-      test_sigma_l2 = 0.1757202,
-      estimate = -0.07914235,
-      se = 0.1818081
-    )
-  }
+  # These values are extracted from RobinCar (version 1.0.0) results, see
+  # `tests-raw/test-survival.R`.
+  robincar_result <- list(
+    test_stat = -0.4309412,
+    test_sigma_l2 = 0.1757202,
+    estimate = -0.07914235,
+    se = 0.1818081
+  )
   expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
   expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-4)

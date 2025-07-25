@@ -43,7 +43,6 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
-    RobinCar,
     testthat (>= 3.0)
 VignetteBuilder:
     knitr
