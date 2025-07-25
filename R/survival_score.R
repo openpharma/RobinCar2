@@ -70,7 +70,7 @@ h_lr_score_no_strata_no_cov <- function(
 
   # Add number of events per unique event time.
   df_events_per_time <- h_n_events_per_time(df_stand, time = "time", status = "status")
-  df_events <- merge(df_events, df_events_per_time, by = "time", all = TRUE)
+  df_events$n_events <- df_events_per_time$n_events[match(df_events$time, df_events_per_time$time)]
 
   # Calculate the log rank statistic u_l and the variance sigma_l2 iteratively.
   u_l <- sigma_l2 <- 0
@@ -251,7 +251,7 @@ h_lr_score_cov <- function(
   # Compute standard error for theta estimate, based on above results incl. choice for `g_theta_cl`.
   sigma_cl2 <- g_theta_cl - sigma_l2_adj_term
   var_theta_cl <- sigma_cl2 / (g_theta_cl^2) / n
-  se_theta_cl <- suppressWarnings(sqrt(var_theta_cl))
+  se_theta_cl <- sqrt(var_theta_cl)
 
   structure(
     u_cl,

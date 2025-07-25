@@ -24,7 +24,7 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   assert_true(all(df[[status]] %in% c(0, 1)))
   assert_numeric(df[[time]], lower = 0)
   assert_subset(covariates, names(df))
-  assert_disjunct(covariates, c("index", "treatment", "time", "status"))
+  assert_disjunct(covariates, c("index", "treatment", "time", "status", "treatment_numeric", "O_hat"))
 
   # Standardize data set format, subset to relevant variables.
   df <- data.frame(
