@@ -250,3 +250,17 @@ jac_mat <- function(jac, pair) {
   ret[cbind(seq_len(nrow(jac)), pair[[2]])] <- jac[, 2]
   ret
 }
+
+#' Sum vectors in a list
+#' @keywords internal
+sum_vectors_in_list <- function(lst) {
+  assert_list(lst, min.len = 1L, types = "numeric")
+  len1 <- length(lst[[1L]])
+  lapply(lst, assert_numeric, any.missing = FALSE, len = len1)
+  tmp <- matrix(
+    unlist(lst, recursive = FALSE, use.names = FALSE),
+    nrow = len1,
+    ncol = length(lst)
+  )
+  .rowSums(tmp, m = len1, n = length(lst))
+}

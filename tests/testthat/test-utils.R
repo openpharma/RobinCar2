@@ -155,3 +155,10 @@ test_that("h_n_events_per_time works when there are no events", {
   expect_numeric(result$time)
   expect_integer(result$n_events)
 })
+
+test_that("sum_vectors_in_list works as expected", {
+  lst <- list(a = 1:3, b = 4:6, c = 7:9)
+  result <- sum_vectors_in_list(lst)
+  expected <- c(12, 15, 18)
+  expect_equal(result, expected)
+})

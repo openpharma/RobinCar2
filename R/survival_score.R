@@ -147,8 +147,8 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
     use_ties_factor = use_ties_factor
   )
 
-  u_sl <- colSums(do.call(rbind, lapply(strata_results, as.numeric)))
-  sigma_sl2 <- colSums(do.call(rbind, lapply(strata_results, attr, "sigma_l2")))
+  u_sl <- sum_vectors_in_list(strata_results)
+  sigma_sl2 <- sum_vectors_in_list(lapply(strata_results, attr, "sigma_l2"))
   se_theta_sl <- sqrt(1 / (n * sigma_sl2))
   structure(
     u_sl,
