@@ -110,7 +110,7 @@ h_prep_survival_input <- function(formula, data, treatment) {
   } else {
     paste("~ . -", trt_vars$treatment)
   }
-  model <- update(model, as.formula(update_string))
+  model <- stats::update(model, as.formula(update_string))
 
   list(
     data = data,
@@ -151,7 +151,7 @@ h_n_events_per_time <- function(df, time, status) {
   if (nrow(df_events) == 0) {
     return(data.frame(time = numeric(0), n_events = integer(0)))
   }
-  times_count <- aggregate(
+  times_count <- stats::aggregate(
     df_events[[status]],
     by = list(time = df_events[[time]]),
     FUN = length
@@ -249,4 +249,18 @@ jac_mat <- function(jac, pair) {
   ret[cbind(seq_len(nrow(jac)), pair[[1]])] <- jac[, 1]
   ret[cbind(seq_len(nrow(jac)), pair[[2]])] <- jac[, 2]
   ret
+}
+
+#' Sum vectors in a list
+#' @keywords internal
+sum_vectors_in_list <- function(lst) {
+  assert_list(lst, min.len = 1L, types = "numeric")
+  len1 <- length(lst[[1L]])
+  lapply(lst, assert_numeric, any.missing = FALSE, len = len1)
+  tmp <- matrix(
+    unlist(lst, recursive = FALSE, use.names = FALSE),
+    nrow = len1,
+    ncol = length(lst)
+  )
+  .rowSums(tmp, m = len1, n = length(lst))
 }
