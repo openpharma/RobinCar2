@@ -366,6 +366,7 @@ h_events_table <- function(data, vars) {
 #' @param test (`character(1)`) The test to be used, currently only `"logrank"` is supported.
 #' @param ... Additional arguments passed to the survival analysis functions.
 #' @return A `surv_effect` object containing the results of the survival analysis.
+#' @seealso [surv_effect_methods] for S3 methods.
 #' @export
 #'
 #' @examples

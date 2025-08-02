@@ -42,3 +42,6 @@ robin_surv(
   treatment = sex ~ strata
 )
 }
+\seealso{
+\link{surv_effect_methods} for S3 methods.
+}
