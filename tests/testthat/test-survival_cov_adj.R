@@ -109,3 +109,27 @@ test_that("h_get_beta_estimates works as expected", {
   result <- h_get_beta_estimates(lm_input)
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
+
+test_that("h_get_strat_beta_estimates works as expected", {
+  set.seed(941)
+  nobs <- 10
+  df_split <- list(
+    "stratum1" = data.frame(
+      treatment = factor(sample(c(0, 1), nobs, replace = TRUE)),
+      covariate1 = rnorm(nobs),
+      covariate2 = rnorm(nobs),
+      O_hat = rnorm(nobs)
+    ),
+    "stratum2" = data.frame(
+      treatment = factor(sample(c(0, 1), nobs, replace = TRUE)),
+      covariate1 = rnorm(nobs),
+      covariate2 = rnorm(nobs),
+      O_hat = rnorm(nobs)
+    )
+  )
+  strat_lm_input <- h_get_strat_lm_input(df_split, model = ~ covariate1 + covariate2)
+  result <- h_get_strat_beta_estimates(strat_lm_input)
+  expect_list(result, len = 2L)
+  expect_names(names(result), identical.to = c("0", "1"))
+  expect_snapshot_value(result, tolerance = 1e-4, style = "serialize")
+})

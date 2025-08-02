@@ -176,13 +176,18 @@ h_get_strat_lm_input <- function(df_split, model) {
 
 #' Calculate Coefficient Estimates from Linear Model Input
 #'
-#' This function calculates the coefficient estimates for each treatment arm from the linear model input data.
+#' Calculate the coefficient estimates for each treatment arm from the linear model input data.
 #'
 #' @param lm_input (`list`) A list containing the linear model input data for each treatment arm, as returned by
 #'   [h_get_lm_input()].
+#' @param strat_lm_input (`list`) A list of lists, one for each stratum, containing the linear model input data
+#'   for each treatment arm, as returned by [h_get_strat_lm_input()].
 #' @return A list containing the coefficient estimates for each treatment arm.
-#'
 #' @keywords internal
+#' @name get_beta_estimates
+NULL
+
+#' @describeIn get_beta_estimates Calculate the coefficient estimates for the overall data set.
 h_get_beta_estimates <- function(lm_input) {
   assert_list(lm_input, types = "list")
 
@@ -207,6 +212,47 @@ h_get_beta_estimates <- function(lm_input) {
 
     # Save the coefficients.
     beta_est[[group]] <- lm_fit$coefficients
+  }
+
+  beta_est
+}
+
+#' @describeIn get_beta_estimates Calculate the coefficient estimates using the stratified input.
+h_get_strat_beta_estimates <- function(strat_lm_input) {
+  assert_list(strat_lm_input, types = "list")
+  assert_list(strat_lm_input[[1]], types = "list")
+  assert_names(names(strat_lm_input[[1]]), identical.to = c("0", "1"))
+
+  # Get coefficient estimates separately for each treatment arm.
+  beta_est <- list()
+
+  for (group in c("0", "1")) {
+    xtxs <- list()
+    xtys <- list()
+
+    for (stratum in names(strat_lm_input)) {
+      if (group %in% names(strat_lm_input[[stratum]])) {
+        # Get the design matrix for this treatment arm.
+        x <- strat_lm_input[[stratum]][[group]]$X
+
+        # Center it.
+        x <- scale(x, center = TRUE, scale = FALSE)
+
+        # Get the derived outcome values, the response.
+        y <- strat_lm_input[[stratum]][[group]]$y
+
+        # Save the cross products.
+        xtxs[[stratum]] <- crossprod(x)
+        xtys[[stratum]] <- crossprod(x, y)
+      }
+    }
+
+    # Sum across strata.
+    xtx <- Reduce("+", xtxs)
+    xty <- Reduce("+", xtys)
+
+    # Get the coefficients.
+    beta_est[[group]] <- solve(xtx, xty)
   }
 
   beta_est
