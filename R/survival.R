@@ -364,7 +364,8 @@ h_events_table <- function(data, vars) {
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
 #'   is supported.
 #' @param test (`character(1)`) The test to be used, currently only `"logrank"` is supported.
-#' @param ... Additional arguments passed to the survival analysis functions.
+#' @param ... Additional arguments passed to the survival analysis functions, in particular `se_method`
+#'   (please see the vignette for details).
 #' @return A `surv_effect` object containing the results of the survival analysis.
 #' @seealso [surv_effect_methods] for S3 methods.
 #' @export
@@ -421,7 +422,8 @@ robin_surv <- function(
         vars = input,
         data = data,
         exp_level = exp_level,
-        control_level = control_level
+        control_level = control_level,
+        ...
       )
     }
   )

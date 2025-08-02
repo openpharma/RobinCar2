@@ -439,3 +439,23 @@ test_that("robin_surv also works with multiple pairwise comparisons", {
   expect_matrix(result$test_mat, ncol = 2, nrow = 6)
   expect_names(rownames(result$test_mat), identical.to = comparisons)
 })
+
+test_that("robin_surv allows to use unadjusted standard error", {
+  result <- robin_surv(
+    Surv(time, status) ~ ecog + age,
+    data = surv_data,
+    treatment = ecog ~ 1,
+    se_method = "unadjusted"
+  )
+  result_adjusted <- robin_surv(
+    Surv(time, status) ~ ecog + age,
+    data = surv_data,
+    treatment = ecog ~ 1,
+    se_method = "adjusted"
+  )
+  # Only the standard error should differ.
+  expect_true(result$se != result_adjusted$se)
+  expect_true(result$estimate == result_adjusted$estimate)
+  expect_true(result$test_stat == result_adjusted$test_stat)
+  expect_true(result$p_value == result_adjusted$p_value)
+})
