@@ -1,5 +1,6 @@
 #' S3 Methods for `surv_effect`
 #' @param x (`surv_effect`) the obtained result from [robin_surv()].
+#' @param ... ignored additional arguments (for compatibility).
 #' @name surv_effect_methods
 #'
 #' @examples
@@ -55,13 +56,13 @@ table.default <- function(x, ...) base::table(x, ...)
 #' @describeIn surv_effect_methods prints and returns invisibly the events table of the `surv_effect` object.
 #' @examples
 #' table(x)
-table.surv_effect <- function(object, ...) {
+table.surv_effect <- function(x, ...) {
   cat(
     "Number of patients and events per",
-    ifelse(length(object$vars$strata), " stratum and ", " "),
+    ifelse(length(x$vars$strata), " stratum and ", " "),
     "treatment arm:\n",
     sep = ""
   )
-  print(object$events_table)
-  invisible(object$events_table)
+  print(x$events_table)
+  invisible(x$events_table)
 }

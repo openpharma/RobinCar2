@@ -14,10 +14,12 @@ table(x, ...)
 
 \method{table}{default}(x, ...)
 
-\method{table}{surv_effect}(object, ...)
+\method{table}{surv_effect}(x, ...)
 }
 \arguments{
 \item{x}{(\code{surv_effect}) the obtained result from \code{\link[=robin_surv]{robin_surv()}}.}
+
+\item{...}{ignored additional arguments (for compatibility).}
 }
 \description{
 S3 Methods for \code{surv_effect}

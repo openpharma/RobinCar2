@@ -318,15 +318,15 @@ h_lr_score_strat_cov <- function(
   trt_grp <- groups[2]
 
   # Overall column wise average of design matrices, separately for each stratum.
-  strat_x_all <- lapply(strat_lm_input, \(l) rbind(l[[cont_grp]]$X, l[[trt_grp]]$X))
+  strat_x_all <- lapply(strat_lm_input, function(l) rbind(l[[cont_grp]]$X, l[[trt_grp]]$X))
   strat_x_bar <- lapply(strat_x_all, colMeans)
 
   # Center the design matrices with this overall average.
-  has_x_0 <- names(which(sapply(strat_lm_input, \(l) cont_grp %in% names(l))))
-  has_x_1 <- names(which(sapply(strat_lm_input, \(l) trt_grp %in% names(l))))
+  has_x_0 <- names(which(sapply(strat_lm_input, function(l) cont_grp %in% names(l))))
+  has_x_1 <- names(which(sapply(strat_lm_input, function(l) trt_grp %in% names(l))))
 
-  x_0 <- lapply(has_x_0, \(n) scale(strat_lm_input[[n]][[cont_grp]]$X, center = strat_x_bar[[n]], scale = FALSE))
-  x_1 <- lapply(has_x_1, \(n) scale(strat_lm_input[[n]][[trt_grp]]$X, center = strat_x_bar[[n]], scale = FALSE))
+  x_0 <- lapply(has_x_0, function(n) scale(strat_lm_input[[n]][[cont_grp]]$X, center = strat_x_bar[[n]], scale = FALSE))
+  x_1 <- lapply(has_x_1, function(n) scale(strat_lm_input[[n]][[trt_grp]]$X, center = strat_x_bar[[n]], scale = FALSE))
 
   x_0 <- do.call(rbind, x_0)
   x_1 <- do.call(rbind, x_1)
@@ -342,8 +342,8 @@ h_lr_score_strat_cov <- function(
   strat_use <- names(which(strat_n > 1))
   strat_n <- strat_n[strat_use]
   overall_n <- sum(strat_n)
-  strat_cov_x <- lapply(strat_x_all[strat_use], cov)
-  weighted_cov_x <- Map(\(x, n) x * n / overall_n, strat_cov_x, strat_n)
+  strat_cov_x <- lapply(strat_x_all[strat_use], stats::cov)
+  weighted_cov_x <- Map(function(x, n) x * n / overall_n, strat_cov_x, strat_n)
   weighted_sum_cov_x <- Reduce("+", weighted_cov_x)
 
   beta_est_sum <- beta_est[[cont_grp]] + beta_est[[trt_grp]]
