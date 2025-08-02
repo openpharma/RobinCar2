@@ -30,6 +30,22 @@ test_that("h_derived_outcome_vals works as expected", {
   expect_equal(head_result, head_expected, tolerance = 1e-4, ignore_attr = TRUE)
 })
 
+test_that("h_strat_derived_outcome_vals works as expected", {
+  surv_data_full <- na.omit(surv_data)
+  result <- h_strat_derived_outcome_vals(
+    theta = 0,
+    df = surv_data_full,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = "strata",
+    covariates = c("age", "ph.karno")
+  )
+  expect_list(result, len = nlevels(surv_data_full$strata), types = "data.frame", any.missing = FALSE)
+  expect_names(names(result), identical.to = levels(surv_data_full$strata))
+  expect_identical(unname(sapply(result, nrow)), as.integer(table(surv_data_full$strata)))
+})
+
 test_that("h_get_lm_input works as expected", {
   set.seed(941)
   df <- data.frame(

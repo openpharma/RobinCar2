@@ -1,17 +1,19 @@
 #' Derive Outcome Values Based on Log Hazard Ratio
 #'
-#' This function computes the derived outcome values based on a given log hazard ratio.
+#' Compute the derived outcome values based on a given log hazard ratio.
 #'
 #' @inheritParams survival_score_functions
 #' @param covariates (`character`) The column names in `df` to be used for covariate adjustment.
 #' @return A data frame containing the same data as the input `df`, but restructured with standardized column names
 #'   `index`, `treatment`, `time`, `status`, the covariates, and an additional column `O_hat` containing the
-#'   derived outcome values.
-#'
+#'   derived outcome values. For the stratified version, the list of data frames is returned, one for each stratum.
 #' @details Please note that the `covariates` must not include `index`, `treatment`, `time`, `status`
 #'   to avoid naming conflicts.
-#'
 #' @keywords internal
+#' @name derived_outcome_vals
+NULL
+
+#' @describeIn derived_outcome_vals calculates the derived outcome values for the overall data set.
 h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariates, n = nrow(df)) {
   assert_number(theta)
   assert_string(treatment)
@@ -100,6 +102,32 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   # Return in original order with relevant columns only.
   include_cols <- c("index", "treatment", "time", "status", "O_hat", covariates)
   df[order(df$index), include_cols, drop = FALSE]
+}
+
+#' @describeIn derived_outcome_vals calculates the derived outcome values for each stratum separately.
+h_strat_derived_outcome_vals <- function(theta, df, treatment, time, status, strata, covariates) {
+  assert_string(strata)
+  assert_data_frame(df)
+  assert_factor(df[[strata]])
+
+  assert_true(!any(is.na(df)))
+  n <- nrow(df)
+
+  df[[strata]] <- droplevels(df[[strata]])
+  strata_levels <- levels(df[[strata]])
+
+  df_split <- split(df, f = df[[strata]])
+
+  lapply(
+    df_split,
+    FUN = h_derived_outcome_vals,
+    theta = theta,
+    treatment = treatment,
+    time = time,
+    status = status,
+    covariates = covariates,
+    n = n
+  )
 }
 
 #' Get Linear Model Input Data
