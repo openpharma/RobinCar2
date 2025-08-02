@@ -6,12 +6,16 @@ calc_robin_car <- function(args) {
   hr_result <- do.call(RobinCar::robincar_covhr, args)
   n <- nrow(args$df)
 
+  lr_output <- utils::capture.output(print(lr_result))
+  lr_pval_line <- grep("p-value", lr_output, value = TRUE)
+  lr_pval <- as.numeric(sub("2-side p-value: ", "", lr_pval_line, fixed = TRUE))
   c(
     with(
       lr_result$result,
       list(
         test_stat = statistic,
-        test_sigma_l2 = n * se^2
+        test_sigma_l2 = n * se^2,
+        test_p_val = lr_pval
       )
     ),
     with(

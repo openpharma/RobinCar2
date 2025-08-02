@@ -244,3 +244,210 @@ robin_surv_strata_cov <- function(vars, data, exp_level, control_level, ...) {
     ...
   )
 }
+
+#' Hazard Ratio Coefficient Matrix
+#'
+#' This function creates a coefficient matrix for the hazard ratio estimates.
+#'
+#' @param x (`list`) A list containing the hazard ratio estimates and their standard errors.
+#' @return A matrix with columns for the estimate, standard error, z-value, and p-value.
+#'
+#' @keywords internal
+h_hr_coef_mat <- function(x) {
+  assert_list(x, names = "unique")
+  assert_names(names(x), must.include = c("estimate", "se", "pair"))
+  assert_numeric(x$estimate, finite = TRUE)
+  assert_numeric(x$se, finite = TRUE, len = length(x$estimate), lower = .Machine$double.eps)
+  assert_list(x$pair, types = "integer", len = 2L)
+  assert_character(attr(x$pair, "levels"), len = max(unlist(x$pair)))
+  assert_true(length(x$pair[[1]]) == length(x$pair[[2]]))
+  assert_true(length(x$pair[[1]]) == length(x$se))
+
+  z_value <- x$estimate / x$se
+  p_value <- 2 * pnorm(-abs(z_value))
+  ret <- matrix(
+    c(
+      x$estimate,
+      x$se,
+      z_value,
+      p_value
+    ),
+    nrow = length(x$estimate)
+  )
+  colnames(ret) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
+  pair <- x$pair
+  row.names(ret) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
+  ret
+}
+
+#' Log-Rank Test Results Matrix
+#'
+#' This function creates a matrix summarizing the results of the log-rank test.
+#'
+#' @param x (`list`) A list containing the log-rank test results.
+#' @return A matrix with columns for the test statistic and p-value.
+#'
+#' @keywords internal
+h_test_mat <- function(x) {
+  assert_list(x, names = "unique")
+  assert_names(names(x), must.include = c("test_stat", "p_value", "pair"))
+  assert_numeric(x$test_stat, finite = TRUE)
+  assert_numeric(x$p_value, finite = TRUE, len = length(x$test_stat))
+  assert_list(x$pair, types = "integer", len = 2L)
+  assert_character(attr(x$pair, "levels"), len = max(unlist(x$pair)))
+  assert_true(length(x$pair[[1]]) == length(x$pair[[2]]))
+  assert_true(length(x$pair[[1]]) == length(x$test_stat))
+
+  ret <- matrix(
+    c(
+      x$test_stat,
+      x$p_value
+    ),
+    nrow = length(x$test_stat)
+  )
+  colnames(ret) <- c("Test Stat.", "Pr(>|z|)")
+  pair <- x$pair
+  row.names(ret) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
+  ret
+}
+
+#' Prepare Events Table
+#'
+#' This function creates a data frame summarizing the number of patients and events
+#' for each treatment arm and stratification factor.
+#'
+#' @param data (`data.frame`) The data frame containing the survival data.
+#' @param vars (`list`) A list containing the treatment, time, status, and strata variables.
+#' @return A data frame with columns for the treatment, strata, number of patients, and number of events.
+#'
+#' @keywords internal
+h_events_table <- function(data, vars) {
+  assert_data_frame(data, col.names = "unique")
+  assert_subset(vars$treatment, names(data))
+  assert_subset(vars$time, names(data))
+  assert_subset(vars$status, names(data))
+  assert_subset(vars$strata, names(data))
+
+  tab <- table(data[c(vars$strata, vars$treatment, vars$status)])
+
+  if (length(vars$strata)) {
+    tab_patients <- tab[,, "0", drop = FALSE] + tab[,, "1", drop = FALSE]
+    tab_events <- tab[,, "1", drop = FALSE]
+  } else {
+    tab_patients <- tab[, "0", drop = FALSE] + tab[, "1", drop = FALSE]
+    tab_events <- tab[, "1", drop = FALSE]
+  }
+  df_patients <- as.data.frame(tab_patients)[, c(vars$strata, vars$treatment, "Freq")]
+  colnames(df_patients)[colnames(df_patients) == "Freq"] <- "Patients"
+  df_events <- as.data.frame(tab_events)[, c(vars$strata, vars$treatment, "Freq")]
+  colnames(df_events)[colnames(df_events) == "Freq"] <- "Events"
+  df <- merge(
+    df_patients,
+    df_events,
+    by = c(vars$strata, vars$treatment)
+  )
+  keep_rows <- which(df$Patients > 0)
+  df <- df[keep_rows, ]
+  rownames(df) <- NULL
+  df
+}
+
+#' Covariate Adjusted and Stratified Survival Analysis
+#'
+#' Calculate log-rank test as well as hazard ratio estimates for survival data, optionally adjusted
+#' for covariates and a stratification factor.
+#'
+#' @param formula (`formula`) A formula of analysis, of the form
+#'   `Surv(time, status) ~ treatment * strata + covariates`.
+#' @param data (`data.frame`) Input data frame.
+#' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification.
+#' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
+#'   is supported.
+#' @param test (`character(1)`) The test to be used, currently only `"logrank"` is supported.
+#' @param ... Additional arguments passed to the survival analysis functions.
+#' @return A `surv_effect` object containing the results of the survival analysis.
+#' @export
+#'
+#' @examples
+#' robin_surv(
+#'   formula = Surv(time, status) ~ sex * strata + meal.cal + age,
+#'   data = surv_data,
+#'   treatment = sex ~ strata
+#' )
+robin_surv <- function(
+  formula,
+  data,
+  treatment,
+  contrast = "hazardratio",
+  test = "logrank",
+  ...
+) {
+  attr(formula, ".Environment") <- environment()
+  assert_formula(formula)
+  assert_data_frame(data)
+  assert_formula(treatment)
+  assert_subset(all.vars(formula), names(data))
+  assert_subset(all.vars(treatment), names(data))
+  contrast <- match.arg(contrast)
+  test <- match.arg(test)
+
+  input <- h_prep_survival_input(formula, data, treatment)
+
+  # Subset to complete records here, so that we can use this for the strata/events tabulation.
+  data <- stats::na.omit(input$data[c(input$treatment, input$time, input$status, input$strata, input$covariates)])
+  events_table <- h_events_table(data, input)
+
+  has_strata <- length(input$strata) > 0
+  has_covariates <- length(input$covariates) > 0
+  calc_function <- if (has_strata && has_covariates) {
+    robin_surv_strata_cov
+  } else if (has_strata) {
+    robin_surv_strata
+  } else if (has_covariates) {
+    robin_surv_cov
+  } else {
+    robin_surv_no_strata_no_cov
+  }
+
+  comparisons <- pairwise(input$levels)
+  n_comparisons <- length(comparisons[[1]])
+  estimates <- lapply(
+    seq_len(n_comparisons),
+    function(i) {
+      exp_level <- comparisons[[1]][i]
+      control_level <- comparisons[[2]][i]
+      calc_function(
+        vars = input,
+        data = data,
+        exp_level = exp_level,
+        control_level = control_level
+      )
+    }
+  )
+
+  result <- list(
+    model = formula,
+    vars = input,
+    data = data,
+    events_table = events_table,
+    randomization = treatment,
+    schema = input$schema,
+    contrast = contrast,
+    test = test,
+    pair = comparisons,
+    estimate = sapply(estimates, "[[", "estimate"),
+    se = sapply(estimates, "[[", "se"),
+    hr_n = sapply(estimates, "[[", "hr_n"),
+    hr_sigma_l2 = sapply(estimates, "[[", "hr_sigma_l2"),
+    test_stat = sapply(estimates, "[[", "test_stat"),
+    p_value = sapply(estimates, "[[", "p_value"),
+    test_score = sapply(estimates, "[[", "test_score"),
+    test_n = sapply(estimates, "[[", "test_n"),
+    test_sigma_l2 = sapply(estimates, "[[", "test_sigma_l2")
+  )
+  result$hr_coef_mat <- h_hr_coef_mat(result)
+  result$test_mat <- h_test_mat(result)
+
+  class(result) <- "surv_effect"
+  result
+}
