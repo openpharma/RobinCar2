@@ -331,8 +331,8 @@ h_events_table <- function(data, vars) {
   tab <- table(data[c(vars$strata, vars$treatment, vars$status)])
 
   if (length(vars$strata)) {
-    tab_patients <- tab[,, "0", drop = FALSE] + tab[,, "1", drop = FALSE]
-    tab_events <- tab[,, "1", drop = FALSE]
+    tab_patients <- tab[, , "0", drop = FALSE] + tab[, , "1", drop = FALSE]
+    tab_events <- tab[, , "1", drop = FALSE]
   } else {
     tab_patients <- tab[, "0", drop = FALSE] + tab[, "1", drop = FALSE]
     tab_events <- tab[, "1", drop = FALSE]
@@ -377,13 +377,12 @@ h_events_table <- function(data, vars) {
 #'   treatment = sex ~ strata
 #' )
 robin_surv <- function(
-  formula,
-  data,
-  treatment,
-  contrast = "hazardratio",
-  test = "logrank",
-  ...
-) {
+    formula,
+    data,
+    treatment,
+    contrast = "hazardratio",
+    test = "logrank",
+    ...) {
   attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_data_frame(data)
