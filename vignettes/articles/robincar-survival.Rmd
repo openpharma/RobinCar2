@@ -21,7 +21,77 @@ knitr::opts_chunk$set(
 
 # Overview of Survival Analysis Methods
 
+Survival analysis is performed with the `robin_surv` function, and the syntax is:
+
+```r
+robin_surv(
+  Surv(time, event) ~ group * strata + covariates,
+  treatment = group ~ strata,
+  data = df
+)
+```
+
+Depending on the choice of `strata` and `covariates`, the following four methods are available:
+
+- Standard log-rank test without strata or covariates by omitting `strata` and `covariates`
+- Stratified log-rank test by specifying `strata` but no `covariates`
+- Covariate adjusted log-rank test by specifying `covariates` but no `strata`
+- Covariate adjusted and stratified log-rank test by specifying both `strata` and `covariates`
+
+Let's go through these in a simple example. We start with the standard log-rank test:
+
+```{r, message = FALSE}
+library(RobinCar2)
+robin_surv(
+  Surv(time, status) ~ sex,
+  treatment = sex ~ 1,
+  data = surv_data
+)
+```
+
+We can perform the stratified log-rank test by adding a `strata` argument:
+
+```{r}
+robin_surv(
+  Surv(time, status) ~ sex * strata,
+  treatment = sex ~ strata,
+  data = surv_data
+)
+```
+
+We could also just use covariate adjustment:
+
+```{r}
+robin_surv(
+  Surv(time, status) ~ sex + age + meal.cal,
+  treatment = sex ~ 1,
+  data = surv_data
+)
+```
+
+Or we combine both stratification and covariate adjustment:
+
+```{r}
+robin_surv(
+  Surv(time, status) ~ sex * strata + age + meal.cal,
+  treatment = sex ~ strata,
+  data = surv_data
+)
+```
+
 # Details of the Methods
+
+The four methods introduced above are implemented based on the corresponding score functions $U(\theta)$ with corresponding variance estimators $\sigma^{2}(\theta)$, where $\theta$ is the log hazard ratio.
+
+The log-rank test statistic is defined as
+
+$$
+\mathcal{T}_{L} = \sqrt{n} U_{L}(0) / \sigma_{L}(0)
+$$
+
+and it asymptotically follows a standard normal distribution under the null hypothesis of no treatment effect, i.e. $\theta = 0$.
+
+For estimation of $\theta$, we find the root $\hat{\theta}$ of the score function $U(\theta)$ such that $U(\hat{\theta}) = 0$. The standard error of $\hat{\theta}$ is derived from the variance estimator $\sigma(\hat{\theta})$, with specific formulas depending on the method used and detailed below.
 
 ## Standard analysis without strata or covariates
 
