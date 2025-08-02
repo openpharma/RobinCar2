@@ -32,7 +32,6 @@
 NULL
 
 #' @describeIn survival_score_functions without strata or covariates.
-#' @keywords internal
 h_lr_score_no_strata_no_cov <- function(
   theta,
   df,
@@ -120,7 +119,6 @@ h_lr_score_no_strata_no_cov <- function(
 }
 
 #' @describeIn survival_score_functions with strata but without covariates.
-#' @keywords internal
 h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_ties_factor = TRUE) {
   assert_string(treatment)
   assert_string(time)
@@ -159,7 +157,6 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
 }
 
 #' @describeIn survival_score_functions with covariates but without strata.
-#' @keywords internal
 h_lr_score_cov <- function(
   theta,
   df,
@@ -257,6 +254,125 @@ h_lr_score_cov <- function(
     u_cl,
     se_theta_l = se_theta_cl,
     sigma_l2 = sigma_cl2,
+    n = n
+  )
+}
+
+#' @describeIn survival_score_functions with strata and covariates.
+h_lr_score_strat_cov <- function(
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  strata,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  se_method = c("adjusted", "unadjusted")
+) {
+  assert_data_frame(df)
+  assert_string(treatment)
+  assert_string(time)
+  assert_string(status)
+  assert_string(strata)
+  assert_formula(model)
+  covariates <- all.vars(model)
+  assert_subset(c(treatment, time, status, strata, covariates), names(df))
+  se_method <- match.arg(se_method)
+
+  # Subset to complete records here.
+  df <- stats::na.omit(df[c(treatment, time, status, strata, covariates)])
+  n <- nrow(df)
+
+  # Calculate derived outcomes and regress them on covariates.
+  df_split_with_covs_ovals <- h_strat_derived_outcome_vals(
+    theta = theta_hat,
+    df,
+    treatment,
+    time,
+    status,
+    strata,
+    covariates = covariates
+  )
+  strat_lm_input <- h_get_strat_lm_input(df_split_with_covs_ovals, model)
+  beta_est <- h_get_strat_beta_estimates(strat_lm_input)
+
+  # Obtain unadjusted results.
+  strat_unadj_score <- h_lr_score_strat(
+    theta,
+    df,
+    treatment,
+    time,
+    status,
+    strata,
+    use_ties_factor = use_ties_factor
+  )
+
+  # We assume here that the observed proportion of treatment 1 in the data set
+  # corresponds to the preplanned proportion of treatment 1 in the trial.
+  pi <- mean(as.numeric(df[[treatment]]) - 1)
+
+  groups <- levels(df[[treatment]])
+  cont_grp <- groups[1]
+  trt_grp <- groups[2]
+
+  # Overall column wise average of design matrices, separately for each stratum.
+  strat_x_all <- lapply(strat_lm_input, \(l) rbind(l[[cont_grp]]$X, l[[trt_grp]]$X))
+  strat_x_bar <- lapply(strat_x_all, colMeans)
+
+  # Center the design matrices with this overall average.
+  has_x_0 <- names(which(sapply(strat_lm_input, \(l) cont_grp %in% names(l))))
+  has_x_1 <- names(which(sapply(strat_lm_input, \(l) trt_grp %in% names(l))))
+
+  x_0 <- lapply(has_x_0, \(n) scale(strat_lm_input[[n]][[cont_grp]]$X, center = strat_x_bar[[n]], scale = FALSE))
+  x_1 <- lapply(has_x_1, \(n) scale(strat_lm_input[[n]][[trt_grp]]$X, center = strat_x_bar[[n]], scale = FALSE))
+
+  x_0 <- do.call(rbind, x_0)
+  x_1 <- do.call(rbind, x_1)
+
+  # Compute adjustment term for the stratified score.
+  u_sl_adj_term <- (sum(x_1 %*% beta_est[[trt_grp]]) - sum(x_0 %*% beta_est[[cont_grp]])) / n
+
+  # Compute adjusted covariate adjusted stratified score.
+  u_csl <- as.numeric(strat_unadj_score) - u_sl_adj_term
+
+  # Compute adjustment term for sigma_sl2.
+  strat_n <- sapply(strat_x_all, nrow)
+  strat_use <- names(which(strat_n > 1))
+  strat_n <- strat_n[strat_use]
+  overall_n <- sum(strat_n)
+  strat_cov_x <- lapply(strat_x_all[strat_use], cov)
+  weighted_cov_x <- Map(\(x, n) x * n / overall_n, strat_cov_x, strat_n)
+  weighted_sum_cov_x <- Reduce("+", weighted_cov_x)
+
+  beta_est_sum <- beta_est[[cont_grp]] + beta_est[[trt_grp]]
+  sigma_sl2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_x %*% beta_est_sum)
+
+  # Define standard error calculation.
+  g_theta_csl <- if (se_method == "adjusted") {
+    attr(strat_unadj_score, "sigma_l2")
+  } else {
+    strat_unadj_score_theta_hat <- h_lr_score_strat(
+      theta = theta_hat, # Here is the only difference.
+      df = df,
+      treatment = treatment,
+      time = time,
+      status = status,
+      strata = strata,
+      use_ties_factor = use_ties_factor
+    )
+    attr(strat_unadj_score_theta_hat, "sigma_l2")
+  }
+
+  # Compute standard error for theta estimate.
+  var_theta_csl <- (g_theta_csl - sigma_sl2_adj_term) / (g_theta_csl^2) / n
+  se_theta_csl <- sqrt(var_theta_csl)
+
+  structure(
+    u_csl,
+    se_theta_l = se_theta_csl,
+    sigma_l2 = g_theta_csl - sigma_sl2_adj_term,
     n = n
   )
 }

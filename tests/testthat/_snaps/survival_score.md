@@ -34,3 +34,23 @@
 
     structure(0.0850667744102501, se_theta_l = 0.156579398029655, sigma_l2 = 0.176173801156959, n = 228L)
 
+# h_lr_score_strat_cov works as expected with default options
+
+    structure(0.0897521729142622, se_theta_l = 0.161382421810696, sigma_l2 = 0.169145459377487, n = 227L)
+
+# h_lr_score_strat_cov works as expected when not using ties factor
+
+    structure(0.0897521729142622, se_theta_l = 0.161259022074831, sigma_l2 = 0.169404428523679, n = 227L)
+
+# h_lr_score_strat_cov works as expected with unadjusted standard error
+
+    structure(0.089793780031155, se_theta_l = 0.164884345428146, sigma_l2 = 0.162036005256482, n = 227L)
+
+---
+
+    structure(0.089793780031155, se_theta_l = 0.164884345428146, sigma_l2 = 0.162036005256482, n = 227L)
+
+---
+
+    structure(0.089793780031155, se_theta_l = 0.161258812068077, sigma_l2 = 0.169403987295021, n = 227L)
+

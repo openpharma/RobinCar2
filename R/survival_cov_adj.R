@@ -220,17 +220,19 @@ h_get_beta_estimates <- function(lm_input) {
 #' @describeIn get_beta_estimates Calculate the coefficient estimates using the stratified input.
 h_get_strat_beta_estimates <- function(strat_lm_input) {
   assert_list(strat_lm_input, types = "list")
-  assert_list(strat_lm_input[[1]], types = "list")
-  assert_names(names(strat_lm_input[[1]]), identical.to = c("0", "1"))
+  assert_list(strat_lm_input[[1]], types = "list", len = 2L, names = "unique")
+  group_names <- names(strat_lm_input[[1]])
 
   # Get coefficient estimates separately for each treatment arm.
   beta_est <- list()
 
-  for (group in c("0", "1")) {
+  for (group in group_names) {
     xtxs <- list()
     xtys <- list()
 
     for (stratum in names(strat_lm_input)) {
+      # If this group exists in this stratum, save the corresponding cross products
+      # for this group and stratum.
       if (group %in% names(strat_lm_input[[stratum]])) {
         # Get the design matrix for this treatment arm.
         x <- strat_lm_input[[stratum]][[group]]$X
