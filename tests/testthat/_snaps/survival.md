@@ -41,3 +41,10 @@
         p_value = 0.0021686846372504, test_score = -0.0851266162073163, 
         test_n = 228L, test_sigma_l2 = 0.175748674116587)
 
+# robin_surv_strata_cov works as expected
+
+    list(estimate = -0.0136495961352817, se = 0.158066245456898, 
+        hr_n = 227L, hr_sigma_l2 = 0.172478508438683, test_stat = -0.0835488066000914, 
+        p_value = 0.933415170960403, test_score = -0.00229971887336489, 
+        test_n = 227L, test_sigma_l2 = 0.171986696328211)
+

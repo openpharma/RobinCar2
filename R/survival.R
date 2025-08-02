@@ -177,7 +177,6 @@ NULL
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_no_strata_no_cov()].
-#' @keywords internal
 robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
   robin_surv_comparison(
     score_fun = h_lr_score_no_strata_no_cov,
@@ -193,7 +192,6 @@ robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_strat()].
-#' @keywords internal
 robin_surv_strata <- function(vars, data, exp_level, control_level) {
   robin_surv_comparison(
     score_fun = h_lr_score_strat,
@@ -211,7 +209,6 @@ robin_surv_strata <- function(vars, data, exp_level, control_level) {
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_cov()] and [h_lr_score_no_strata_no_cov()] (which is used to find the unadjusted
 #'   log hazard ratio estimate).
-#' @keywords internal
 robin_surv_cov <- function(vars, data, exp_level, control_level, ...) {
   robin_surv_comparison(
     score_fun = h_lr_score_cov,
@@ -223,6 +220,26 @@ robin_surv_cov <- function(vars, data, exp_level, control_level, ...) {
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
+    model = vars$model,
+    ...
+  )
+}
+
+#' @describeIn survival_comparison_functions with strata and covariates, based on
+#'   [h_lr_score_strat_cov()] and [h_lr_score_strat()] (which is used to find the unadjusted
+#'   log hazard ratio estimate).
+robin_surv_strata_cov <- function(vars, data, exp_level, control_level, ...) {
+  robin_surv_comparison(
+    score_fun = h_lr_score_strat_cov,
+    unadj_score_fun = h_lr_score_strat,
+    vars = vars,
+    data = data,
+    exp_level = exp_level,
+    control_level = control_level,
+    treatment = vars$treatment,
+    time = vars$time,
+    status = vars$status,
+    strata = vars$strata,
     model = vars$model,
     ...
   )

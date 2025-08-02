@@ -26,7 +26,7 @@ calc_robin_car <- function(args) {
 
 # test: "robin_surv_no_strata_no_cov gives the same results as RobinCar functions"
 robincar_args <- list(
-  df = input$data,
+  df = na.omit(surv_data),
   treat_col = "ecog",
   response_col = "time",
   event_col = "status",
@@ -35,13 +35,13 @@ robincar_args <- list(
   car_scheme = "simple",
   adj_method = "CL",
   ref_arm = "0",
-  p_trt = mean(input$data$ecog == "1")
+  p_trt = mean(surv_data$ecog == "1", na.rm = TRUE)
 )
 calc_robin_car(robincar_args)
 
 # test: "robin_surv_strata gives the same results as RobinCar functions"
 robincar_args <- list(
-  df = input$data,
+  df = na.omit(surv_data),
   treat_col = "ecog",
   response_col = "time",
   event_col = "status",
@@ -50,13 +50,13 @@ robincar_args <- list(
   car_scheme = "permuted-block",
   adj_method = "CSL",
   ref_arm = "0",
-  p_trt = mean(input$data$ecog == "1")
+  p_trt = mean(surv_data$ecog == "1", na.rm = TRUE)
 )
 calc_robin_car(robincar_args)
 
 # test: "robin_surv_cov gives the same results as RobinCar functions"
 robincar_args <- list(
-  df = input$data,
+  df = na.omit(surv_data),
   treat_col = "ecog",
   response_col = "time",
   event_col = "status",
@@ -65,6 +65,21 @@ robincar_args <- list(
   car_scheme = "simple",
   adj_method = "CL",
   ref_arm = "0",
-  p_trt = mean(input$data$ecog == "1")
+  p_trt = mean(surv_data$ecog == "1", na.rm = TRUE)
+)
+calc_robin_car(robincar_args)
+
+# test: "robin_surv_strata_cov gives the same results as RobinCar functions"
+robincar_args <- list(
+  df = na.omit(surv_data),
+  treat_col = "ecog",
+  response_col = "time",
+  event_col = "status",
+  car_strata_cols = "sex",
+  covariate_cols = "age",
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "0",
+  p_trt = mean(surv_data$ecog == "1", na.rm = TRUE)
 )
 calc_robin_car(robincar_args)

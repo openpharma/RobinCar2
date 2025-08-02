@@ -68,11 +68,9 @@ test_that("robin_surv_no_strata_no_cov works as expected", {
 })
 
 test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functions", {
-  surv_data2 <- surv_data
-  surv_data2$ecog <- factor(surv_data2$ph.ecog == 1, labels = c("0", "1"))
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ ecog,
-    data = surv_data2,
+    data = surv_data,
     treatment = ecog ~ 1
   )
   input$data <- na.omit(input$data)
@@ -90,7 +88,7 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
     estimate = -0.1131005,
     se = 0.1830198
   )
-  expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
+  expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
   expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-4)
   expect_equal(result$se, robincar_result$se, tolerance = 1e-4)
@@ -112,11 +110,9 @@ test_that("robin_surv_strata works as expected", {
 })
 
 test_that("robin_surv_strata gives the same results as RobinCar functions", {
-  surv_data2 <- surv_data
-  surv_data2$ecog <- factor(surv_data2$ph.ecog == 1, labels = c("0", "1"))
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ ecog * sex,
-    data = surv_data2,
+    data = surv_data,
     treatment = ecog ~ sex
   )
   input$data <- na.omit(input$data)
@@ -134,7 +130,7 @@ test_that("robin_surv_strata gives the same results as RobinCar functions", {
     estimate = -0.1138251,
     se = 0.1847554
   )
-  expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
+  expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
   expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-3)
   expect_equal(result$se, robincar_result$se, tolerance = 1e-3)
@@ -156,11 +152,9 @@ test_that("robin_surv_cov works as expected", {
 })
 
 test_that("robin_surv_cov gives the same results as RobinCar functions", {
-  surv_data2 <- surv_data
-  surv_data2$ecog <- factor(surv_data2$ph.ecog == 1, labels = c("0", "1"))
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ ecog + age,
-    data = surv_data2,
+    data = surv_data,
     treatment = ecog ~ 1
   )
   input$data <- na.omit(input$data)
@@ -174,12 +168,55 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
   robincar_result <- list(
-    test_stat = -0.4309412,
-    test_sigma_l2 = 0.1757202,
+    test_stat = -0.4309439,
+    test_sigma_l2 = 0.175718,
     estimate = -0.07914235,
-    se = 0.1818081
+    se = 0.181807
   )
-  expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-4)
+  expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-5)
+  expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
+  expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$se, robincar_result$se, tolerance = 1e-3)
+})
+
+test_that("robin_surv_strata_cov works as expected", {
+  input <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ ecog * sex + age,
+    data = surv_data,
+    treatment = ecog ~ sex
+  )
+  result <- robin_surv_strata_cov(
+    vars = input,
+    data = input$data,
+    exp_level = 2,
+    control_level = 1
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
+test_that("robin_surv_strata_cov gives the same results as RobinCar functions", {
+  input <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ ecog * sex + age,
+    data = surv_data,
+    treatment = ecog ~ sex
+  )
+  input$data <- na.omit(input$data)
+  result <- robin_surv_strata_cov(
+    vars = input,
+    data = input$data,
+    exp_level = 2,
+    control_level = 1,
+    se_method = "unadjusted" # To get the exact match with RobinCar.
+  )
+  # These values are extracted from RobinCar (version 1.0.0) results, see
+  # `tests-raw/test-survival.R`.
+  robincar_result <- list(
+    test_stat = -0.4612828,
+    test_sigma_l2 = 0.1734316,
+    estimate = -0.08566379,
+    se = 0.1840128
+  )
+  expect_equal(result$test_stat, robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_sigma_l2, robincar_result$test_sigma_l2, tolerance = 1e-4)
   expect_equal(result$estimate, robincar_result$estimate, tolerance = 1e-3)
   expect_equal(result$se, robincar_result$se, tolerance = 1e-3)
