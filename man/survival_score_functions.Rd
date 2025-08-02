@@ -5,6 +5,7 @@
 \alias{h_lr_score_no_strata_no_cov}
 \alias{h_lr_score_strat}
 \alias{h_lr_score_cov}
+\alias{h_lr_score_strat_cov}
 \title{Log-Rank Score Functions for Survival Analysis}
 \usage{
 h_lr_score_no_strata_no_cov(
@@ -33,6 +34,19 @@ h_lr_score_cov(
   treatment,
   time,
   status,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  se_method = c("adjusted", "unadjusted")
+)
+
+h_lr_score_strat_cov(
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  strata,
   model,
   theta_hat = theta,
   use_ties_factor = TRUE,
@@ -93,5 +107,6 @@ with a \code{numeric} \code{theta} vector of length > 1.
 
 \item \code{h_lr_score_cov()}: with covariates but without strata.
 
+\item \code{h_lr_score_strat_cov()}: with strata and covariates.
+
 }}
-\keyword{internal}

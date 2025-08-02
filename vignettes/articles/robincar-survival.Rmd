@@ -21,7 +21,77 @@ knitr::opts_chunk$set(
 
 # Overview of Survival Analysis Methods
 
+Survival analysis is performed with the `robin_surv` function, and the syntax is:
+
+```r
+robin_surv(
+  Surv(time, event) ~ group * strata + covariates,
+  treatment = group ~ strata,
+  data = df
+)
+```
+
+Depending on the choice of `strata` and `covariates`, the following four methods are available:
+
+- Standard log-rank test without strata or covariates by omitting `strata` and `covariates`
+- Stratified log-rank test by specifying `strata` but no `covariates`
+- Covariate adjusted log-rank test by specifying `covariates` but no `strata`
+- Covariate adjusted and stratified log-rank test by specifying both `strata` and `covariates`
+
+Let's go through these in a simple example. We start with the standard log-rank test:
+
+```{r, message = FALSE}
+library(RobinCar2)
+robin_surv(
+  Surv(time, status) ~ sex,
+  treatment = sex ~ 1,
+  data = surv_data
+)
+```
+
+We can perform the stratified log-rank test by adding a `strata` argument:
+
+```{r}
+robin_surv(
+  Surv(time, status) ~ sex * strata,
+  treatment = sex ~ strata,
+  data = surv_data
+)
+```
+
+We could also just use covariate adjustment:
+
+```{r}
+robin_surv(
+  Surv(time, status) ~ sex + age + meal.cal,
+  treatment = sex ~ 1,
+  data = surv_data
+)
+```
+
+Or we combine both stratification and covariate adjustment:
+
+```{r}
+robin_surv(
+  Surv(time, status) ~ sex * strata + age + meal.cal,
+  treatment = sex ~ strata,
+  data = surv_data
+)
+```
+
 # Details of the Methods
+
+The four methods introduced above are implemented based on the corresponding score functions $U(\theta)$ with corresponding variance estimators $\sigma^{2}(\theta)$, where $\theta$ is the log hazard ratio.
+
+The log-rank test statistic is defined as
+
+$$
+\mathcal{T}_{L} = \sqrt{n} U_{L}(0) / \sigma_{L}(0)
+$$
+
+and it asymptotically follows a standard normal distribution under the null hypothesis of no treatment effect, i.e. $\theta = 0$.
+
+For estimation of $\theta$, we find the root $\hat{\theta}$ of the score function $U(\theta)$ such that $U(\hat{\theta}) = 0$. The standard error of $\hat{\theta}$ is derived from the variance estimator $\sigma(\hat{\theta})$, with specific formulas depending on the method used and detailed below.
 
 ## Standard analysis without strata or covariates
 
@@ -225,5 +295,106 @@ This is the published version of the variance estimator when used for estimating
 Note that the results will differ only very slightly. Both resulting standard errors are consistent and valid. One motivation for the unadjusted version is that it is guaranteed to be smaller than the standard error of the unadjusted log hazard ratio, due to the fact that the correction term is always positive.
 
 This score function and the variance estimator are implemented in the internal function `RobinCar2:::h_lr_score_cov()`.
+
+## Covariate adjusted and stratified analysis
+
+Finally, using both covariate adjustment and stratification, following Section S2.3 in @YeShaoYi2023, the score function is given by:
+
+$$
+U_{CSL}(\theta) =
+U_{SL}(\theta) - \frac{1}{n} \sum_{z} \sum_{i: Z_{i} = z}
+\{
+I_{i}(X_{i} - \overline{X}_{z})^{\top} \hat{\beta}_{1}(\theta_{SL}) - 
+(1 - I_{i})(X_{i} - \overline{X}_{z})^{\top} \hat{\beta}_{0}(\theta_{SL}) 
+\},
+$$
+
+which shows us that it is based on the score function $U_{SL}(\theta)$ from the stratified but not covariate-adjusted log-rank test. The correction term is added up over the strata $z$, but based on overall regression coefficients $\hat{\beta}_{0}(\theta_{SL})$ and $\hat{\beta}_{1}(\theta_{SL})$.
+
+Similarly as for the unstratified covariate adjusted log-rank test, the derived outcomes $O_{zik}(\theta)$ in stratum $z$ are defined as:
+
+$$
+\begin{align*}
+O_{zik}(\theta) 
+&= \int_{0}^{\tau} 
+\frac{
+  \{\exp(\theta) \overline{Y}_{z1}(t)\}^{(1-k)}
+  \{\overline{Y}_{z0}(t)\}^{k}
+}{\overline{Y}_{z\theta}(t)} 
+\left\{ 
+  dN_{ik}(t) - 
+\frac{Y_{ik}(t) \exp(\theta) d\overline{N}_{z}(t)}
+{\overline{Y}_{z\theta}(t)} 
+\right\}
+\\
+&= 
+\sum_{j(z)}
+\frac{
+  \{\exp(\theta) \overline{Y}_{z1}(t_{j})\}^{(1-k)}
+  \{\overline{Y}_{z0}(t_{j})\}^{k}
+}{\overline{Y}_{z\theta}(t_{j})} 
+\left\{ 
+  \delta_{i} \mathbb{I}(t_{j} = t_{i}) - 
+\frac{Y_{ik}(t_{j}) \exp(\theta) m_{z}(t_{j}) / n}
+{\overline{Y}_{z\theta}(t_{j})} 
+\right\}
+\end{align*}
+$$
+
+where $m_{z}(t_{j}) = \sum_{i: Z_{i} = z} \delta_{i} \mathbb{I}(t_{j} = t_{i})$ is the number of events in stratum $z$ at the unique event time $t_{j}$, and we further abbreviated
+
+$$
+Y_{z\theta}(t) = \overline{Y}_{z0}(t) + \exp(\theta) \overline{Y}_{z1}(t).
+$$
+
+Now as a second step, given the derived outcomes $O_{zik}(\theta)$, the coefficients estimate $\hat{\beta}_{k}(\theta)$ for treatment arm $k = 0, 1$ is defined as:
+
+$$
+\hat{\beta}_{k}(\theta) = 
+\left\{
+  \sum_{z} \sum_{i: I_{i} = k, Z_{i} = z}
+  (X_{i} - \overline{X}_{zk})
+  (X_{i} - \overline{X}_{zk})^{\top}
+\right\}^{-1}
+\sum_{z} \sum_{i: I_{i} = k, Z_{i} = z}
+  (X_{i} - \overline{X}_{zk})
+  O_{zik}(\theta).
+$$
+
+So we see that within each treatment group and within each stratum, the covariates are centered separately, and the required cross-products are added from all strata. 
+Finally the coefficient estimates are obtained by solving the least squares problem with the derived outcomes $O_{zik}(\theta)$ as responses.
+
+Finally, the variance estimator is defined very similarly to the covariate adjusted but unstratified log-rank test:
+
+$$
+\sigma_{CSL}^{2}(\theta) =
+\sigma_{SL}^{2}(\theta) - 
+  \hat{\pi}(1 - \hat{\pi}) 
+  (\hat{\beta}_{0}(\theta_{SL}) + \hat{\beta}_{1}(\theta_{SL}))^{\top}
+  \left\{\sum_{z} n_z / n \hat{\Sigma}_{X\vert z}\right\}
+  (\hat{\beta}_{0}(\theta_{SL}) + \hat{\beta}_{1}(\theta_{SL}))
+$$ 
+
+where $n_z$ is the number of patients in stratum $z$ and $\hat{\Sigma}_{X\vert z}$ is the sample covariance matrix of the original covariates $X_{i}$ within stratum $z$.
+
+In the same way as for the unstratified case, when estimating the covariate adjusted stratified log hazard ratio $\hat{\theta}_{CSL}$, the regression coefficients $\hat{\beta}_{0}(\hat{\theta}_{SL})$ and $\hat{\beta}_{1}(\hat{\theta}_{SL})$ are fixed at the unadjusted log hazard ratio $\hat{\theta}_{SL}$ in this expression for the standard error of $\hat{\theta}_{CSL}$:
+
+$$
+\frac{\sqrt{
+  \sigma_{SL}^{2}(\hat{\theta}_{CSL}) - 
+  \hat{\pi}(1 - \hat{\pi}) 
+  (\hat{\beta}_{0}(\hat{\theta}_{SL}) + \hat{\beta}_{1}(\hat{\theta}_{SL}))^{\top}
+  \{\sum_{z} n_z / n \hat{\Sigma}_{X\vert z}\}
+  (\hat{\beta}_{0}(\hat{\theta}_{SL}) + \hat{\beta}_{1}(\hat{\theta}_{SL}))
+}}{
+  \sqrt{n} \sigma_{SL}^{2}(\hat{\theta}_{CSL}) 
+}
+$$
+
+This is the published version of the variance estimator when used for estimating the standard error of $\hat{\theta}_{CSL}$ via $\sigma_{SL}^{2}(\hat{\theta}_{CSL})$, which is the default in `RobinCar2`. However, there is also an alternative version which we call "unadjusted" where $\sigma_{SL}^{2}(\hat{\theta}_{CSL})$ on the right hand side of the definition is replaced by $\sigma_{SL}^{2}(\hat{\theta}_{SL})$. That is, the log-rank score variance estimator is evaluated at the unadjusted log hazard ratio estimate $\hat{\theta}_{SL}$, rather than at the covariate adjusted log hazard ratio estimate $\hat{\theta}_{CSL}$. This version is available via the option `se_method = "unadjusted"`, and is the version implemented in the `RobinCar` package. 
+
+Note that the results will differ only very slightly. Both resulting standard errors are consistent and valid. One motivation for the unadjusted version is that it is guaranteed to be smaller than the standard error of the unadjusted log hazard ratio, due to the fact that the correction term is always positive.
+
+This score function and the variance estimator are implemented in the internal function `RobinCar2:::h_lr_score_strat_cov()`.
 
 # References
