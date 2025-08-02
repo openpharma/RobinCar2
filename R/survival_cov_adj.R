@@ -132,15 +132,21 @@ h_strat_derived_outcome_vals <- function(theta, df, treatment, time, status, str
 
 #' Get Linear Model Input Data
 #'
-#' This function prepares the input data for a linear model based on the provided data frame and model formula.
+#' Prepare the input data for a linear model based on the provided data frame and model formula.
 #'
 #' @param df (`data.frame`) Including the covariates needed for the `model`, as well as the derived outcome `O_hat`
 #'   and the `treatment` factor.
+#' @param df_split (`list`) A list of data frames, one for each stratum, as returned by
+#'   [h_strat_derived_outcome_vals()].
 #' @param model (`formula`) The right-hand side only model formula.
 #' @return A list containing for each element of the `treatment` factor a list with the
-#'   corresponding model matrix `X` and the response vector `y`.
-#'
+#'   corresponding model matrix `X` and the response vector `y`. For the stratified version, a list of such
+#'   lists is returned, one for each stratum.
 #' @keywords internal
+#' @name get_lm_input
+NULL
+
+#' @describeIn get_lm_input Get the linear model input data for the overall data set.
 h_get_lm_input <- function(df, model) {
   assert_data_frame(df)
   assert_formula(model)
@@ -160,6 +166,12 @@ h_get_lm_input <- function(df, model) {
       list(X = x, y = y)
     }
   )
+}
+
+#' @describeIn get_lm_input Get the linear model input data for each stratum separately.
+h_get_strat_lm_input <- function(df_split, model) {
+  assert_list(df_split, types = "data.frame")
+  lapply(df_split, h_get_lm_input, model = model)
 }
 
 #' Calculate Coefficient Estimates from Linear Model Input

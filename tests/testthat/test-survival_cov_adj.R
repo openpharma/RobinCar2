@@ -65,6 +65,37 @@ test_that("h_get_lm_input works as expected", {
   expect_numeric(result[["1"]][["y"]], len = 2L)
 })
 
+test_that("h_get_strat_lm_input works as expected", {
+  set.seed(941)
+  df_split <- list(
+    "stratum1" = data.frame(
+      index = 1:3,
+      treatment = factor(c(0, 1, 0)),
+      covariate1 = rnorm(3),
+      covariate2 = rnorm(3),
+      O_hat = rnorm(3)
+    ),
+    "stratum2" = data.frame(
+      index = 4:5,
+      treatment = factor(c(1, 0)),
+      covariate1 = rnorm(2),
+      covariate2 = rnorm(2),
+      O_hat = rnorm(2)
+    )
+  )
+  result <- h_get_strat_lm_input(df_split, model = ~ covariate1 + covariate2)
+  expect_list(result, len = 2L)
+  expect_names(names(result), identical.to = c("stratum1", "stratum2"))
+  # Check first stratum, treatment group 0:
+  expect_list(result[["stratum1"]][["0"]], len = 2L)
+  expect_matrix(result[["stratum1"]][["0"]][["X"]], ncol = 2L, nrow = 2L)
+  expect_numeric(result[["stratum1"]][["0"]][["y"]], len = 2L)
+  # Check first stratum, treatment group 1:
+  expect_list(result[["stratum2"]][["1"]], len = 2L)
+  expect_matrix(result[["stratum2"]][["1"]][["X"]], ncol = 2L, nrow = 1L)
+  expect_numeric(result[["stratum2"]][["1"]][["y"]], len = 1L)
+})
+
 test_that("h_get_beta_estimates works as expected", {
   set.seed(941)
   nobs <- 10
