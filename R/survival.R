@@ -323,33 +323,18 @@ h_test_mat <- function(x) {
 #' @keywords internal
 h_events_table <- function(data, vars) {
   assert_data_frame(data, col.names = "unique")
-  assert_subset(vars$treatment, names(data))
-  assert_subset(vars$time, names(data))
-  assert_subset(vars$status, names(data))
-  assert_subset(vars$strata, names(data))
+  assert_subset(with(vars, c(treatment, time, status, strata)), names(data))
 
-  tab <- table(data[c(vars$strata, vars$treatment, vars$status)])
-
-  if (length(vars$strata)) {
-    tab_patients <- tab[, , "0", drop = FALSE] + tab[, , "1", drop = FALSE]
-    tab_events <- tab[, , "1", drop = FALSE]
-  } else {
-    tab_patients <- tab[, "0", drop = FALSE] + tab[, "1", drop = FALSE]
-    tab_events <- tab[, "1", drop = FALSE]
-  }
-  df_patients <- as.data.frame(tab_patients)[, c(vars$strata, vars$treatment, "Freq")]
-  colnames(df_patients)[colnames(df_patients) == "Freq"] <- "Patients"
-  df_events <- as.data.frame(tab_events)[, c(vars$strata, vars$treatment, "Freq")]
-  colnames(df_events)[colnames(df_events) == "Freq"] <- "Events"
-  df <- merge(
-    df_patients,
-    df_events,
-    by = c(vars$strata, vars$treatment)
+  agg_res <- aggregate(
+    by = data[c(vars$treatment, vars$strata)], # This order leads to the expected sorting.
+    x = data[vars$status],
+    FUN = function(x) (c(Patients = length(x), Events = as.integer(sum(x)))),
+    drop = TRUE
   )
-  keep_rows <- which(df$Patients > 0)
-  df <- df[keep_rows, ]
-  rownames(df) <- NULL
-  df
+  cbind(
+    agg_res[c(vars$strata, vars$treatment)],
+    agg_res[[vars$status]]
+  )
 }
 
 #' Covariate Adjusted and Stratified Survival Analysis
@@ -377,12 +362,13 @@ h_events_table <- function(data, vars) {
 #'   treatment = sex ~ strata
 #' )
 robin_surv <- function(
-    formula,
-    data,
-    treatment,
-    contrast = "hazardratio",
-    test = "logrank",
-    ...) {
+  formula,
+  data,
+  treatment,
+  contrast = "hazardratio",
+  test = "logrank",
+  ...
+) {
   attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_data_frame(data)
