@@ -1,17 +1,19 @@
 #' Derive Outcome Values Based on Log Hazard Ratio
 #'
-#' This function computes the derived outcome values based on a given log hazard ratio.
+#' Compute the derived outcome values based on a given log hazard ratio.
 #'
 #' @inheritParams survival_score_functions
 #' @param covariates (`character`) The column names in `df` to be used for covariate adjustment.
 #' @return A data frame containing the same data as the input `df`, but restructured with standardized column names
 #'   `index`, `treatment`, `time`, `status`, the covariates, and an additional column `O_hat` containing the
-#'   derived outcome values.
-#'
+#'   derived outcome values. For the stratified version, the list of data frames is returned, one for each stratum.
 #' @details Please note that the `covariates` must not include `index`, `treatment`, `time`, `status`
 #'   to avoid naming conflicts.
-#'
 #' @keywords internal
+#' @name derived_outcome_vals
+NULL
+
+#' @describeIn derived_outcome_vals calculates the derived outcome values for the overall data set.
 h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariates, n = nrow(df)) {
   assert_number(theta)
   assert_string(treatment)
@@ -102,17 +104,49 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   df[order(df$index), include_cols, drop = FALSE]
 }
 
+#' @describeIn derived_outcome_vals calculates the derived outcome values for each stratum separately.
+h_strat_derived_outcome_vals <- function(theta, df, treatment, time, status, strata, covariates) {
+  assert_string(strata)
+  assert_data_frame(df)
+  assert_factor(df[[strata]])
+
+  assert_true(!any(is.na(df)))
+  n <- nrow(df)
+
+  df[[strata]] <- droplevels(df[[strata]])
+  strata_levels <- levels(df[[strata]])
+
+  df_split <- split(df, f = df[[strata]])
+
+  lapply(
+    df_split,
+    FUN = h_derived_outcome_vals,
+    theta = theta,
+    treatment = treatment,
+    time = time,
+    status = status,
+    covariates = covariates,
+    n = n
+  )
+}
+
 #' Get Linear Model Input Data
 #'
-#' This function prepares the input data for a linear model based on the provided data frame and model formula.
+#' Prepare the input data for a linear model based on the provided data frame and model formula.
 #'
 #' @param df (`data.frame`) Including the covariates needed for the `model`, as well as the derived outcome `O_hat`
 #'   and the `treatment` factor.
+#' @param df_split (`list`) A list of data frames, one for each stratum, as returned by
+#'   [h_strat_derived_outcome_vals()].
 #' @param model (`formula`) The right-hand side only model formula.
 #' @return A list containing for each element of the `treatment` factor a list with the
-#'   corresponding model matrix `X` and the response vector `y`.
-#'
+#'   corresponding model matrix `X` and the response vector `y`. For the stratified version, a list of such
+#'   lists is returned, one for each stratum.
 #' @keywords internal
+#' @name get_lm_input
+NULL
+
+#' @describeIn get_lm_input Get the linear model input data for the overall data set.
 h_get_lm_input <- function(df, model) {
   assert_data_frame(df)
   assert_formula(model)
@@ -134,15 +168,26 @@ h_get_lm_input <- function(df, model) {
   )
 }
 
+#' @describeIn get_lm_input Get the linear model input data for each stratum separately.
+h_get_strat_lm_input <- function(df_split, model) {
+  assert_list(df_split, types = "data.frame")
+  lapply(df_split, h_get_lm_input, model = model)
+}
+
 #' Calculate Coefficient Estimates from Linear Model Input
 #'
-#' This function calculates the coefficient estimates for each treatment arm from the linear model input data.
+#' Calculate the coefficient estimates for each treatment arm from the linear model input data.
 #'
 #' @param lm_input (`list`) A list containing the linear model input data for each treatment arm, as returned by
 #'   [h_get_lm_input()].
+#' @param strat_lm_input (`list`) A list of lists, one for each stratum, containing the linear model input data
+#'   for each treatment arm, as returned by [h_get_strat_lm_input()].
 #' @return A list containing the coefficient estimates for each treatment arm.
-#'
 #' @keywords internal
+#' @name get_beta_estimates
+NULL
+
+#' @describeIn get_beta_estimates Calculate the coefficient estimates for the overall data set.
 h_get_beta_estimates <- function(lm_input) {
   assert_list(lm_input, types = "list")
 
@@ -167,6 +212,49 @@ h_get_beta_estimates <- function(lm_input) {
 
     # Save the coefficients.
     beta_est[[group]] <- lm_fit$coefficients
+  }
+
+  beta_est
+}
+
+#' @describeIn get_beta_estimates Calculate the coefficient estimates using the stratified input.
+h_get_strat_beta_estimates <- function(strat_lm_input) {
+  assert_list(strat_lm_input, types = "list")
+  assert_list(strat_lm_input[[1]], types = "list", len = 2L, names = "unique")
+  group_names <- names(strat_lm_input[[1]])
+
+  # Get coefficient estimates separately for each treatment arm.
+  beta_est <- list()
+
+  for (group in group_names) {
+    xtxs <- list()
+    xtys <- list()
+
+    for (stratum in names(strat_lm_input)) {
+      # If this group exists in this stratum, save the corresponding cross products
+      # for this group and stratum.
+      if (group %in% names(strat_lm_input[[stratum]])) {
+        # Get the design matrix for this treatment arm.
+        x <- strat_lm_input[[stratum]][[group]]$X
+
+        # Center it.
+        x <- scale(x, center = TRUE, scale = FALSE)
+
+        # Get the derived outcome values, the response.
+        y <- strat_lm_input[[stratum]][[group]]$y
+
+        # Save the cross products.
+        xtxs[[stratum]] <- crossprod(x)
+        xtys[[stratum]] <- crossprod(x, y)
+      }
+    }
+
+    # Sum across strata.
+    xtx <- Reduce("+", xtxs)
+    xty <- Reduce("+", xtys)
+
+    # Get the coefficients.
+    beta_est[[group]] <- solve(xtx, xty)
   }
 
   beta_est

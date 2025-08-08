@@ -77,6 +77,9 @@ h_prep_survival_input <- function(formula, data, treatment) {
     test_factor(data[[trt_vars$treatment]])
   )
 
+  if (test_character(data[[trt_vars$treatment]])) {
+    data[[trt_vars$treatment]] <- factor(data[[trt_vars$treatment]])
+  }
   trt_lvls <- levels(data[[trt_vars$treatment]])
   n_lvls <- length(trt_lvls)
   covariates <- setdiff(all.vars(formula[[3]]), c(trt_vars$treatment, trt_vars$strata))
