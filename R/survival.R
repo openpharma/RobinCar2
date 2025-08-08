@@ -325,7 +325,7 @@ h_events_table <- function(data, vars) {
   assert_data_frame(data, col.names = "unique")
   assert_subset(with(vars, c(treatment, time, status, strata)), names(data))
 
-  agg_res <- aggregate(
+  agg_res <- stats::aggregate(
     by = data[c(vars$treatment, vars$strata)], # This order leads to the expected sorting.
     x = data[vars$status],
     FUN = function(x) (c(Patients = length(x), Events = as.integer(sum(x)))),
