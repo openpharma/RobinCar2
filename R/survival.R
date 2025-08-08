@@ -259,7 +259,7 @@ h_hr_coef_mat <- function(x) {
   assert_numeric(x$estimate, finite = TRUE)
   assert_numeric(x$se, finite = TRUE, len = length(x$estimate), lower = .Machine$double.eps)
   assert_list(x$pair, types = "integer", len = 2L)
-  assert_character(attr(x$pair, "levels"), len = max(unlist(x$pair)))
+  assert_character(attr(x$pair, "levels"), min.len = max(unlist(x$pair)))
   assert_true(length(x$pair[[1]]) == length(x$pair[[2]]))
   assert_true(length(x$pair[[1]]) == length(x$se))
 
@@ -294,7 +294,7 @@ h_test_mat <- function(x) {
   assert_numeric(x$test_stat, finite = TRUE)
   assert_numeric(x$p_value, finite = TRUE, len = length(x$test_stat))
   assert_list(x$pair, types = "integer", len = 2L)
-  assert_character(attr(x$pair, "levels"), len = max(unlist(x$pair)))
+  assert_character(attr(x$pair, "levels"), min.len = max(unlist(x$pair)))
   assert_true(length(x$pair[[1]]) == length(x$pair[[2]]))
   assert_true(length(x$pair[[1]]) == length(x$test_stat))
 
@@ -346,6 +346,8 @@ h_events_table <- function(data, vars) {
 #'   `Surv(time, status) ~ treatment * strata + covariates`.
 #' @param data (`data.frame`) Input data frame.
 #' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification.
+#' @param comparisons (`list`) An optional list of comparisons between treatment levels to be performed,
+#'   see details. By default, all pairwise comparisons are performed automatically.
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
 #'   is supported.
 #' @param test (`character(1)`) The test to be used, currently only `"logrank"` is supported.
@@ -353,8 +355,19 @@ h_events_table <- function(data, vars) {
 #'   (please see the vignette for details).
 #' @return A `surv_effect` object containing the results of the survival analysis.
 #' @seealso [surv_effect_methods] for S3 methods.
-#' @export
 #'
+#' @details
+#' The user can optionally specify a list of comparisons between treatment levels to be performed.
+#' The list must have two elements:
+#'
+#' - Treatment level indices of the treatment group.
+#' - Treatment level indices of the control group.
+#'
+#' So for example if you would like to compare level 3 with level 1, and also level 3 with level 2
+#' (but not level 2 with level 1) then you can specify:
+#' `comparisons = list(c(3, 3), c(1, 2))`
+#'
+#' @export
 #' @examples
 #' robin_surv(
 #'   formula = Surv(time, status) ~ sex * strata + meal.cal + age,
@@ -365,6 +378,7 @@ robin_surv <- function(
   formula,
   data,
   treatment,
+  comparisons,
   contrast = "hazardratio",
   test = "logrank",
   ...
@@ -396,8 +410,19 @@ robin_surv <- function(
     robin_surv_no_strata_no_cov
   }
 
-  comparisons <- pairwise(input$levels)
+  if (missing(comparisons)) {
+    comparisons <- pairwise(input$levels)
+  } else {
+    # Convert to integer and assign levels attribute to user defined list for user convenience.
+    assert_list(comparisons, types = "integerish")
+    comparisons <- lapply(comparisons, as.integer)
+    attr(comparisons, "levels") <- input$levels
+  }
+  assert_list(comparisons, len = 2L, types = "integer")
   n_comparisons <- length(comparisons[[1]])
+  assert_integer(comparisons[[1]], lower = 1L, upper = length(input$levels))
+  assert_integer(comparisons[[2]], lower = 1L, upper = length(input$levels))
+
   estimates <- lapply(
     seq_len(n_comparisons),
     function(i) {

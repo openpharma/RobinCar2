@@ -440,6 +440,21 @@ test_that("robin_surv also works with multiple pairwise comparisons", {
   expect_names(rownames(result$test_mat), identical.to = comparisons)
 })
 
+test_that("robin_surv allows the user to optionally define the comparisons of interest", {
+  result <- robin_surv(
+    Surv(time, status) ~ strata,
+    data = surv_data,
+    treatment = strata ~ 1,
+    comparisons = list(c(1, 2), c(3, 3))
+  )
+  expect_s3_class(result, "surv_effect")
+  comparisons <- c("0 v.s. 2", "1 v.s. 2")
+  expect_matrix(result$hr_coef_mat, ncol = 4, nrow = 2)
+  expect_names(rownames(result$hr_coef_mat), identical.to = comparisons)
+  expect_matrix(result$test_mat, ncol = 2, nrow = 2)
+  expect_names(rownames(result$test_mat), identical.to = comparisons)
+})
+
 test_that("robin_surv allows to use unadjusted standard error", {
   result <- robin_surv(
     Surv(time, status) ~ ecog + age,

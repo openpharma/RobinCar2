@@ -8,6 +8,7 @@ robin_surv(
   formula,
   data,
   treatment,
+  comparisons,
   contrast = "hazardratio",
   test = "logrank",
   ...
@@ -20,6 +21,9 @@ robin_surv(
 \item{data}{(\code{data.frame}) Input data frame.}
 
 \item{treatment}{(\code{formula}) A formula of treatment assignment or assignment by stratification.}
+
+\item{comparisons}{(\code{list}) An optional list of comparisons between treatment levels to be performed,
+see details. By default, all pairwise comparisons are performed automatically.}
 
 \item{contrast}{(\code{character(1)}) The contrast statistic to be used, currently only \code{"hazardratio"}
 is supported.}
@@ -35,6 +39,18 @@ A \code{surv_effect} object containing the results of the survival analysis.
 \description{
 Calculate log-rank test as well as hazard ratio estimates for survival data, optionally adjusted
 for covariates and a stratification factor.
+}
+\details{
+The user can optionally specify a list of comparisons between treatment levels to be performed.
+The list must have two elements:
+\itemize{
+\item Treatment level indices of the treatment group.
+\item Treatment level indices of the control group.
+}
+
+So for example if you would like to compare level 3 with level 1, and also level 3 with level 2
+(but not level 2 with level 1) then you can specify:
+\code{comparisons = list(c(3, 3), c(1, 2))}
 }
 \examples{
 robin_surv(
