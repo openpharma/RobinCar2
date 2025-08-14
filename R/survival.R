@@ -173,6 +173,7 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
 #' @return See [robin_surv_comparison()].
 #'
 #' @name survival_comparison_functions
+#' @keywords internal
 NULL
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
@@ -375,13 +376,14 @@ h_events_table <- function(data, vars) {
 #'   treatment = sex ~ strata
 #' )
 robin_surv <- function(
-    formula,
-    data,
-    treatment,
-    comparisons,
-    contrast = "hazardratio",
-    test = "logrank",
-    ...) {
+  formula,
+  data,
+  treatment,
+  comparisons,
+  contrast = "hazardratio",
+  test = "logrank",
+  ...
+) {
   attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_data_frame(data)
