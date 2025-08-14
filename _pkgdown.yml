@@ -53,7 +53,7 @@ reference:
     - vcovHC
   - title: Dummy Data
     contents:
-    - dummy_data
+    - glm_data
   - title: Utilities
     contents:
     - find_data

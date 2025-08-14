@@ -31,12 +31,12 @@ data arguments and the randomization scheme, will produce an object of class
 
 ```{r}
 library(RobinCar2)
-head(dummy_data)
+head(glm_data)
 ```
 
 ## Data Introduction
 
-In the `dummy_data`, we have the following columns:
+In the `glm_data`, we have the following columns:
 
 1. `id` is the patient identifier.
 1. `treatment` is the treatment assignment.
@@ -55,7 +55,7 @@ by stratification interaction as `y ~ treatment * s1 + covar`.
 
 ```{r}
 robin_lm(y ~ treatment * s1 + covar,
-  data = dummy_data,
+  data = glm_data,
   treatment = treatment ~ pb(s1)
 )
 ```
@@ -66,7 +66,7 @@ treatment by stratification (covariate) interaction.
 
 ```{r}
 robin_lm(y ~ treatment + s1 + covar,
-  data = dummy_data,
+  data = glm_data,
   treatment = treatment ~ pb(s1),
   vcov = "vcovHC"
 )
@@ -85,7 +85,7 @@ to specify `family` to be `binomial(link = "logit")`.
 
 ```{r}
 robin_glm(y_b ~ treatment * s1 + covar,
-  data = dummy_data,
+  data = glm_data,
   treatment = treatment ~ pb(s1),
   family = binomial(link = "logit")
 )
@@ -102,10 +102,10 @@ model or to be `MASS::negative.binomial(theta = NA)` to use the negative
 binomial model. A fixed `theta` could be provided if it is known.
 
 ```{r}
-dummy_data$y_count <- rpois(nrow(dummy_data), lambda = 20)
+glm_data$y_count <- rpois(nrow(glm_data), lambda = 20)
 robin_glm(
   y_count ~ treatment * s1 + covar,
-  data = dummy_data,
+  data = glm_data,
   treatment = treatment ~ pb(s1),
   family = MASS::negative.binomial(theta = 1)
 )
@@ -120,7 +120,7 @@ Pocock-Simon randomization.
 
 ```{r}
 robin_glm(y_b ~ treatment * s1 + covar,
-  data = dummy_data,
+  data = glm_data,
   treatment = treatment ~ ps(s1),
   family = binomial(link = "logit")
 )

@@ -40,7 +40,7 @@ Covariate adjusted lm model
 \examples{
 robin_lm(
   y ~ treatment * s1,
-  data = dummy_data,
+  data = glm_data,
   treatment = treatment ~ s1
 )
 }

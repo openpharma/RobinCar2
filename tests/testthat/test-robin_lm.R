@@ -13,13 +13,15 @@ test_that("robin_lm works correctly", {
   expect_silent(
     robin_lm(
       y ~ treatment * s1,
-      data = dummy_data, treatment = treatment ~ s1,
+      data = glm_data,
+      treatment = treatment ~ s1,
     )
   )
   expect_error(
     robin_lm(
       y ~ treatment * s1,
-      data = dummy_data, treatment = treatment ~ s1,
+      data = glm_data,
+      treatment = treatment ~ s1,
       vcov = "vcovHC"
     ),
     "Huber-White variance estimator is ONLY supported when using a linear model
