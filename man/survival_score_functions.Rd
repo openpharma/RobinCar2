@@ -110,3 +110,4 @@ with a \code{numeric} \code{theta} vector of length > 1.
 \item \code{h_lr_score_strat_cov()}: with strata and covariates.
 
 }}
+\keyword{internal}
