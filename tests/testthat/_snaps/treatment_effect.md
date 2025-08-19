@@ -14,7 +14,7 @@
 
     Code
       treatment_effect(fit_lm, treatment = treatment ~ s1, eff_measure = h_diff,
-      data = dummy_data)
+      data = glm_data)
     Output
                      Estimate Std.Err Z Value  Pr(>|z|)    
       trt1 v.s. pbo   0.56365 0.10074  5.5952 2.203e-08 ***

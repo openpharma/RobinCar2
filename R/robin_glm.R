@@ -20,12 +20,20 @@
 #' @examples
 #' robin_glm(
 #'   y ~ treatment * s1,
-#'   data = dummy_data,
+#'   data = glm_data,
 #'   treatment = treatment ~ s1, contrast = "difference"
 #' )
 robin_glm <- function(
-    formula, data, treatment, contrast = "difference",
-    contrast_jac = NULL, vcov = "vcovG", family = gaussian(), vcov_args = list(), pair, ...) {
+    formula,
+    data,
+    treatment,
+    contrast = "difference",
+    contrast_jac = NULL,
+    vcov = "vcovG",
+    family = gaussian(),
+    vcov_args = list(),
+    pair,
+    ...) {
   attr(formula, ".Environment") <- environment()
   # check if using negative.binomial family with NA as theta.
   # If so, use MASS::glm.nb instead of glm.

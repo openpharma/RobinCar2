@@ -22,6 +22,7 @@ Useful links:
 Authors:
 \itemize{
   \item Marlena Bannick \email{mnorwood@uw.edu} (\href{https://orcid.org/0000-0001-6279-5978}{ORCID})
+  \item Daniel Sabanes Bove \email{daniel@rconis.com} (\href{https://orcid.org/0000-0002-0176-9239}{ORCID})
   \item Dong Xi \email{Dong.Xi1@gilead.com}
   \item Ting Ye \email{tingye1@uw.edu}
   \item Yanyao Yi \email{yi_yanyao@lilly.com}

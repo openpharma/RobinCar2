@@ -1,12 +1,13 @@
 Type: Package
 Package: RobinCar2
 Title: ROBust INference for Covariate Adjustment in Randomized Clinical Trials
-Version: 0.1.2
-Date: 2025-03-30
+Version: 0.1.1.9000
+Date: 2025-07-07
 Authors@R:
     c(
       person("Liming", "Li", , "liming.li1@astrazeneca.com", role = c("aut", "cre"), comment = c(ORCID = "0009-0008-6870-0878")),
       person("Marlena", "Bannick", , "mnorwood@uw.edu", role="aut", comment=c(ORCID="0000-0001-6279-5978")),
+      person("Daniel", "Sabanes Bove", , "daniel@rconis.com", role = "aut", comment = c(ORCID = "0000-0002-0176-9239")),
       person("Dong", "Xi", , "Dong.Xi1@gilead.com", role = "aut"),
       person("Ting", "Ye", , "tingye1@uw.edu", role="aut"),
       person("Yanyao", "Yi", , "yi_yanyao@lilly.com", role="aut"),
@@ -37,6 +38,7 @@ Imports:
     MASS,
     sandwich,
     stats,
+    survival,
     utils
 Suggests:
     knitr,

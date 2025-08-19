@@ -1,7 +1,8 @@
-# RobinCar2 0.1.2
+# RobinCar2 0.1.1.9000
 
 ### New features
 
+* Add survival analysis with log-rank test and hazard ratio estimation.
 * Add `log_odds_ratio` and `log_risk_ratio` function for inference.
 * Add `contrast_mat` to `treatment_effect` object.
 * Add `confint` to obtain confidence interval for `prediction_cf` and `treatment_effect` object.

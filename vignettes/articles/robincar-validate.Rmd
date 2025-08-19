@@ -29,7 +29,7 @@ This checks the marginal means and variance.
 ```{r}
 # Make categorical outcome to test counts
 # Not informative at all
-dummy_data$y_c <- MASS::rnegbin(n = nrow(dummy_data), theta = 1)
+glm_data$y_c <- MASS::rnegbin(n = nrow(glm_data), theta = 1)
 
 test_that("marginal means", {
   # Function to compare RobinCar to RobinCar2 outputs
@@ -120,7 +120,7 @@ test_that("marginal means", {
             set.seed(365)
             suppressWarnings(
               robincar1 <- robincar_glm(
-                df = dummy_data,
+                df = glm_data,
                 treat_col = "treatment",
                 response_col = yname,
                 formula = form,
@@ -134,7 +134,7 @@ test_that("marginal means", {
             set.seed(365)
             robincar2 <- robin_glm(
               form = form,
-              data = dummy_data,
+              data = glm_data,
               treatment = as.formula(scheme_form),
               vcov = vcovG,
               family = family2
@@ -199,7 +199,7 @@ test_that("contrast -- standard options", {
     run_robin1 <- function(...) {
       suppressWarnings(
         robincar_glm(
-          df = dummy_data,
+          df = glm_data,
           treat_col = "treatment",
           response_col = yname,
           formula = form,
@@ -214,7 +214,7 @@ test_that("contrast -- standard options", {
     run_robin2 <- function(...) {
       robin_glm(
         form = form,
-        data = dummy_data,
+        data = glm_data,
         treatment = as.formula(scheme_form),
         vcov = vcovG,
         family = family2,

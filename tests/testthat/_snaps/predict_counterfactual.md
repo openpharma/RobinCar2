@@ -15,7 +15,7 @@
 # predict_counterfactual works for guassian with lm
 
     Code
-      predict_counterfactual(fit_lm, treatment ~ 1, data = dummy_data)
+      predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data)
     Output
       Model        :  y ~ treatment * s1 + covar 
       Randomization:  treatment ~ 1  ( Simple )

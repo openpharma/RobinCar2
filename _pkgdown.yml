@@ -28,6 +28,7 @@ reference:
     contents:
     - robin_lm
     - robin_glm
+    - robin_surv
   - title: Counter Factual Predictions
     contents:
     - predict_counterfactual
@@ -53,13 +54,15 @@ reference:
     - odds_ratio
     - log_risk_ratio
     - log_odds_ratio
+    - surv_effect_methods
   - title: Robust Variance
     contents:
     - vcovG
     - vcovHC
   - title: Dummy Data
     contents:
-    - dummy_data
+    - glm_data
+    - surv_data
   - title: Utilities
     contents:
     - find_data
