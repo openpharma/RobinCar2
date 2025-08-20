@@ -25,7 +25,8 @@ treatment_effect <- function(
 
 #' @export
 treatment_effect.prediction_cf <- function(
-    object, pair = pairwise(names(object$estimate)), eff_measure, eff_jacobian = eff_jacob(eff_measure), contrast_name = deparse(substitute(eff_measure)), ...) {
+    object, pair = pairwise(names(object$estimate)), eff_measure, eff_jacobian = eff_jacob(eff_measure),
+    contrast_name = deparse(substitute(eff_measure)), ...) {
   assert_function(eff_measure)
   assert_class(pair, "contrast")
   assert_string(contrast_name)

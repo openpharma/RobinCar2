@@ -117,5 +117,10 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
 
 #' @export
 predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit), vcov = "vcovG", vcov_args = list(), ...) {
-  eval(bquote(predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, vcov = .(substitute(vcov)), vcov_args = vcov_args)))
+  # use eval and bquote to allow vcov names to be further passed into inner functions.
+  eval(
+    bquote(
+      predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, vcov = .(substitute(vcov)), vcov_args = vcov_args)
+    )
+  )
 }

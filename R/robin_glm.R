@@ -58,8 +58,10 @@ robin_glm <- function(
     pair <- pairwise(names(pc$estimate))
   }
 
-  if (test_string(contrast) &&
-    contrast %in% c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio", "log_odds_ratio")) {
+  if (
+    test_string(contrast) &&
+      contrast %in% c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio", "log_odds_ratio")
+  ) {
     if (contrast %in% c("odds_ratio", "risk_ratio")) {
       warning(
         c(
@@ -77,7 +79,9 @@ robin_glm <- function(
     }
     contrast_name_full <- deparse(substitute(contrast))
     contrast_name <- paste(contrast_name_full[1], if (length(contrast_name_full) > 1) "...")
-    trt_eff <- treatment_effect(pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair, contrast_name = contrast_name)
+    trt_eff <- treatment_effect(
+      pc, eff_measure = contrast, eff_jacobian = contrast_jac, pair = pair, contrast_name = contrast_name
+    )
   }
   structure(
     list(
