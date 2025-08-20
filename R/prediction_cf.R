@@ -37,7 +37,10 @@ print.prediction_cf <- function(x, level = 0.95, ...) {
 #' @export
 #' @return A `matrix` of the confidence interval.
 #' @examples
-#' robin_res <- robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "log_risk_ratio")
+#' robin_res <- robin_glm(
+#'   y_b ~ treatment * s1,
+#'   data = glm_data, treatment = treatment ~ s1, contrast = "log_risk_ratio"
+#' )
 #' confint(robin_res$marginal_mean, level = 0.7)
 #' confint(robin_res$contrast, parm = 1:3, level = 0.9)
 confint.prediction_cf <- function(object, parm, level = 0.95, ...) {

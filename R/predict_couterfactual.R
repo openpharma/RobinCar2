@@ -120,7 +120,10 @@ predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit), vc
   # use eval and bquote to allow vcov names to be further passed into inner functions.
   eval(
     bquote(
-      predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, vcov = .(substitute(vcov)), vcov_args = vcov_args)
+      predict_counterfactual.lm(
+        fit = fit, data = data, treatment = treatment,
+        vcov = .(substitute(vcov)), vcov_args = vcov_args
+      )
     )
   )
 }
