@@ -28,7 +28,10 @@ A \code{matrix} of the confidence interval.
 Obtain the confidence interval for the marginal mean or the contrast.
 }
 \examples{
-robin_res <- robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "log_risk_ratio")
+robin_res <- robin_glm(
+  y_b ~ treatment * s1,
+  data = glm_data, treatment = treatment ~ s1, contrast = "log_risk_ratio"
+)
 confint(robin_res$marginal_mean, level = 0.7)
 confint(robin_res$contrast, parm = 1:3, level = 0.9)
 }
