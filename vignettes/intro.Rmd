@@ -142,7 +142,7 @@ robin_res
 ```
 
 It is easy to obtain the confidence interval matrix for the marginal mean, at specified level.
-If `parm` is not provided, all levels will be proiveded.
+If `parm` is not provided, the complete matrix (all treatment groups) will be provided.
 
 ```{r}
 confint(robin_res$marginal_mean, parm = 1:2, level = 0.7)

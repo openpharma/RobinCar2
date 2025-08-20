@@ -9,12 +9,24 @@ test_that("robin_glm works correctly", {
       contrast = "difference"
     )
   )
-  expect_silent(robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "difference"))
-  expect_silent(robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "log_risk_ratio"))
-  expect_silent(robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "log_odds_ratio"))
+  expect_silent(
+    robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "difference")
+  )
+  expect_silent(
+    robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "log_risk_ratio")
+  )
+  expect_silent(
+    robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "log_odds_ratio")
+  )
 
-  expect_warning(robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "risk_ratio"), "Consider using the log")
-  expect_warning(robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "odds_ratio"), "Consider using the log")
+  expect_warning(
+    robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "risk_ratio"),
+    "Consider using the log"
+  )
+  expect_warning(
+    robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "odds_ratio"),
+    "Consider using the log"
+  )
   expect_error(
     robin_glm(
       y_b ~ treatment * s1,
