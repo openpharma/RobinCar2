@@ -6,3 +6,6 @@ fit_lm <- lm(y ~ treatment * s1 + covar, data = glm_data)
 
 # glm fit on ToothGrowth
 fit_binom <- glm(y_b ~ treatment * s1 + covar, data = glm_data, family = binomial())
+
+# robin glm result with log risk ratio contrast
+robin_res <- robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "log_risk_ratio")

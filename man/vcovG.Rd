@@ -2,7 +2,7 @@
 % Please edit documentation in R/variance_anhecova.R
 \name{vcovG}
 \alias{vcovG}
-\title{ANHECOVA Covariance}
+\title{Generalized Covariance (ANHECOVA)}
 \usage{
 vcovG(x, decompose = TRUE, ...)
 }
@@ -17,5 +17,5 @@ vcovG(x, decompose = TRUE, ...)
 Named covariance matrix.
 }
 \description{
-ANHECOVA Covariance
+Generalized Covariance (ANHECOVA)
 }

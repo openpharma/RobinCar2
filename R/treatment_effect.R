@@ -111,7 +111,7 @@ odds_ratio <- function(object, ...) {
 
 #' @rdname treatment_effect
 log_risk_ratio <- function(object, ...) {
-  treatment_effect(object, eff_measure = h_log_ratio, eff_jacobian = h_jac_log_ratio, ...)
+  treatment_effect(object, eff_measure = h_log_risk_ratio, eff_jacobian = h_jac_log_risk_ratio, ...)
 }
 #' @rdname treatment_effect
 log_odds_ratio <- function(object, ...) {
@@ -175,13 +175,13 @@ h_jac_odds_ratio <- function(x, y) {
 
 #' @rdname contrast
 #' @export
-h_log_ratio <- function(x, y) {
+h_log_risk_ratio <- function(x, y) {
   log(h_risk_ratio(x, y))
 }
 
 #' @rdname contrast
 #' @export
-h_jac_log_ratio <- function(x, y) {
+h_jac_log_risk_ratio <- function(x, y) {
   cbind(1 / x, -1 / y)
 }
 
@@ -221,13 +221,7 @@ print.treatment_effect <- function(x, ...) {
 
 #' Confidence interval function.
 #' @rdname confint
-#' @param object Object to construct confidence interval.
-#' @param parm (`character` or `integer`) Names of the parameters to construct confidence interval.
-#' @param level (`numeric`) Confidence level.
-#' @param transform (`function`) Transform function.
-#' @param ... Not used.
 #' @export
-#' @return A `matrix` of the confidence interval.
 confint.treatment_effect <- function(object, parm, level = 0.95, transform, ...) {
   assert_number(level, lower = 0, upper = 1)
   if (!missing(parm)) {
@@ -256,9 +250,11 @@ confint.treatment_effect <- function(object, parm, level = 0.95, transform, ...)
       transform <- identity
     }
   }
-  if (missing(parm)) {
-    transform(ret)
-  } else {
-    transform(ret[parm, ])
+  if (!identical(transform, identity)) {
+    message("The confidence interval is transformed.")
   }
+  if (!missing(parm)) {
+    ret <- ret[parm, , drop = FALSE]
+  }
+  transform(ret)
 }

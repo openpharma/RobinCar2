@@ -166,8 +166,8 @@ test_that("contrast -- standard options", {
 
     # Estimates and variance for the first two
     # contrast vector elements from RobinCar2
-    estimates2 <- r2$estimate
-    variances2 <- r2$variance
+    estimates2 <- r2$contrast$estimate
+    variances2 <- r2$contrast$variance
     testthat::expect_equal(estimates1, estimates2)
     testthat::expect_equal(variances1, variances2, tolerance = 1e-4)
   }
@@ -233,7 +233,7 @@ test_that("contrast -- standard options", {
     # RATIO -------------------------------------------------
 
     r1_ratio <- run_robin1(contrast_h = "ratio")
-    r2_ratio <- run_robin2(contrast = "risk_ratio")
+    r2_ratio <- suppressWarnings(run_robin2(contrast = "risk_ratio"))
 
     compare_contrast(r1_ratio, r2_ratio)
 
@@ -245,7 +245,7 @@ test_that("contrast -- standard options", {
         ((vec / (1 - vec)) / (vec[1] / (1 - vec[1])))[2:3]
       }
     )
-    r2_odds <- run_robin2(contrast = "odds_ratio")
+    r2_odds <- suppressWarnings(run_robin2(contrast = "odds_ratio"))
     compare_contrast(r1_odds, r2_odds)
 
     # CUSTOM FUNCTION ---------------------------------------

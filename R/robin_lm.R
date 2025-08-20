@@ -9,7 +9,7 @@
 #' @param pair Pairwise treatment comparison.
 #' @param ... Additional arguments passed to `lm`.
 #' @export
-#' @return A treatment_effect object.
+#' @return A robin_output object, with `marginal_mean` and `contrast` components.
 #' @examples
 #' robin_lm(
 #'   y ~ treatment * s1,
@@ -50,6 +50,10 @@ robin_lm <- function(
   )
 }
 
+#' Evaluate if Interaction Exists
+#' @keywords internal
+#' @param formula (`formula`) the formula for model fitting.
+#' @param treatment (`formula`) the formula for treatment assignment.
 h_interaction <- function(formula, treatment) {
   assert_formula(formula)
   treatment <- h_get_vars(treatment)

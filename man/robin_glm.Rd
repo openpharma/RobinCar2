@@ -43,7 +43,7 @@ including \code{vcovHC} and \code{vcovG}.}
 \item{...}{Additional arguments passed to \code{glm} or \code{glm.nb}.}
 }
 \value{
-A treatment_effect object.
+A robin_output object, with \code{marginal_mean} and \code{contrast} components.
 }
 \description{
 Covariate adjusted glm model

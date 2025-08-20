@@ -1,8 +1,8 @@
 ---
-title: "User Guide to RobinCar and RobinCar2"
+title: "Generalized Linear Regression in RobinCar and RobinCar2"
 output: rmarkdown::html_document
 vignette: >
-  %\VignetteIndexEntry{User Guide to RobinCar and RobinCar2}
+  %\VignetteIndexEntry{Generalized Linear Regression in RobinCar and RobinCar2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -28,7 +28,7 @@ library(RobinCar)
 
 As such, RobinCar and RobinCar2 share many methods. Please use this vignette as a guide to the similarities and differences between RobinCar and RobinCar2.
 
-## RobinCar2 and RobinCar produce the same results when run with the same settings on the same data
+## RobinCar2 and RobinCar produce the same results when run with the same settings on the same data for GLM
 
 RobinCar2 has a testing suite that ensures that the outputs are identical between RobinCar and RobinCar2. The comparisons use the `glm_data` dataset included in RobinCar2. The outputs for the point estimates and variance estimates are compared under a variety of settings, including:
 
@@ -40,7 +40,7 @@ RobinCar2 has a testing suite that ensures that the outputs are identical betwee
 Please see the following testing file for details: <https://github.com/openpharma/RobinCar2/blob/main/tests/testthat/test-validate-robin_glm.R>
 or view the report at RobinCar2 Validation Report.
 
-## Differences between RobinCar and RobinCar2 argument usage
+## Differences between RobinCar and RobinCar2 argument usage for GLM
 
 The interface for users is very similar between RobinCar and RobinCar2, though RobinCar2 has some more streamlined use. Users of RobinCar should find RobinCar2 at least as user-friendly and not have trouble switching between packages.
 
@@ -84,7 +84,7 @@ The structure of the output of RobinCar2 more closely mirrors the structure of t
 
 ## Feature availability in RobinCar v. RobinCar2
 
-Here we list any differences in the features that are available in RobinCar and RobinCar2. This will be continually updated as the packages are updated.
+Here we list major differences in the features that are available in RobinCar and RobinCar2. This will be continually updated as the packages are updated.
 
 *Last Updated: February 21, 2025*
 
@@ -98,6 +98,4 @@ Currently, the only other `vcov` that is allowed in RobinCar2 is the sandwich va
 
 ### Features available in RobinCar that are not available in RobinCar2
 
-#### Time-to-event analysis
-
-Currently, RobinCar has functions for time-to-event data analysis and RobinCar2 does not. This is planned for future releases of RobinCar2. Please see [here](https://marlenabannick.com/RobinCar/articles/Robust-Testing-for-Time-to-Event-Data.html) for usage of RobinCar time-to-event methods.
+RobinCar support many other methods like machine-learning methods. Those methods is not included in RobinCar2.
