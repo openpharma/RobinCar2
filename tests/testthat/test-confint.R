@@ -6,7 +6,7 @@ test_that("confint works correctly", {
 test_that("confint works with parm argument", {
   expect_snapshot(confint(robin_res$marginal_mean, parm = 1:2))
   expect_snapshot(confint(robin_res$marginal_mean, parm = c("pbo", "trt2")))
-  
+
   expect_snapshot(confint(robin_res$contrast, parm = 1:2))
   expect_snapshot(confint(robin_res$contrast, parm = c("trt1 v.s. pbo")))
 
