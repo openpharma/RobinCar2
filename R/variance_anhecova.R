@@ -1,4 +1,4 @@
-#' ANHECOVA Covariance
+#' Generalized Covariance (ANHECOVA)
 #'
 #' @param x (`prediction_cf`) Counter-factual prediction.
 #' @param decompose (`flag`) whether to use decompose method to calculate the variance.

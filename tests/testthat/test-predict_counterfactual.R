@@ -48,3 +48,12 @@ test_that("predict_counterfactual works if contrast are non-standard", {
     predict(fit, newdata = newdf, type = "link")
   )
 })
+
+test_that("predict_counterfactual works with provided vcov function", {
+  vcov_dummy <- function(x) {
+    n <- length(x$estimate)
+    matrix(0.1, nrow = n, ncol = n)
+  }
+  expect_snapshot(predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data, vcov = vcov_dummy))
+  expect_snapshot(predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data, vcov = NULL))
+})

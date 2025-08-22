@@ -103,11 +103,12 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
     vcov <- match.fun(vcov)
     mm_variance <- do.call(vcov, c(list(ret), vcov_args))
   } else if (test_function(vcov)) {
-    variance_name <- deparse(substitute(vcov))
+    variance_name_full <- deparse(substitute(vcov))
+    variance_name <- paste(variance_name_full[1], if (length(variance_name_full) > 1) "...")
     mm_variance <- do.call(vcov, c(list(ret), vcov_args))
   } else {
     variance_name <- NULL
-    mm_variance <- rep(NA_real_, n_lvls)
+    mm_variance <- matrix(NA_real_, nrow = n_lvls, ncol = n_lvls)
   }
   ret$variance <- mm_variance
   ret$variance_name <- variance_name
@@ -116,5 +117,13 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
 
 #' @export
 predict_counterfactual.glm <- function(fit, treatment, data = find_data(fit), vcov = "vcovG", vcov_args = list(), ...) {
-  predict_counterfactual.lm(fit = fit, data = data, treatment = treatment, vcov = vcov, vcov_args = vcov_args, ...)
+  # use eval and bquote to allow vcov names to be further passed into inner functions.
+  eval(
+    bquote(
+      predict_counterfactual.lm(
+        fit = fit, data = data, treatment = treatment,
+        vcov = .(substitute(vcov)), vcov_args = vcov_args
+      )
+    )
+  )
 }
