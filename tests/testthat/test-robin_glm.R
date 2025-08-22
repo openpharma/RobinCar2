@@ -18,7 +18,6 @@ test_that("robin_glm works correctly", {
   expect_silent(
     robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "log_odds_ratio")
   )
-
   expect_warning(
     robin_glm(y_b ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "risk_ratio"),
     "Consider using the log"
@@ -63,4 +62,8 @@ test_that("robin_glm works for glm.nb", {
       contrast = "difference"
     )
   )
+})
+
+test_that("robin_glm can be printed correctly", {
+  expect_snapshot(robin_res)
 })

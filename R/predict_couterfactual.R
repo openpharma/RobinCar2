@@ -108,7 +108,7 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
     mm_variance <- do.call(vcov, c(list(ret), vcov_args))
   } else {
     variance_name <- NULL
-    mm_variance <- rep(NA_real_, n_lvls)
+    mm_variance <- matrix(NA_real_, nrow = n_lvls, ncol = n_lvls)
   }
   ret$variance <- mm_variance
   ret$variance_name <- variance_name

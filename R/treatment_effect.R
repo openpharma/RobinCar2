@@ -245,10 +245,10 @@ confint.treatment_effect <- function(object, parm, level = 0.95, transform, ...)
   colnames(ret) <- c("Estimate", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
   row.names(ret) <- row.names(object$contrast_mat)
   if (missing(transform)) {
-    if (object$contrast %in% c("log_odds_ratio", "log_risk_ratio", "h_log_odds_ratio", "h_log_risk_ratio")) {
-      transform <- exp
+    transform <- if (object$contrast %in% c("log_odds_ratio", "log_risk_ratio", "h_log_odds_ratio", "h_log_risk_ratio")) {
+      exp
     } else {
-      transform <- identity
+      identity
     }
   }
   if (!identical(transform, identity)) {

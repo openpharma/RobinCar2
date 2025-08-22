@@ -27,7 +27,7 @@ robin_glm <- function(
     formula,
     data,
     treatment,
-    contrast = "difference",
+    contrast = c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio", "log_odds_ratio"),
     contrast_jac = NULL,
     vcov = "vcovG",
     family = gaussian(),
@@ -58,10 +58,8 @@ robin_glm <- function(
     pair <- pairwise(names(pc$estimate))
   }
 
-  if (
-    test_string(contrast) &&
-      contrast %in% c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio", "log_odds_ratio")
-  ) {
+  if (test_character(contrast)) {
+    contrast <- match.arg(contrast)
     if (contrast %in% c("odds_ratio", "risk_ratio")) {
       warning(
         c(

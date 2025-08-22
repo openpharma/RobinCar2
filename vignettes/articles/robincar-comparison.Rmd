@@ -98,4 +98,4 @@ Currently, the only other `vcov` that is allowed in RobinCar2 is the sandwich va
 
 ### Features available in RobinCar that are not available in RobinCar2
 
-RobinCar support many other methods like machine-learning methods. Those methods is not included in RobinCar2.
+RobinCar supports many other methods like machine-learning methods. Those methods is not included in RobinCar2.

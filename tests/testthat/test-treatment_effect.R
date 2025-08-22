@@ -96,6 +96,107 @@ test_that("h_jac_odds_ratio work as expected", {
   )
 })
 
+
+test_that("h_log_risk_ratio works as expected", {
+  x <- c(1, 3, 2)
+  y <- c(2, 3, 1)
+  expect_identical(
+    h_log_risk_ratio(x, y),
+    log(c(1 / 2, 1, 2))
+  )
+  x <- c(1, 2)
+  y <- c(2, 4)
+  expect_identical(
+    h_log_risk_ratio(x, y),
+    log(c(1 / 2, 1 / 2))
+  )
+})
+
+test_that("h_jac_risk_ratio work as expected", {
+  x <- c(0.2, 0.5, 0.6)
+  y <- c(0.4, 0.2, 0.3)
+  expect_identical(
+    h_jac_log_risk_ratio(x, y),
+    matrix(c(5, 2, 5 / 3, -2.5, -5, -10 / 3), nrow = 3),
+    tolerance = 1e-8
+  )
+  x <- c(0.2, 0.5)
+  y <- c(0.5, 0.2)
+  expect_identical(
+    h_jac_log_risk_ratio(x, y),
+    matrix(c(5, 2, -2, -5), nrow = 2),
+    tolerance = 1e-8
+  )
+})
+
+test_that("h_log_odds_ratio works as expected", {
+  x <- c(0.5, 0.4, 0.6)
+  y <- c(0.2, 0.4, 0.3)
+  expect_identical(
+    h_log_odds_ratio(x, y),
+    log(c(4, 1, 3.5)),
+    tolerance = 1e-8
+  )
+  x <- c(0.5, 0.4)
+  y <- c(0.4, 0.5)
+  expect_identical(
+    h_log_odds_ratio(x, y),
+    log(c(1.5, 2 / 3)),
+    tolerance = 1e-8
+  )
+})
+
+test_that("h_jac_log_odds_ratio work as expected", {
+  x <- c(0.2, 0.5, 0.6)
+  y <- c(0.5, 0.2, 0.6)
+  expect_identical(
+    h_jac_log_odds_ratio(x, y),
+    matrix(c(6.25, 4, 25 / 6, -4, -6.25, -25 / 6), nrow = 3),
+    tolerance = 1e-8
+  )
+  x <- c(0.2, 0.5)
+  y <- c(0.5, 0.2)
+  expect_identical(
+    h_jac_log_odds_ratio(x, y),
+    matrix(c(6.25, 4, -4, -6.25), nrow = 2),
+    tolerance = 1e-8
+  )
+})
+
+test_that("eff_jacob works as expected", {
+  x <- c(0.2, 0.5, 0.6)
+  y <- c(0.5, 0.2, 0.6)
+  expect_identical(
+    h_jac_diff(x, y),
+    eff_jacob(h_diff)(x, y),
+    tolerance = 1e-8
+  )
+
+  expect_identical(
+    h_jac_risk_ratio(x, y),
+    eff_jacob(h_risk_ratio)(x, y),
+    tolerance = 1e-8
+  )
+
+  expect_identical(
+    h_jac_odds_ratio(x, y),
+    eff_jacob(h_odds_ratio)(x, y),
+    tolerance = 1e-8
+  )
+
+  expect_identical(
+    h_jac_log_risk_ratio(x, y),
+    eff_jacob(h_log_risk_ratio)(x, y),
+    tolerance = 1e-8
+  )
+
+  expect_identical(
+    h_jac_log_odds_ratio(x, y),
+    eff_jacob(h_log_odds_ratio)(x, y),
+    tolerance = 1e-8
+  )
+})
+
 test_that("treatment_effect works as expected", {
   pc <- predict_counterfactual(fit_binom, treatment ~ s1)
   df <- expect_silent(difference(pc))
