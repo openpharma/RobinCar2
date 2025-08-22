@@ -65,5 +65,6 @@ test_that("robin_glm works for glm.nb", {
 })
 
 test_that("robin_glm can be printed correctly", {
-  expect_snapshot(robin_res)
+  expect_snapshot(robin_res1)
+  expect_snapshot(robin_res2)
 })
