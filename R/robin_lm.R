@@ -9,7 +9,7 @@
 #' @param pair Pairwise treatment comparison.
 #' @param ... Additional arguments passed to `lm`.
 #' @export
-#' @return A treatment_effect object.
+#' @return A robin_output object, with `marginal_mean` and `contrast` components.
 #' @examples
 #' robin_lm(
 #'   y ~ treatment * s1,
@@ -40,9 +40,20 @@ robin_lm <- function(
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
   }
-  difference(pc, pair = pair)
+  trt_eff <- difference(pc, pair = pair)
+  structure(
+    list(
+      marginal_mean = pc,
+      contrast = trt_eff
+    ),
+    class = "robin_output"
+  )
 }
 
+#' Evaluate if Interaction Exists
+#' @keywords internal
+#' @param formula (`formula`) the formula for model fitting.
+#' @param treatment (`formula`) the formula for treatment assignment.
 h_interaction <- function(formula, treatment) {
   assert_formula(formula)
   treatment <- h_get_vars(treatment)

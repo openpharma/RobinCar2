@@ -32,7 +32,7 @@ including \code{vcovHC} and \code{vcovG}. The default is 'vcovG'.}
 \item{...}{Additional arguments passed to \code{lm}.}
 }
 \value{
-A treatment_effect object.
+A robin_output object, with \code{marginal_mean} and \code{contrast} components.
 }
 \description{
 Covariate adjusted lm model

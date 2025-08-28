@@ -125,3 +125,36 @@ robin_glm(y_b ~ treatment * s1 + covar,
   family = binomial(link = "logit")
 )
 ```
+
+## Obtain the Confidence Intervals for the Marginal Means and contrast
+
+To obtain the confidence interval, we can use `confint` function.
+
+Given the following model
+```{r}
+robin_res <- robin_glm(y_b ~ treatment * s1 + covar,
+  data = glm_data,
+  treatment = treatment ~ ps(s1),
+  family = binomial(link = "logit"),
+  contrast = "log_risk_ratio"
+)
+robin_res
+```
+
+It is easy to obtain the confidence interval matrix for the marginal mean, at specified level.
+If `parm` is not provided, the complete matrix (all treatment groups) will be provided.
+
+```{r}
+confint(robin_res$marginal_mean, parm = 1:2, level = 0.7)
+confint(robin_res$marginal_mean, level = 0.7)
+```
+
+Similarly for the contrast, however it has an additional argument `transform` to provide the confidence interval at transformed level.
+Thus, standard error is removed because it does not make sense anymore.
+By default, if the `log_risk_ratio` or `log_odds_ratio` is used as contrast, the `confint` will transform it back using exponential function.
+You can also specify the `transform` to be `identity` to avoid the transformation.
+
+```{r}
+confint(robin_res$contrast)
+confint(robin_res$contrast, transform = identity)
+```

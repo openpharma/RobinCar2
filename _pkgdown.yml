@@ -35,19 +35,25 @@ reference:
   - title: Contrasts
     contents:
     - h_diff
-    - h_ratio
+    - h_risk_ratio
     - h_odds_ratio
+    - h_log_risk_ratio
+    - h_log_odds_ratio
   - title: Jacobian of Contrasts
     contents:
     - h_jac_diff
-    - h_jac_ratio
+    - h_jac_risk_ratio
     - h_jac_odds_ratio
+    - h_jac_log_risk_ratio
+    - h_jac_log_odds_ratio
   - title: Treatment Effects
     contents:
     - treatment_effect
     - difference
     - risk_ratio
     - odds_ratio
+    - log_risk_ratio
+    - log_odds_ratio
     - surv_effect_methods
   - title: Robust Variance
     contents:
@@ -60,3 +66,4 @@ reference:
   - title: Utilities
     contents:
     - find_data
+    - confint

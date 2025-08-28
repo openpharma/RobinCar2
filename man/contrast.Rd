@@ -3,10 +3,14 @@
 \name{h_diff}
 \alias{h_diff}
 \alias{h_jac_diff}
-\alias{h_ratio}
-\alias{h_jac_ratio}
+\alias{h_risk_ratio}
+\alias{h_jac_risk_ratio}
 \alias{h_odds_ratio}
 \alias{h_jac_odds_ratio}
+\alias{h_log_risk_ratio}
+\alias{h_jac_log_risk_ratio}
+\alias{h_log_odds_ratio}
+\alias{h_jac_log_odds_ratio}
 \alias{eff_jacob}
 \alias{pairwise}
 \alias{against_ref}
@@ -17,13 +21,21 @@ h_diff(x, y)
 
 h_jac_diff(x, y)
 
-h_ratio(x, y)
+h_risk_ratio(x, y)
 
-h_jac_ratio(x, y)
+h_jac_risk_ratio(x, y)
 
 h_odds_ratio(x, y)
 
 h_jac_odds_ratio(x, y)
+
+h_log_risk_ratio(x, y)
+
+h_jac_log_risk_ratio(x, y)
+
+h_log_odds_ratio(x, y)
+
+h_jac_log_odds_ratio(x, y)
 
 eff_jacob(f)
 
@@ -62,5 +74,5 @@ Create Contrast of Pairs
 }
 \examples{
 h_diff(1:3, 4:6)
-h_jac_ratio(1:3, 4:6)
+h_jac_risk_ratio(1:3, 4:6)
 }

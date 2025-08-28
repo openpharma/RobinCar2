@@ -5,6 +5,8 @@
 \alias{difference}
 \alias{risk_ratio}
 \alias{odds_ratio}
+\alias{log_risk_ratio}
+\alias{log_odds_ratio}
 \title{Treatment Effect}
 \usage{
 treatment_effect(
@@ -12,6 +14,7 @@ treatment_effect(
   pair = pairwise(names(object$estimate)),
   eff_measure,
   eff_jacobian = eff_jacob(eff_measure),
+  contrast_name,
   ...
 )
 
@@ -20,6 +23,10 @@ difference(object, ...)
 risk_ratio(object, ...)
 
 odds_ratio(object, ...)
+
+log_risk_ratio(object, ...)
+
+log_odds_ratio(object, ...)
 }
 \arguments{
 \item{object}{Object from which to obtain treatment effect.}
@@ -30,6 +37,8 @@ odds_ratio(object, ...)
 
 \item{eff_jacobian}{(\code{function}) Treatment effect jacobian function.}
 
+\item{contrast_name}{(\code{string}) Name of the contrast.}
+
 \item{...}{Additional arguments for variance.}
 }
 \value{
@@ -39,11 +48,9 @@ A list of \code{treatment_effect} object with following elements:
 \item \code{pair}: \code{contrast} object indicating the pairwise treatment effect.
 \item \code{contrast}: name of the contrast function.
 \item \code{euqal_val}: the value for no treatment effect given the contrast.
-\item \code{marginal_mean}: the \code{prediction_cf} object.
-\item \code{fit}: the fitted model.
-\item \code{treatment}: the treatment assignment.
 \item \code{variance}: the variance of the treatment effect.
 \item \code{jacobian}: the Jacobian matrix.
+\item \code{contrast_mat}: contrast summary matrix.
 }
 }
 \description{

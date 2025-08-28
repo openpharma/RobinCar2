@@ -8,7 +8,8 @@ robin_glm(
   formula,
   data,
   treatment,
-  contrast = "difference",
+  contrast = c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio",
+    "log_odds_ratio"),
   contrast_jac = NULL,
   vcov = "vcovG",
   family = gaussian(),
@@ -43,7 +44,7 @@ including \code{vcovHC} and \code{vcovG}.}
 \item{...}{Additional arguments passed to \code{glm} or \code{glm.nb}.}
 }
 \value{
-A treatment_effect object.
+A robin_output object, with \code{marginal_mean} and \code{contrast} components.
 }
 \description{
 Covariate adjusted glm model
