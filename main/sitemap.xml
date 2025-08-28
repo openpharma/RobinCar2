@@ -11,6 +11,7 @@
 <url><loc>https://openpharma.github.io/RobinCar2/reference/RobinCar2-package.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/bias.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/block_sum.html</loc></url>
+<url><loc>https://openpharma.github.io/RobinCar2/reference/confint.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/contrast.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/derived_outcome_vals.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/find_data.html</loc></url>
@@ -22,6 +23,7 @@
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_get_erb.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_get_vars.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_hr_coef_mat.html</loc></url>
+<url><loc>https://openpharma.github.io/RobinCar2/reference/h_interaction.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_log_hr_est_via_score.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_lr_test_via_score.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_n_events_per_time.html</loc></url>
