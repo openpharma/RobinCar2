@@ -1,6 +1,6 @@
 test_that("print method for surv_effect works as expected", {
   x <- robin_surv(
-    formula = Surv(time, status) ~ sex * strata + meal.cal + age,
+    formula = Surv(time, status) ~ meal.cal + age,
     data = surv_data,
     treatment = sex ~ strata
   )
@@ -9,7 +9,7 @@ test_that("print method for surv_effect works as expected", {
 
 test_that("table method for surv_effect works as expected", {
   x <- robin_surv(
-    formula = Surv(time, status) ~ sex * strata + meal.cal + age,
+    formula = Surv(time, status) ~ meal.cal + age,
     data = surv_data,
     treatment = sex ~ strata
   )

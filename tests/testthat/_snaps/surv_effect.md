@@ -3,7 +3,7 @@
     Code
       print(x)
     Output
-      Model        :  Surv(time, status) ~ sex * strata + meal.cal + age 
+      Model        :  Surv(time, status) ~ meal.cal + age 
       Randomization:  sex ~ strata  ( Simple )
       
       Contrast     :  Hazard ratio

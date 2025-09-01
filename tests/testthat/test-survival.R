@@ -35,7 +35,7 @@ test_that("h_lr_test_via_score works as expected", {
 
 test_that("robin_surv_comparison works as expected without covariate adjustment", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ 1
   )
@@ -54,7 +54,7 @@ test_that("robin_surv_comparison works as expected without covariate adjustment"
 
 test_that("robin_surv_no_strata_no_cov works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ 1
   )
@@ -69,7 +69,7 @@ test_that("robin_surv_no_strata_no_cov works as expected", {
 
 test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = ecog ~ 1
   )
@@ -96,7 +96,7 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
 
 test_that("robin_surv_strata works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex * strata,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ strata
   )
@@ -111,7 +111,7 @@ test_that("robin_surv_strata works as expected", {
 
 test_that("robin_surv_strata gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog * sex,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = ecog ~ sex
   )
@@ -138,7 +138,7 @@ test_that("robin_surv_strata gives the same results as RobinCar functions", {
 
 test_that("robin_surv_cov works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex + age,
+    formula = survival::Surv(time, status) ~ age,
     data = surv_data,
     treatment = sex ~ 1
   )
@@ -153,7 +153,7 @@ test_that("robin_surv_cov works as expected", {
 
 test_that("robin_surv_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog + age,
+    formula = survival::Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ 1
   )
@@ -181,7 +181,7 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
 
 test_that("robin_surv_strata_cov works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog * sex + age,
+    formula = survival::Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ sex
   )
@@ -196,7 +196,7 @@ test_that("robin_surv_strata_cov works as expected", {
 
 test_that("robin_surv_strata_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog * sex + age,
+    formula = survival::Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ sex
   )
@@ -296,7 +296,7 @@ test_that("h_events_table works as expected without strata", {
 
 test_that("robin_surv works as expected without strata or covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog,
+    Surv(time, status) ~ 1,
     data = surv_data,
     treatment = ecog ~ 1
   )
@@ -308,7 +308,7 @@ test_that("robin_surv works as expected without strata or covariates", {
 
 test_that("robin_surv gives the same results as RobinCar functions without strata or covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog,
+    Surv(time, status) ~ 1,
     data = na.omit(surv_data),
     treatment = ecog ~ 1
   )
@@ -329,7 +329,7 @@ test_that("robin_surv gives the same results as RobinCar functions without strat
 
 test_that("robin_surv works as expected with strata", {
   result <- robin_surv(
-    Surv(time, status) ~ sex * strata,
+    Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ strata
   )
@@ -341,7 +341,7 @@ test_that("robin_surv works as expected with strata", {
 
 test_that("robin_surv gives the same results as RobinCar functions with strata", {
   result <- robin_surv(
-    Surv(time, status) ~ sex * ecog,
+    Surv(time, status) ~ 1,
     data = na.omit(surv_data),
     treatment = ecog ~ sex
   )
@@ -362,7 +362,7 @@ test_that("robin_surv gives the same results as RobinCar functions with strata",
 
 test_that("robin_surv works as expected with covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog + age,
+    Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ 1
   )
@@ -374,7 +374,7 @@ test_that("robin_surv works as expected with covariates", {
 
 test_that("robin_surv gives the same results as RobinCar functions with covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog + age,
+    Surv(time, status) ~ age,
     data = na.omit(surv_data),
     treatment = ecog ~ 1
   )
@@ -395,7 +395,7 @@ test_that("robin_surv gives the same results as RobinCar functions with covariat
 
 test_that("robin_surv works as expected with strata and covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog * sex + age + ph.karno,
+    Surv(time, status) ~ age + ph.karno,
     data = surv_data,
     treatment = ecog ~ sex
   )
@@ -407,7 +407,7 @@ test_that("robin_surv works as expected with strata and covariates", {
 
 test_that("robin_surv gives the same results as RobinCar functions with strata and covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog * sex + age,
+    Surv(time, status) ~ age,
     data = na.omit(surv_data),
     treatment = ecog ~ sex
   )
@@ -428,7 +428,7 @@ test_that("robin_surv gives the same results as RobinCar functions with strata a
 
 test_that("robin_surv also works with multiple pairwise comparisons", {
   result <- robin_surv(
-    Surv(time, status) ~ strata,
+    Surv(time, status) ~ 1,
     data = surv_data,
     treatment = strata ~ 1
   )
@@ -442,7 +442,7 @@ test_that("robin_surv also works with multiple pairwise comparisons", {
 
 test_that("robin_surv allows the user to optionally define the comparisons of interest", {
   result <- robin_surv(
-    Surv(time, status) ~ strata,
+    Surv(time, status) ~ 1,
     data = surv_data,
     treatment = strata ~ 1,
     comparisons = list(c(1, 2), c(3, 3))
@@ -457,13 +457,13 @@ test_that("robin_surv allows the user to optionally define the comparisons of in
 
 test_that("robin_surv allows to use unadjusted standard error", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog + age,
+    Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ 1,
     hr_se_plugin_adjusted = FALSE
   )
   result_adjusted <- robin_surv(
-    Surv(time, status) ~ ecog + age,
+    Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ 1,
     hr_se_plugin_adjusted = TRUE

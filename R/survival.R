@@ -344,7 +344,8 @@ h_events_table <- function(data, vars) {
 #' for covariates and a stratification factor.
 #'
 #' @param formula (`formula`) A formula of analysis, of the form
-#'   `Surv(time, status) ~ treatment * strata + covariates`.
+#'   `Surv(time, status) ~ covariates`. (If no covariates should be adjusted for, use `1` instead
+#'   on the right hand side.)
 #' @param data (`data.frame`) Input data frame.
 #' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification.
 #' @param comparisons (`list`) An optional list of comparisons between treatment levels to be performed,
@@ -370,10 +371,18 @@ h_events_table <- function(data, vars) {
 #'
 #' @export
 #' @examples
+#' # Adjusted for covariates meal.cal and age and adjusted for stratification by sex:
 #' robin_surv(
-#'   formula = Surv(time, status) ~ sex * strata + meal.cal + age,
+#'   formula = Surv(time, status) ~ meal.cal + age,
 #'   data = surv_data,
 #'   treatment = sex ~ strata
+#' )
+#'
+#' # Unadjusted for covariates and stratification:
+#' robin_surv(
+#'   formula = Surv(time, status) ~ 1,
+#'   data = surv_data,
+#'   treatment = sex ~ 1
 #' )
 robin_surv <- function(
   formula,

@@ -25,12 +25,13 @@ Survival analysis is performed with the `robin_surv` function, and the syntax is
 
 ```r
 robin_surv(
-  Surv(time, event) ~ group * strata + covariates,
+  Surv(time, event) ~ covariates,
   treatment = group ~ strata,
   data = df
 )
 ```
 
+When there are no covariates or strata, then these can just be replaced by an intercept (`1`) term, respectively.
 Depending on the choice of `strata` and `covariates`, the following four methods are available:
 
 - Standard log-rank test without strata or covariates by omitting `strata` and `covariates`
@@ -43,17 +44,17 @@ Let's go through these in a simple example. We start with the standard log-rank 
 ```{r, message = FALSE}
 library(RobinCar2)
 robin_surv(
-  Surv(time, status) ~ sex,
+  Surv(time, status) ~ 1,
   treatment = sex ~ 1,
   data = surv_data
 )
 ```
 
-We can perform the stratified log-rank test by adding a `strata` argument:
+We can perform the stratified log-rank test by adding a `strata` right-hand side in the `treatment` formula:
 
 ```{r}
 robin_surv(
-  Surv(time, status) ~ sex * strata,
+  Surv(time, status) ~ 1,
   treatment = sex ~ strata,
   data = surv_data
 )
@@ -63,7 +64,7 @@ We could also just use covariate adjustment:
 
 ```{r}
 robin_surv(
-  Surv(time, status) ~ sex + age + meal.cal,
+  Surv(time, status) ~ age + meal.cal,
   treatment = sex ~ 1,
   data = surv_data
 )
@@ -73,7 +74,7 @@ Or we combine both stratification and covariate adjustment:
 
 ```{r}
 robin_surv(
-  Surv(time, status) ~ sex * strata + age + meal.cal,
+  Surv(time, status) ~ age + meal.cal,
   treatment = sex ~ strata,
   data = surv_data
 )
