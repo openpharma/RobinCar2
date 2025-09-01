@@ -137,7 +137,7 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
   if (!is.null(unadj_score_fun)) {
     assert_function(unadj_score_fun)
     assert_true(length(vars$covariates) > 0)
-    args_to_drop <- c("model", "se_method")
+    args_to_drop <- c("model", "hr_se_plugin_adjusted")
     unadj_args <- args[!(names(args) %in% args_to_drop)]
     unadj_args$score_fun <- unadj_score_fun
     # Get theta_hat from the unadjusted score function.
@@ -352,8 +352,8 @@ h_events_table <- function(data, vars) {
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
 #'   is supported.
 #' @param test (`character(1)`) The test to be used, currently only `"logrank"` is supported.
-#' @param ... Additional arguments passed to the survival analysis functions, in particular `se_method`
-#'   (please see the vignette for details).
+#' @param ... Additional arguments passed to the survival analysis functions, in particular `hr_se_plugin_adjusted`
+#'   (please see [here][survival_score_functions] for details).
 #' @return A `surv_effect` object containing the results of the survival analysis.
 #' @seealso [surv_effect_methods] for S3 methods.
 #'
@@ -376,13 +376,14 @@ h_events_table <- function(data, vars) {
 #'   treatment = sex ~ strata
 #' )
 robin_surv <- function(
-    formula,
-    data,
-    treatment,
-    comparisons,
-    contrast = "hazardratio",
-    test = "logrank",
-    ...) {
+  formula,
+  data,
+  treatment,
+  comparisons,
+  contrast = "hazardratio",
+  test = "logrank",
+  ...
+) {
   attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_data_frame(data)

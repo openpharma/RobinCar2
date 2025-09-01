@@ -17,16 +17,21 @@
 #'   when used in stratified analyses computations.
 #' @param use_ties_factor (`flag`) Whether to use the ties factor in the variance calculation. This is used
 #'   when calculating the score test statistic, but not when estimating the log hazard ratio.
-#' @param se_method (`string`) The method for calculating the standard error of the log hazard ratio estimate
-#'   when adjusting for covariates. Options are "adjusted" (default) and "unadjusted". The "adjusted" method
-#'   follows the publication, whereas the "unadjusted" method guarantees that the standard error is always
-#'   smaller than the unadjusted standard error.
+#' @param hr_se_plugin_adjusted (`flag`) Defines the method for calculating the standard error of the
+#'   log hazard ratio estimate when adjusting for covariates, see details.
 #' @return The score function value(s), with the following attributes:
 #'   - `sigma_l2`: The variance of the log-rank statistic.
 #'   - `se_theta_l`: The corresponding standard error term for the log hazard ratio.
 #'   - `n`: The number of observations used in the calculation.
 #'
-#' @details Note that for the not covariate adjusted score functions, these also work
+#' @details
+#'   - The `hr_se_plugin_adjusted` flag is relevant only for the standard error of the covariate adjusted
+#'   log hazard ratio estimate: When `TRUE`, the adjusted hazard ratio estimate
+#'   is plugged in into the variance formula, as per the original publication.
+#'   On the other hand, when `FALSE`, the unadjusted estimate is used instead.  This is explained in more
+#'   detail in the vignette "Survival Analysis with RobinCar2" in Section "Covariate adjusted analysis without strata".
+#'
+#'   - Note that for the not covariate adjusted score functions, these also work
 #'   with a `numeric` `theta` vector of length > 1.
 #' @name survival_score_functions
 #' @keywords internal
@@ -34,13 +39,14 @@ NULL
 
 #' @describeIn survival_score_functions without strata or covariates.
 h_lr_score_no_strata_no_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    n = nrow(df),
-    use_ties_factor = TRUE) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  n = nrow(df),
+  use_ties_factor = TRUE
+) {
   assert_numeric(theta, min.len = 1L, finite = TRUE)
   assert_data_frame(df)
   assert_string(treatment)
@@ -158,15 +164,16 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
 
 #' @describeIn survival_score_functions with covariates but without strata.
 h_lr_score_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    model,
-    theta_hat = theta,
-    use_ties_factor = TRUE,
-    se_method = c("adjusted", "unadjusted")) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  hr_se_plugin_adjusted = TRUE
+) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -175,7 +182,7 @@ h_lr_score_cov <- function(
   covariates <- all.vars(model)
   assert_subset(c(treatment, time, status, covariates), names(df))
   assert_factor(df[[treatment]], n.levels = 2L, any.missing = FALSE)
-  se_method <- match.arg(se_method)
+  assert_flag(hr_se_plugin_adjusted)
 
   # Subset to complete records here.
   df <- stats::na.omit(df[c(treatment, time, status, covariates)])
@@ -206,7 +213,7 @@ h_lr_score_cov <- function(
   )
 
   # Define standard error calculation.
-  g_theta_cl <- if (se_method == "adjusted") {
+  g_theta_cl <- if (hr_se_plugin_adjusted) {
     attr(unadj_score, "sigma_l2")
   } else {
     unadj_score_theta_hat <- h_lr_score_no_strata_no_cov(
@@ -259,16 +266,17 @@ h_lr_score_cov <- function(
 
 #' @describeIn survival_score_functions with strata and covariates.
 h_lr_score_strat_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    strata,
-    model,
-    theta_hat = theta,
-    use_ties_factor = TRUE,
-    se_method = c("adjusted", "unadjusted")) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  strata,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  hr_se_plugin_adjusted = TRUE
+) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -277,7 +285,7 @@ h_lr_score_strat_cov <- function(
   assert_formula(model)
   covariates <- all.vars(model)
   assert_subset(c(treatment, time, status, strata, covariates), names(df))
-  se_method <- match.arg(se_method)
+  assert_flag(hr_se_plugin_adjusted)
 
   # Subset to complete records here.
   df <- stats::na.omit(df[c(treatment, time, status, strata, covariates)])
@@ -348,7 +356,7 @@ h_lr_score_strat_cov <- function(
   sigma_sl2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_x %*% beta_est_sum)
 
   # Define standard error calculation.
-  g_theta_csl <- if (se_method == "adjusted") {
+  g_theta_csl <- if (hr_se_plugin_adjusted) {
     attr(strat_unadj_score, "sigma_l2")
   } else {
     strat_unadj_score_theta_hat <- h_lr_score_strat(

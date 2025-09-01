@@ -37,7 +37,7 @@ h_lr_score_cov(
   model,
   theta_hat = theta,
   use_ties_factor = TRUE,
-  se_method = c("adjusted", "unadjusted")
+  hr_se_plugin_adjusted = TRUE
 )
 
 h_lr_score_strat_cov(
@@ -50,7 +50,7 @@ h_lr_score_strat_cov(
   model,
   theta_hat = theta,
   use_ties_factor = TRUE,
-  se_method = c("adjusted", "unadjusted")
+  hr_se_plugin_adjusted = TRUE
 )
 }
 \arguments{
@@ -78,10 +78,8 @@ when calculating the score test statistic, but not when estimating the log hazar
 
 \item{theta_hat}{(\code{number}) The estimated log hazard ratio when not adjusting for covariates.}
 
-\item{se_method}{(\code{string}) The method for calculating the standard error of the log hazard ratio estimate
-when adjusting for covariates. Options are "adjusted" (default) and "unadjusted". The "adjusted" method
-follows the publication, whereas the "unadjusted" method guarantees that the standard error is always
-smaller than the unadjusted standard error.}
+\item{hr_se_plugin_adjusted}{(\code{flag}) Defines the method for calculating the standard error of the
+log hazard ratio estimate when adjusting for covariates, see details.}
 }
 \value{
 The score function value(s), with the following attributes:
@@ -96,8 +94,15 @@ These functions compute the log-rank score statistics for a survival analysis.
 Depending on the function, these are stratified and/or adjusted for covariates.
 }
 \details{
-Note that for the not covariate adjusted score functions, these also work
+\itemize{
+\item The \code{hr_se_plugiPn_adjusted} flag is relevant only for the standard error of the covariate adjusted
+log hazard ratio estimate: When \code{TRUE}, the adjusted hazard ratio estimate
+is plugged in into the variance formula, as per the original publication.
+On the other hand, when \code{FALSE}, the unadjusted estimate is used instead.  This is explained in more
+detail in the vignette "Survival Analysis with RobinCar2" in Section "Covariate adjusted analysis without strata".
+\item Note that for the not covariate adjusted score functions, these also work
 with a \code{numeric} \code{theta} vector of length > 1.
+}
 }
 \section{Functions}{
 \itemize{

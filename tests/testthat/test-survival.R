@@ -163,7 +163,7 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
     data = input$data,
     exp_level = 2,
     control_level = 1,
-    se_method = "unadjusted" # To get the exact match with RobinCar.
+    hr_se_plugin_adjusted = FALSE # To get the exact match with RobinCar.
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -206,7 +206,7 @@ test_that("robin_surv_strata_cov gives the same results as RobinCar functions", 
     data = input$data,
     exp_level = 2,
     control_level = 1,
-    se_method = "unadjusted" # To get the exact match with RobinCar.
+    hr_se_plugin_adjusted = FALSE # To get the exact match with RobinCar.
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -460,13 +460,13 @@ test_that("robin_surv allows to use unadjusted standard error", {
     Surv(time, status) ~ ecog + age,
     data = surv_data,
     treatment = ecog ~ 1,
-    se_method = "unadjusted"
+    hr_se_plugin_adjusted = FALSE
   )
   result_adjusted <- robin_surv(
     Surv(time, status) ~ ecog + age,
     data = surv_data,
     treatment = ecog ~ 1,
-    se_method = "adjusted"
+    hr_se_plugin_adjusted = TRUE
   )
   # Only the standard error should differ.
   expect_true(result$se != result_adjusted$se)

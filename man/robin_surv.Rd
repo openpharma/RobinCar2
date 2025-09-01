@@ -30,8 +30,8 @@ is supported.}
 
 \item{test}{(\code{character(1)}) The test to be used, currently only \code{"logrank"} is supported.}
 
-\item{...}{Additional arguments passed to the survival analysis functions, in particular \code{se_method}
-(please see the vignette for details).}
+\item{...}{Additional arguments passed to the survival analysis functions, in particular \code{hr_se_plugin_adjusted}
+(please see \link[=survival_score_functions]{here} for details).}
 }
 \value{
 A \code{surv_effect} object containing the results of the survival analysis.
