@@ -40,7 +40,8 @@ h_get_vars <- function(treatment) {
 
 #' Prepare Survival Input
 #'
-#' @param formula (`formula`) with a left hand side of the form `Surv(time, status)`.
+#' @param formula (`formula`) with a left hand side of the form `Surv(time, status)` and a right hand side
+#'   defining optional covariates or just `1` if there are no covariates.
 #' @param data (`data.frame`) containing the variables in the formula.
 #' @inheritParams h_get_vars
 #'
@@ -50,7 +51,7 @@ h_get_vars <- function(treatment) {
 #'   case the column binding is correct, i.e., that the rows of the `data` match
 #'   with the rows of the `Surv` object. In addition, the same named variables must not appear
 #'   in both the `data` and the `Surv` object, to avoid ambiguity (this is a difference
-#'   vs. the behavior of [survival::coxph] for better transparency).
+#'   vs. the behavior of [survival::coxph()] for better transparency).
 #'
 #' @return A list containing the following elements:
 #' - `data`: The potentially updated data set.
@@ -71,7 +72,6 @@ h_prep_survival_input <- function(formula, data, treatment) {
   assert_formula(formula)
   assert_true(identical(length(formula), 3L))
   assert_subset(c(trt_vars$treatment, trt_vars$strata), colnames(data))
-  assert_subset(trt_vars$treatment, all.vars(formula[[3]]))
   assert(
     test_character(data[[trt_vars$treatment]]),
     test_factor(data[[trt_vars$treatment]])
@@ -82,7 +82,8 @@ h_prep_survival_input <- function(formula, data, treatment) {
   }
   trt_lvls <- levels(data[[trt_vars$treatment]])
   n_lvls <- length(trt_lvls)
-  covariates <- setdiff(all.vars(formula[[3]]), c(trt_vars$treatment, trt_vars$strata))
+  covariates <- all.vars(formula[[3]])
+  assert_disjunct(c(trt_vars$treatment, trt_vars$strata), covariates)
 
   # Extract survival time and censoring indicator from the left hand side of the formula.
   lhs <- formula[[2]]
@@ -106,14 +107,8 @@ h_prep_survival_input <- function(formula, data, treatment) {
     stop("Left hand side of formula must be a Surv() object.")
   }
 
-  # Extract model without left hand side and without treatment and strata variables.
+  # Extract model without left hand side.
   model <- as.formula(as.call(as.list(formula)[-2L]))
-  update_string <- if (length(trt_vars$strata)) {
-    paste0("~ . - ", trt_vars$treatment, "*", trt_vars$strata)
-  } else {
-    paste("~ . -", trt_vars$treatment)
-  }
-  model <- stats::update(model, as.formula(update_string))
 
   list(
     data = data,
