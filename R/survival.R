@@ -246,15 +246,16 @@ robin_surv_strata_cov <- function(vars, data, exp_level, control_level, ...) {
   )
 }
 
-#' Hazard Ratio Coefficient Matrix
+#' Log Hazard Ratio Coefficient Matrix
 #'
-#' This function creates a coefficient matrix for the hazard ratio estimates.
+#' This function creates a coefficient matrix for the log hazard ratio estimates.
 #'
-#' @param x (`list`) A list containing the hazard ratio estimates and their standard errors.
-#' @return A matrix with columns for the estimate, standard error, z-value, and p-value.
+#' @param x (`list`) A list containing the log hazard ratio estimates and their standard errors.
+#' @return A matrix with columns for the log hazard ratio estimate, standard error, z-value,
+#'   and p-value.
 #'
 #' @keywords internal
-h_hr_coef_mat <- function(x) {
+h_log_hr_coef_mat <- function(x) {
   assert_list(x, names = "unique")
   assert_names(names(x), must.include = c("estimate", "se", "pair"))
   assert_numeric(x$estimate, finite = TRUE)
@@ -468,7 +469,7 @@ robin_surv <- function(
     test_n = sapply(estimates, "[[", "test_n"),
     test_sigma_l2 = sapply(estimates, "[[", "test_sigma_l2")
   )
-  result$hr_coef_mat <- h_hr_coef_mat(result)
+  result$log_hr_coef_mat <- h_log_hr_coef_mat(result)
   result$test_mat <- h_test_mat(result)
 
   class(result) <- "surv_effect"
