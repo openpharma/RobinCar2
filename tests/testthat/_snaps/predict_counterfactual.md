@@ -54,3 +54,31 @@
       trt1 0.580984 0.035027 0.512332 0.6496
       trt2 0.610154 0.034472 0.542589 0.6777
 
+# predict_counterfactual works with provided vcov function
+
+    Code
+      predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data, vcov = vcov_dummy)
+    Output
+      Model        :  y ~ treatment * s1 + covar 
+      Randomization:  treatment ~ 1  ( Simple )
+      Variance Type:  vcov_dummy  
+      Marginal Mean: 
+           Estimate  Std.Err    2.5 % 97.5 %
+      pbo   0.20032  0.31623 -0.41947 0.8201
+      trt1  0.76397  0.31623  0.14418 1.3838
+      trt2  0.97125  0.31623  0.35145 1.5910
+
+---
+
+    Code
+      predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data, vcov = NULL)
+    Output
+      Model        :  y ~ treatment * s1 + covar 
+      Randomization:  treatment ~ 1  ( Simple )
+      Variance Type:  
+      Marginal Mean: 
+           Estimate Std.Err 2.5 % 97.5 %
+      pbo   0.20032      NA    NA     NA
+      trt1  0.76397      NA    NA     NA
+      trt2  0.97125      NA    NA     NA
+
