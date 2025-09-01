@@ -44,7 +44,7 @@ test_that("h_get_vars works for formula with schemas", {
 
 test_that("h_prep_survival_input works with strata", {
   result <- expect_silent(h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex * strata + age + ph.karno + meal.cal,
+    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,
     data = surv_data,
     treatment = sex ~ strata
   ))
@@ -65,7 +65,7 @@ test_that("h_prep_survival_input works with strata", {
 
 test_that("h_prep_survival_input works without strata", {
   result <- expect_silent(h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex + age + ph.karno + meal.cal,
+    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,
     data = surv_data,
     treatment = sex ~ 1
   ))
@@ -86,7 +86,7 @@ test_that("h_prep_survival_input works without strata", {
 
 test_that("h_prep_survival_input works without covariates", {
   result <- expect_silent(h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex * strata,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ strata
   ))
@@ -107,7 +107,7 @@ test_that("h_prep_survival_input works without covariates", {
 
 test_that("h_prep_survival_input works without covariates and without strata", {
   result <- expect_silent(h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ 1
   ))
