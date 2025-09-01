@@ -16,7 +16,8 @@ robin_surv(
 }
 \arguments{
 \item{formula}{(\code{formula}) A formula of analysis, of the form
-\code{Surv(time, status) ~ treatment * strata + covariates}.}
+\code{Surv(time, status) ~ covariates}. (If no covariates should be adjusted for, use \code{1} instead
+on the right hand side.)}
 
 \item{data}{(\code{data.frame}) Input data frame.}
 
@@ -53,10 +54,18 @@ So for example if you would like to compare level 3 with level 1, and also level
 \code{comparisons = list(c(3, 3), c(1, 2))}
 }
 \examples{
+# Adjusted for covariates meal.cal and age and adjusted for stratification by sex:
 robin_surv(
-  formula = Surv(time, status) ~ sex * strata + meal.cal + age,
+  formula = Surv(time, status) ~ meal.cal + age,
   data = surv_data,
   treatment = sex ~ strata
+)
+
+# Unadjusted for covariates and stratification:
+robin_surv(
+  formula = Surv(time, status) ~ 1,
+  data = surv_data,
+  treatment = sex ~ 1
 )
 }
 \seealso{

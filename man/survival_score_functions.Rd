@@ -95,7 +95,7 @@ Depending on the function, these are stratified and/or adjusted for covariates.
 }
 \details{
 \itemize{
-\item The \code{hr_se_plugiPn_adjusted} flag is relevant only for the standard error of the covariate adjusted
+\item The \code{hr_se_plugin_adjusted} flag is relevant only for the standard error of the covariate adjusted
 log hazard ratio estimate: When \code{TRUE}, the adjusted hazard ratio estimate
 is plugged in into the variance formula, as per the original publication.
 On the other hand, when \code{FALSE}, the unadjusted estimate is used instead.  This is explained in more
