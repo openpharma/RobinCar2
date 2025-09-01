@@ -39,14 +39,13 @@ NULL
 
 #' @describeIn survival_score_functions without strata or covariates.
 h_lr_score_no_strata_no_cov <- function(
-  theta,
-  df,
-  treatment,
-  time,
-  status,
-  n = nrow(df),
-  use_ties_factor = TRUE
-) {
+    theta,
+    df,
+    treatment,
+    time,
+    status,
+    n = nrow(df),
+    use_ties_factor = TRUE) {
   assert_numeric(theta, min.len = 1L, finite = TRUE)
   assert_data_frame(df)
   assert_string(treatment)
@@ -164,16 +163,15 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
 
 #' @describeIn survival_score_functions with covariates but without strata.
 h_lr_score_cov <- function(
-  theta,
-  df,
-  treatment,
-  time,
-  status,
-  model,
-  theta_hat = theta,
-  use_ties_factor = TRUE,
-  hr_se_plugin_adjusted = TRUE
-) {
+    theta,
+    df,
+    treatment,
+    time,
+    status,
+    model,
+    theta_hat = theta,
+    use_ties_factor = TRUE,
+    hr_se_plugin_adjusted = TRUE) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -266,17 +264,16 @@ h_lr_score_cov <- function(
 
 #' @describeIn survival_score_functions with strata and covariates.
 h_lr_score_strat_cov <- function(
-  theta,
-  df,
-  treatment,
-  time,
-  status,
-  strata,
-  model,
-  theta_hat = theta,
-  use_ties_factor = TRUE,
-  hr_se_plugin_adjusted = TRUE
-) {
+    theta,
+    df,
+    treatment,
+    time,
+    status,
+    strata,
+    model,
+    theta_hat = theta,
+    use_ties_factor = TRUE,
+    hr_se_plugin_adjusted = TRUE) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)

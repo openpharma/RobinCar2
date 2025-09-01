@@ -386,14 +386,13 @@ h_events_table <- function(data, vars) {
 #'   treatment = sex ~ 1
 #' )
 robin_surv <- function(
-  formula,
-  data,
-  treatment,
-  comparisons,
-  contrast = "hazardratio",
-  test = "logrank",
-  ...
-) {
+    formula,
+    data,
+    treatment,
+    comparisons,
+    contrast = "hazardratio",
+    test = "logrank",
+    ...) {
   attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_data_frame(data)

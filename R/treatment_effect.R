@@ -18,25 +18,23 @@
 #'
 #' @export
 treatment_effect <- function(
-  object,
-  pair = pairwise(names(object$estimate)),
-  eff_measure,
-  eff_jacobian = eff_jacob(eff_measure),
-  contrast_name,
-  ...
-) {
+    object,
+    pair = pairwise(names(object$estimate)),
+    eff_measure,
+    eff_jacobian = eff_jacob(eff_measure),
+    contrast_name,
+    ...) {
   UseMethod("treatment_effect")
 }
 
 #' @export
 treatment_effect.prediction_cf <- function(
-  object,
-  pair = pairwise(names(object$estimate)),
-  eff_measure,
-  eff_jacobian = eff_jacob(eff_measure),
-  contrast_name = deparse(substitute(eff_measure)),
-  ...
-) {
+    object,
+    pair = pairwise(names(object$estimate)),
+    eff_measure,
+    eff_jacobian = eff_jacob(eff_measure),
+    contrast_name = deparse(substitute(eff_measure)),
+    ...) {
   assert_function(eff_measure)
   assert_class(pair, "contrast")
   assert_string(contrast_name)
@@ -86,17 +84,16 @@ treatment_effect.prediction_cf <- function(
 #' @export
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
-  object,
-  pair,
-  eff_measure,
-  eff_jacobian = eff_jacob(eff_measure),
-  contrast_name = deparse(substitute(eff_measure)),
-  vcov = "vcovG",
-  vcov_args = list(),
-  treatment,
-  data = find_data(object),
-  ...
-) {
+    object,
+    pair,
+    eff_measure,
+    eff_jacobian = eff_jacob(eff_measure),
+    contrast_name = deparse(substitute(eff_measure)),
+    vcov = "vcovG",
+    vcov_args = list(),
+    treatment,
+    data = find_data(object),
+    ...) {
   pc <- predict_counterfactual(object, data = data, treatment, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
@@ -106,17 +103,16 @@ treatment_effect.lm <- function(
 
 #' @export
 treatment_effect.glm <- function(
-  object,
-  pair,
-  eff_measure,
-  eff_jacobian = eff_jacob(eff_measure),
-  contrast_name = deparse(substitute(eff_measure)),
-  vcov = "vcovG",
-  vcov_args = list(),
-  treatment,
-  data = find_data(object),
-  ...
-) {
+    object,
+    pair,
+    eff_measure,
+    eff_jacobian = eff_jacob(eff_measure),
+    contrast_name = deparse(substitute(eff_measure)),
+    vcov = "vcovG",
+    vcov_args = list(),
+    treatment,
+    data = find_data(object),
+    ...) {
   pc <- predict_counterfactual(object, treatment, data, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
