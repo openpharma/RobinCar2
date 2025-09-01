@@ -18,15 +18,25 @@
 #'
 #' @export
 treatment_effect <- function(
-    object, pair = pairwise(names(object$estimate)), eff_measure,
-    eff_jacobian = eff_jacob(eff_measure), contrast_name, ...) {
+  object,
+  pair = pairwise(names(object$estimate)),
+  eff_measure,
+  eff_jacobian = eff_jacob(eff_measure),
+  contrast_name,
+  ...
+) {
   UseMethod("treatment_effect")
 }
 
 #' @export
 treatment_effect.prediction_cf <- function(
-    object, pair = pairwise(names(object$estimate)), eff_measure, eff_jacobian = eff_jacob(eff_measure),
-    contrast_name = deparse(substitute(eff_measure)), ...) {
+  object,
+  pair = pairwise(names(object$estimate)),
+  eff_measure,
+  eff_jacobian = eff_jacob(eff_measure),
+  contrast_name = deparse(substitute(eff_measure)),
+  ...
+) {
   assert_function(eff_measure)
   assert_class(pair, "contrast")
   assert_string(contrast_name)
@@ -36,7 +46,6 @@ treatment_effect.prediction_cf <- function(
   trt_jac <- eff_jacobian(object$estimate[pair[[1]]], object$estimate[pair[[2]]])
   trt_jac_mat <- jac_mat(trt_jac, pair)
   equal_val <- eff_measure(object$estimate[1], object$estimate[1])
-
 
   contrast_var <- trt_jac_mat %*% object$variance %*% t(trt_jac_mat)
 
@@ -77,8 +86,17 @@ treatment_effect.prediction_cf <- function(
 #' @export
 #' @inheritParams predict_counterfactual
 treatment_effect.lm <- function(
-    object, pair, eff_measure, eff_jacobian = eff_jacob(eff_measure), contrast_name = deparse(substitute(eff_measure)),
-    vcov = "vcovG", vcov_args = list(), treatment, data = find_data(object), ...) {
+  object,
+  pair,
+  eff_measure,
+  eff_jacobian = eff_jacob(eff_measure),
+  contrast_name = deparse(substitute(eff_measure)),
+  vcov = "vcovG",
+  vcov_args = list(),
+  treatment,
+  data = find_data(object),
+  ...
+) {
   pc <- predict_counterfactual(object, data = data, treatment, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
@@ -88,8 +106,17 @@ treatment_effect.lm <- function(
 
 #' @export
 treatment_effect.glm <- function(
-    object, pair, eff_measure, eff_jacobian = eff_jacob(eff_measure), contrast_name = deparse(substitute(eff_measure)),
-    vcov = "vcovG", vcov_args = list(), treatment, data = find_data(object), ...) {
+  object,
+  pair,
+  eff_measure,
+  eff_jacobian = eff_jacob(eff_measure),
+  contrast_name = deparse(substitute(eff_measure)),
+  vcov = "vcovG",
+  vcov_args = list(),
+  treatment,
+  data = find_data(object),
+  ...
+) {
   pc <- predict_counterfactual(object, treatment, data, vcov = vcov, vcov_args = vcov_args)
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
@@ -224,40 +251,20 @@ print.treatment_effect <- function(x, ...) {
 #' @rdname confint
 #' @export
 confint.treatment_effect <- function(object, parm, level = 0.95, transform, ...) {
-  assert_number(level, lower = 0, upper = 1)
-  if (!missing(parm)) {
-    assert(
-      check_integerish(parm, lower = 1, upper = nrow(object$contrast_mat)),
-      check_subset(parm, row.names(object$contrast_mat))
-    )
-  }
-  if (!missing(transform)) {
-    assert_function(transform)
-  }
-  ret <- matrix(
-    c(
-      object$contrast_mat[, "Estimate"],
-      object$contrast_mat[, "Estimate"] + object$contrast_mat[, "Std.Err"] * qnorm(0.5 - level / 2),
-      object$contrast_mat[, "Estimate"] + object$contrast_mat[, "Std.Err"] * qnorm(0.5 + level / 2)
-    ),
-    nrow = nrow(object$contrast_mat)
-  )
-  colnames(ret) <- c("Estimate", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
-  row.names(ret) <- row.names(object$contrast_mat)
   if (missing(transform)) {
-    transform <- if (object$contrast %in% c(
-      "log_odds_ratio", "log_risk_ratio", "h_log_odds_ratio", "h_log_risk_ratio"
-    )) {
+    transform <- if (
+      object$contrast %in%
+        c(
+          "log_odds_ratio",
+          "log_risk_ratio",
+          "h_log_odds_ratio",
+          "h_log_risk_ratio"
+        )
+    ) {
       exp
     } else {
       identity
     }
   }
-  if (!identical(transform, identity)) {
-    message("The confidence interval is transformed.")
-  }
-  if (!missing(parm)) {
-    ret <- ret[parm, , drop = FALSE]
-  }
-  transform(ret)
+  h_confint(object$contrast_mat, parm = parm, level = level, transform = transform, ...)
 }

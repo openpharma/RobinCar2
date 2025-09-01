@@ -25,11 +25,11 @@ print.surv_effect <- function(x, ...) {
     randomization_schema$schema[randomization_schema$id == x$schema],
     ")\n"
   )
-  contr_type <- switch(x$contrast, hazardratio = "Hazard ratio")
+  contr_type <- switch(x$contrast, hazardratio = "Log Hazard ratio")
   cat(sprintf("\nContrast     :  %s\n\n", contr_type))
 
   stats::printCoefmat(
-    x$hr_coef_mat
+    x$log_hr_coef_mat
   )
 
   cat("\n")
@@ -65,4 +65,11 @@ table.surv_effect <- function(x, ...) {
   )
   print(x$events_table)
   invisible(x$events_table)
+}
+
+#' Confidence interval function.
+#' @rdname confint
+#' @export
+confint.surv_effect <- function(object, parm, level = 0.95, transform, ...) {
+  h_confint(object$log_hr_coef_mat, parm = parm, level = level, transform = transform, ...)
 }

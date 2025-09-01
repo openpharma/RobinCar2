@@ -262,3 +262,50 @@ sum_vectors_in_list <- function(lst) {
   )
   .rowSums(tmp, m = len1, n = length(lst))
 }
+
+#' Confidence interval calculations which are common across effect results.
+#' @keywords internal
+h_confint <- function(x, parm, level = 0.95, transform, include_se = FALSE, ...) {
+  assert_matrix(x)
+  assert_names(colnames(matrix), must.include = c("Estimate", "Std.Err"))
+  assert_names(rownames(x), type = "unique")
+  assert_number(level, lower = 0, upper = 1)
+  assert_flag(include_se)
+  if (!missing(parm)) {
+    assert(
+      check_integerish(parm, lower = 1, upper = nrow(x)),
+      check_subset(parm, row.names(x))
+    )
+  }
+  if (!missing(transform)) {
+    assert_function(transform)
+  }
+  est <- x[, "Estimate"]
+  se <- x[, "Std.Err"]
+  z <- qnorm((1 + level) / 2)
+  ret <- matrix(
+    c(
+      est,
+      if (include_se) se else NULL,
+      est - se * z,
+      est + se * z
+    ),
+    nrow = nrow(x)
+  )
+  colnames(ret) <- c(
+    "Estimate",
+    if (include_se) "Std.Err" else NULL,
+    sprintf("%s %%", c((1 - level) / 2, (1 + level) / 2) * 100)
+  )
+  rownames(ret) <- rownames(x)
+  if (missing(transform)) {
+    transform <- identity
+  }
+  if (!identical(transform, identity)) {
+    message("The confidence interval is transformed.")
+  }
+  if (!missing(parm)) {
+    ret <- ret[parm, , drop = FALSE]
+  }
+  transform(ret)
+}
