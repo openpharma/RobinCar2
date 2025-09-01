@@ -6,7 +6,7 @@
       Model        :  Surv(time, status) ~ meal.cal + age 
       Randomization:  sex ~ strata  ( Simple )
       
-      Contrast     :  Hazard ratio
+      Contrast     :  Log Hazard ratio
       
                        Estimate Std.Err Z Value Pr(>|z|)   
       Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **
@@ -34,4 +34,15 @@
       5      2 Female       18     14
       6      2   Male       25     24
       7      3   Male        1      1
+
+# confint method for surv_effect works as expected
+
+    Code
+      result <- confint(x)
+
+---
+
+    Code
+      expect_message(result <- confint(x, transform = exp),
+      "The confidence interval is transformed.", fixed = TRUE)
 

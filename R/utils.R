@@ -267,7 +267,7 @@ sum_vectors_in_list <- function(lst) {
 #' @keywords internal
 h_confint <- function(x, parm, level = 0.95, transform, include_se = FALSE, ...) {
   assert_matrix(x)
-  assert_names(colnames(matrix), must.include = c("Estimate", "Std.Err"))
+  assert_names(colnames(x), must.include = c("Estimate", "Std.Err"))
   assert_names(rownames(x), type = "unique")
   assert_number(level, lower = 0, upper = 1)
   assert_flag(include_se)

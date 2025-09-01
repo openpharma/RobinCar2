@@ -301,7 +301,7 @@ test_that("robin_surv works as expected without strata or covariates", {
     treatment = ecog ~ 1
   )
   expect_s3_class(result, "surv_effect")
-  expect_snapshot_value(result$hr_coef_mat, tolerance = 1e-4, style = "deparse")
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
   expect_snapshot_value(result$test_mat, tolerance = 1e-4, style = "serialize")
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
@@ -323,8 +323,8 @@ test_that("robin_surv gives the same results as RobinCar functions without strat
   )
   expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
-  expect_equal(result$hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-4)
-  expect_equal(result$hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-4)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-4)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-4)
 })
 
 test_that("robin_surv works as expected with strata", {
@@ -334,7 +334,7 @@ test_that("robin_surv works as expected with strata", {
     treatment = sex ~ strata
   )
   expect_s3_class(result, "surv_effect")
-  expect_snapshot_value(result$hr_coef_mat, tolerance = 1e-4, style = "deparse")
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
   expect_snapshot_value(result$test_mat, tolerance = 1e-4, style = "serialize")
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
@@ -356,8 +356,8 @@ test_that("robin_surv gives the same results as RobinCar functions with strata",
   )
   expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
-  expect_equal(result$hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
-  expect_equal(result$hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
 })
 
 test_that("robin_surv works as expected with covariates", {
@@ -367,7 +367,7 @@ test_that("robin_surv works as expected with covariates", {
     treatment = ecog ~ 1
   )
   expect_s3_class(result, "surv_effect")
-  expect_snapshot_value(result$hr_coef_mat, tolerance = 1e-4, style = "deparse")
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
   expect_snapshot_value(result$test_mat, tolerance = 1e-4, style = "serialize")
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
@@ -389,8 +389,8 @@ test_that("robin_surv gives the same results as RobinCar functions with covariat
   )
   expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
-  expect_equal(result$hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
-  expect_equal(result$hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
 })
 
 test_that("robin_surv works as expected with strata and covariates", {
@@ -400,7 +400,7 @@ test_that("robin_surv works as expected with strata and covariates", {
     treatment = ecog ~ sex
   )
   expect_s3_class(result, "surv_effect")
-  expect_snapshot_value(result$hr_coef_mat, tolerance = 1e-4, style = "deparse")
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
   expect_snapshot_value(result$test_mat, tolerance = 1e-4, style = "serialize")
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
@@ -422,8 +422,8 @@ test_that("robin_surv gives the same results as RobinCar functions with strata a
   )
   expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
-  expect_equal(result$hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
-  expect_equal(result$hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
 })
 
 test_that("robin_surv also works with multiple pairwise comparisons", {
@@ -434,8 +434,8 @@ test_that("robin_surv also works with multiple pairwise comparisons", {
   )
   expect_s3_class(result, "surv_effect")
   comparisons <- c("1 v.s. 0", "2 v.s. 0", "3 v.s. 0", "2 v.s. 1", "3 v.s. 1", "3 v.s. 2")
-  expect_matrix(result$hr_coef_mat, ncol = 4, nrow = 6)
-  expect_names(rownames(result$hr_coef_mat), identical.to = comparisons)
+  expect_matrix(result$log_hr_coef_mat, ncol = 4, nrow = 6)
+  expect_names(rownames(result$log_hr_coef_mat), identical.to = comparisons)
   expect_matrix(result$test_mat, ncol = 2, nrow = 6)
   expect_names(rownames(result$test_mat), identical.to = comparisons)
 })
@@ -449,8 +449,8 @@ test_that("robin_surv allows the user to optionally define the comparisons of in
   )
   expect_s3_class(result, "surv_effect")
   comparisons <- c("0 v.s. 2", "1 v.s. 2")
-  expect_matrix(result$hr_coef_mat, ncol = 4, nrow = 2)
-  expect_names(rownames(result$hr_coef_mat), identical.to = comparisons)
+  expect_matrix(result$log_hr_coef_mat, ncol = 4, nrow = 2)
+  expect_names(rownames(result$log_hr_coef_mat), identical.to = comparisons)
   expect_matrix(result$test_mat, ncol = 2, nrow = 2)
   expect_names(rownames(result$test_mat), identical.to = comparisons)
 })

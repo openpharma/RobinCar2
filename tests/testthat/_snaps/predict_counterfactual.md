@@ -82,3 +82,14 @@
       trt1  0.76397      NA    NA     NA
       trt2  0.97125      NA    NA     NA
 
+# confint method for prediction_cf works as expected
+
+    Code
+      confint(predict_counterfactual(fit_binom, treatment = treatment ~ s1,
+      eff_measure = h_diff))
+    Output
+            Estimate     2.5 %    97.5 %
+      pbo  0.3560965 0.2902435 0.4219496
+      trt1 0.5806957 0.5132377 0.6481538
+      trt2 0.6213865 0.5547112 0.6880618
+

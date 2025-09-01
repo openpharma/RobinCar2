@@ -48,13 +48,13 @@
         p_value = 0.933415170960403, test_score = -0.00229971887336489, 
         test_n = 227L, test_sigma_l2 = 0.171986696328211)
 
-# h_hr_coef_mat works as expected
+# h_log_hr_coef_mat works as expected
 
     structure(c(0.5, 1, 0.5, 0.617075077451974), dim = c(1L, 4L), dimnames = list(
         "B v.s. A", c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)"
         )))
 
-# h_hr_coef_mat works as expected for multiple comparisons
+# h_log_hr_coef_mat works as expected for multiple comparisons
 
     WAoAAAACAAQFAQACAwAAAAIOAAAADD/gAAAAAAAAP+ZmZmZmZmY/7MzMzMzMzT/wAAAAAAAA
     QAAAAAAAAABACAAAAAAAAD/gAAAAAAAAP9ZmZmZmZmY/0zMzMzMzMz/jvxQ7mqcTP+c+KqcH
