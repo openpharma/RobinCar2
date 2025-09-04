@@ -379,6 +379,13 @@ h_events_table <- function(data, vars) {
 #'   treatment = sex ~ strata
 #' )
 #'
+#' # Adjusted for stratification by strata but not for covariates:
+#' robin_surv(
+#'   formula = Surv(time, status) ~ 1,
+#'   data = surv_data,
+#'   treatment = sex ~ strata
+#' )
+#'
 #' # Unadjusted for covariates and stratification:
 #' robin_surv(
 #'   formula = Surv(time, status) ~ 1,
