@@ -137,7 +137,7 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
   if (!is.null(unadj_score_fun)) {
     assert_function(unadj_score_fun)
     assert_true(length(vars$covariates) > 0)
-    args_to_drop <- c("model", "se_method")
+    args_to_drop <- c("model", "hr_se_plugin_adjusted")
     unadj_args <- args[!(names(args) %in% args_to_drop)]
     unadj_args$score_fun <- unadj_score_fun
     # Get theta_hat from the unadjusted score function.
@@ -246,15 +246,16 @@ robin_surv_strata_cov <- function(vars, data, exp_level, control_level, ...) {
   )
 }
 
-#' Hazard Ratio Coefficient Matrix
+#' Log Hazard Ratio Coefficient Matrix
 #'
-#' This function creates a coefficient matrix for the hazard ratio estimates.
+#' This function creates a coefficient matrix for the log hazard ratio estimates.
 #'
-#' @param x (`list`) A list containing the hazard ratio estimates and their standard errors.
-#' @return A matrix with columns for the estimate, standard error, z-value, and p-value.
+#' @param x (`list`) A list containing the log hazard ratio estimates and their standard errors.
+#' @return A matrix with columns for the log hazard ratio estimate, standard error, z-value,
+#'   and p-value.
 #'
 #' @keywords internal
-h_hr_coef_mat <- function(x) {
+h_log_hr_coef_mat <- function(x) {
   assert_list(x, names = "unique")
   assert_names(names(x), must.include = c("estimate", "se", "pair"))
   assert_numeric(x$estimate, finite = TRUE)
@@ -344,7 +345,8 @@ h_events_table <- function(data, vars) {
 #' for covariates and a stratification factor.
 #'
 #' @param formula (`formula`) A formula of analysis, of the form
-#'   `Surv(time, status) ~ treatment * strata + covariates`.
+#'   `Surv(time, status) ~ covariates`. (If no covariates should be adjusted for, use `1` instead
+#'   on the right hand side.)
 #' @param data (`data.frame`) Input data frame.
 #' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification.
 #' @param comparisons (`list`) An optional list of comparisons between treatment levels to be performed,
@@ -352,8 +354,8 @@ h_events_table <- function(data, vars) {
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
 #'   is supported.
 #' @param test (`character(1)`) The test to be used, currently only `"logrank"` is supported.
-#' @param ... Additional arguments passed to the survival analysis functions, in particular `se_method`
-#'   (please see the vignette for details).
+#' @param ... Additional arguments passed to the survival analysis functions, in particular `hr_se_plugin_adjusted`
+#'   (please see [here][survival_score_functions] for details).
 #' @return A `surv_effect` object containing the results of the survival analysis.
 #' @seealso [surv_effect_methods] for S3 methods.
 #'
@@ -370,10 +372,25 @@ h_events_table <- function(data, vars) {
 #'
 #' @export
 #' @examples
+#' # Adjusted for covariates meal.cal and age and adjusted for stratification by sex:
 #' robin_surv(
-#'   formula = Surv(time, status) ~ sex * strata + meal.cal + age,
+#'   formula = Surv(time, status) ~ meal.cal + age,
 #'   data = surv_data,
 #'   treatment = sex ~ strata
+#' )
+#'
+#' # Adjusted for stratification by strata but not for covariates:
+#' robin_surv(
+#'   formula = Surv(time, status) ~ 1,
+#'   data = surv_data,
+#'   treatment = sex ~ strata
+#' )
+#'
+#' # Unadjusted for covariates and stratification:
+#' robin_surv(
+#'   formula = Surv(time, status) ~ 1,
+#'   data = surv_data,
+#'   treatment = sex ~ 1
 #' )
 robin_surv <- function(
     formula,
@@ -458,7 +475,7 @@ robin_surv <- function(
     test_n = sapply(estimates, "[[", "test_n"),
     test_sigma_l2 = sapply(estimates, "[[", "test_sigma_l2")
   )
-  result$hr_coef_mat <- h_hr_coef_mat(result)
+  result$log_hr_coef_mat <- h_log_hr_coef_mat(result)
   result$test_mat <- h_test_mat(result)
 
   class(result) <- "surv_effect"

@@ -25,12 +25,13 @@ Survival analysis is performed with the `robin_surv` function, and the syntax is
 
 ```r
 robin_surv(
-  Surv(time, event) ~ group * strata + covariates,
+  Surv(time, event) ~ covariates,
   treatment = group ~ strata,
   data = df
 )
 ```
 
+When there are no covariates or strata, then these can just be replaced by an intercept (`1`) term, respectively.
 Depending on the choice of `strata` and `covariates`, the following four methods are available:
 
 - Standard log-rank test without strata or covariates by omitting `strata` and `covariates`
@@ -43,17 +44,17 @@ Let's go through these in a simple example. We start with the standard log-rank 
 ```{r, message = FALSE}
 library(RobinCar2)
 robin_surv(
-  Surv(time, status) ~ sex,
+  Surv(time, status) ~ 1,
   treatment = sex ~ 1,
   data = surv_data
 )
 ```
 
-We can perform the stratified log-rank test by adding a `strata` argument:
+We can perform the stratified log-rank test by adding a `strata` right-hand side in the `treatment` formula:
 
 ```{r}
 robin_surv(
-  Surv(time, status) ~ sex * strata,
+  Surv(time, status) ~ 1,
   treatment = sex ~ strata,
   data = surv_data
 )
@@ -63,7 +64,7 @@ We could also just use covariate adjustment:
 
 ```{r}
 robin_surv(
-  Surv(time, status) ~ sex + age + meal.cal,
+  Surv(time, status) ~ age + meal.cal,
   treatment = sex ~ 1,
   data = surv_data
 )
@@ -73,7 +74,7 @@ Or we combine both stratification and covariate adjustment:
 
 ```{r}
 robin_surv(
-  Surv(time, status) ~ sex * strata + age + meal.cal,
+  Surv(time, status) ~ age + meal.cal,
   treatment = sex ~ strata,
   data = surv_data
 )
@@ -290,7 +291,7 @@ $$
 }
 $$
 
-This is the published version of the variance estimator when used for estimating the standard error of $\hat{\theta}_{CL}$ via $\sigma_{L}^{2}(\hat{\theta}_{CL})$, which is the default in `RobinCar2`. However, there is also an alternative version which we call "unadjusted" where $\sigma_{L}^{2}(\hat{\theta}_{CL})$ on the right hand side of the definition is replaced by $\sigma_{L}^{2}(\hat{\theta}_{L})$. That is, the log-rank score variance estimator is evaluated at the unadjusted log hazard ratio estimate $\hat{\theta}_{L}$, rather than at the covariate adjusted log hazard ratio estimate $\hat{\theta}_{CL}$. This version is available via the option `se_method = "unadjusted"`, and is the version implemented in the `RobinCar` package. 
+This is the published version of the variance estimator when used for estimating the standard error of $\hat{\theta}_{CL}$ via $\sigma_{L}^{2}(\hat{\theta}_{CL})$, which is the default in `RobinCar2`. However, there is also an alternative version which we call "unadjusted" where $\sigma_{L}^{2}(\hat{\theta}_{CL})$ on the right hand side of the definition is replaced by $\sigma_{L}^{2}(\hat{\theta}_{L})$. That is, the log-rank score variance estimator is evaluated at the unadjusted log hazard ratio estimate $\hat{\theta}_{L}$, rather than at the covariate adjusted log hazard ratio estimate $\hat{\theta}_{CL}$. This version is available via the option `hr_se_plugin_adjusted = FALSE`, and is the version implemented in the `RobinCar` package. 
 
 Note that the results will differ only very slightly. Both resulting standard errors are consistent and valid. One motivation for the unadjusted version is that it is guaranteed to be smaller than the standard error of the unadjusted log hazard ratio, due to the fact that the correction term is always positive.
 
@@ -391,7 +392,7 @@ $$
 }
 $$
 
-This is the published version of the variance estimator when used for estimating the standard error of $\hat{\theta}_{CSL}$ via $\sigma_{SL}^{2}(\hat{\theta}_{CSL})$, which is the default in `RobinCar2`. However, there is also an alternative version which we call "unadjusted" where $\sigma_{SL}^{2}(\hat{\theta}_{CSL})$ on the right hand side of the definition is replaced by $\sigma_{SL}^{2}(\hat{\theta}_{SL})$. That is, the log-rank score variance estimator is evaluated at the unadjusted log hazard ratio estimate $\hat{\theta}_{SL}$, rather than at the covariate adjusted log hazard ratio estimate $\hat{\theta}_{CSL}$. This version is available via the option `se_method = "unadjusted"`, and is the version implemented in the `RobinCar` package. 
+This is the published version of the variance estimator when used for estimating the standard error of $\hat{\theta}_{CSL}$ via $\sigma_{SL}^{2}(\hat{\theta}_{CSL})$, which is the default in `RobinCar2`. However, there is also an alternative version which we call "unadjusted" where $\sigma_{SL}^{2}(\hat{\theta}_{CSL})$ on the right hand side of the definition is replaced by $\sigma_{SL}^{2}(\hat{\theta}_{SL})$. That is, the log-rank score variance estimator is evaluated at the unadjusted log hazard ratio estimate $\hat{\theta}_{SL}$, rather than at the covariate adjusted log hazard ratio estimate $\hat{\theta}_{CSL}$. This version is available via the option `hr_se_plugin_adjusted = FALSE`, and is the version implemented in the `RobinCar` package. 
 
 Note that the results will differ only very slightly. Both resulting standard errors are consistent and valid. One motivation for the unadjusted version is that it is guaranteed to be smaller than the standard error of the unadjusted log hazard ratio, due to the fact that the correction term is always positive.
 

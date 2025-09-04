@@ -57,3 +57,9 @@ test_that("predict_counterfactual works with provided vcov function", {
   expect_snapshot(predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data, vcov = vcov_dummy))
   expect_snapshot(predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data, vcov = NULL))
 })
+
+test_that("confint method for prediction_cf works as expected", {
+  expect_snapshot(
+    confint(predict_counterfactual(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff))
+  )
+})

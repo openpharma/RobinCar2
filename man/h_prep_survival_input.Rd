@@ -7,7 +7,8 @@
 h_prep_survival_input(formula, data, treatment)
 }
 \arguments{
-\item{formula}{(\code{formula}) with a left hand side of the form \code{Surv(time, status)}.}
+\item{formula}{(\code{formula}) with a left hand side of the form \code{Surv(time, status)} and a right hand side
+defining optional covariates or just \code{1} if there are no covariates.}
 
 \item{data}{(\code{data.frame}) containing the variables in the formula.}
 
@@ -38,6 +39,6 @@ and added to the \code{data} input. Note that it is up to the user to ensure tha
 case the column binding is correct, i.e., that the rows of the \code{data} match
 with the rows of the \code{Surv} object. In addition, the same named variables must not appear
 in both the \code{data} and the \code{Surv} object, to avoid ambiguity (this is a difference
-vs. the behavior of \link[survival:coxph]{survival::coxph} for better transparency).
+vs. the behavior of \code{\link[survival:coxph]{survival::coxph()}} for better transparency).
 }
 \keyword{internal}

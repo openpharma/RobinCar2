@@ -21,7 +21,7 @@ print.prediction_cf <- function(x, level = 0.95, ...) {
   cat("Variance Type: ", x$variance_name, "\n")
   cat("Marginal Mean: \n")
   stats::printCoefmat(
-    confint(x, level = level),
+    confint(x, level = level, include_se = TRUE),
     ...
   )
 }
@@ -33,6 +33,7 @@ print.prediction_cf <- function(x, level = 0.95, ...) {
 #' @param parm (`character` or `integer`) Names of the parameters to construct confidence interval.
 #' @param level (`numeric`) Confidence level.
 #' @param transform (`function`) Transform function.
+#' @param include_se (`flag`) Whether to include the standard error as a column in the result matrix.
 #' @param ... Not used.
 #' @export
 #' @return A `matrix` of the confidence interval.
@@ -43,25 +44,12 @@ print.prediction_cf <- function(x, level = 0.95, ...) {
 #' )
 #' confint(robin_res$marginal_mean, level = 0.7)
 #' confint(robin_res$contrast, parm = 1:3, level = 0.9)
-confint.prediction_cf <- function(object, parm, level = 0.95, ...) {
-  assert_number(level, lower = 0, upper = 1)
-  if (!missing(parm)) {
-    assert(
-      check_integerish(parm, lower = 1, upper = length(object$estimate)),
-      check_subset(parm, names(object$estimate))
-    )
-  }
-  trt_sd <- sqrt(diag(object$variance))
-  ret <- matrix(
-    c(
-      object$estimate,
-      trt_sd,
-      object$estimate + trt_sd * qnorm(0.5 - level / 2),
-      object$estimate + trt_sd * qnorm(0.5 + level / 2)
-    ),
-    nrow = length(object$estimate)
+confint.prediction_cf <- function(object, parm, level = 0.95, include_se = FALSE, ...) {
+  x <- cbind(
+    object$estimate,
+    sqrt(diag(object$variance))
   )
-  colnames(ret) <- c("Estimate", "Std.Err", sprintf("%s %%", c(0.5 - level / 2, 0.5 + level / 2) * 100))
-  row.names(ret) <- names(object$estimate)
-  ret[parm, , drop = FALSE]
+  rownames(x) <- names(object$estimate)
+  colnames(x) <- c("Estimate", "Std.Err")
+  h_confint(x, parm = parm, level = level, transform = identity, include_se = include_se, ...)
 }

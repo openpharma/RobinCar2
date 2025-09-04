@@ -48,3 +48,13 @@
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
+# confint method for treatment_effect works as expected
+
+    Code
+      confint(treatment_effect(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff))
+    Output
+                       Estimate      2.5 %    97.5 %
+      trt1 v.s. pbo  0.22459921  0.1310866 0.3181118
+      trt2 v.s. pbo  0.26528993  0.1721248 0.3584551
+      trt2 v.s. trt1 0.04069073 -0.0532712 0.1346527
+
