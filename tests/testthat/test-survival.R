@@ -35,7 +35,7 @@ test_that("h_lr_test_via_score works as expected", {
 
 test_that("robin_surv_comparison works as expected without covariate adjustment", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ 1
   )
@@ -54,7 +54,7 @@ test_that("robin_surv_comparison works as expected without covariate adjustment"
 
 test_that("robin_surv_no_strata_no_cov works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ 1
   )
@@ -69,7 +69,7 @@ test_that("robin_surv_no_strata_no_cov works as expected", {
 
 test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = ecog ~ 1
   )
@@ -96,7 +96,7 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
 
 test_that("robin_surv_strata works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex * strata,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ strata
   )
@@ -111,7 +111,7 @@ test_that("robin_surv_strata works as expected", {
 
 test_that("robin_surv_strata gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog * sex,
+    formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
     treatment = ecog ~ sex
   )
@@ -138,7 +138,7 @@ test_that("robin_surv_strata gives the same results as RobinCar functions", {
 
 test_that("robin_surv_cov works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ sex + age,
+    formula = survival::Surv(time, status) ~ age,
     data = surv_data,
     treatment = sex ~ 1
   )
@@ -153,7 +153,7 @@ test_that("robin_surv_cov works as expected", {
 
 test_that("robin_surv_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog + age,
+    formula = survival::Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ 1
   )
@@ -163,7 +163,7 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
     data = input$data,
     exp_level = 2,
     control_level = 1,
-    se_method = "unadjusted" # To get the exact match with RobinCar.
+    hr_se_plugin_adjusted = FALSE # To get the exact match with RobinCar.
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -181,7 +181,7 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
 
 test_that("robin_surv_strata_cov works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog * sex + age,
+    formula = survival::Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ sex
   )
@@ -196,7 +196,7 @@ test_that("robin_surv_strata_cov works as expected", {
 
 test_that("robin_surv_strata_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ ecog * sex + age,
+    formula = survival::Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ sex
   )
@@ -206,7 +206,7 @@ test_that("robin_surv_strata_cov gives the same results as RobinCar functions", 
     data = input$data,
     exp_level = 2,
     control_level = 1,
-    se_method = "unadjusted" # To get the exact match with RobinCar.
+    hr_se_plugin_adjusted = FALSE # To get the exact match with RobinCar.
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -222,7 +222,7 @@ test_that("robin_surv_strata_cov gives the same results as RobinCar functions", 
   expect_equal(result$se, robincar_result$se, tolerance = 1e-3)
 })
 
-test_that("h_hr_coef_mat works as expected", {
+test_that("h_log_hr_coef_mat works as expected", {
   x <- list(
     estimate = 0.5,
     se = 1,
@@ -231,11 +231,11 @@ test_that("h_hr_coef_mat works as expected", {
       levels = c("A", "B")
     )
   )
-  result <- h_hr_coef_mat(x)
+  result <- h_log_hr_coef_mat(x)
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
-test_that("h_hr_coef_mat works as expected for multiple comparisons", {
+test_that("h_log_hr_coef_mat works as expected for multiple comparisons", {
   x <- list(
     estimate = c(0.5, 0.7, 0.9),
     se = c(1, 2, 3),
@@ -244,7 +244,7 @@ test_that("h_hr_coef_mat works as expected for multiple comparisons", {
       levels = c("A", "B", "C")
     )
   )
-  result <- h_hr_coef_mat(x)
+  result <- h_log_hr_coef_mat(x)
   expect_snapshot_value(result, tolerance = 1e-4, style = "serialize")
 })
 
@@ -296,19 +296,19 @@ test_that("h_events_table works as expected without strata", {
 
 test_that("robin_surv works as expected without strata or covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog,
+    Surv(time, status) ~ 1,
     data = surv_data,
     treatment = ecog ~ 1
   )
   expect_s3_class(result, "surv_effect")
-  expect_snapshot_value(result$hr_coef_mat, tolerance = 1e-4, style = "deparse")
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
   expect_snapshot_value(result$test_mat, tolerance = 1e-4, style = "serialize")
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
 
 test_that("robin_surv gives the same results as RobinCar functions without strata or covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog,
+    Surv(time, status) ~ 1,
     data = na.omit(surv_data),
     treatment = ecog ~ 1
   )
@@ -323,25 +323,25 @@ test_that("robin_surv gives the same results as RobinCar functions without strat
   )
   expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
-  expect_equal(result$hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-4)
-  expect_equal(result$hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-4)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-4)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-4)
 })
 
 test_that("robin_surv works as expected with strata", {
   result <- robin_surv(
-    Surv(time, status) ~ sex * strata,
+    Surv(time, status) ~ 1,
     data = surv_data,
     treatment = sex ~ strata
   )
   expect_s3_class(result, "surv_effect")
-  expect_snapshot_value(result$hr_coef_mat, tolerance = 1e-4, style = "deparse")
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
   expect_snapshot_value(result$test_mat, tolerance = 1e-4, style = "serialize")
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
 
 test_that("robin_surv gives the same results as RobinCar functions with strata", {
   result <- robin_surv(
-    Surv(time, status) ~ sex * ecog,
+    Surv(time, status) ~ 1,
     data = na.omit(surv_data),
     treatment = ecog ~ sex
   )
@@ -356,25 +356,25 @@ test_that("robin_surv gives the same results as RobinCar functions with strata",
   )
   expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
-  expect_equal(result$hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
-  expect_equal(result$hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
 })
 
 test_that("robin_surv works as expected with covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog + age,
+    Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ 1
   )
   expect_s3_class(result, "surv_effect")
-  expect_snapshot_value(result$hr_coef_mat, tolerance = 1e-4, style = "deparse")
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
   expect_snapshot_value(result$test_mat, tolerance = 1e-4, style = "serialize")
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
 
 test_that("robin_surv gives the same results as RobinCar functions with covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog + age,
+    Surv(time, status) ~ age,
     data = na.omit(surv_data),
     treatment = ecog ~ 1
   )
@@ -389,25 +389,25 @@ test_that("robin_surv gives the same results as RobinCar functions with covariat
   )
   expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
-  expect_equal(result$hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
-  expect_equal(result$hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
 })
 
 test_that("robin_surv works as expected with strata and covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog * sex + age + ph.karno,
+    Surv(time, status) ~ age + ph.karno,
     data = surv_data,
     treatment = ecog ~ sex
   )
   expect_s3_class(result, "surv_effect")
-  expect_snapshot_value(result$hr_coef_mat, tolerance = 1e-4, style = "deparse")
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
   expect_snapshot_value(result$test_mat, tolerance = 1e-4, style = "serialize")
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
 
 test_that("robin_surv gives the same results as RobinCar functions with strata and covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog * sex + age,
+    Surv(time, status) ~ age,
     data = na.omit(surv_data),
     treatment = ecog ~ sex
   )
@@ -422,51 +422,51 @@ test_that("robin_surv gives the same results as RobinCar functions with strata a
   )
   expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-5)
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
-  expect_equal(result$hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
-  expect_equal(result$hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
 })
 
 test_that("robin_surv also works with multiple pairwise comparisons", {
   result <- robin_surv(
-    Surv(time, status) ~ strata,
+    Surv(time, status) ~ 1,
     data = surv_data,
     treatment = strata ~ 1
   )
   expect_s3_class(result, "surv_effect")
   comparisons <- c("1 v.s. 0", "2 v.s. 0", "3 v.s. 0", "2 v.s. 1", "3 v.s. 1", "3 v.s. 2")
-  expect_matrix(result$hr_coef_mat, ncol = 4, nrow = 6)
-  expect_names(rownames(result$hr_coef_mat), identical.to = comparisons)
+  expect_matrix(result$log_hr_coef_mat, ncol = 4, nrow = 6)
+  expect_names(rownames(result$log_hr_coef_mat), identical.to = comparisons)
   expect_matrix(result$test_mat, ncol = 2, nrow = 6)
   expect_names(rownames(result$test_mat), identical.to = comparisons)
 })
 
 test_that("robin_surv allows the user to optionally define the comparisons of interest", {
   result <- robin_surv(
-    Surv(time, status) ~ strata,
+    Surv(time, status) ~ 1,
     data = surv_data,
     treatment = strata ~ 1,
     comparisons = list(c(1, 2), c(3, 3))
   )
   expect_s3_class(result, "surv_effect")
   comparisons <- c("0 v.s. 2", "1 v.s. 2")
-  expect_matrix(result$hr_coef_mat, ncol = 4, nrow = 2)
-  expect_names(rownames(result$hr_coef_mat), identical.to = comparisons)
+  expect_matrix(result$log_hr_coef_mat, ncol = 4, nrow = 2)
+  expect_names(rownames(result$log_hr_coef_mat), identical.to = comparisons)
   expect_matrix(result$test_mat, ncol = 2, nrow = 2)
   expect_names(rownames(result$test_mat), identical.to = comparisons)
 })
 
 test_that("robin_surv allows to use unadjusted standard error", {
   result <- robin_surv(
-    Surv(time, status) ~ ecog + age,
+    Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ 1,
-    se_method = "unadjusted"
+    hr_se_plugin_adjusted = FALSE
   )
   result_adjusted <- robin_surv(
-    Surv(time, status) ~ ecog + age,
+    Surv(time, status) ~ age,
     data = surv_data,
     treatment = ecog ~ 1,
-    se_method = "adjusted"
+    hr_se_plugin_adjusted = TRUE
   )
   # Only the standard error should differ.
   expect_true(result$se != result_adjusted$se)

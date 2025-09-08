@@ -272,3 +272,9 @@ test_that("treatment_effect works if pair is defined", {
     )
   )
 })
+
+test_that("confint method for treatment_effect works as expected", {
+  expect_snapshot(
+    confint(treatment_effect(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff))
+  )
+})

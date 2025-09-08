@@ -33,7 +33,7 @@ S3 Methods for \code{surv_effect}
 }}
 \examples{
 x <- robin_surv(
-  formula = Surv(time, status) ~ sex * strata + meal.cal + age,
+  formula = Surv(time, status) ~ meal.cal + age,
   data = surv_data,
   treatment = sex ~ strata
 )

@@ -139,7 +139,7 @@ test_that("h_lr_score_cov works when using the unadjusted standard error option"
     time = "time",
     status = "status",
     model = ~age,
-    se_method = "unadjusted",
+    hr_se_plugin_adjusted = FALSE,
     use_ties_factor = FALSE,
     theta_hat = 0.2
   )
@@ -203,7 +203,7 @@ test_that("h_lr_score_strat_cov works as expected with unadjusted standard error
     strata = "strata",
     model = ~age,
     use_ties_factor = FALSE,
-    se_method = "unadjusted",
+    hr_se_plugin_adjusted = FALSE,
     theta_hat = 0.3
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
@@ -217,7 +217,7 @@ test_that("h_lr_score_strat_cov works as expected with unadjusted standard error
     strata = "strata",
     model = ~age,
     use_ties_factor = FALSE,
-    se_method = "unadjusted",
+    hr_se_plugin_adjusted = FALSE,
     theta_hat = 0.3
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")

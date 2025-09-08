@@ -16,7 +16,8 @@ robin_surv(
 }
 \arguments{
 \item{formula}{(\code{formula}) A formula of analysis, of the form
-\code{Surv(time, status) ~ treatment * strata + covariates}.}
+\code{Surv(time, status) ~ covariates}. (If no covariates should be adjusted for, use \code{1} instead
+on the right hand side.)}
 
 \item{data}{(\code{data.frame}) Input data frame.}
 
@@ -30,8 +31,8 @@ is supported.}
 
 \item{test}{(\code{character(1)}) The test to be used, currently only \code{"logrank"} is supported.}
 
-\item{...}{Additional arguments passed to the survival analysis functions, in particular \code{se_method}
-(please see the vignette for details).}
+\item{...}{Additional arguments passed to the survival analysis functions, in particular \code{hr_se_plugin_adjusted}
+(please see \link[=survival_score_functions]{here} for details).}
 }
 \value{
 A \code{surv_effect} object containing the results of the survival analysis.
@@ -53,10 +54,25 @@ So for example if you would like to compare level 3 with level 1, and also level
 \code{comparisons = list(c(3, 3), c(1, 2))}
 }
 \examples{
+# Adjusted for covariates meal.cal and age and adjusted for stratification by sex:
 robin_surv(
-  formula = Surv(time, status) ~ sex * strata + meal.cal + age,
+  formula = Surv(time, status) ~ meal.cal + age,
   data = surv_data,
   treatment = sex ~ strata
+)
+
+# Adjusted for stratification by strata but not for covariates:
+robin_surv(
+  formula = Surv(time, status) ~ 1,
+  data = surv_data,
+  treatment = sex ~ strata
+)
+
+# Unadjusted for covariates and stratification:
+robin_surv(
+  formula = Surv(time, status) ~ 1,
+  data = surv_data,
+  treatment = sex ~ 1
 )
 }
 \seealso{
