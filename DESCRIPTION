@@ -1,8 +1,8 @@
 Type: Package
 Package: RobinCar2
 Title: ROBust INference for Covariate Adjustment in Randomized Clinical Trials
-Version: 0.1.1.9000
-Date: 2025-07-07
+Version: 0.2.0
+Date: 2025-09-09
 Authors@R:
     c(
       person("Liming", "Li", , "liming.li1@astrazeneca.com", role = c("aut", "cre"), comment = c(ORCID = "0009-0008-6870-0878")),
@@ -51,4 +51,4 @@ Encoding: UTF-8
 Language: en-US
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
