@@ -157,16 +157,19 @@ h_get_lm_input <- function(df, model) {
   includes_intercept <- attr(stats::terms(model), "intercept") == 1
   assert_true(includes_intercept)
 
-  df_by_trt <- split(df, f = df$treatment)
+  # Create overall design matrix and response vector.
+  mf <- stats::model.frame(model, data = df)
+  x <- stats::model.matrix(model, data = mf)
+  assert_true(identical(colnames(x)[1L], "(Intercept)"))
+  x <- x[, -1L, drop = FALSE] # Remove intercept.
+  y <- stats::model.response(mf)
+
+  # Split both design matrix and response vector by treatment arm.
+  index_by_trt <- split(seq_along(y), f = df$treatment)
   lapply(
-    df_by_trt,
-    function(this_df) {
-      mf <- stats::model.frame(model, data = this_df)
-      x <- stats::model.matrix(model, data = mf)
-      assert_true(identical(colnames(x)[1L], "(Intercept)"))
-      x <- x[, -1L, drop = FALSE] # Remove intercept.
-      y <- stats::model.response(mf)
-      list(X = x, y = y)
+    index_by_trt,
+    function(this_index) {
+      list(X = x[this_index, , drop = FALSE], y = y[this_index])
     }
   )
 }

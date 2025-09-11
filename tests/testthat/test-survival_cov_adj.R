@@ -113,6 +113,8 @@ test_that("h_get_lm_input works correctly across treatment levels with character
   expect_list(result, len = 2L)
   x_cols <- lapply(result, function(lst) colnames(lst[["X"]]))
   expect_true(identical(x_cols[[1]], x_cols[[2]]))
+  # Note that this case will lead to rank-deficient design matrices, but at least
+  # the user will get an appropriate error message, instead of a wrong result downstream.
 })
 
 test_that("h_get_strat_lm_input works as expected", {
