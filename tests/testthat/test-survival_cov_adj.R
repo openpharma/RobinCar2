@@ -99,6 +99,22 @@ test_that("h_get_lm_input fails when there is no intercept", {
   )
 })
 
+test_that("h_get_lm_input works correctly across treatment levels with character covariates", {
+  set.seed(941)
+  df <- data.frame(
+    index = 1:5,
+    treatment = factor(rep(c(0, 1), each = 5)),
+    # Here we have A, B for treatment 0 only, C, D for treatment 1 only:
+    covariate1 = c("A", "B", "A", "B", "A", "C", "D", "C", "D", "C"),
+    covariate2 = rnorm(5),
+    O_hat = rnorm(5)
+  )
+  result <- h_get_lm_input(df, model = ~ covariate1 + covariate2)
+  expect_list(result, len = 2L)
+  x_cols <- lapply(result, function(lst) colnames(lst[["X"]]))
+  expect_true(identical(x_cols[[1]], x_cols[[2]]))
+})
+
 test_that("h_get_strat_lm_input works as expected", {
   set.seed(941)
   df_split <- list(
