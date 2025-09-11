@@ -84,6 +84,21 @@ test_that("h_get_lm_input works as expected", {
   expect_numeric(result[["1"]][["y"]], len = 2L)
 })
 
+test_that("h_get_lm_input fails when there is no intercept", {
+  set.seed(941)
+  df <- data.frame(
+    index = 1:5,
+    treatment = factor(c(0, 1, 0, 1, 0)),
+    covariate1 = rnorm(5),
+    covariate2 = rnorm(5),
+    O_hat = rnorm(5)
+  )
+  expect_error(
+    h_get_lm_input(df, model = ~ 0 + covariate1 + covariate2),
+    "Assertion on 'includes_intercept' failed"
+  )
+})
+
 test_that("h_get_strat_lm_input works as expected", {
   set.seed(941)
   df_split <- list(

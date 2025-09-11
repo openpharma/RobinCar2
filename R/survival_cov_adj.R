@@ -154,12 +154,16 @@ h_get_lm_input <- function(df, model) {
 
   # Add outcome:
   model <- stats::update(model, O_hat ~ .)
+  includes_intercept <- attr(stats::terms(model), "intercept") == 1
+  assert_true(includes_intercept)
+
   df_by_trt <- split(df, f = df$treatment)
   lapply(
     df_by_trt,
     function(this_df) {
       mf <- stats::model.frame(model, data = this_df)
       x <- stats::model.matrix(model, data = mf)
+      assert_true(identical(colnames(x)[1L], "(Intercept)"))
       x <- x[, -1L, drop = FALSE] # Remove intercept.
       y <- stats::model.response(mf)
       list(X = x, y = y)

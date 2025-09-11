@@ -358,7 +358,7 @@ h_events_table <- function(data, vars) {
 #'
 #' @param formula (`formula`) A formula of analysis, of the form
 #'   `Surv(time, status) ~ covariates`. (If no covariates should be adjusted for, use `1` instead
-#'   on the right hand side.)
+#'   on the right hand side. The intercept must not be removed.)
 #' @param data (`data.frame`) Input data frame.
 #' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification, of the form
 #'   `treatment ~ strata`. (If no stratification should be adjusted for, use `1` instead on the right hand side.)

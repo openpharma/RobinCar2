@@ -17,7 +17,7 @@ robin_surv(
 \arguments{
 \item{formula}{(\code{formula}) A formula of analysis, of the form
 \code{Surv(time, status) ~ covariates}. (If no covariates should be adjusted for, use \code{1} instead
-on the right hand side.)}
+on the right hand side. The intercept must not be removed.)}
 
 \item{data}{(\code{data.frame}) Input data frame.}
 
