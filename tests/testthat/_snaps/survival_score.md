@@ -34,6 +34,10 @@
 
     structure(0.0850667744102501, se_theta_l = 0.156579398029655, sigma_l2 = 0.176173801156959, n = 228L)
 
+# h_lr_score_cov works with a single factor covariate
+
+    structure(0.0889518680173707, se_theta_l = 0.157769376630947, sigma_l2 = 0.176637348077421, n = 227L)
+
 # h_lr_score_strat_cov works as expected with default options
 
     structure(0.0897521729142622, se_theta_l = 0.161382421810696, sigma_l2 = 0.169145459377487, n = 227L)
