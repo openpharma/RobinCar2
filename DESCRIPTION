@@ -17,6 +17,7 @@ Authors@R:
       person("Merck Sharp & Dohme, Inc.", role = c("cph", "fnd")),
       person("AstraZeneca plc", role = c("cph", "fnd")),
       person("Eli Lilly and Company", role = c("cph", "fnd")),
+      person("Novartis Pharma AG", role = c("cph", "fnd")),
       person("The University of Washington", role = c("cph", "fnd"))
     )
 Description: Performs robust estimation and inference when using covariate adjustment
