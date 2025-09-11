@@ -79,7 +79,7 @@ when calculating the score test statistic, but not when estimating the log hazar
 \item{calculate_variance}{(\code{flag}) Whether to calculate the variance. This is useful to avoid
 unnecessary computations when only the score function value is needed, e.g., during root finding.}
 
-\item{strata}{(\code{string}) The name of the strata variable in \code{df}, which must be a factor.}
+\item{strata}{(\code{character}) The names of the strata variables in \code{df}, which must be factors.}
 
 \item{model}{(\code{formula}) The model formula for covariate adjustment, e.g., \code{~ cov1 + cov2}.}
 
