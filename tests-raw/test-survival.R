@@ -102,3 +102,27 @@ robincar_args <- list(
   p_trt = mean(surv_data$ecog == "1", na.rm = TRUE)
 )
 calc_robin_car(robincar_args)
+
+# test: "robin_surv_strata_cov gives the same results as RobinCar for strong correlation covariate with strata"
+set.seed(2040)
+surv_data2 <- surv_data
+surv_data2$ecog <- as.factor(ifelse(
+  surv_data$strata == 1,
+  rbinom(nrow(surv_data), 1, prob = 0.2),
+  surv_data$ecog
+))
+surv_data2 <- surv_data2[surv_data2$strata %in% c(0, 1), ]
+
+robincar_args <- list(
+  df = na.omit(surv_data2),
+  treat_col = "sex",
+  response_col = "time",
+  event_col = "status",
+  car_strata_cols = "strata",
+  covariate_cols = "ecog",
+  car_scheme = "permuted-block",
+  adj_method = "CSL",
+  ref_arm = "Female",
+  p_trt = mean(surv_data2$sex == "Male", na.rm = TRUE)
+)
+calc_robin_car(robincar_args)
