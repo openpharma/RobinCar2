@@ -63,6 +63,27 @@ test_that("h_prep_survival_input works with strata", {
   expect_equal(result, expected, ignore_formula_env = TRUE)
 })
 
+test_that("h_prep_survival_input works with multiple strata", {
+  result <- expect_silent(h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,
+    data = surv_data,
+    treatment = sex ~ strata + ecog
+  ))
+  expected <- list(
+    data = surv_data,
+    time = "time",
+    status = "status",
+    treatment = "sex",
+    strata = c("strata", "ecog"),
+    schema = "sp",
+    covariates = c("age", "ph.karno", "meal.cal"),
+    model = ~ age + ph.karno + meal.cal,
+    n_levels = 2L,
+    levels = c("Female", "Male")
+  )
+  expect_equal(result, expected, ignore_formula_env = TRUE)
+})
+
 test_that("h_prep_survival_input works without strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,

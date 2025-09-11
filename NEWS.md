@@ -1,4 +1,8 @@
-# RobinCar2 0.2.0.9999
+# RobinCar2 0.2.1
+
+### New features
+
+* Now multiple stratification variables are supported in `robin_surv` by adding them on the right-hand side of the `treatment` formula.
 
 ### Bug Fixes
 

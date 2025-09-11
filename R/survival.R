@@ -360,7 +360,8 @@ h_events_table <- function(data, vars) {
 #'   `Surv(time, status) ~ covariates`. (If no covariates should be adjusted for, use `1` instead
 #'   on the right hand side.)
 #' @param data (`data.frame`) Input data frame.
-#' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification.
+#' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification, of the form
+#'   `treatment ~ strata`. (If no stratification should be adjusted for, use `1` instead on the right hand side.)
 #' @param comparisons (`list`) An optional list of comparisons between treatment levels to be performed,
 #'   see details. By default, all pairwise comparisons are performed automatically.
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
@@ -384,18 +385,18 @@ h_events_table <- function(data, vars) {
 #'
 #' @export
 #' @examples
-#' # Adjusted for covariates meal.cal and age and adjusted for stratification by sex:
+#' # Adjusted for covariates meal.cal and age and adjusted for stratification by strata:
 #' robin_surv(
 #'   formula = Surv(time, status) ~ meal.cal + age,
 #'   data = surv_data,
 #'   treatment = sex ~ strata
 #' )
 #'
-#' # Adjusted for stratification by strata but not for covariates:
+#' # Adjusted for stratification by strata and ecog but not for covariates:
 #' robin_surv(
 #'   formula = Surv(time, status) ~ 1,
 #'   data = surv_data,
-#'   treatment = sex ~ strata
+#'   treatment = sex ~ strata + ecog
 #' )
 #'
 #' # Unadjusted for covariates and stratification:

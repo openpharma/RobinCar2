@@ -83,6 +83,18 @@ test_that("h_lr_score_strat works as expected with default options", {
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
+test_that("h_lr_score_strat works with multiple strata variables", {
+  result <- h_lr_score_strat(
+    theta = 0,
+    df = surv_data,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = c("strata", "ecog")
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
 test_that("h_lr_score_strat works as expected when not using ties factor", {
   result <- h_lr_score_strat(
     theta = 0,
@@ -235,6 +247,19 @@ test_that("h_lr_score_strat_cov works as expected with default options", {
     time = "time",
     status = "status",
     strata = "strata",
+    model = ~age
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
+test_that("h_lr_score_strat_cov works with multiple strata variables", {
+  result <- h_lr_score_strat_cov(
+    theta = 0,
+    df = surv_data,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = c("strata", "ecog"),
     model = ~age
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
