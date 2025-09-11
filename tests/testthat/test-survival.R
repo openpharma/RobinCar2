@@ -9,6 +9,19 @@ test_that("h_log_hr_est_via_score works as expected", {
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
+test_that("h_log_hr_est_via_score does not give spurious warning", {
+  result <- expect_silent(h_log_hr_est_via_score(
+    h_lr_score_strat_cov,
+    df = na.omit(surv_data),
+    treatment = "ecog",
+    time = "time",
+    status = "status",
+    strata = "sex",
+    model = ~ age + meal.cal + wt.loss
+  ))
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
 test_that("h_log_hr_est_via_score extends the search interval as needed", {
   result <- h_log_hr_est_via_score(
     h_lr_score_no_strata_no_cov,
@@ -465,6 +478,28 @@ test_that("robin_surv gives the same results as RobinCar functions with covariat
   expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
 })
 
+test_that("robin_surv gives the same results as RobinCar for single factor covariate", {
+  result <- robin_surv(
+    Surv(time, status) ~ sex,
+    data = na.omit(surv_data),
+    treatment = ecog ~ 1,
+    hr_se_plugin_adjusted = FALSE
+  )
+  # These values are extracted from RobinCar (version 1.0.0) results, see
+  # `tests-raw/test-survival.R`.
+  robincar_result <- list(
+    test_stat = -0.7582934,
+    test_sigma_l2 = 0.1715611,
+    test_p_val = 0.4482754,
+    estimate = -0.135294,
+    se = 0.1797889
+  )
+  expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-4)
+  expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-4)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-1)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-3)
+})
+
 test_that("robin_surv works as expected with strata and covariates", {
   result <- robin_surv(
     Surv(time, status) ~ age + ph.karno,
@@ -545,4 +580,35 @@ test_that("robin_surv allows to use unadjusted standard error", {
   expect_true(result$estimate == result_adjusted$estimate)
   expect_true(result$test_stat == result_adjusted$test_stat)
   expect_true(result$p_value == result_adjusted$p_value)
+})
+
+test_that("robin_surv gives the same results as RobinCar for strong correlation covariate with strata", {
+  set.seed(2040)
+  surv_data2 <- surv_data
+  surv_data2$ecog <- as.factor(ifelse(
+    surv_data$strata == 1,
+    rbinom(nrow(surv_data), 1, prob = 0.2),
+    surv_data$ecog
+  ))
+  surv_data2 <- surv_data2[surv_data2$strata %in% c(0, 1), ]
+
+  result <- robin_surv(
+    formula = Surv(time, status) ~ ecog,
+    data = na.omit(surv_data2),
+    treatment = sex ~ strata,
+    hr_se_plugin_adjusted = FALSE
+  )
+  # These values are extracted from RobinCar (version 1.0.0) results, see
+  # `tests-raw/test-survival.R`.
+  robincar_result <- list(
+    test_stat = 2.35142,
+    test_sigma_l2 = 0.1589645,
+    test_p_val = 0.01870189,
+    estimate = 0.5466888,
+    se = 0.2371971
+  )
+  expect_equal(result$test_mat[, "Test Stat."], robincar_result$test_stat, tolerance = 1e-4)
+  expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-3)
+  expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-1)
+  expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-2)
 })

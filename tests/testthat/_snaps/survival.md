@@ -3,6 +3,11 @@
     list(theta = 0.53342923961288, se = 0.167270504465807, sigma_l2 = 0.156756810948865, 
         n = 228L)
 
+# h_log_hr_est_via_score does not give spurious warning
+
+    list(theta = -0.0507718560099652, se = 0.182997810903141, sigma_l2 = 0.17218348832935, 
+        n = 167L)
+
 # h_log_hr_est_via_score extends the search interval as needed
 
     list(theta = 0.529999478789383, se = 0.167169124542081, sigma_l2 = 0.156946999327738, 

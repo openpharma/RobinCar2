@@ -36,6 +36,7 @@ Other contributors:
   \item Merck Sharp & Dohme, Inc. [copyright holder, funder]
   \item AstraZeneca plc [copyright holder, funder]
   \item Eli Lilly and Company [copyright holder, funder]
+  \item Novartis Pharma AG [copyright holder, funder]
   \item The University of Washington [copyright holder, funder]
 }
 

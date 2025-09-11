@@ -27,6 +27,9 @@ This function estimates the log hazard ratio by finding the root of the log-rank
 }
 \details{
 This deactivates the ties factor correction in the score function by passing
-\code{use_ties_factor = FALSE} to the \code{score_fun}.
+\code{use_ties_factor = FALSE} to the \code{score_fun}. The root finding is done without calculating
+the variance by passing \code{calculate_variance = FALSE}, which is only calculated at the solution.
+This saves computation time, and avoids spurious warnings about negative variances during the root
+finding process.
 }
 \keyword{internal}

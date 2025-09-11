@@ -17,6 +17,8 @@
 #'   when used in stratified analyses computations.
 #' @param use_ties_factor (`flag`) Whether to use the ties factor in the variance calculation. This is used
 #'   when calculating the score test statistic, but not when estimating the log hazard ratio.
+#' @param calculate_variance (`flag`) Whether to calculate the variance. This is useful to avoid
+#'   unnecessary computations when only the score function value is needed, e.g., during root finding.
 #' @param hr_se_plugin_adjusted (`flag`) Defines the method for calculating the standard error of the
 #'   log hazard ratio estimate when adjusting for covariates, see details.
 #' @return The score function value(s), with the following attributes:
@@ -45,7 +47,8 @@ h_lr_score_no_strata_no_cov <- function(
     time,
     status,
     n = nrow(df),
-    use_ties_factor = TRUE) {
+    use_ties_factor = TRUE,
+    calculate_variance = TRUE) {
   assert_numeric(theta, min.len = 1L, finite = TRUE)
   assert_data_frame(df)
   assert_string(treatment)
@@ -58,6 +61,7 @@ h_lr_score_no_strata_no_cov <- function(
   assert_count(n)
   assert_true(n >= nrow(df))
   assert_flag(use_ties_factor)
+  assert_flag(calculate_variance)
 
   # Standardize data set format, subset to relevant variables.
   df_stand <- data.frame(
@@ -77,7 +81,10 @@ h_lr_score_no_strata_no_cov <- function(
   df_events$n_events <- df_events_per_time$n_events[match(df_events$time, df_events_per_time$time)]
 
   # Calculate the log rank statistic u_l and the variance sigma_l2 iteratively.
-  u_l <- sigma_l2 <- 0
+  u_l <- 0
+  if (calculate_variance) {
+    sigma_l2 <- 0
+  }
   for (i in seq_len(nrow(df_events))) {
     # This event time.
     t_i <- df_events$time[i]
@@ -101,20 +108,22 @@ h_lr_score_no_strata_no_cov <- function(
     # Increment u_l.
     u_l <- u_l + (trt_i - y_bar_1_ti_coxph / (y_bar_1_ti_coxph + y_bar_0_ti))
 
-    # Increment sigma_l2.
-    y_bar_all_ti <- y_bar_1_ti_coxph + y_bar_0_ti
+    if (calculate_variance) {
+      # Increment sigma_l2.
+      y_bar_all_ti <- y_bar_1_ti_coxph + y_bar_0_ti
 
-    sigma_l2_factor_ti <- if (!use_ties_factor || n_events_ti == 1) {
-      1
-    } else {
-      (n * y_bar_all_ti - n_events_ti) / (n * y_bar_all_ti - 1)
+      sigma_l2_factor_ti <- if (!use_ties_factor || n_events_ti == 1) {
+        1
+      } else {
+        (n * y_bar_all_ti - n_events_ti) / (n * y_bar_all_ti - 1)
+      }
+      sigma_l2_summand <- y_bar_1_ti_coxph * y_bar_0_ti * sigma_l2_factor_ti / y_bar_all_ti^2
+      sigma_l2 <- sigma_l2 + sigma_l2_summand
     }
-    sigma_l2_summand <- y_bar_1_ti_coxph * y_bar_0_ti * sigma_l2_factor_ti / y_bar_all_ti^2
-    sigma_l2 <- sigma_l2 + sigma_l2_summand
   }
   u_l <- u_l / n
-  sigma_l2 <- sigma_l2 / n
-  se_theta_l <- sqrt(1 / (n * sigma_l2))
+  sigma_l2 <- if (calculate_variance) sigma_l2 / n else NA_real_
+  se_theta_l <- if (calculate_variance) sqrt(1 / (n * sigma_l2)) else NA_real_
   structure(
     u_l,
     sigma_l2 = sigma_l2,
@@ -124,13 +133,22 @@ h_lr_score_no_strata_no_cov <- function(
 }
 
 #' @describeIn survival_score_functions with strata but without covariates.
-h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_ties_factor = TRUE) {
+h_lr_score_strat <- function(
+    theta,
+    df,
+    treatment,
+    time,
+    status,
+    strata,
+    use_ties_factor = TRUE,
+    calculate_variance = TRUE) {
   assert_string(treatment)
   assert_string(time)
   assert_string(status)
   assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
   assert_data_frame(df)
   lapply(df[strata], assert_factor)
+  assert_flag(calculate_variance)
 
   df <- stats::na.omit(df[, c(treatment, time, status, strata)])
   n <- nrow(df)
@@ -146,12 +164,13 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
     time = time,
     status = status,
     n = n,
-    use_ties_factor = use_ties_factor
+    use_ties_factor = use_ties_factor,
+    calculate_variance = calculate_variance
   )
 
   u_sl <- sum_vectors_in_list(strata_results)
-  sigma_sl2 <- sum_vectors_in_list(lapply(strata_results, attr, "sigma_l2"))
-  se_theta_sl <- sqrt(1 / (n * sigma_sl2))
+  sigma_sl2 <- if (calculate_variance) sum_vectors_in_list(lapply(strata_results, attr, "sigma_l2")) else NA_real_
+  se_theta_sl <- if (calculate_variance) sqrt(1 / (n * sigma_sl2)) else NA_real_
   structure(
     u_sl,
     sigma_l2 = sigma_sl2,
@@ -170,7 +189,8 @@ h_lr_score_cov <- function(
     model,
     theta_hat = theta,
     use_ties_factor = TRUE,
-    hr_se_plugin_adjusted = TRUE) {
+    hr_se_plugin_adjusted = TRUE,
+    calculate_variance = TRUE) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -180,6 +200,7 @@ h_lr_score_cov <- function(
   assert_subset(c(treatment, time, status, covariates), names(df))
   assert_factor(df[[treatment]], n.levels = 2L, any.missing = FALSE)
   assert_flag(hr_se_plugin_adjusted)
+  assert_flag(calculate_variance)
 
   # Subset to complete records here.
   df <- stats::na.omit(df[c(treatment, time, status, covariates)])
@@ -206,24 +227,9 @@ h_lr_score_cov <- function(
     time = time,
     status = status,
     n = n,
-    use_ties_factor = use_ties_factor
+    use_ties_factor = use_ties_factor,
+    calculate_variance = calculate_variance
   )
-
-  # Define standard error calculation.
-  g_theta_cl <- if (hr_se_plugin_adjusted) {
-    attr(unadj_score, "sigma_l2")
-  } else {
-    unadj_score_theta_hat <- h_lr_score_no_strata_no_cov(
-      theta = theta_hat, # Here is the only difference.
-      df = df,
-      treatment = treatment,
-      time = time,
-      status = status,
-      n = n,
-      use_ties_factor = use_ties_factor
-    )
-    attr(unadj_score_theta_hat, "sigma_l2")
-  }
 
   # We assume here that the observed proportion of treatment 1 in the data set corresponds to the preplanned
   # proportion of treatment 1 in the trial.
@@ -243,20 +249,39 @@ h_lr_score_cov <- function(
   # Compute adjusted score statistic.
   u_cl <- as.numeric(unadj_score) - u_l_adj_term
 
-  # Compute adjustment term for the variance estimate.
-  cov_x <- stats::cov(x_all)
-  beta_est_sum <- beta_est[[1]] + beta_est[[2]]
-  sigma_l2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_x %*% beta_est_sum)
+  if (calculate_variance) {
+    # Define standard error calculation.
+    g_theta_cl <- if (hr_se_plugin_adjusted) {
+      attr(unadj_score, "sigma_l2")
+    } else {
+      unadj_score_theta_hat <- h_lr_score_no_strata_no_cov(
+        theta = theta_hat, # Here is the only difference.
+        df = df,
+        treatment = treatment,
+        time = time,
+        status = status,
+        n = n,
+        use_ties_factor = use_ties_factor,
+        calculate_variance = TRUE
+      )
+      attr(unadj_score_theta_hat, "sigma_l2")
+    }
 
-  # Compute standard error for theta estimate, based on above results incl. choice for `g_theta_cl`.
-  sigma_cl2 <- g_theta_cl - sigma_l2_adj_term
-  var_theta_cl <- sigma_cl2 / (g_theta_cl^2) / n
-  se_theta_cl <- sqrt(var_theta_cl)
+    # Compute adjustment term for the variance estimate.
+    cov_x <- stats::cov(x_all)
+    beta_est_sum <- beta_est[[1]] + beta_est[[2]]
+    sigma_l2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% cov_x %*% beta_est_sum)
+
+    # Compute standard error for theta estimate, based on above results incl. choice for `g_theta_cl`.
+    sigma_cl2 <- g_theta_cl - sigma_l2_adj_term
+    var_theta_cl <- sigma_cl2 / (g_theta_cl^2) / n
+    se_theta_cl <- sqrt(var_theta_cl)
+  }
 
   structure(
     u_cl,
-    se_theta_l = se_theta_cl,
-    sigma_l2 = sigma_cl2,
+    se_theta_l = if (calculate_variance) se_theta_cl else NA_real_,
+    sigma_l2 = if (calculate_variance) sigma_cl2 else NA_real_,
     n = n
   )
 }
@@ -272,7 +297,8 @@ h_lr_score_strat_cov <- function(
     model,
     theta_hat = theta,
     use_ties_factor = TRUE,
-    hr_se_plugin_adjusted = TRUE) {
+    hr_se_plugin_adjusted = TRUE,
+    calculate_variance = TRUE) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -282,6 +308,7 @@ h_lr_score_strat_cov <- function(
   covariates <- all.vars(model)
   assert_subset(c(treatment, time, status, strata, covariates), names(df))
   assert_flag(hr_se_plugin_adjusted)
+  assert_flag(calculate_variance)
 
   # Subset to complete records here.
   df <- stats::na.omit(df[c(treatment, time, status, strata, covariates)])
@@ -308,7 +335,8 @@ h_lr_score_strat_cov <- function(
     time,
     status,
     strata,
-    use_ties_factor = use_ties_factor
+    use_ties_factor = use_ties_factor,
+    calculate_variance = calculate_variance
   )
 
   # We assume here that the observed proportion of treatment 1 in the data set
@@ -339,42 +367,46 @@ h_lr_score_strat_cov <- function(
   # Compute adjusted covariate adjusted stratified score.
   u_csl <- as.numeric(strat_unadj_score) - u_sl_adj_term
 
-  # Compute adjustment term for sigma_sl2.
-  strat_n <- sapply(strat_x_all, nrow)
-  strat_use <- names(which(strat_n > 1))
-  strat_n <- strat_n[strat_use]
-  overall_n <- sum(strat_n)
-  strat_cov_x <- lapply(strat_x_all[strat_use], stats::cov)
-  weighted_cov_x <- Map(function(x, n) x * n / overall_n, strat_cov_x, strat_n)
-  weighted_sum_cov_x <- Reduce("+", weighted_cov_x)
+  if (calculate_variance) {
+    # Compute adjustment term for sigma_sl2.
+    strat_n <- sapply(strat_x_all, nrow)
+    strat_use <- names(which(strat_n > 1))
+    strat_n <- strat_n[strat_use]
+    overall_n <- sum(strat_n)
+    strat_cov_x <- lapply(strat_x_all[strat_use], stats::cov)
+    weighted_cov_x <- Map(function(x, n) x * n / overall_n, strat_cov_x, strat_n)
+    weighted_sum_cov_x <- Reduce("+", weighted_cov_x)
 
-  beta_est_sum <- beta_est[[cont_grp]] + beta_est[[trt_grp]]
-  sigma_sl2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_x %*% beta_est_sum)
+    beta_est_sum <- beta_est[[cont_grp]] + beta_est[[trt_grp]]
+    sigma_sl2_adj_term <- pi * (1 - pi) * as.numeric(t(beta_est_sum) %*% weighted_sum_cov_x %*% beta_est_sum)
 
-  # Define standard error calculation.
-  g_theta_csl <- if (hr_se_plugin_adjusted) {
-    attr(strat_unadj_score, "sigma_l2")
-  } else {
-    strat_unadj_score_theta_hat <- h_lr_score_strat(
-      theta = theta_hat, # Here is the only difference.
-      df = df,
-      treatment = treatment,
-      time = time,
-      status = status,
-      strata = strata,
-      use_ties_factor = use_ties_factor
-    )
-    attr(strat_unadj_score_theta_hat, "sigma_l2")
+    # Define standard error calculation.
+    g_theta_csl <- if (hr_se_plugin_adjusted) {
+      attr(strat_unadj_score, "sigma_l2")
+    } else {
+      strat_unadj_score_theta_hat <- h_lr_score_strat(
+        theta = theta_hat, # Here is the only difference.
+        df = df,
+        treatment = treatment,
+        time = time,
+        status = status,
+        strata = strata,
+        use_ties_factor = use_ties_factor,
+        calculate_variance = TRUE
+      )
+      attr(strat_unadj_score_theta_hat, "sigma_l2")
+    }
+
+    # Compute standard error for theta estimate.
+    var_theta_csl <- (g_theta_csl - sigma_sl2_adj_term) / (g_theta_csl^2) / n
+    se_theta_csl <- sqrt(var_theta_csl)
+    sigma_csl2 <- g_theta_csl - sigma_sl2_adj_term
   }
-
-  # Compute standard error for theta estimate.
-  var_theta_csl <- (g_theta_csl - sigma_sl2_adj_term) / (g_theta_csl^2) / n
-  se_theta_csl <- sqrt(var_theta_csl)
 
   structure(
     u_csl,
-    se_theta_l = se_theta_csl,
-    sigma_l2 = g_theta_csl - sigma_sl2_adj_term,
+    se_theta_l = if (calculate_variance) se_theta_csl else NA_real_,
+    sigma_l2 = if (calculate_variance) sigma_csl2 else NA_real_,
     n = n
   )
 }

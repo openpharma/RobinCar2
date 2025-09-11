@@ -56,6 +56,21 @@ test_that("h_lr_score_no_strata_no_cov works as expected with multiple theta val
   expect_identical(as.numeric(result), expected)
 })
 
+test_that("h_lr_score_no_strata_no_cov works when not calculating the variance", {
+  result <- h_lr_score_no_strata_no_cov(
+    theta = 0,
+    df = surv_data,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    calculate_variance = FALSE
+  )
+  expect_equal(as.numeric(result), 0.08955378, tolerance = 1e-6)
+  expect_scalar_na(attr(result, "sigma_l2"))
+  expect_scalar_na(attr(result, "se_theta_l"))
+  expect_equal(attr(result, "n"), nrow(surv_data))
+})
+
 test_that("h_lr_score_strat works as expected with default options", {
   result <- h_lr_score_strat(
     theta = 0,
@@ -91,6 +106,23 @@ test_that("h_lr_score_strat works as expected when not using ties factor", {
     use_ties_factor = FALSE
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
+test_that("h_lr_score_strat works as expected when not calculating the variance", {
+  result <- h_lr_score_strat(
+    theta = 0,
+    df = surv_data,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = "strata",
+    use_ties_factor = FALSE,
+    calculate_variance = FALSE
+  )
+  expect_equal(as.numeric(result), 0.08968712, tolerance = 1e-6)
+  expect_scalar_na(attr(result, "sigma_l2"))
+  expect_scalar_na(attr(result, "se_theta_l"))
+  expect_equal(attr(result, "n"), 227)
 })
 
 test_that("h_lr_score_strat works as expected with multiple theta values", {
@@ -143,6 +175,23 @@ test_that("h_lr_score_cov works as expected when not using ties factor", {
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
+test_that("h_lr_score_cov works as expected when not calculating the variance", {
+  result <- h_lr_score_cov(
+    theta = 0,
+    df = surv_data,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~age,
+    use_ties_factor = FALSE,
+    calculate_variance = FALSE
+  )
+  expect_equal(as.numeric(result), 0.08512662, tolerance = 1e-6)
+  expect_scalar_na(attr(result, "sigma_l2"))
+  expect_scalar_na(attr(result, "se_theta_l"))
+  expect_equal(attr(result, "n"), 228)
+})
+
 test_that("h_lr_score_cov works when using the unadjusted standard error option", {
   result <- h_lr_score_cov(
     theta = 0,
@@ -176,6 +225,18 @@ test_that("h_lr_score_cov works when using the unadjusted standard error option"
       attr(result_default, "sigma_l2")
     ))
   )
+})
+
+test_that("h_lr_score_cov works with a single factor covariate", {
+  result <- h_lr_score_cov(
+    theta = 0,
+    df = surv_data,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~ecog
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
 test_that("h_lr_score_strat_cov works as expected with default options", {
@@ -216,6 +277,24 @@ test_that("h_lr_score_strat_cov works as expected when not using ties factor", {
     use_ties_factor = FALSE
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
+test_that("h_lr_score_strat_cov works as expected when not calculating the variance", {
+  result <- h_lr_score_strat_cov(
+    theta = 0,
+    df = surv_data,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = "strata",
+    model = ~age,
+    use_ties_factor = FALSE,
+    calculate_variance = FALSE
+  )
+  expect_equal(as.numeric(result), 0.08975217, tolerance = 1e-6)
+  expect_scalar_na(attr(result, "se_theta_l"))
+  expect_scalar_na(attr(result, "sigma_l2"))
+  expect_equal(attr(result, "n"), 227)
 })
 
 test_that("h_lr_score_strat_cov works as expected with unadjusted standard error", {

@@ -1,8 +1,8 @@
 Type: Package
 Package: RobinCar2
 Title: ROBust INference for Covariate Adjustment in Randomized Clinical Trials
-Version: 0.2.0.9999
-Date: 2025-09-09
+Version: 0.2.1
+Date: 2025-09-11
 Authors@R:
     c(
       person("Liming", "Li", , "liming.li1@astrazeneca.com", role = c("aut", "cre"), comment = c(ORCID = "0009-0008-6870-0878")),
@@ -17,6 +17,7 @@ Authors@R:
       person("Merck Sharp & Dohme, Inc.", role = c("cph", "fnd")),
       person("AstraZeneca plc", role = c("cph", "fnd")),
       person("Eli Lilly and Company", role = c("cph", "fnd")),
+      person("Novartis Pharma AG", role = c("cph", "fnd")),
       person("The University of Washington", role = c("cph", "fnd"))
     )
 Description: Performs robust estimation and inference when using covariate adjustment

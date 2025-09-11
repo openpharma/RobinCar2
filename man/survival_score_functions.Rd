@@ -15,7 +15,8 @@ h_lr_score_no_strata_no_cov(
   time,
   status,
   n = nrow(df),
-  use_ties_factor = TRUE
+  use_ties_factor = TRUE,
+  calculate_variance = TRUE
 )
 
 h_lr_score_strat(
@@ -25,7 +26,8 @@ h_lr_score_strat(
   time,
   status,
   strata,
-  use_ties_factor = TRUE
+  use_ties_factor = TRUE,
+  calculate_variance = TRUE
 )
 
 h_lr_score_cov(
@@ -37,7 +39,8 @@ h_lr_score_cov(
   model,
   theta_hat = theta,
   use_ties_factor = TRUE,
-  hr_se_plugin_adjusted = TRUE
+  hr_se_plugin_adjusted = TRUE,
+  calculate_variance = TRUE
 )
 
 h_lr_score_strat_cov(
@@ -50,7 +53,8 @@ h_lr_score_strat_cov(
   model,
   theta_hat = theta,
   use_ties_factor = TRUE,
-  hr_se_plugin_adjusted = TRUE
+  hr_se_plugin_adjusted = TRUE,
+  calculate_variance = TRUE
 )
 }
 \arguments{
@@ -71,6 +75,9 @@ when used in stratified analyses computations.}
 
 \item{use_ties_factor}{(\code{flag}) Whether to use the ties factor in the variance calculation. This is used
 when calculating the score test statistic, but not when estimating the log hazard ratio.}
+
+\item{calculate_variance}{(\code{flag}) Whether to calculate the variance. This is useful to avoid
+unnecessary computations when only the score function value is needed, e.g., during root finding.}
 
 \item{strata}{(\code{character}) The names of the strata variables in \code{df}, which must be factors.}
 
