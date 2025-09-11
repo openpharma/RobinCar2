@@ -19,7 +19,7 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   assert_string(treatment)
   assert_string(time)
   assert_string(status)
-  assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
+  assert_character(covariates, min.len = 1L, any.missing = FALSE, unique = TRUE)
   assert_data_frame(df)
   assert_factor(df[[treatment]], n.levels = 2L)
   assert_numeric(df[[status]])
