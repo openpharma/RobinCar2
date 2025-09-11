@@ -60,6 +60,16 @@ robin_surv(
 )
 ```
 
+We can also use multiple stratification variables by adding them on the right-hand side of `treatment`, as follows:
+
+```{r}
+robin_surv(
+  Surv(time, status) ~ 1,
+  treatment = sex ~ strata + ecog,
+  data = surv_data
+)
+```
+
 We could also just use covariate adjustment:
 
 ```{r}
@@ -75,7 +85,7 @@ Or we combine both stratification and covariate adjustment:
 ```{r}
 robin_surv(
   Surv(time, status) ~ age + meal.cal,
-  treatment = sex ~ strata,
+  treatment = sex ~ strata + ecog,
   data = surv_data
 )
 ```

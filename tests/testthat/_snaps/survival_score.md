@@ -14,6 +14,10 @@
 
     structure(0.0896871248297144, sigma_l2 = 0.169145720705825, se_theta_l = 0.161382546477903, n = 227L)
 
+# h_lr_score_strat works with multiple strata variables
+
+    structure(0.0896871248297144, sigma_l2 = 0.169145720705825, se_theta_l = 0.161382546477903, n = 227L)
+
 # h_lr_score_strat works as expected when not using ties factor
 
     structure(0.0896871248297144, sigma_l2 = 0.169404689852017, se_theta_l = 0.161259146456279, n = 227L)
@@ -35,6 +39,10 @@
     structure(0.0850667744102501, se_theta_l = 0.156579398029655, sigma_l2 = 0.176173801156959, n = 228L)
 
 # h_lr_score_strat_cov works as expected with default options
+
+    structure(0.0897521729142622, se_theta_l = 0.161382421810696, sigma_l2 = 0.169145459377487, n = 227L)
+
+# h_lr_score_strat_cov works with multiple strata variables
 
     structure(0.0897521729142622, se_theta_l = 0.161382421810696, sigma_l2 = 0.169145459377487, n = 227L)
 

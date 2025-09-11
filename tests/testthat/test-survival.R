@@ -109,6 +109,33 @@ test_that("robin_surv_strata works as expected", {
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
+test_that("robin_surv_strata works with multiple strata variables", {
+  input <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ 1,
+    data = surv_data,
+    treatment = sex ~ strata + ecog
+  )
+  result <- robin_surv_strata(
+    vars = input,
+    data = input$data,
+    exp_level = 1,
+    control_level = 2
+  )
+  surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
+  input2 <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ 1,
+    data = surv_data,
+    treatment = sex ~ strata_ecog
+  )
+  result2 <- robin_surv_strata(
+    vars = input2,
+    data = input2$data,
+    exp_level = 1,
+    control_level = 2
+  )
+  expect_equal(result, result2, ignore_formula_env = TRUE)
+})
+
 test_that("robin_surv_strata gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
@@ -194,6 +221,33 @@ test_that("robin_surv_strata_cov works as expected", {
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
+test_that("robin_surv_strata_cov works with multiple strata variables", {
+  input <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ age,
+    data = surv_data,
+    treatment = sex ~ strata + ecog
+  )
+  result <- robin_surv_strata_cov(
+    vars = input,
+    data = input$data,
+    exp_level = 2,
+    control_level = 1
+  )
+  surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
+  input2 <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ age,
+    data = surv_data,
+    treatment = sex ~ strata_ecog
+  )
+  result2 <- robin_surv_strata_cov(
+    vars = input2,
+    data = input2$data,
+    exp_level = 2,
+    control_level = 1
+  )
+  expect_equal(result, result2, ignore_formula_env = TRUE)
+})
+
 test_that("robin_surv_strata_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age,
@@ -274,6 +328,24 @@ test_that("h_events_table works as expected with strata", {
     sex = structure(c(1L, 2L, 1L, 2L, 1L, 2L, 2L), levels = c("Female", "Male"), class = "factor"),
     Patients = c(27L, 36L, 42L, 71L, 21L, 29L, 1L),
     Events = c(9L, 28L, 28L, 54L, 16L, 28L, 1L)
+  )
+  expect_identical(result, expected)
+})
+
+test_that("h_events_table works as expected with multiple strata", {
+  vars <- list(
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = c("strata", "ecog")
+  )
+  result <- h_events_table(surv_data, vars)
+  expected <- data.frame(
+    strata = structure(c(1L, 1L, 3L, 3L, 4L, 2L, 2L), levels = c("0", "1", "2", "3"), class = "factor"),
+    ecog = structure(c(1L, 1L, 1L, 1L, 1L, 2L, 2L), levels = c("0", "1"), class = "factor"),
+    sex = structure(c(1L, 2L, 1L, 2L, 2L, 1L, 2L), levels = c("Female", "Male"), class = "factor"),
+    Patients = c(27L, 36L, 21L, 29L, 1L, 42L, 71L),
+    Events = c(9L, 28L, 16L, 28L, 1L, 28L, 54L)
   )
   expect_identical(result, expected)
 })
