@@ -10,7 +10,7 @@
 #'   two levels, where the first level is the reference group.
 #' @param time (`string`) The name of the time variable in `df`, representing the survival time.
 #' @param status (`string`) The name of the status variable in `df`, with 0 for censored and 1 for event.
-#' @param strata (`string`) The name of the strata variable in `df`, which must be a factor.
+#' @param strata (`character`) The names of the strata variables in `df`, which must be factors.
 #' @param model (`formula`) The model formula for covariate adjustment, e.g., `~ cov1 + cov2`.
 #' @param theta_hat (`number`) The estimated log hazard ratio when not adjusting for covariates.
 #' @param n (`count`) The number of observations. Note that this can be higher than the number of rows
@@ -39,13 +39,14 @@ NULL
 
 #' @describeIn survival_score_functions without strata or covariates.
 h_lr_score_no_strata_no_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    n = nrow(df),
-    use_ties_factor = TRUE) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  n = nrow(df),
+  use_ties_factor = TRUE
+) {
   assert_numeric(theta, min.len = 1L, finite = TRUE)
   assert_data_frame(df)
   assert_string(treatment)
@@ -128,17 +129,16 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
   assert_string(treatment)
   assert_string(time)
   assert_string(status)
-  assert_string(strata)
+  assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
   assert_data_frame(df)
-  assert_factor(df[[strata]])
+  lapply(df[strata], assert_factor)
 
   df <- stats::na.omit(df[, c(treatment, time, status, strata)])
   n <- nrow(df)
 
-  df[[strata]] <- droplevels(df[[strata]])
-  strata_levels <- levels(df[[strata]])
+  strata_formula <- paste("~", paste(strata, collapse = "+"))
+  df_split <- split(df, f = as.formula(strata_formula), drop = TRUE)
 
-  df_split <- split(df, f = df[[strata]])
   strata_results <- lapply(
     df_split,
     FUN = h_lr_score_no_strata_no_cov,
@@ -163,15 +163,16 @@ h_lr_score_strat <- function(theta, df, treatment, time, status, strata, use_tie
 
 #' @describeIn survival_score_functions with covariates but without strata.
 h_lr_score_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    model,
-    theta_hat = theta,
-    use_ties_factor = TRUE,
-    hr_se_plugin_adjusted = TRUE) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  hr_se_plugin_adjusted = TRUE
+) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -264,21 +265,22 @@ h_lr_score_cov <- function(
 
 #' @describeIn survival_score_functions with strata and covariates.
 h_lr_score_strat_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    strata,
-    model,
-    theta_hat = theta,
-    use_ties_factor = TRUE,
-    hr_se_plugin_adjusted = TRUE) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  strata,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  hr_se_plugin_adjusted = TRUE
+) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
   assert_string(status)
-  assert_string(strata)
+  assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
   assert_formula(model)
   covariates <- all.vars(model)
   assert_subset(c(treatment, time, status, strata, covariates), names(df))

@@ -72,7 +72,7 @@ when used in stratified analyses computations.}
 \item{use_ties_factor}{(\code{flag}) Whether to use the ties factor in the variance calculation. This is used
 when calculating the score test statistic, but not when estimating the log hazard ratio.}
 
-\item{strata}{(\code{string}) The name of the strata variable in \code{df}, which must be a factor.}
+\item{strata}{(\code{character}) The names of the strata variables in \code{df}, which must be factors.}
 
 \item{model}{(\code{formula}) The model formula for covariate adjustment, e.g., \code{~ cov1 + cov2}.}
 

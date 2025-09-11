@@ -44,7 +44,7 @@ two levels, where the first level is the reference group.}
 \item{n}{(\code{count}) The number of observations. Note that this can be higher than the number of rows
 when used in stratified analyses computations.}
 
-\item{strata}{(\code{string}) The name of the strata variable in \code{df}, which must be a factor.}
+\item{strata}{(\code{character}) The names of the strata variables in \code{df}, which must be factors.}
 }
 \value{
 A data frame containing the same data as the input \code{df}, but restructured with standardized column names

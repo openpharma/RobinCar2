@@ -46,6 +46,25 @@ test_that("h_strat_derived_outcome_vals works as expected", {
   expect_identical(unname(sapply(result, nrow)), as.integer(table(surv_data_full$strata)))
 })
 
+test_that("h_strat_derived_outcome_vals works with multiple strata", {
+  surv_data_full <- na.omit(surv_data)
+  result <- h_strat_derived_outcome_vals(
+    theta = 0,
+    df = surv_data_full,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    strata = c("strata", "ecog"),
+    covariates = c("age", "ph.karno")
+  )
+  expect_list(result, len = 4L, types = "data.frame", any.missing = FALSE)
+  expect_names(names(result), identical.to = c("0.0", "2.0", "3.0", "1.1"))
+  expect_identical(
+    unname(sapply(result, nrow)),
+    as.integer(table(interaction(surv_data_full$strata, surv_data_full$ecog, drop = TRUE)))
+  )
+})
+
 test_that("h_get_lm_input works as expected", {
   set.seed(941)
   df <- data.frame(

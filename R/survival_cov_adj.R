@@ -19,7 +19,7 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
   assert_string(treatment)
   assert_string(time)
   assert_string(status)
-  assert_character(covariates, min.len = 1L, any.missing = FALSE)
+  assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
   assert_data_frame(df)
   assert_factor(df[[treatment]], n.levels = 2L)
   assert_numeric(df[[status]])
@@ -106,17 +106,15 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
 
 #' @describeIn derived_outcome_vals calculates the derived outcome values for each stratum separately.
 h_strat_derived_outcome_vals <- function(theta, df, treatment, time, status, strata, covariates) {
-  assert_string(strata)
+  assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
   assert_data_frame(df)
-  assert_factor(df[[strata]])
+  lapply(df[strata], assert_factor)
 
   assert_true(!any(is.na(df)))
   n <- nrow(df)
 
-  df[[strata]] <- droplevels(df[[strata]])
-  strata_levels <- levels(df[[strata]])
-
-  df_split <- split(df, f = df[[strata]])
+  strata_formula <- paste("~", paste(strata, collapse = "+"))
+  df_split <- split(df, f = as.formula(strata_formula), drop = TRUE)
 
   lapply(
     df_split,
