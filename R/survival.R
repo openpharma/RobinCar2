@@ -3,7 +3,10 @@
 #' This function estimates the log hazard ratio by finding the root of the log-rank score function.
 #'
 #' @details This deactivates the ties factor correction in the score function by passing
-#' `use_ties_factor = FALSE` to the `score_fun`.
+#' `use_ties_factor = FALSE` to the `score_fun`. The root finding is done without calculating
+#' the variance by passing `calculate_variance = FALSE`, which is only calculated at the solution.
+#' This saves computation time, and avoids spurious warnings about negative variances during the root
+#' finding process.
 #'
 #' @param score_fun (`function`) The log-rank score function to be used for estimation.
 #' @param interval (`numeric`) A numeric vector of length 2 specifying the interval in which to search for the root.
@@ -16,7 +19,7 @@
 #'
 #' @keywords internal
 h_log_hr_est_via_score <- function(score_fun, interval = c(-5, 5), ...) {
-  assert_function(score_fun, args = c("theta", "use_ties_factor"))
+  assert_function(score_fun, args = c("theta", "use_ties_factor", "calculate_variance"))
   assert_numeric(interval, len = 2L, finite = TRUE)
   assert_true(interval[1] < interval[2])
 
@@ -26,13 +29,22 @@ h_log_hr_est_via_score <- function(score_fun, interval = c(-5, 5), ...) {
     extendInt = "yes", # If the root is not found in the interval, extend the interval.
     check.conv = TRUE, # If the root cannot be found, an error is thrown.
     use_ties_factor = FALSE,
+    calculate_variance = FALSE, # We will only do this at the solution.
     tol = .Machine$double.eps^0.1, # Use a small tolerance for convergence.
     ...
   )
-  solution_attrs <- attributes(score_solution$f.root)
+  score_root <- score_solution$root
+  # Now calculate the variance at the solution.
+  score_result <- score_fun(
+    theta = score_root,
+    use_ties_factor = FALSE,
+    calculate_variance = TRUE,
+    ...
+  )
+  solution_attrs <- attributes(score_result)
 
   list(
-    theta = score_solution$root,
+    theta = score_root,
     se = solution_attrs$se_theta_l,
     sigma_l2 = solution_attrs$sigma_l2,
     n = solution_attrs$n
@@ -57,9 +69,9 @@ h_log_hr_est_via_score <- function(score_fun, interval = c(-5, 5), ...) {
 #'
 #' @keywords internal
 h_lr_test_via_score <- function(score_fun, ...) {
-  assert_function(score_fun, args = c("theta", "use_ties_factor"))
+  assert_function(score_fun, args = c("theta", "use_ties_factor", "calculate_variance"))
 
-  score_res <- score_fun(theta = 0, use_ties_factor = TRUE, ...)
+  score_res <- score_fun(theta = 0, use_ties_factor = TRUE, calculate_variance = TRUE, ...)
   u_l <- as.numeric(score_res)
   score_attrs <- attributes(score_res)
 
@@ -393,13 +405,14 @@ h_events_table <- function(data, vars) {
 #'   treatment = sex ~ 1
 #' )
 robin_surv <- function(
-    formula,
-    data,
-    treatment,
-    comparisons,
-    contrast = "hazardratio",
-    test = "logrank",
-    ...) {
+  formula,
+  data,
+  treatment,
+  comparisons,
+  contrast = "hazardratio",
+  test = "logrank",
+  ...
+) {
   attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_data_frame(data)
