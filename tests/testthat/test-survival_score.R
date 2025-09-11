@@ -215,6 +215,18 @@ test_that("h_lr_score_cov works when using the unadjusted standard error option"
   )
 })
 
+test_that("h_lr_score_cov works with a single factor covariate", {
+  result <- h_lr_score_cov(
+    theta = 0,
+    df = surv_data,
+    treatment = "sex",
+    time = "time",
+    status = "status",
+    model = ~ecog
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
 test_that("h_lr_score_strat_cov works as expected with default options", {
   result <- h_lr_score_strat_cov(
     theta = 0,

@@ -154,14 +154,15 @@ h_get_lm_input <- function(df, model) {
   assert_subset(c("treatment", "O_hat", all.vars(model)), names(df))
   assert_factor(df$treatment)
 
-  # Add outcome, remove intercept:
-  model <- stats::update(model, O_hat ~ . - 1)
+  # Add outcome:
+  model <- stats::update(model, O_hat ~ .)
   df_by_trt <- split(df, f = df$treatment)
   lapply(
     df_by_trt,
     function(this_df) {
       mf <- stats::model.frame(model, data = this_df)
       x <- stats::model.matrix(model, data = mf)
+      x <- x[, -1L, drop = FALSE] # Remove intercept.
       y <- stats::model.response(mf)
       list(X = x, y = y)
     }

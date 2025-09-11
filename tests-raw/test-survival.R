@@ -73,6 +73,21 @@ robincar_args <- list(
 )
 calc_robin_car(robincar_args)
 
+# test: "robin_surv gives the same results as RobinCar for single factor covariate"
+robincar_args <- list(
+  df = na.omit(surv_data),
+  treat_col = "ecog",
+  response_col = "time",
+  event_col = "status",
+  car_strata_cols = NULL,
+  covariate_cols = "sex", # We use a single factor covariate here.
+  car_scheme = "simple",
+  adj_method = "CL",
+  ref_arm = "0",
+  p_trt = mean(surv_data$ecog == "1", na.rm = TRUE)
+)
+calc_robin_car(robincar_args)
+
 # test: "robin_surv_strata_cov gives the same results as RobinCar functions"
 robincar_args <- list(
   df = na.omit(surv_data),
