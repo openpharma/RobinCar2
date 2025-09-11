@@ -9,6 +9,19 @@ test_that("h_log_hr_est_via_score works as expected", {
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
+test_that("h_log_hr_est_via_score works does not give spurious warning", {
+  result <- expect_silent(h_log_hr_est_via_score(
+    h_lr_score_strat_cov,
+    df = na.omit(surv_data),
+    treatment = "ecog",
+    time = "time",
+    status = "status",
+    strata = "sex",
+    model = ~ age + meal.cal + wt.loss
+  ))
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
 test_that("h_log_hr_est_via_score extends the search interval as needed", {
   result <- h_log_hr_est_via_score(
     h_lr_score_no_strata_no_cov,
