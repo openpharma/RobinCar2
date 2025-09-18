@@ -1,3 +1,9 @@
+# RobinCar2 0.2.1.9000
+
+### Bug Fixes
+
+* Fixed a bug in covariate-adjusted stratified survival function estimation in `robin_surv` which could occur when there are character covariates with values only appearing in one stratum, which could have failed or lead to incorrect results. 
+
 # RobinCar2 0.2.1
 
 ### New features

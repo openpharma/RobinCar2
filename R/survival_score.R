@@ -314,6 +314,15 @@ h_lr_score_strat_cov <- function(
   df <- stats::na.omit(df[c(treatment, time, status, strata, covariates)])
   n <- nrow(df)
 
+  # Ensure that all character covariates are converted to factors.
+  # (Otherwise we could just have one character value in one stratum, or incompatible
+  # design matrices between the strata.)
+  for (cov in covariates) {
+    if (is.character(df[[cov]])) {
+      df[[cov]] <- factor(df[[cov]])
+    }
+  }
+
   # Calculate derived outcomes and regress them on covariates.
   df_split_with_covs_ovals <- h_strat_derived_outcome_vals(
     theta = theta_hat,

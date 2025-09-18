@@ -585,7 +585,7 @@ test_that("robin_surv allows to use unadjusted standard error", {
 test_that("robin_surv gives the same results as RobinCar for strong correlation covariate with strata", {
   set.seed(2040)
   surv_data2 <- surv_data
-  surv_data2$ecog <- as.factor(ifelse(
+  surv_data2$ecog <- factor(ifelse(
     surv_data$strata == 1,
     rbinom(nrow(surv_data), 1, prob = 0.2),
     surv_data$ecog
@@ -611,4 +611,25 @@ test_that("robin_surv gives the same results as RobinCar for strong correlation 
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-3)
   expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-1)
   expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-2)
+})
+
+test_that("robin_surv works also with character variable in the correlation case", {
+  set.seed(2040)
+  surv_data2 <- surv_data
+  surv_data2$ecog <- as.character(ifelse(
+    surv_data$strata == 1,
+    rbinom(nrow(surv_data), 1, prob = 0.2),
+    surv_data$ecog
+  ))
+  surv_data2 <- surv_data2[surv_data2$strata %in% c(0, 1), ]
+  # Here we only have ecog 1 for strata 0:
+  assert_true(all(surv_data2$ecog[surv_data2$strata == 0] == "1"))
+
+  result <- expect_silent(robin_surv(
+    formula = Surv(time, status) ~ ecog,
+    data = na.omit(surv_data2),
+    treatment = sex ~ strata,
+    hr_se_plugin_adjusted = FALSE
+  ))
+  expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-2, style = "deparse")
 })
