@@ -168,3 +168,9 @@
     AQAEAAkAAAAJcm93Lm5hbWVzAAAADQAAAAKAAAAA/////AAABAIAAAL/AAAAEAAAAAEABAAJ
     AAAACmRhdGEuZnJhbWUAAAD+
 
+# robin_surv works also with character variable in the correlation case
+
+    structure(c(0.553358244734497, 0.236938504567525, 2.33545090421045, 
+    0.0195198778286913), dim = c(1L, 4L), dimnames = list("Male v.s. Female", 
+        c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")))
+
