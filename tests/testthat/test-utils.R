@@ -42,6 +42,11 @@ test_that("h_get_vars works for formula with schemas", {
   expect_identical(res, list(treatment = "a", schema = "sr", strata = "b"))
 })
 
+test_that("h_get_vars is backwards compatible for use of sp instead of sr", {
+  res <- expect_silent(h_get_vars(a ~ sp(b) + c))
+  expect_identical(res, list(treatment = "a", schema = "sr", strata = c("b", "c")))
+})
+
 test_that("h_prep_survival_input works with strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,
