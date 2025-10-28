@@ -5,9 +5,9 @@
 #'
 #' @examples
 #' x <- robin_surv(
-#'   formula = Surv(time, status) ~ meal.cal + age,
+#'   formula = Surv(time, status) ~ meal.cal + age + strata(strata),
 #'   data = surv_data,
-#'   treatment = sex ~ strata
+#'   treatment = sex ~ pb(strata)
 #' )
 NULL
 
@@ -25,9 +25,7 @@ print.surv_effect <- function(x, ...) {
     randomization_schema$schema[randomization_schema$id == x$schema],
     ")\n"
   )
-  contr_type <- switch(x$contrast,
-    hazardratio = "Log Hazard ratio"
-  )
+  contr_type <- switch(x$contrast, hazardratio = "Log Hazard ratio")
   cat(sprintf("\nContrast     :  %s\n\n", contr_type))
 
   stats::printCoefmat(
@@ -36,9 +34,7 @@ print.surv_effect <- function(x, ...) {
 
   cat("\n")
 
-  test_type <- switch(x$test,
-    logrank = "Log-Rank"
-  )
+  test_type <- switch(x$test, logrank = "Log-Rank")
   cat(sprintf("Test         :  %s\n\n", test_type))
 
   stats::printCoefmat(
