@@ -90,6 +90,19 @@ robin_surv(
 )
 ```
 
+Note that it is also possible to skip estimation of the hazard ratio by specifying `contrast = "none"`:
+
+```{r}
+robin_surv(
+  Surv(time, status) ~ age + meal.cal,
+  treatment = sex ~ strata + ecog,
+  data = surv_data,
+  contrast = "none"
+)
+```
+
+This can help to speed up simulation studies e.g. when there is no interest in the estimation performance.
+
 # Details of the Methods
 
 The four methods introduced above are implemented based on the corresponding score functions $U(\theta)$ with corresponding variance estimators $\sigma^{2}(\theta)$, where $\theta$ is the log hazard ratio.

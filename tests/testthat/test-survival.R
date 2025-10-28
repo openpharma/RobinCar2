@@ -65,6 +65,26 @@ test_that("robin_surv_comparison works as expected without covariate adjustment"
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
+test_that("robin_surv_comparison can skip the hazard ratio estimation", {
+  input <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ 1,
+    data = surv_data,
+    treatment = sex ~ 1
+  )
+  result <- robin_surv_comparison(
+    score_fun = h_lr_score_no_strata_no_cov,
+    vars = input,
+    data = input$data,
+    exp_level = 2,
+    control_level = 1,
+    contrast = "none",
+    treatment = input$treatment,
+    time = input$time,
+    status = input$status
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
 test_that("robin_surv_no_strata_no_cov works as expected", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
@@ -632,4 +652,19 @@ test_that("robin_surv works also with character variable in the correlation case
     hr_se_plugin_adjusted = FALSE
   ))
   expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-2, style = "deparse")
+})
+
+test_that("robin_surv can skip the hazard ratio estimation", {
+  result <- robin_surv(
+    Surv(time, status) ~ age,
+    data = surv_data,
+    treatment = ecog ~ 1,
+    contrast = "none"
+  )
+  expect_identical(result$contrast, "none")
+  expect_scalar_na(result$estimate)
+  expect_scalar_na(result$se)
+  expect_scalar_na(result$hr_n)
+  expect_scalar_na(result$hr_sigma_l2)
+  expect_null(result$log_hr_coef_mat)
 })

@@ -7,6 +7,16 @@ test_that("print method for surv_effect works as expected", {
   expect_snapshot(print(x))
 })
 
+test_that("print method for surv_effect works as expected when no hazard ratio was estimated", {
+  x <- robin_surv(
+    formula = Surv(time, status) ~ meal.cal + age,
+    data = surv_data,
+    treatment = sex ~ strata,
+    contrast = "none"
+  )
+  expect_snapshot(print(x))
+})
+
 test_that("table method for surv_effect works as expected", {
   x <- robin_surv(
     formula = Surv(time, status) ~ meal.cal + age,
@@ -30,5 +40,19 @@ test_that("confint method for surv_effect works as expected", {
       "The confidence interval is transformed.",
       fixed = TRUE
     )
+  )
+})
+
+test_that("confint method returns error when no hazard ratio was estimated", {
+  x <- robin_surv(
+    formula = Surv(time, status) ~ meal.cal + age,
+    data = surv_data,
+    treatment = sex ~ strata,
+    contrast = "none"
+  )
+  expect_error(
+    confint(x),
+    "No contrast was estimated; confidence interval is not available.",
+    fixed = TRUE
   )
 })
