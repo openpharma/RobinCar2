@@ -6,8 +6,9 @@
 #'
 #' @return Named covariance matrix.
 #' @export
+#' # nolint start
 vcovG <- function(x, decompose = TRUE, ...) {
-  # nolint
+  # nolint end
   assert_class(x, "prediction_cf")
   assert_flag(decompose)
   resi <- x$residual
