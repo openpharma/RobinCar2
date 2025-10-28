@@ -385,6 +385,7 @@ h_events_table <- function(data, vars) {
 #' `comparisons = list(c(3, 3), c(1, 2))`
 #'
 #' @export
+#'
 #' @examples
 #' # Adjusted for covariates meal.cal and age and adjusted for stratification by strata:
 #' robin_surv(
