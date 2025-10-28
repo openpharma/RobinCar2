@@ -3,8 +3,8 @@
     Code
       print(x)
     Output
-      Model        :  Surv(time, status) ~ meal.cal + age 
-      Randomization:  sex ~ strata  ( Simple )
+      Model        :  Surv(time, status) ~ meal.cal + age + strata(strata) 
+      Randomization:  sex ~ sr(1)  ( Simple )
       
       Contrast     :  Log Hazard ratio
       

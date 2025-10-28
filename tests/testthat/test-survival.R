@@ -50,7 +50,7 @@ test_that("robin_surv_comparison works as expected without covariate adjustment"
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = sex ~ 1
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_comparison(
     score_fun = h_lr_score_no_strata_no_cov,
@@ -69,7 +69,7 @@ test_that("robin_surv_no_strata_no_cov works as expected", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = sex ~ 1
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_no_strata_no_cov(
     vars = input,
@@ -84,7 +84,7 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = ecog ~ 1
+    treatment = ecog ~ sr(1)
   )
   input$data <- na.omit(input$data)
   result <- robin_surv_no_strata_no_cov(
@@ -109,9 +109,9 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
 
 test_that("robin_surv_strata works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ 1,
+    formula = survival::Surv(time, status) ~ 1 + strata(strata),
     data = surv_data,
-    treatment = sex ~ strata
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_strata(
     vars = input,
@@ -124,9 +124,9 @@ test_that("robin_surv_strata works as expected", {
 
 test_that("robin_surv_strata works with multiple strata variables", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ 1,
+    formula = survival::Surv(time, status) ~ strata(strata, ecog),
     data = surv_data,
-    treatment = sex ~ strata + ecog
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_strata(
     vars = input,
@@ -136,9 +136,9 @@ test_that("robin_surv_strata works with multiple strata variables", {
   )
   surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
   input2 <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ 1,
+    formula = survival::Surv(time, status) ~ strata(strata_ecog),
     data = surv_data,
-    treatment = sex ~ strata_ecog
+    treatment = sex ~ sr(1)
   )
   result2 <- robin_surv_strata(
     vars = input2,
@@ -151,9 +151,9 @@ test_that("robin_surv_strata works with multiple strata variables", {
 
 test_that("robin_surv_strata gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ 1,
+    formula = survival::Surv(time, status) ~ strata(sex),
     data = surv_data,
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   input$data <- na.omit(input$data)
   result <- robin_surv_strata(
@@ -180,7 +180,7 @@ test_that("robin_surv_cov works as expected", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age,
     data = surv_data,
-    treatment = sex ~ 1
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_cov(
     vars = input,
@@ -195,7 +195,7 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age,
     data = surv_data,
-    treatment = ecog ~ 1
+    treatment = ecog ~ sr(1)
   )
   input$data <- na.omit(input$data)
   result <- robin_surv_cov(
@@ -221,9 +221,9 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
 
 test_that("robin_surv_strata_cov works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age,
+    formula = survival::Surv(time, status) ~ age + strata(sex),
     data = surv_data,
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   result <- robin_surv_strata_cov(
     vars = input,
@@ -236,9 +236,9 @@ test_that("robin_surv_strata_cov works as expected", {
 
 test_that("robin_surv_strata_cov works with multiple strata variables", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age,
+    formula = survival::Surv(time, status) ~ age + strata(strata, ecog),
     data = surv_data,
-    treatment = sex ~ strata + ecog
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_strata_cov(
     vars = input,
@@ -248,9 +248,9 @@ test_that("robin_surv_strata_cov works with multiple strata variables", {
   )
   surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
   input2 <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age,
+    formula = survival::Surv(time, status) ~ age + strata(strata_ecog),
     data = surv_data,
-    treatment = sex ~ strata_ecog
+    treatment = sex ~ sr(1)
   )
   result2 <- robin_surv_strata_cov(
     vars = input2,
@@ -263,9 +263,9 @@ test_that("robin_surv_strata_cov works with multiple strata variables", {
 
 test_that("robin_surv_strata_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age,
+    formula = survival::Surv(time, status) ~ age + strata(sex),
     data = surv_data,
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   input$data <- na.omit(input$data)
   result <- robin_surv_strata_cov(
