@@ -21,7 +21,7 @@ expected <- list(
   status = "status",
   treatment = "sex",
   strata = character(),
-  schema = "sp",
+  schema = "sr",
   covariates = character(),
   model = ~1,
   n_levels = 2L,
