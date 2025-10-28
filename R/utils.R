@@ -67,6 +67,7 @@ h_get_vars <- function(treatment) {
 #'
 #' @keywords internal
 h_prep_survival_input <- function(formula, data, treatment) {
+  # Process the treatment formula.
   trt_vars <- h_get_vars(treatment)
   assert_data_frame(data)
   assert_formula(formula)
@@ -82,8 +83,18 @@ h_prep_survival_input <- function(formula, data, treatment) {
   }
   trt_lvls <- levels(data[[trt_vars$treatment]])
   n_lvls <- length(trt_lvls)
-  covariates <- all.vars(formula[[3]])
-  assert_disjunct(c(trt_vars$treatment, trt_vars$strata), covariates)
+
+  # Process analysis model formula.
+  tms <- terms(formula, specials = "strata")
+  specials <- survival::untangle.specials(tms, "strata")
+  analysis_strata <- if (length(specials$vars) > 0) {
+    all.vars(as.formula(paste("~", specials$vars)))
+  } else {
+    character()
+  }
+
+  covariates <- setdiff(all.vars(formula[[3]]), analysis_strata)
+  assert_disjunct(trt_vars$treatment, covariates)
 
   # Extract survival time and censoring indicator from the left hand side of the formula.
   lhs <- formula[[2]]
@@ -107,15 +118,21 @@ h_prep_survival_input <- function(formula, data, treatment) {
     stop("Left hand side of formula must be a Surv() object.")
   }
 
-  # Extract model without left hand side.
-  model <- as.formula(as.call(as.list(formula)[-2L]))
+  # Extract model without left hand side and without strata() terms.
+  covariates_formula <- if (length(specials$vars) > 0) {
+    update(formula, as.formula(paste0("~ . -", paste(specials$vars, collapse = "-"))))
+  } else {
+    formula
+  }
+  model <- as.formula(as.call(as.list(covariates_formula)[-2L]))
 
   list(
     data = data,
     time = time_var,
     status = status_var,
     treatment = trt_vars$treatment,
-    strata = trt_vars$strata,
+    randomization_strata = trt_vars$strata,
+    strata = analysis_strata,
     schema = trt_vars$schema,
     covariates = covariates,
     model = model,

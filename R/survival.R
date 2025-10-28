@@ -357,11 +357,12 @@ h_events_table <- function(data, vars) {
 #' for covariates and a stratification factor.
 #'
 #' @param formula (`formula`) A formula of analysis, of the form
-#'   `Surv(time, status) ~ covariates`. (If no covariates should be adjusted for, use `1` instead
-#'   on the right hand side. The intercept must not be removed.)
+#'   `Surv(time, status) ~ covariates + strata(x, y, z)`.
+#'   If no covariates should be adjusted for, use `1` instead on the right hand side. The intercept must not be removed.
+#'   If no stratification factors should be used for the analysis, do not use `strata()` in the formula.
 #' @param data (`data.frame`) Input data frame.
 #' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification, of the form
-#'   `treatment ~ strata`. (If no stratification should be adjusted for, use `1` instead on the right hand side.)
+#'   `treatment ~ scheme(vars)`. Note that currently the randomization scheme is not used in the analysis.
 #' @param comparisons (`list`) An optional list of comparisons between treatment levels to be performed,
 #'   see details. By default, all pairwise comparisons are performed automatically.
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
@@ -387,32 +388,33 @@ h_events_table <- function(data, vars) {
 #' @examples
 #' # Adjusted for covariates meal.cal and age and adjusted for stratification by strata:
 #' robin_surv(
-#'   formula = Surv(time, status) ~ meal.cal + age,
+#'   formula = Surv(time, status) ~ meal.cal + age + strata(strata),
 #'   data = surv_data,
-#'   treatment = sex ~ strata
+#'   treatment = sex ~ pb(strata)
 #' )
 #'
 #' # Adjusted for stratification by strata and ecog but not for covariates:
 #' robin_surv(
-#'   formula = Surv(time, status) ~ 1,
+#'   formula = Surv(time, status) ~ 1 + strata(strata, ecog),
 #'   data = surv_data,
-#'   treatment = sex ~ strata + ecog
+#'   treatment = sex ~ sr(1)
 #' )
 #'
 #' # Unadjusted for covariates and stratification:
 #' robin_surv(
 #'   formula = Surv(time, status) ~ 1,
 #'   data = surv_data,
-#'   treatment = sex ~ 1
+#'   treatment = sex ~ sr(1)
 #' )
 robin_surv <- function(
-    formula,
-    data,
-    treatment,
-    comparisons,
-    contrast = "hazardratio",
-    test = "logrank",
-    ...) {
+  formula,
+  data,
+  treatment,
+  comparisons,
+  contrast = "hazardratio",
+  test = "logrank",
+  ...
+) {
   attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_data_frame(data)
