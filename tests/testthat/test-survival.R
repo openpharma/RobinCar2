@@ -58,6 +58,7 @@ test_that("robin_surv_comparison works as expected without covariate adjustment"
     data = input$data,
     exp_level = 2,
     control_level = 1,
+    contrast = "hazardratio",
     treatment = input$treatment,
     time = input$time,
     status = input$status
@@ -95,7 +96,8 @@ test_that("robin_surv_no_strata_no_cov works as expected", {
     vars = input,
     data = input$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -111,7 +113,8 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -137,7 +140,8 @@ test_that("robin_surv_strata works as expected", {
     vars = input,
     data = input$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -152,7 +156,8 @@ test_that("robin_surv_strata works with multiple strata variables", {
     vars = input,
     data = input$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
   input2 <- h_prep_survival_input(
@@ -164,7 +169,8 @@ test_that("robin_surv_strata works with multiple strata variables", {
     vars = input2,
     data = input2$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   expect_equal(result, result2, ignore_formula_env = TRUE)
 })
@@ -180,7 +186,8 @@ test_that("robin_surv_strata gives the same results as RobinCar functions", {
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -206,7 +213,8 @@ test_that("robin_surv_cov works as expected", {
     vars = input,
     data = input$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -223,6 +231,7 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
     data = input$data,
     exp_level = 2,
     control_level = 1,
+    contrast = "hazardratio",
     hr_se_plugin_adjusted = FALSE # To get the exact match with RobinCar.
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
@@ -249,7 +258,8 @@ test_that("robin_surv_strata_cov works as expected", {
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -264,7 +274,8 @@ test_that("robin_surv_strata_cov works with multiple strata variables", {
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
   input2 <- h_prep_survival_input(
@@ -276,7 +287,8 @@ test_that("robin_surv_strata_cov works with multiple strata variables", {
     vars = input2,
     data = input2$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   expect_equal(result, result2, ignore_formula_env = TRUE)
 })
@@ -293,6 +305,7 @@ test_that("robin_surv_strata_cov gives the same results as RobinCar functions", 
     data = input$data,
     exp_level = 2,
     control_level = 1,
+    contrast = "hazardratio",
     hr_se_plugin_adjusted = FALSE # To get the exact match with RobinCar.
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
