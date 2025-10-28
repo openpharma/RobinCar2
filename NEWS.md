@@ -6,7 +6,7 @@
 
 ### Misc
 
-* Changed from `sp` to `sr` which is easier read as "simple randomization".
+* Changed from `sp` to `sr` which is easier to read as "simple randomization".
 
 # RobinCar2 0.2.1
 
