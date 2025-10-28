@@ -120,7 +120,7 @@ h_prep_survival_input <- function(formula, data, treatment) {
 
   # Extract model without left hand side and without strata() terms.
   covariates_formula <- if (length(specials$vars) > 0) {
-    update(formula, as.formula(paste0("~ . -", paste(specials$vars, collapse = "-"))))
+    stats::update(formula, as.formula(paste0("~ . -", paste(specials$vars, collapse = "-"))))
   } else {
     formula
   }
