@@ -1,6 +1,6 @@
 test_that("h_get_vars works for formula", {
   res <- expect_silent(h_get_vars(abc ~ 1))
-  expect_identical(res, list(treatment = "abc", schema = "sp", strata = character(0)))
+  expect_identical(res, list(treatment = "abc", schema = "sr", strata = character(0)))
 
   expect_error(
     h_get_vars("treatment"),
@@ -30,7 +30,7 @@ test_that("h_get_vars works for formula", {
 
 test_that("h_get_vars works for formula with schemas", {
   res <- expect_silent(h_get_vars(a ~ b + c))
-  expect_identical(res, list(treatment = "a", schema = "sp", strata = c("b", "c")))
+  expect_identical(res, list(treatment = "a", schema = "sr", strata = c("b", "c")))
 
   res <- expect_silent(h_get_vars(a ~ pb(1) + b))
   expect_identical(res, list(treatment = "a", schema = "pb", strata = "b"))
@@ -39,7 +39,12 @@ test_that("h_get_vars works for formula with schemas", {
   expect_identical(res, list(treatment = "a", schema = "ps", strata = c("b", "c")))
 
   res <- expect_silent(h_get_vars(a ~ strata(b)))
-  expect_identical(res, list(treatment = "a", schema = "sp", strata = "b"))
+  expect_identical(res, list(treatment = "a", schema = "sr", strata = "b"))
+})
+
+test_that("h_get_vars is backwards compatible for use of sp instead of sr", {
+  res <- expect_silent(h_get_vars(a ~ sp(b) + c))
+  expect_identical(res, list(treatment = "a", schema = "sr", strata = c("b", "c")))
 })
 
 test_that("h_prep_survival_input works with strata", {
@@ -54,7 +59,7 @@ test_that("h_prep_survival_input works with strata", {
     status = "status",
     treatment = "sex",
     strata = "strata",
-    schema = "sp",
+    schema = "sr",
     covariates = c("age", "ph.karno", "meal.cal"),
     model = ~ age + ph.karno + meal.cal,
     n_levels = 2L,
@@ -75,7 +80,7 @@ test_that("h_prep_survival_input works with multiple strata", {
     status = "status",
     treatment = "sex",
     strata = c("strata", "ecog"),
-    schema = "sp",
+    schema = "sr",
     covariates = c("age", "ph.karno", "meal.cal"),
     model = ~ age + ph.karno + meal.cal,
     n_levels = 2L,
@@ -96,7 +101,7 @@ test_that("h_prep_survival_input works without strata", {
     status = "status",
     treatment = "sex",
     strata = character(),
-    schema = "sp",
+    schema = "sr",
     covariates = c("age", "ph.karno", "meal.cal"),
     model = ~ age + ph.karno + meal.cal,
     n_levels = 2L,
@@ -117,7 +122,7 @@ test_that("h_prep_survival_input works without covariates", {
     status = "status",
     treatment = "sex",
     strata = "strata",
-    schema = "sp",
+    schema = "sr",
     covariates = character(),
     model = ~1,
     n_levels = 2L,
@@ -138,7 +143,7 @@ test_that("h_prep_survival_input works without covariates and without strata", {
     status = "status",
     treatment = "sex",
     strata = character(),
-    schema = "sp",
+    schema = "sr",
     covariates = character(),
     model = ~1,
     n_levels = 2L,
