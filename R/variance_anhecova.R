@@ -6,7 +6,9 @@
 #'
 #' @return Named covariance matrix.
 #' @export
-vcovG <- function(x, decompose = TRUE, ...) { # nolint
+#' # nolint start
+vcovG <- function(x, decompose = TRUE, ...) {
+  # nolint end
   assert_class(x, "prediction_cf")
   assert_flag(decompose)
   resi <- x$residual
@@ -57,7 +59,7 @@ h_get_erb <- function(resi, group_idx, trt, pi, randomization) {
     return(0)
   }
   assert_string(randomization)
-  if (randomization %in% c("sp", "ps")) {
+  if (randomization %in% c("sr", "ps")) {
     return(0)
   }
   assert_numeric(resi)

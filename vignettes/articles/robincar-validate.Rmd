@@ -95,7 +95,7 @@ test_that("marginal means", {
           }
 
           if (scheme == "simple") {
-            scheme2 <- "sp"
+            scheme2 <- "sr"
           } else if (scheme == "permuted-block") {
             scheme2 <- "pb"
           } else {
@@ -180,7 +180,7 @@ test_that("contrast -- standard options", {
     strata <- c("s1")
 
     if (scheme == "simple") {
-      scheme2 <- "sp"
+      scheme2 <- "sr"
     } else if (scheme == "permuted-block") {
       scheme2 <- "pb"
     } else {

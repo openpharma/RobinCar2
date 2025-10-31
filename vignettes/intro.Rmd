@@ -114,9 +114,9 @@ robin_glm(
 ## Using Different Covariate-Adaptive Randomization Schema
 
 If the randomization schema is not permuted-block randomization, we can use
-other randomization schema. Currently RobinCar2 supports `sp` for the simple
-randomization, `pb` for the permuted-block randomization, and `ps` for the
-Pocock-Simon randomization.
+other randomization schema. Currently RobinCar2 supports `sr` for the simple
+randomization (this was previously called `sp`), `pb` for the permuted-block 
+randomization, and `ps` for the Pocock-Simon randomization.
 
 ```{r}
 robin_glm(y_b ~ treatment * s1 + covar,

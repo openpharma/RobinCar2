@@ -2,7 +2,7 @@
 #' @keywords internal
 randomization_schema <- data.frame(
   schema = c("Pocock-Simon", "Permuted-Block", "Simple"),
-  id = c("ps", "pb", "sp"),
+  id = c("ps", "pb", "sr"),
   stringsAsFactors = FALSE
 )
 
@@ -28,7 +28,7 @@ h_get_vars <- function(treatment) {
   if (length(schema) > 1) {
     stop("only one randomization schema is allowed!")
   } else if (length(schema) == 0) {
-    schema <- "sp"
+    schema <- "sr"
   }
   strata <- setdiff(all.vars(treatment[[3]]), ".")
   list(
