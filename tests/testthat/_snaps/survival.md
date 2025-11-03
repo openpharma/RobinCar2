@@ -25,6 +25,12 @@
         p_value = 0.0013111645203555, test_score = 0.0895537761860842, 
         test_n = 228L, test_sigma_l2 = 0.17706769289317)
 
+# robin_surv_comparison can skip the hazard ratio estimation
+
+    list(estimate = NA_real_, se = NA_real_, hr_n = NA_integer_, 
+        hr_sigma_l2 = NA_real_, test_stat = 3.21352484896035, p_value = 0.0013111645203555, 
+        test_score = 0.0895537761860842, test_n = 228L, test_sigma_l2 = 0.17706769289317)
+
 # robin_surv_no_strata_no_cov works as expected
 
     list(estimate = -0.53342923961288, se = 0.167270504465807, hr_n = 228L, 

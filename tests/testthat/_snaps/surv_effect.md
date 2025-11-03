@@ -20,6 +20,23 @@
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
+# print method for surv_effect works as expected when no hazard ratio was estimated
+
+    Code
+      print(x)
+    Output
+      Model        :  Surv(time, status) ~ meal.cal + age 
+      Randomization:  sex ~ strata  ( Simple )
+      
+      Contrast     :  None
+      
+      Test         :  Log-Rank
+      
+                       Test Stat. Pr(>|z|)   
+      Male v.s. Female     2.9496 0.003181 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
 # table method for surv_effect works as expected
 
     Code

@@ -26,13 +26,17 @@ print.surv_effect <- function(x, ...) {
     ")\n"
   )
   contr_type <- switch(x$contrast,
-    hazardratio = "Log Hazard ratio"
+    hazardratio = "Log Hazard ratio",
+    none = "None"
   )
-  cat(sprintf("\nContrast     :  %s\n\n", contr_type))
+  cat(sprintf("\nContrast     :  %s\n", contr_type))
 
-  stats::printCoefmat(
-    x$log_hr_coef_mat
-  )
+  if (x$contrast == "hazardratio") {
+    cat("\n")
+    stats::printCoefmat(
+      x$log_hr_coef_mat
+    )
+  }
 
   cat("\n")
 
@@ -75,5 +79,11 @@ table.surv_effect <- function(x, ...) {
 #' @rdname confint
 #' @export
 confint.surv_effect <- function(object, parm, level = 0.95, transform, ...) {
-  h_confint(object$log_hr_coef_mat, parm = parm, level = level, transform = transform, ...)
+  if (object$contrast == "hazardratio") {
+    h_confint(object$log_hr_coef_mat, parm = parm, level = level, transform = transform, ...)
+  } else {
+    stop(
+      "No contrast was estimated; confidence interval is not available."
+    )
+  }
 }

@@ -58,6 +58,27 @@ test_that("robin_surv_comparison works as expected without covariate adjustment"
     data = input$data,
     exp_level = 2,
     control_level = 1,
+    contrast = "hazardratio",
+    treatment = input$treatment,
+    time = input$time,
+    status = input$status
+  )
+  expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
+})
+
+test_that("robin_surv_comparison can skip the hazard ratio estimation", {
+  input <- h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ 1,
+    data = surv_data,
+    treatment = sex ~ 1
+  )
+  result <- robin_surv_comparison(
+    score_fun = h_lr_score_no_strata_no_cov,
+    vars = input,
+    data = input$data,
+    exp_level = 2,
+    control_level = 1,
+    contrast = "none",
     treatment = input$treatment,
     time = input$time,
     status = input$status
@@ -75,7 +96,8 @@ test_that("robin_surv_no_strata_no_cov works as expected", {
     vars = input,
     data = input$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -91,7 +113,8 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -117,7 +140,8 @@ test_that("robin_surv_strata works as expected", {
     vars = input,
     data = input$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -132,7 +156,8 @@ test_that("robin_surv_strata works with multiple strata variables", {
     vars = input,
     data = input$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
   input2 <- h_prep_survival_input(
@@ -144,7 +169,8 @@ test_that("robin_surv_strata works with multiple strata variables", {
     vars = input2,
     data = input2$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   expect_equal(result, result2, ignore_formula_env = TRUE)
 })
@@ -160,7 +186,8 @@ test_that("robin_surv_strata gives the same results as RobinCar functions", {
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -186,7 +213,8 @@ test_that("robin_surv_cov works as expected", {
     vars = input,
     data = input$data,
     exp_level = 1,
-    control_level = 2
+    control_level = 2,
+    contrast = "hazardratio"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -203,6 +231,7 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
     data = input$data,
     exp_level = 2,
     control_level = 1,
+    contrast = "hazardratio",
     hr_se_plugin_adjusted = FALSE # To get the exact match with RobinCar.
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
@@ -229,7 +258,8 @@ test_that("robin_surv_strata_cov works as expected", {
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -244,7 +274,8 @@ test_that("robin_surv_strata_cov works with multiple strata variables", {
     vars = input,
     data = input$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
   input2 <- h_prep_survival_input(
@@ -256,7 +287,8 @@ test_that("robin_surv_strata_cov works with multiple strata variables", {
     vars = input2,
     data = input2$data,
     exp_level = 2,
-    control_level = 1
+    control_level = 1,
+    contrast = "hazardratio"
   )
   expect_equal(result, result2, ignore_formula_env = TRUE)
 })
@@ -273,6 +305,7 @@ test_that("robin_surv_strata_cov gives the same results as RobinCar functions", 
     data = input$data,
     exp_level = 2,
     control_level = 1,
+    contrast = "hazardratio",
     hr_se_plugin_adjusted = FALSE # To get the exact match with RobinCar.
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
@@ -632,4 +665,19 @@ test_that("robin_surv works also with character variable in the correlation case
     hr_se_plugin_adjusted = FALSE
   ))
   expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-2, style = "deparse")
+})
+
+test_that("robin_surv can skip the hazard ratio estimation", {
+  result <- robin_surv(
+    Surv(time, status) ~ age,
+    data = surv_data,
+    treatment = ecog ~ 1,
+    contrast = "none"
+  )
+  expect_identical(result$contrast, "none")
+  expect_scalar_na(result$estimate)
+  expect_scalar_na(result$se)
+  expect_scalar_na(result$hr_n)
+  expect_scalar_na(result$hr_sigma_l2)
+  expect_null(result$log_hr_coef_mat)
 })
