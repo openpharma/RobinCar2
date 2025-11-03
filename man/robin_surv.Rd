@@ -9,7 +9,7 @@ robin_surv(
   data,
   treatment,
   comparisons,
-  contrast = "hazardratio",
+  contrast = c("hazardratio", "none"),
   test = "logrank",
   ...
 )
@@ -29,7 +29,7 @@ If no stratification factors should be used for the analysis, do not use \code{s
 see details. By default, all pairwise comparisons are performed automatically.}
 
 \item{contrast}{(\code{character(1)}) The contrast statistic to be used, currently only \code{"hazardratio"}
-is supported.}
+is supported. Can be disabled by specifying \code{"none"}, in which case only the log-rank test is performed.}
 
 \item{test}{(\code{character(1)}) The test to be used, currently only \code{"logrank"} is supported.}
 

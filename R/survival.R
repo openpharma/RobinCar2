@@ -117,7 +117,16 @@ h_lr_test_via_score <- function(score_fun, ...) {
 #' - `test_sigma_l2`: The variance of the log-rank statistic used in the log-rank test.
 #'
 #' @keywords internal
-robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_level, unadj_score_fun = NULL, ...) {
+robin_surv_comparison <- function(
+  score_fun,
+  vars,
+  data,
+  exp_level,
+  control_level,
+  contrast,
+  unadj_score_fun = NULL,
+  ...
+) {
   assert_list(vars)
   assert_names(names(vars), must.include = c("levels", "treatment", "covariates"))
   assert_character(vars$levels, min.len = 2L)
@@ -127,6 +136,7 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
   assert_count(exp_level)
   assert_count(control_level)
   assert_true(exp_level != control_level)
+  assert_string(contrast)
 
   # Subset data to the two treatment arms of interest.
   trt_levels <- vars$levels[c(control_level, exp_level)]
@@ -145,23 +155,33 @@ robin_surv_comparison <- function(score_fun, vars, data, exp_level, control_leve
   # Perform the log-rank test via the score function.
   test_result <- do.call(h_lr_test_via_score, args)
 
-  # If an unadjusted score function is provided, use it to estimate the log hazard ratio first.
-  if (!is.null(unadj_score_fun)) {
-    assert_function(unadj_score_fun)
-    assert_true(length(vars$covariates) > 0)
-    args_to_drop <- c("model", "hr_se_plugin_adjusted")
-    unadj_args <- args[!(names(args) %in% args_to_drop)]
-    unadj_args$score_fun <- unadj_score_fun
-    # Get theta_hat from the unadjusted score function.
-    unadj_hr_result <- do.call(h_log_hr_est_via_score, unadj_args)
-    # Add this to the arguments for the adjusted score function call below.
-    args$theta_hat <- unadj_hr_result$theta
+  # Estimate the log hazard ratio via the score function, if requested.
+  hr_result <- if (contrast == "hazardratio") {
+    # If an unadjusted score function is provided, use it to estimate the log hazard ratio first.
+    if (!is.null(unadj_score_fun)) {
+      assert_function(unadj_score_fun)
+      assert_true(length(vars$covariates) > 0)
+      args_to_drop <- c("model", "hr_se_plugin_adjusted")
+      unadj_args <- args[!(names(args) %in% args_to_drop)]
+      unadj_args$score_fun <- unadj_score_fun
+      # Get theta_hat from the unadjusted score function.
+      unadj_hr_result <- do.call(h_log_hr_est_via_score, unadj_args)
+      # Add this to the arguments for the adjusted score function call below.
+      args$theta_hat <- unadj_hr_result$theta
+    } else {
+      # We enforce to have no covariates in this case.
+      assert_true(length(vars$covariates) == 0L)
+    }
+    # Estimate the log hazard ratio via the score function.
+    do.call(h_log_hr_est_via_score, args)
   } else {
-    # We enforce to have no covariates in this case.
-    assert_true(length(vars$covariates) == 0L)
+    list(
+      theta = NA_real_,
+      se = NA_real_,
+      n = NA_integer_,
+      sigma_l2 = NA_real_
+    )
   }
-  # Estimate the log hazard ratio via the score function.
-  hr_result <- do.call(h_log_hr_est_via_score, args)
 
   list(
     estimate = hr_result$theta,
@@ -190,13 +210,14 @@ NULL
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_no_strata_no_cov()].
-robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
+robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level, contrast) {
   robin_surv_comparison(
     score_fun = h_lr_score_no_strata_no_cov,
     vars = vars,
     data = data,
     exp_level = exp_level,
     control_level = control_level,
+    contrast = contrast,
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status
@@ -205,13 +226,14 @@ robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level) {
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_strat()].
-robin_surv_strata <- function(vars, data, exp_level, control_level) {
+robin_surv_strata <- function(vars, data, exp_level, control_level, contrast) {
   robin_surv_comparison(
     score_fun = h_lr_score_strat,
     vars = vars,
     data = data,
     exp_level = exp_level,
     control_level = control_level,
+    contrast = contrast,
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
@@ -222,7 +244,7 @@ robin_surv_strata <- function(vars, data, exp_level, control_level) {
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_cov()] and [h_lr_score_no_strata_no_cov()] (which is used to find the unadjusted
 #'   log hazard ratio estimate).
-robin_surv_cov <- function(vars, data, exp_level, control_level, ...) {
+robin_surv_cov <- function(vars, data, exp_level, control_level, contrast, ...) {
   robin_surv_comparison(
     score_fun = h_lr_score_cov,
     unadj_score_fun = h_lr_score_no_strata_no_cov,
@@ -230,6 +252,7 @@ robin_surv_cov <- function(vars, data, exp_level, control_level, ...) {
     data = data,
     exp_level = exp_level,
     control_level = control_level,
+    contrast = contrast,
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
@@ -241,7 +264,7 @@ robin_surv_cov <- function(vars, data, exp_level, control_level, ...) {
 #' @describeIn survival_comparison_functions with strata and covariates, based on
 #'   [h_lr_score_strat_cov()] and [h_lr_score_strat()] (which is used to find the unadjusted
 #'   log hazard ratio estimate).
-robin_surv_strata_cov <- function(vars, data, exp_level, control_level, ...) {
+robin_surv_strata_cov <- function(vars, data, exp_level, control_level, contrast, ...) {
   robin_surv_comparison(
     score_fun = h_lr_score_strat_cov,
     unadj_score_fun = h_lr_score_strat,
@@ -249,6 +272,7 @@ robin_surv_strata_cov <- function(vars, data, exp_level, control_level, ...) {
     data = data,
     exp_level = exp_level,
     control_level = control_level,
+    contrast = contrast,
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
@@ -366,7 +390,7 @@ h_events_table <- function(data, vars) {
 #' @param comparisons (`list`) An optional list of comparisons between treatment levels to be performed,
 #'   see details. By default, all pairwise comparisons are performed automatically.
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
-#'   is supported.
+#'   is supported. Can be disabled by specifying `"none"`, in which case only the log-rank test is performed.
 #' @param test (`character(1)`) The test to be used, currently only `"logrank"` is supported.
 #' @param ... Additional arguments passed to the survival analysis functions, in particular `hr_se_plugin_adjusted`
 #'   (please see [here][survival_score_functions] for details).
@@ -412,7 +436,7 @@ robin_surv <- function(
   data,
   treatment,
   comparisons,
-  contrast = "hazardratio",
+  contrast = c("hazardratio", "none"),
   test = "logrank",
   ...
 ) {
@@ -466,6 +490,7 @@ robin_surv <- function(
         data = data,
         exp_level = exp_level,
         control_level = control_level,
+        contrast = contrast,
         ...
       )
     }
@@ -491,7 +516,10 @@ robin_surv <- function(
     test_n = sapply(estimates, "[[", "test_n"),
     test_sigma_l2 = sapply(estimates, "[[", "test_sigma_l2")
   )
-  result$log_hr_coef_mat <- h_log_hr_coef_mat(result)
+
+  if (contrast == "hazardratio") {
+    result$log_hr_coef_mat <- h_log_hr_coef_mat(result)
+  }
   result$test_mat <- h_test_mat(result)
 
   class(result) <- "surv_effect"

@@ -1,6 +1,7 @@
 test_that("h_get_vars works for formula", {
   res <- expect_silent(h_get_vars(abc ~ 1))
   expect_identical(res, list(treatment = "abc", schema = "sr", strata = character(0)))
+  expect_identical(res, list(treatment = "abc", schema = "sr", strata = character(0)))
 
   expect_error(
     h_get_vars("treatment"),
