@@ -27,4 +27,7 @@ test_that("robin_lm works correctly", {
     "Huber-White variance estimator is ONLY supported when using a linear model
       without treatment-covariate interactions; see the 2023 FDA guidance."
   )
+  expect_snapshot(
+    robin_lm(y_b ~ treatment + s1, data = glm_data, treatment = treatment ~ s1)
+  )
 })
