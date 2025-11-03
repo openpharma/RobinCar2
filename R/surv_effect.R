@@ -25,7 +25,10 @@ print.surv_effect <- function(x, ...) {
     randomization_schema$schema[randomization_schema$id == x$schema],
     ")\n"
   )
-  contr_type <- switch(x$contrast, hazardratio = "Log Hazard ratio", none = "None")
+  contr_type <- switch(x$contrast,
+    hazardratio = "Log Hazard ratio",
+    none = "None"
+  )
   cat(sprintf("\nContrast     :  %s\n", contr_type))
 
   if (x$contrast == "hazardratio") {
@@ -37,7 +40,9 @@ print.surv_effect <- function(x, ...) {
 
   cat("\n")
 
-  test_type <- switch(x$test, logrank = "Log-Rank")
+  test_type <- switch(x$test,
+    logrank = "Log-Rank"
+  )
   cat(sprintf("Test         :  %s\n\n", test_type))
 
   stats::printCoefmat(
