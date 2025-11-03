@@ -6,7 +6,6 @@
 #'
 #' @return Named covariance matrix.
 #' @export
-#'
 # nolint start
 vcovG <- function(x, decompose = TRUE, ...) {
   # nolint end
