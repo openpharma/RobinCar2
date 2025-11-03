@@ -17,13 +17,14 @@
 #'   treatment = treatment ~ s1
 #' )
 robin_lm <- function(
-    formula,
-    data,
-    treatment,
-    vcov = "vcovG",
-    vcov_args = list(),
-    pair,
-    ...) {
+  formula,
+  data,
+  treatment,
+  vcov = "vcovG",
+  vcov_args = list(),
+  pair,
+  ...
+) {
   attr(formula, ".Environment") <- environment()
   assert_subset(all.vars(formula), names(data))
   assert_subset(all.vars(treatment), names(data))
