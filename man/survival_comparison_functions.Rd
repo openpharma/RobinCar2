@@ -8,13 +8,13 @@
 \alias{robin_surv_strata_cov}
 \title{Survival Comparison Functions}
 \usage{
-robin_surv_no_strata_no_cov(vars, data, exp_level, control_level)
+robin_surv_no_strata_no_cov(vars, data, exp_level, control_level, contrast)
 
-robin_surv_strata(vars, data, exp_level, control_level)
+robin_surv_strata(vars, data, exp_level, control_level, contrast)
 
-robin_surv_cov(vars, data, exp_level, control_level, ...)
+robin_surv_cov(vars, data, exp_level, control_level, contrast, ...)
 
-robin_surv_strata_cov(vars, data, exp_level, control_level, ...)
+robin_surv_strata_cov(vars, data, exp_level, control_level, contrast, ...)
 }
 \arguments{
 \item{vars}{(\code{list}) A list containing \code{levels}, \code{treatment}, and \code{covariates}.}

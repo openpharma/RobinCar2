@@ -10,6 +10,7 @@ robin_surv_comparison(
   data,
   exp_level,
   control_level,
+  contrast,
   unadj_score_fun = NULL,
   ...
 )

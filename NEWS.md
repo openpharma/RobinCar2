@@ -1,5 +1,9 @@
 # RobinCar2 0.2.1.9000
 
+### New features
+
+* It is now possible to only perform the log rank test, without estimating the log hazard ratio, in `robin_surv` by setting the argument `contrast = "none"`. This can be useful e.g. when performing simulation studies focusing only on the log-rank test operating characteristics, because the log-rank test is computationally less expensive than estimating the hazard ratio.
+
 ### Bug Fixes
 
 * Fixed a bug in covariate-adjusted stratified survival function estimation in `robin_surv` which could occur when there are character covariates with values only appearing in one stratum, which could have failed or lead to incorrect results. 
