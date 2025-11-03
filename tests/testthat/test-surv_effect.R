@@ -9,9 +9,9 @@ test_that("print method for surv_effect works as expected", {
 
 test_that("print method for surv_effect works as expected when no hazard ratio was estimated", {
   x <- robin_surv(
-    formula = Surv(time, status) ~ meal.cal + age,
+    formula = Surv(time, status) ~ meal.cal + age + strata(strata),
     data = surv_data,
-    treatment = sex ~ strata,
+    treatment = sex ~ sr(1),
     contrast = "none"
   )
   expect_snapshot(print(x))
