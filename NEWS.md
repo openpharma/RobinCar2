@@ -2,6 +2,8 @@
 
 ### New features
 
+* The user interface for `robin_surv` has been improved for specifying analysis stratification variables directly as part of the model formula, similar to how it is done in `survival::coxph`. In addition, the randomization scheme is now specified as for the other `RobinCar2` functions for consistency. See the updated vignette for details.
+
 * It is now possible to only perform the log rank test, without estimating the log hazard ratio, in `robin_surv` by setting the argument `contrast = "none"`. This can be useful e.g. when performing simulation studies focusing only on the log-rank test operating characteristics, because the log-rank test is computationally less expensive than estimating the hazard ratio.
 
 ### Bug Fixes
