@@ -37,6 +37,7 @@ robin_lm <- function(
     )
   }
   fit <- lm(formula, data = data, ...)
+  # same as robin_glm, to allow vcov as function to be used, also allow the function name to be captured.
   pc <- eval(bquote(predict_counterfactual(fit, treatment, data, vcov = .(substitute(vcov)), vcov_args = vcov_args)))
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
