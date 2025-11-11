@@ -681,3 +681,12 @@ test_that("robin_surv can skip the hazard ratio estimation", {
   expect_scalar_na(result$hr_sigma_l2)
   expect_null(result$log_hr_coef_mat)
 })
+
+test_that("robin_surv can work with interaction covariates", {
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ age + interaction(I(ph.karno < 80), I(wt.loss > 7)) + strata(ecog),
+    data = surv_data,
+    treatment = sex ~ sr(1)
+  ))
+  expect_s3_class(result, "surv_effect")
+})

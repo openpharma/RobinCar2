@@ -386,7 +386,9 @@ h_events_table <- function(data, vars) {
 #'   If no stratification factors should be used for the analysis, do not use `strata()` in the formula.
 #' @param data (`data.frame`) Input data frame.
 #' @param treatment (`formula`) A formula of treatment assignment or assignment by stratification, of the form
-#'   `treatment ~ scheme(vars)`. Note that currently the randomization scheme is not used in the analysis.
+#'   `treatment ~ scheme(vars)`. Note that currently the randomization scheme is not used in the analysis. However,
+#'   any variables that were used in the randomization scheme must be included in the model formula,
+#'   either as covariates, or as `strata()`.
 #' @param comparisons (`list`) An optional list of comparisons between treatment levels to be performed,
 #'   see details. By default, all pairwise comparisons are performed automatically.
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`

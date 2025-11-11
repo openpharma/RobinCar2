@@ -23,7 +23,9 @@ If no stratification factors should be used for the analysis, do not use \code{s
 \item{data}{(\code{data.frame}) Input data frame.}
 
 \item{treatment}{(\code{formula}) A formula of treatment assignment or assignment by stratification, of the form
-\code{treatment ~ scheme(vars)}. Note that currently the randomization scheme is not used in the analysis.}
+\code{treatment ~ scheme(vars)}. Note that currently the randomization scheme is not used in the analysis. However,
+any variables that were used in the randomization scheme must be included in the model formula,
+either as covariates, or as \code{strata()}.}
 
 \item{comparisons}{(\code{list}) An optional list of comparisons between treatment levels to be performed,
 see details. By default, all pairwise comparisons are performed automatically.}

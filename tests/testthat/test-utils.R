@@ -50,7 +50,11 @@ test_that("h_get_vars is backwards compatible for use of sp instead of sr", {
 
 test_that("h_prep_survival_input works with strata", {
   result <- expect_silent(h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal + strata(strata),
+    formula = survival::Surv(time, status) ~ age +
+      ph.karno +
+      meal.cal +
+      strata(strata) +
+      interaction(I(age > 50), I(ph.karno < 20)),
     data = surv_data,
     treatment = sex ~ pb(strata)
   ))
@@ -63,7 +67,7 @@ test_that("h_prep_survival_input works with strata", {
     strata = "strata",
     schema = "pb",
     covariates = c("age", "ph.karno", "meal.cal"),
-    model = ~ age + ph.karno + meal.cal,
+    model = ~ age + ph.karno + meal.cal + interaction(I(age > 50), I(ph.karno < 20)),
     n_levels = 2L,
     levels = c("Female", "Male")
   )
