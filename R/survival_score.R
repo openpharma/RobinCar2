@@ -41,14 +41,15 @@ NULL
 
 #' @describeIn survival_score_functions without strata or covariates.
 h_lr_score_no_strata_no_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    n = nrow(df),
-    use_ties_factor = TRUE,
-    calculate_variance = TRUE) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  n = nrow(df),
+  use_ties_factor = TRUE,
+  calculate_variance = TRUE
+) {
   assert_numeric(theta, min.len = 1L, finite = TRUE)
   assert_data_frame(df)
   assert_string(treatment)
@@ -134,14 +135,15 @@ h_lr_score_no_strata_no_cov <- function(
 
 #' @describeIn survival_score_functions with strata but without covariates.
 h_lr_score_strat <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    strata,
-    use_ties_factor = TRUE,
-    calculate_variance = TRUE) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  strata,
+  use_ties_factor = TRUE,
+  calculate_variance = TRUE
+) {
   assert_string(treatment)
   assert_string(time)
   assert_string(status)
@@ -181,16 +183,17 @@ h_lr_score_strat <- function(
 
 #' @describeIn survival_score_functions with covariates but without strata.
 h_lr_score_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    model,
-    theta_hat = theta,
-    use_ties_factor = TRUE,
-    hr_se_plugin_adjusted = TRUE,
-    calculate_variance = TRUE) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  hr_se_plugin_adjusted = TRUE,
+  calculate_variance = TRUE
+) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -288,17 +291,18 @@ h_lr_score_cov <- function(
 
 #' @describeIn survival_score_functions with strata and covariates.
 h_lr_score_strat_cov <- function(
-    theta,
-    df,
-    treatment,
-    time,
-    status,
-    strata,
-    model,
-    theta_hat = theta,
-    use_ties_factor = TRUE,
-    hr_se_plugin_adjusted = TRUE,
-    calculate_variance = TRUE) {
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  strata,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  hr_se_plugin_adjusted = TRUE,
+  calculate_variance = TRUE
+) {
   assert_data_frame(df)
   assert_string(treatment)
   assert_string(time)
@@ -324,7 +328,7 @@ h_lr_score_strat_cov <- function(
   }
 
   # Calculate derived outcomes and regress them on covariates.
-  df_split_with_covs_ovals <- h_strat_derived_outcome_vals(
+  df_with_covs_ovals_stratum <- h_strat_derived_outcome_vals(
     theta = theta_hat,
     df,
     treatment,
@@ -333,7 +337,7 @@ h_lr_score_strat_cov <- function(
     strata,
     covariates = covariates
   )
-  strat_lm_input <- h_get_strat_lm_input(df_split_with_covs_ovals, model)
+  strat_lm_input <- h_get_strat_lm_input(df_with_covs_ovals_stratum, model)
   beta_est <- h_get_strat_beta_estimates(strat_lm_input)
 
   # Obtain unadjusted results.
