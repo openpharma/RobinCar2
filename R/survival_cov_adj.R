@@ -6,7 +6,8 @@
 #' @param covariates (`character`) The column names in `df` to be used for covariate adjustment.
 #' @return A data frame containing the same data as the input `df`, but restructured with standardized column names
 #'   `index`, `treatment`, `time`, `status`, the covariates, and an additional column `O_hat` containing the
-#'   derived outcome values. For the stratified version, the list of data frames is returned, one for each stratum.
+#'   derived outcome values. For the stratified version, the computations are done separately by stratum, and
+#'   the resulting `data.frame` contains an additional `.stratum` column indicating the stratum number.
 #' @details Please note that the `covariates` must not include `index`, `treatment`, `time`, `status`
 #'   to avoid naming conflicts.
 #' @keywords internal
@@ -108,6 +109,7 @@ h_derived_outcome_vals <- function(theta, df, treatment, time, status, covariate
 h_strat_derived_outcome_vals <- function(theta, df, treatment, time, status, strata, covariates) {
   assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
   assert_data_frame(df)
+  assert_disjunct(names(df), ".stratum")
   lapply(df[strata], assert_factor)
 
   assert_true(!any(is.na(df)))
@@ -116,7 +118,7 @@ h_strat_derived_outcome_vals <- function(theta, df, treatment, time, status, str
   strata_formula <- paste("~", paste(strata, collapse = "+"))
   df_split <- split(df, f = as.formula(strata_formula), drop = TRUE)
 
-  lapply(
+  df_with_outcomes_split <- lapply(
     df_split,
     FUN = h_derived_outcome_vals,
     theta = theta,
@@ -126,6 +128,16 @@ h_strat_derived_outcome_vals <- function(theta, df, treatment, time, status, str
     covariates = covariates,
     n = n
   )
+  strata_number <- seq_along(df_with_outcomes_split)
+  df_with_outcomes_split <- Map(
+    function(df_stratum, stratum_number) {
+      df_stratum$.stratum <- stratum_number
+      df_stratum
+    },
+    df_with_outcomes_split,
+    strata_number
+  )
+  do.call(rbind, df_with_outcomes_split)
 }
 
 #' Get Linear Model Input Data

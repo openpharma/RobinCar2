@@ -41,9 +41,12 @@ test_that("h_strat_derived_outcome_vals works as expected", {
     strata = "strata",
     covariates = c("age", "ph.karno")
   )
-  expect_list(result, len = nlevels(surv_data_full$strata), types = "data.frame", any.missing = FALSE)
-  expect_names(names(result), identical.to = levels(surv_data_full$strata))
-  expect_identical(unname(sapply(result, nrow)), as.integer(table(surv_data_full$strata)))
+  expect_data_frame(result, nrow = nrow(surv_data_full))
+  expect_names(
+    names(result),
+    identical.to = c("index", "treatment", "time", "status", "O_hat", "age", "ph.karno", ".stratum")
+  )
+  expect_identical(as.integer(table(result$.stratum)), as.integer(table(surv_data_full$strata)))
 })
 
 test_that("h_strat_derived_outcome_vals works with multiple strata", {
@@ -57,11 +60,18 @@ test_that("h_strat_derived_outcome_vals works with multiple strata", {
     strata = c("strata", "ecog"),
     covariates = c("age", "ph.karno")
   )
-  expect_list(result, len = 4L, types = "data.frame", any.missing = FALSE)
-  expect_names(names(result), identical.to = c("0.0", "2.0", "3.0", "1.1"))
+  expect_data_frame(result, nrow = nrow(surv_data_full))
+  expect_names(
+    names(result),
+    identical.to = c("index", "treatment", "time", "status", "O_hat", "age", "ph.karno", ".stratum")
+  )
   expect_identical(
-    unname(sapply(result, nrow)),
-    as.integer(table(interaction(surv_data_full$strata, surv_data_full$ecog, drop = TRUE)))
+    as.integer(table(result$.stratum)),
+    as.integer(table(interaction(
+      surv_data_full$strata,
+      surv_data_full$ecog,
+      drop = TRUE
+    )))
   )
 })
 
