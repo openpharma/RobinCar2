@@ -276,6 +276,10 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
       xtys[[this_stratum]] <- crossprod(this_x, this_y)
     }
 
+    # Omit strata with no patients in this treatment arm.
+    xtxs <- xtxs[!sapply(xtxs, is.null)]
+    xtys <- xtys[!sapply(xtys, is.null)]
+
     # Sum across strata.
     xtx <- Reduce("+", xtxs)
     xty <- Reduce("+", xtys)

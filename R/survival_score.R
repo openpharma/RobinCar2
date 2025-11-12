@@ -361,18 +361,22 @@ h_lr_score_strat_cov <- function(
   trt_grp <- groups[2]
 
   # Overall column wise average of design matrices, separately for each stratum.
-  strat_x_all <- lapply(strat_lm_input, function(l) rbind(l[[cont_grp]]$X, l[[trt_grp]]$X))
+  x_0 <- strat_lm_input[[cont_grp]]$X
+  x_1 <- strat_lm_input[[trt_grp]]$X
+  x_all <- rbind(x_0, x_1)
+
+  stratum_col <- match(".stratum", colnames(x_all))
+  strat_x_all <- split.data.frame(x_all[, -stratum_col, drop = FALSE], f = x_all[, stratum_col])
   strat_x_bar <- lapply(strat_x_all, colMeans)
+  strat_x_bar_matrix <- do.call(rbind, strat_x_bar)
+  strat_x_bar_stratum <- as.integer(names(strat_x_all))
 
   # Center the design matrices with this overall average.
-  has_x_0 <- names(which(sapply(strat_lm_input, function(l) cont_grp %in% names(l))))
-  has_x_1 <- names(which(sapply(strat_lm_input, function(l) trt_grp %in% names(l))))
+  which_x_bar_for_x_0 <- match(unname(x_0[, stratum_col]), strat_x_bar_stratum)
+  x_0 <- x_0[, -stratum_col, drop = FALSE] - strat_x_bar_matrix[which_x_bar_for_x_0, , drop = FALSE]
 
-  x_0 <- lapply(has_x_0, function(n) scale(strat_lm_input[[n]][[cont_grp]]$X, center = strat_x_bar[[n]], scale = FALSE))
-  x_1 <- lapply(has_x_1, function(n) scale(strat_lm_input[[n]][[trt_grp]]$X, center = strat_x_bar[[n]], scale = FALSE))
-
-  x_0 <- do.call(rbind, x_0)
-  x_1 <- do.call(rbind, x_1)
+  which_x_bar_for_x_1 <- match(unname(x_1[, stratum_col]), strat_x_bar_stratum)
+  x_1 <- x_1[, -stratum_col, drop = FALSE] - strat_x_bar_matrix[which_x_bar_for_x_1, , drop = FALSE]
 
   # Compute adjustment term for the stratified score.
   u_sl_adj_term <- (sum(x_1 %*% beta_est[[trt_grp]]) - sum(x_0 %*% beta_est[[cont_grp]])) / n
