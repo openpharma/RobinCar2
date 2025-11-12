@@ -14,8 +14,9 @@ h_get_strat_beta_estimates(strat_lm_input)
 \item{lm_input}{(\code{list}) A list containing the linear model input data for each treatment arm, as returned by
 \code{\link[=h_get_lm_input]{h_get_lm_input()}}.}
 
-\item{strat_lm_input}{(\code{list}) A list of lists, one for each stratum, containing the linear model input data
-for each treatment arm, as returned by \code{\link[=h_get_strat_lm_input]{h_get_strat_lm_input()}}.}
+\item{strat_lm_input}{(\code{list}) A list containing the linear model input data
+for each treatment arm and including the \code{.strata} column in the design matrix,
+as returned by \code{\link[=h_get_strat_lm_input]{h_get_strat_lm_input()}}.}
 }
 \value{
 A list containing the coefficient estimates for each treatment arm.

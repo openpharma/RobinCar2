@@ -8,7 +8,7 @@
 \usage{
 h_get_lm_input(df, model)
 
-h_get_strat_lm_input(df_split, model)
+h_get_strat_lm_input(df_with_stratum, model)
 }
 \arguments{
 \item{df}{(\code{data.frame}) Including the covariates needed for the \code{model}, as well as the derived outcome \code{O_hat}
@@ -16,13 +16,13 @@ and the \code{treatment} factor.}
 
 \item{model}{(\code{formula}) The right-hand side only model formula.}
 
-\item{df_split}{(\code{list}) A list of data frames, one for each stratum, as returned by
+\item{df_with_stratum}{(\code{data.frame}) A data frame with an additional column for the stratum, as returned by
 \code{\link[=h_strat_derived_outcome_vals]{h_strat_derived_outcome_vals()}}.}
 }
 \value{
 A list containing for each element of the \code{treatment} factor a list with the
-corresponding model matrix \code{X} and the response vector \code{y}. For the stratified version, a list of such
-lists is returned, one for each stratum.
+corresponding model matrix \code{X} and the response vector \code{y}. For the stratified version,
+the model matrix \code{X} includes the \code{.stratum} column.
 }
 \description{
 Prepare the input data for a linear model based on the provided data frame and model formula.
@@ -31,7 +31,7 @@ Prepare the input data for a linear model based on the provided data frame and m
 \itemize{
 \item \code{h_get_lm_input()}: Get the linear model input data for the overall data set.
 
-\item \code{h_get_strat_lm_input()}: Get the linear model input data for each stratum separately.
+\item \code{h_get_strat_lm_input()}: Get the linear model input data with attached stratum column.
 
 }}
 \keyword{internal}

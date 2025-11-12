@@ -49,7 +49,8 @@ when used in stratified analyses computations.}
 \value{
 A data frame containing the same data as the input \code{df}, but restructured with standardized column names
 \code{index}, \code{treatment}, \code{time}, \code{status}, the covariates, and an additional column \code{O_hat} containing the
-derived outcome values. For the stratified version, the list of data frames is returned, one for each stratum.
+derived outcome values. For the stratified version, the computations are done separately by stratum, and
+the resulting \code{data.frame} contains an additional \code{.stratum} column indicating the stratum number.
 }
 \description{
 Compute the derived outcome values based on a given log hazard ratio.

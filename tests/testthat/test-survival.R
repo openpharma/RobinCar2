@@ -690,3 +690,12 @@ test_that("robin_surv can work with interaction covariates", {
   ))
   expect_s3_class(result, "surv_effect")
 })
+
+test_that("robin_surv works in a case where previously separate design matrices led to failure", {
+  result <- robin_surv(
+    Surv(time, status) ~ age + interaction(I(ph.karno < 50), I(wt.loss > 10)) + strata(strata),
+    data = surv_data,
+    treatment = sex ~ sr(1)
+  )
+  expect_s3_class(result, "surv_effect")
+})
