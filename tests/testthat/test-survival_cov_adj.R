@@ -129,33 +129,37 @@ test_that("h_get_lm_input works correctly across treatment levels with character
 
 test_that("h_get_strat_lm_input works as expected", {
   set.seed(941)
-  df_split <- list(
-    "stratum1" = data.frame(
+  df_with_stratum <- rbind(
+    data.frame(
       index = 1:3,
       treatment = factor(c(0, 1, 0), labels = c("A", "B")),
       covariate1 = rnorm(3),
       covariate2 = rnorm(3),
-      O_hat = rnorm(3)
+      O_hat = rnorm(3),
+      .stratum = 1
     ),
-    "stratum2" = data.frame(
+    data.frame(
       index = 4:5,
       treatment = factor(c(1, 0), labels = c("A", "B")),
       covariate1 = rnorm(2),
       covariate2 = rnorm(2),
-      O_hat = rnorm(2)
+      O_hat = rnorm(2),
+      .stratum = 2
     )
   )
-  result <- h_get_strat_lm_input(df_split, model = ~ covariate1 + covariate2)
+  result <- h_get_strat_lm_input(df_with_stratum, model = ~ covariate1 + covariate2)
   expect_list(result, len = 2L)
-  expect_names(names(result), identical.to = c("stratum1", "stratum2"))
-  # Check first stratum, treatment group A:
-  expect_list(result[["stratum1"]][["A"]], len = 2L)
-  expect_matrix(result[["stratum1"]][["A"]][["X"]], ncol = 2L, nrow = 2L)
-  expect_numeric(result[["stratum1"]][["A"]][["y"]], len = 2L)
-  # Check first stratum, treatment group B:
-  expect_list(result[["stratum2"]][["B"]], len = 2L)
-  expect_matrix(result[["stratum2"]][["B"]][["X"]], ncol = 2L, nrow = 1L)
-  expect_numeric(result[["stratum2"]][["B"]][["y"]], len = 1L)
+  expect_names(names(result), identical.to = c("A", "B"))
+  # Check treatment group A:
+  expect_list(result[["A"]], len = 2L)
+  expect_matrix(result[["A"]][["X"]], ncol = 3L, nrow = 3L)
+  expect_subset(".stratum", colnames(result[["A"]][["X"]]))
+  expect_numeric(result[["A"]][["y"]], len = 3L)
+  # Check treatment group B:
+  expect_list(result[["B"]], len = 2L)
+  expect_matrix(result[["B"]][["X"]], ncol = 3L, nrow = 2L)
+  expect_subset(".stratum", colnames(result[["B"]][["X"]]))
+  expect_numeric(result[["B"]][["y"]], len = 2L)
 })
 
 test_that("h_get_beta_estimates works as expected", {

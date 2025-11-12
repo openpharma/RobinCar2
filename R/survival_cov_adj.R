@@ -146,12 +146,12 @@ h_strat_derived_outcome_vals <- function(theta, df, treatment, time, status, str
 #'
 #' @param df (`data.frame`) Including the covariates needed for the `model`, as well as the derived outcome `O_hat`
 #'   and the `treatment` factor.
-#' @param df_split (`list`) A list of data frames, one for each stratum, as returned by
+#' @param df_with_stratum (`data.frame`) A data frame with an additional column for the stratum, as returned by
 #'   [h_strat_derived_outcome_vals()].
 #' @param model (`formula`) The right-hand side only model formula.
 #' @return A list containing for each element of the `treatment` factor a list with the
-#'   corresponding model matrix `X` and the response vector `y`. For the stratified version, a list of such
-#'   lists is returned, one for each stratum.
+#'   corresponding model matrix `X` and the response vector `y`. For the stratified version,
+#'   the model matrix `X` includes the `.stratum` column.
 #' @keywords internal
 #' @name get_lm_input
 NULL
@@ -186,10 +186,12 @@ h_get_lm_input <- function(df, model) {
   )
 }
 
-#' @describeIn get_lm_input Get the linear model input data for each stratum separately.
-h_get_strat_lm_input <- function(df_split, model) {
-  assert_list(df_split, types = "data.frame")
-  lapply(df_split, h_get_lm_input, model = model)
+#' @describeIn get_lm_input Get the linear model input data with attached stratum column.
+h_get_strat_lm_input <- function(df_with_stratum, model) {
+  assert_data_frame(df_with_stratum)
+  assert_subset(".stratum", names(df_with_stratum))
+  model_with_stratum <- stats::update(model, ~ . + .stratum) # Important: no left-hand side.
+  h_get_lm_input(df = df_with_stratum, model = model_with_stratum)
 }
 
 #' Calculate Coefficient Estimates from Linear Model Input
