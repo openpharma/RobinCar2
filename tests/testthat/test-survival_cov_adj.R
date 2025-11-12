@@ -179,21 +179,23 @@ test_that("h_get_beta_estimates works as expected", {
 test_that("h_get_strat_beta_estimates works as expected", {
   set.seed(941)
   nobs <- 10
-  df_split <- list(
-    "stratum1" = data.frame(
+  df_with_stratum <- rbind(
+    data.frame(
       treatment = factor(sample(c("A", "B"), nobs, replace = TRUE)),
       covariate1 = rnorm(nobs),
       covariate2 = rnorm(nobs),
-      O_hat = rnorm(nobs)
+      O_hat = rnorm(nobs),
+      .stratum = 1
     ),
-    "stratum2" = data.frame(
+    data.frame(
       treatment = factor(sample(c("A", "B"), nobs, replace = TRUE)),
       covariate1 = rnorm(nobs),
       covariate2 = rnorm(nobs),
-      O_hat = rnorm(nobs)
+      O_hat = rnorm(nobs),
+      .stratum = 2
     )
   )
-  strat_lm_input <- h_get_strat_lm_input(df_split, model = ~ covariate1 + covariate2)
+  strat_lm_input <- h_get_strat_lm_input(df_with_stratum, model = ~ covariate1 + covariate2)
   result <- h_get_strat_beta_estimates(strat_lm_input)
   expect_list(result, len = 2L)
   expect_names(names(result), identical.to = c("A", "B"))
