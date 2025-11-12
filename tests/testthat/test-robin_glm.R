@@ -67,4 +67,7 @@ test_that("robin_glm works for glm.nb", {
 test_that("robin_glm can be printed correctly", {
   expect_snapshot(robin_res1)
   expect_snapshot(robin_res2)
+  expect_snapshot(
+    robin_glm(y_b ~ treatment + s1, data = glm_data, treatment = treatment ~ s1)
+  )
 })
