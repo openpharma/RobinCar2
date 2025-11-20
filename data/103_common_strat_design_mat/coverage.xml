@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE coverage SYSTEM "https://raw.githubusercontent.com/cobertura/cobertura/master/cobertura/src/site/htdocs/xml/coverage-04.dtd">
-<coverage line-rate="0.975288303130148" branch-rate="0" lines-covered="1184" lines-valid="1214" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2025-11-12 03:44:12.726344">
+<coverage line-rate="0.975267930750206" branch-rate="0" lines-covered="1183" lines-valid="1213" branches-covered="0" branches-valid="0" complexity="0" version="3.6.4" timestamp="2025-11-20 10:18:44.151916">
   <sources>
     <source>/__w/RobinCar2/RobinCar2/RobinCar2</source>
   </sources>
   <packages>
-    <package name="RobinCar2" line-rate="0.975288303130148" branch-rate="0" complexity="0">
+    <package name="RobinCar2" line-rate="0.975267930750206" branch-rate="0" complexity="0">
       <classes>
         <class name="bias.R" filename="R/bias.R" line-rate="1" branch-rate="0" complexity="0">
           <methods>
@@ -722,21 +722,20 @@
                 <line number="253" hits="300" branch="false"/>
                 <line number="254" hits="300" branch="false"/>
                 <line number="255" hits="300" branch="false"/>
-                <line number="257" hits="300" branch="false"/>
+                <line number="256" hits="300" branch="false"/>
                 <line number="258" hits="300" branch="false"/>
-                <line number="260" hits="300" branch="false"/>
-                <line number="263" hits="816" branch="false"/>
-                <line number="266" hits="816" branch="false"/>
-                <line number="269" hits="816" branch="false"/>
-                <line number="272" hits="816" branch="false"/>
-                <line number="275" hits="816" branch="false"/>
+                <line number="259" hits="300" branch="false"/>
+                <line number="261" hits="300" branch="false"/>
+                <line number="264" hits="816" branch="false"/>
+                <line number="267" hits="816" branch="false"/>
+                <line number="270" hits="816" branch="false"/>
+                <line number="273" hits="816" branch="false"/>
                 <line number="276" hits="816" branch="false"/>
-                <line number="280" hits="300" branch="false"/>
+                <line number="277" hits="816" branch="false"/>
                 <line number="281" hits="300" branch="false"/>
-                <line number="284" hits="300" branch="false"/>
+                <line number="282" hits="300" branch="false"/>
                 <line number="285" hits="300" branch="false"/>
-                <line number="288" hits="300" branch="false"/>
-                <line number="291" hits="150" branch="false"/>
+                <line number="288" hits="150" branch="false"/>
               </lines>
             </method>
           </methods>
@@ -858,21 +857,20 @@
             <line number="253" hits="300" branch="false"/>
             <line number="254" hits="300" branch="false"/>
             <line number="255" hits="300" branch="false"/>
-            <line number="257" hits="300" branch="false"/>
+            <line number="256" hits="300" branch="false"/>
             <line number="258" hits="300" branch="false"/>
-            <line number="260" hits="300" branch="false"/>
-            <line number="263" hits="816" branch="false"/>
-            <line number="266" hits="816" branch="false"/>
-            <line number="269" hits="816" branch="false"/>
-            <line number="272" hits="816" branch="false"/>
-            <line number="275" hits="816" branch="false"/>
+            <line number="259" hits="300" branch="false"/>
+            <line number="261" hits="300" branch="false"/>
+            <line number="264" hits="816" branch="false"/>
+            <line number="267" hits="816" branch="false"/>
+            <line number="270" hits="816" branch="false"/>
+            <line number="273" hits="816" branch="false"/>
             <line number="276" hits="816" branch="false"/>
-            <line number="280" hits="300" branch="false"/>
+            <line number="277" hits="816" branch="false"/>
             <line number="281" hits="300" branch="false"/>
-            <line number="284" hits="300" branch="false"/>
+            <line number="282" hits="300" branch="false"/>
             <line number="285" hits="300" branch="false"/>
-            <line number="288" hits="300" branch="false"/>
-            <line number="291" hits="150" branch="false"/>
+            <line number="288" hits="150" branch="false"/>
           </lines>
         </class>
         <class name="survival_score.R" filename="R/survival_score.R" line-rate="1" branch-rate="0" complexity="0">
