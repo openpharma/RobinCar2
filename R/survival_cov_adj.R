@@ -253,18 +253,15 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
     stratum_col <- match(".stratum", colnames(x))
     stratum <- as.integer(x[, stratum_col])
     x <- x[, -stratum_col, drop = FALSE]
+    unique_strata <- unique(stratum)
 
     xtxs <- list()
     xtys <- list()
 
-    for (this_stratum in unique(stratum)) {
+    for (stratum_index in seq_along(unique_strata)) {
       # Save the corresponding cross products
-      # for this group and stratum, if it exists.
-      in_stratum <- stratum == this_stratum
-
-      if (!any(in_stratum)) {
-        next
-      }
+      # for this group and stratum.
+      in_stratum <- stratum == unique_strata[stratum_index]
 
       # Get the design matrix for this treatment arm.
       this_x <- x[in_stratum, , drop = FALSE]
@@ -276,8 +273,8 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
       this_y <- y[in_stratum]
 
       # Save the cross products.
-      xtxs[[this_stratum]] <- crossprod(this_x)
-      xtys[[this_stratum]] <- crossprod(this_x, this_y)
+      xtxs[[stratum_index]] <- crossprod(this_x)
+      xtys[[stratum_index]] <- crossprod(this_x, this_y)
     }
 
     # Sum across strata.
