@@ -259,8 +259,12 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
 
     for (this_stratum in unique(stratum)) {
       # Save the corresponding cross products
-      # for this group and stratum.
+      # for this group and stratum, if it exists.
       in_stratum <- stratum == this_stratum
+
+      if (!any(in_stratum)) {
+        next
+      }
 
       # Get the design matrix for this treatment arm.
       this_x <- x[in_stratum, , drop = FALSE]
@@ -275,10 +279,6 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
       xtxs[[this_stratum]] <- crossprod(this_x)
       xtys[[this_stratum]] <- crossprod(this_x, this_y)
     }
-
-    # Omit strata with no patients in this treatment arm.
-    xtxs <- xtxs[!sapply(xtxs, is.null)]
-    xtys <- xtys[!sapply(xtys, is.null)]
 
     # Sum across strata.
     xtx <- Reduce("+", xtxs)
