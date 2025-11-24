@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE coverage SYSTEM "https://raw.githubusercontent.com/cobertura/cobertura/master/cobertura/src/site/htdocs/xml/coverage-04.dtd">
-<coverage line-rate="0.996771589991929" branch-rate="0" lines-covered="1235" lines-valid="1239" branches-covered="0" branches-valid="0" complexity="0" version="3.6.5" timestamp="2025-11-24 09:02:51.140754">
+<coverage line-rate="0.996766370250606" branch-rate="0" lines-covered="1233" lines-valid="1237" branches-covered="0" branches-valid="0" complexity="0" version="3.6.5" timestamp="2025-11-24 09:34:01.527964">
   <sources>
     <source>/__w/RobinCar2/RobinCar2/RobinCar2</source>
   </sources>
   <packages>
-    <package name="RobinCar2" line-rate="0.996771589991929" branch-rate="0" complexity="0">
+    <package name="RobinCar2" line-rate="0.996766370250606" branch-rate="0" complexity="0">
       <classes>
         <class name="bias.R" filename="R/bias.R" line-rate="1" branch-rate="0" complexity="0">
           <methods>
@@ -506,13 +506,13 @@
                 <line number="55" hits="5" branch="false"/>
                 <line number="56" hits="5" branch="false"/>
                 <line number="57" hits="5" branch="false"/>
-                <line number="58" hits="5" branch="false"/>
-                <line number="60" hits="5" branch="false"/>
+                <line number="59" hits="5" branch="false"/>
+                <line number="60" hits="4" branch="false"/>
                 <line number="61" hits="4" branch="false"/>
                 <line number="62" hits="4" branch="false"/>
                 <line number="63" hits="4" branch="false"/>
-                <line number="64" hits="4" branch="false"/>
-                <line number="67" hits="5" branch="false"/>
+                <line number="66" hits="5" branch="false"/>
+                <line number="68" hits="5" branch="false"/>
                 <line number="69" hits="5" branch="false"/>
                 <line number="70" hits="5" branch="false"/>
                 <line number="71" hits="5" branch="false"/>
@@ -520,44 +520,42 @@
                 <line number="73" hits="5" branch="false"/>
                 <line number="74" hits="5" branch="false"/>
                 <line number="75" hits="5" branch="false"/>
-                <line number="76" hits="5" branch="false"/>
                 <line number="77" hits="5" branch="false"/>
+                <line number="78" hits="5" branch="false"/>
                 <line number="79" hits="5" branch="false"/>
                 <line number="80" hits="5" branch="false"/>
                 <line number="81" hits="5" branch="false"/>
-                <line number="82" hits="5" branch="false"/>
-                <line number="83" hits="5" branch="false"/>
               </lines>
             </method>
             <method name="table" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="88" hits="41" branch="false"/>
+                <line number="86" hits="41" branch="false"/>
               </lines>
             </method>
             <method name="table.default" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="92" hits="40" branch="false"/>
+                <line number="90" hits="40" branch="false"/>
               </lines>
             </method>
             <method name="table.surv_effect" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
+                <line number="97" hits="1" branch="false"/>
+                <line number="98" hits="1" branch="false"/>
                 <line number="99" hits="1" branch="false"/>
                 <line number="100" hits="1" branch="false"/>
                 <line number="101" hits="1" branch="false"/>
                 <line number="102" hits="1" branch="false"/>
                 <line number="103" hits="1" branch="false"/>
                 <line number="104" hits="1" branch="false"/>
-                <line number="105" hits="1" branch="false"/>
-                <line number="106" hits="1" branch="false"/>
               </lines>
             </method>
             <method name="confint.surv_effect" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="113" hits="3" branch="false"/>
-                <line number="114" hits="2" branch="false"/>
+                <line number="111" hits="3" branch="false"/>
+                <line number="112" hits="2" branch="false"/>
+                <line number="114" hits="1" branch="false"/>
+                <line number="115" hits="1" branch="false"/>
                 <line number="116" hits="1" branch="false"/>
-                <line number="117" hits="1" branch="false"/>
-                <line number="118" hits="1" branch="false"/>
               </lines>
             </method>
           </methods>
@@ -595,13 +593,13 @@
             <line number="55" hits="5" branch="false"/>
             <line number="56" hits="5" branch="false"/>
             <line number="57" hits="5" branch="false"/>
-            <line number="58" hits="5" branch="false"/>
-            <line number="60" hits="5" branch="false"/>
+            <line number="59" hits="5" branch="false"/>
+            <line number="60" hits="4" branch="false"/>
             <line number="61" hits="4" branch="false"/>
             <line number="62" hits="4" branch="false"/>
             <line number="63" hits="4" branch="false"/>
-            <line number="64" hits="4" branch="false"/>
-            <line number="67" hits="5" branch="false"/>
+            <line number="66" hits="5" branch="false"/>
+            <line number="68" hits="5" branch="false"/>
             <line number="69" hits="5" branch="false"/>
             <line number="70" hits="5" branch="false"/>
             <line number="71" hits="5" branch="false"/>
@@ -609,28 +607,26 @@
             <line number="73" hits="5" branch="false"/>
             <line number="74" hits="5" branch="false"/>
             <line number="75" hits="5" branch="false"/>
-            <line number="76" hits="5" branch="false"/>
             <line number="77" hits="5" branch="false"/>
+            <line number="78" hits="5" branch="false"/>
             <line number="79" hits="5" branch="false"/>
             <line number="80" hits="5" branch="false"/>
             <line number="81" hits="5" branch="false"/>
-            <line number="82" hits="5" branch="false"/>
-            <line number="83" hits="5" branch="false"/>
-            <line number="88" hits="41" branch="false"/>
-            <line number="92" hits="40" branch="false"/>
+            <line number="86" hits="41" branch="false"/>
+            <line number="90" hits="40" branch="false"/>
+            <line number="97" hits="1" branch="false"/>
+            <line number="98" hits="1" branch="false"/>
             <line number="99" hits="1" branch="false"/>
             <line number="100" hits="1" branch="false"/>
             <line number="101" hits="1" branch="false"/>
             <line number="102" hits="1" branch="false"/>
             <line number="103" hits="1" branch="false"/>
             <line number="104" hits="1" branch="false"/>
-            <line number="105" hits="1" branch="false"/>
-            <line number="106" hits="1" branch="false"/>
-            <line number="113" hits="3" branch="false"/>
-            <line number="114" hits="2" branch="false"/>
+            <line number="111" hits="3" branch="false"/>
+            <line number="112" hits="2" branch="false"/>
+            <line number="114" hits="1" branch="false"/>
+            <line number="115" hits="1" branch="false"/>
             <line number="116" hits="1" branch="false"/>
-            <line number="117" hits="1" branch="false"/>
-            <line number="118" hits="1" branch="false"/>
           </lines>
         </class>
         <class name="survival_cov_adj.R" filename="R/survival_cov_adj.R" line-rate="1" branch-rate="0" complexity="0">
