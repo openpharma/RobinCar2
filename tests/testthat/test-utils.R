@@ -1,6 +1,7 @@
 test_that("h_get_vars works for formula", {
   res <- expect_silent(h_get_vars(abc ~ 1))
   expect_identical(res, list(treatment = "abc", schema = "sr", strata = character(0)))
+  expect_identical(res, list(treatment = "abc", schema = "sr", strata = character(0)))
 
   expect_error(
     h_get_vars("treatment"),
@@ -49,19 +50,24 @@ test_that("h_get_vars is backwards compatible for use of sp instead of sr", {
 
 test_that("h_prep_survival_input works with strata", {
   result <- expect_silent(h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,
+    formula = survival::Surv(time, status) ~ age +
+      ph.karno +
+      meal.cal +
+      strata(strata) +
+      interaction(I(age > 50), I(ph.karno < 20)),
     data = surv_data,
-    treatment = sex ~ strata
+    treatment = sex ~ pb(strata)
   ))
   expected <- list(
     data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
+    randomization_strata = "strata",
     strata = "strata",
-    schema = "sr",
+    schema = "pb",
     covariates = c("age", "ph.karno", "meal.cal"),
-    model = ~ age + ph.karno + meal.cal,
+    model = ~ age + ph.karno + meal.cal + interaction(I(age > 50), I(ph.karno < 20)),
     n_levels = 2L,
     levels = c("Female", "Male")
   )
@@ -70,15 +76,16 @@ test_that("h_prep_survival_input works with strata", {
 
 test_that("h_prep_survival_input works with multiple strata", {
   result <- expect_silent(h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,
+    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal + strata(strata, ecog),
     data = surv_data,
-    treatment = sex ~ strata + ecog
+    treatment = sex ~ sr(1) # We do not necessarily need to have the strata in the randomization.
   ))
   expected <- list(
     data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
+    randomization_strata = character(),
     strata = c("strata", "ecog"),
     schema = "sr",
     covariates = c("age", "ph.karno", "meal.cal"),
@@ -93,15 +100,17 @@ test_that("h_prep_survival_input works without strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,
     data = surv_data,
-    treatment = sex ~ 1
+    # We specify strata for the randomization, but there are none in the analysis formula.
+    treatment = sex ~ pb(strata)
   ))
   expected <- list(
     data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
+    randomization_strata = "strata",
     strata = character(),
-    schema = "sr",
+    schema = "pb",
     covariates = c("age", "ph.karno", "meal.cal"),
     model = ~ age + ph.karno + meal.cal,
     n_levels = 2L,
@@ -114,15 +123,16 @@ test_that("h_prep_survival_input works without covariates", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = sex ~ strata
+    treatment = sex ~ pb(strata)
   ))
   expected <- list(
     data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
-    strata = "strata",
-    schema = "sr",
+    randomization_strata = "strata",
+    strata = character(),
+    schema = "pb",
     covariates = character(),
     model = ~1,
     n_levels = 2L,
@@ -135,13 +145,14 @@ test_that("h_prep_survival_input works without covariates and without strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = sex ~ 1
+    treatment = sex ~ sr(1)
   ))
   expected <- list(
     data = surv_data,
     time = "time",
     status = "status",
     treatment = "sex",
+    randomization_strata = character(),
     strata = character(),
     schema = "sr",
     covariates = character(),

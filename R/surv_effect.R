@@ -5,9 +5,9 @@
 #'
 #' @examples
 #' x <- robin_surv(
-#'   formula = Surv(time, status) ~ meal.cal + age,
+#'   formula = Surv(time, status) ~ meal.cal + age + strata(strata),
 #'   data = surv_data,
-#'   treatment = sex ~ strata
+#'   treatment = sex ~ pb(strata)
 #' )
 NULL
 

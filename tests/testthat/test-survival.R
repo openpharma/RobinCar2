@@ -50,7 +50,7 @@ test_that("robin_surv_comparison works as expected without covariate adjustment"
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = sex ~ 1
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_comparison(
     score_fun = h_lr_score_no_strata_no_cov,
@@ -90,7 +90,7 @@ test_that("robin_surv_no_strata_no_cov works as expected", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = sex ~ 1
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_no_strata_no_cov(
     vars = input,
@@ -106,7 +106,7 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = ecog ~ 1
+    treatment = ecog ~ sr(1)
   )
   input$data <- na.omit(input$data)
   result <- robin_surv_no_strata_no_cov(
@@ -132,9 +132,9 @@ test_that("robin_surv_no_strata_no_cov gives the same results as RobinCar functi
 
 test_that("robin_surv_strata works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ 1,
+    formula = survival::Surv(time, status) ~ 1 + strata(strata),
     data = surv_data,
-    treatment = sex ~ strata
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_strata(
     vars = input,
@@ -148,9 +148,9 @@ test_that("robin_surv_strata works as expected", {
 
 test_that("robin_surv_strata works with multiple strata variables", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ 1,
+    formula = survival::Surv(time, status) ~ strata(strata, ecog),
     data = surv_data,
-    treatment = sex ~ strata + ecog
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_strata(
     vars = input,
@@ -161,9 +161,9 @@ test_that("robin_surv_strata works with multiple strata variables", {
   )
   surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
   input2 <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ 1,
+    formula = survival::Surv(time, status) ~ strata(strata_ecog),
     data = surv_data,
-    treatment = sex ~ strata_ecog
+    treatment = sex ~ sr(1)
   )
   result2 <- robin_surv_strata(
     vars = input2,
@@ -177,9 +177,9 @@ test_that("robin_surv_strata works with multiple strata variables", {
 
 test_that("robin_surv_strata gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ 1,
+    formula = survival::Surv(time, status) ~ strata(sex),
     data = surv_data,
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   input$data <- na.omit(input$data)
   result <- robin_surv_strata(
@@ -207,7 +207,7 @@ test_that("robin_surv_cov works as expected", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age,
     data = surv_data,
-    treatment = sex ~ 1
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_cov(
     vars = input,
@@ -223,7 +223,7 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age,
     data = surv_data,
-    treatment = ecog ~ 1
+    treatment = ecog ~ sr(1)
   )
   input$data <- na.omit(input$data)
   result <- robin_surv_cov(
@@ -250,9 +250,9 @@ test_that("robin_surv_cov gives the same results as RobinCar functions", {
 
 test_that("robin_surv_strata_cov works as expected", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age,
+    formula = survival::Surv(time, status) ~ age + strata(sex),
     data = surv_data,
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   result <- robin_surv_strata_cov(
     vars = input,
@@ -266,9 +266,9 @@ test_that("robin_surv_strata_cov works as expected", {
 
 test_that("robin_surv_strata_cov works with multiple strata variables", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age,
+    formula = survival::Surv(time, status) ~ age + strata(strata, ecog),
     data = surv_data,
-    treatment = sex ~ strata + ecog
+    treatment = sex ~ sr(1)
   )
   result <- robin_surv_strata_cov(
     vars = input,
@@ -279,9 +279,9 @@ test_that("robin_surv_strata_cov works with multiple strata variables", {
   )
   surv_data$strata_ecog <- interaction(surv_data$strata, surv_data$ecog, drop = TRUE)
   input2 <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age,
+    formula = survival::Surv(time, status) ~ age + strata(strata_ecog),
     data = surv_data,
-    treatment = sex ~ strata_ecog
+    treatment = sex ~ sr(1)
   )
   result2 <- robin_surv_strata_cov(
     vars = input2,
@@ -295,9 +295,9 @@ test_that("robin_surv_strata_cov works with multiple strata variables", {
 
 test_that("robin_surv_strata_cov gives the same results as RobinCar functions", {
   input <- h_prep_survival_input(
-    formula = survival::Surv(time, status) ~ age,
+    formula = survival::Surv(time, status) ~ age + strata(sex),
     data = surv_data,
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   input$data <- na.omit(input$data)
   result <- robin_surv_strata_cov(
@@ -416,7 +416,7 @@ test_that("robin_surv works as expected without strata or covariates", {
   result <- robin_surv(
     Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = ecog ~ 1
+    treatment = ecog ~ sr(1)
   )
   expect_s3_class(result, "surv_effect")
   expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
@@ -428,7 +428,7 @@ test_that("robin_surv gives the same results as RobinCar functions without strat
   result <- robin_surv(
     Surv(time, status) ~ 1,
     data = na.omit(surv_data),
-    treatment = ecog ~ 1
+    treatment = ecog ~ sr(1)
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -447,9 +447,9 @@ test_that("robin_surv gives the same results as RobinCar functions without strat
 
 test_that("robin_surv works as expected with strata", {
   result <- robin_surv(
-    Surv(time, status) ~ 1,
+    Surv(time, status) ~ 1 + strata(strata),
     data = surv_data,
-    treatment = sex ~ strata
+    treatment = sex ~ sr(1)
   )
   expect_s3_class(result, "surv_effect")
   expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
@@ -459,9 +459,9 @@ test_that("robin_surv works as expected with strata", {
 
 test_that("robin_surv gives the same results as RobinCar functions with strata", {
   result <- robin_surv(
-    Surv(time, status) ~ 1,
+    Surv(time, status) ~ 1 + strata(sex),
     data = na.omit(surv_data),
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -482,7 +482,7 @@ test_that("robin_surv works as expected with covariates", {
   result <- robin_surv(
     Surv(time, status) ~ age,
     data = surv_data,
-    treatment = ecog ~ 1
+    treatment = ecog ~ sr(1)
   )
   expect_s3_class(result, "surv_effect")
   expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
@@ -494,7 +494,7 @@ test_that("robin_surv gives the same results as RobinCar functions with covariat
   result <- robin_surv(
     Surv(time, status) ~ age,
     data = na.omit(surv_data),
-    treatment = ecog ~ 1
+    treatment = ecog ~ sr(1)
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -515,7 +515,7 @@ test_that("robin_surv gives the same results as RobinCar for single factor covar
   result <- robin_surv(
     Surv(time, status) ~ sex,
     data = na.omit(surv_data),
-    treatment = ecog ~ 1,
+    treatment = ecog ~ sr(1),
     hr_se_plugin_adjusted = FALSE
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
@@ -535,9 +535,9 @@ test_that("robin_surv gives the same results as RobinCar for single factor covar
 
 test_that("robin_surv works as expected with strata and covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ age + ph.karno,
+    Surv(time, status) ~ age + ph.karno + strata(sex),
     data = surv_data,
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   expect_s3_class(result, "surv_effect")
   expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
@@ -547,9 +547,9 @@ test_that("robin_surv works as expected with strata and covariates", {
 
 test_that("robin_surv gives the same results as RobinCar functions with strata and covariates", {
   result <- robin_surv(
-    Surv(time, status) ~ age,
+    Surv(time, status) ~ age + strata(sex),
     data = na.omit(surv_data),
-    treatment = ecog ~ sex
+    treatment = ecog ~ sr(1)
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
   # `tests-raw/test-survival.R`.
@@ -570,7 +570,7 @@ test_that("robin_surv also works with multiple pairwise comparisons", {
   result <- robin_surv(
     Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = strata ~ 1
+    treatment = strata ~ sr(1)
   )
   expect_s3_class(result, "surv_effect")
   comparisons <- c("1 v.s. 0", "2 v.s. 0", "3 v.s. 0", "2 v.s. 1", "3 v.s. 1", "3 v.s. 2")
@@ -584,7 +584,7 @@ test_that("robin_surv allows the user to optionally define the comparisons of in
   result <- robin_surv(
     Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = strata ~ 1,
+    treatment = strata ~ sr(1),
     comparisons = list(c(1, 2), c(3, 3))
   )
   expect_s3_class(result, "surv_effect")
@@ -599,13 +599,13 @@ test_that("robin_surv allows to use unadjusted standard error", {
   result <- robin_surv(
     Surv(time, status) ~ age,
     data = surv_data,
-    treatment = ecog ~ 1,
+    treatment = ecog ~ sr(1),
     hr_se_plugin_adjusted = FALSE
   )
   result_adjusted <- robin_surv(
     Surv(time, status) ~ age,
     data = surv_data,
-    treatment = ecog ~ 1,
+    treatment = ecog ~ sr(1),
     hr_se_plugin_adjusted = TRUE
   )
   # Only the standard error should differ.
@@ -626,9 +626,9 @@ test_that("robin_surv gives the same results as RobinCar for strong correlation 
   surv_data2 <- surv_data2[surv_data2$strata %in% c(0, 1), ]
 
   result <- robin_surv(
-    formula = Surv(time, status) ~ ecog,
+    formula = Surv(time, status) ~ ecog + strata(strata),
     data = na.omit(surv_data2),
-    treatment = sex ~ strata,
+    treatment = sex ~ sr(1),
     hr_se_plugin_adjusted = FALSE
   )
   # These values are extracted from RobinCar (version 1.0.0) results, see
@@ -659,9 +659,9 @@ test_that("robin_surv works also with character variable in the correlation case
   assert_true(all(surv_data2$ecog[surv_data2$strata == 0] == "1"))
 
   result <- expect_silent(robin_surv(
-    formula = Surv(time, status) ~ ecog,
+    formula = Surv(time, status) ~ ecog + strata(strata),
     data = na.omit(surv_data2),
-    treatment = sex ~ strata,
+    treatment = sex ~ sr(1),
     hr_se_plugin_adjusted = FALSE
   ))
   expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-2, style = "deparse")
@@ -680,4 +680,13 @@ test_that("robin_surv can skip the hazard ratio estimation", {
   expect_scalar_na(result$hr_n)
   expect_scalar_na(result$hr_sigma_l2)
   expect_null(result$log_hr_coef_mat)
+})
+
+test_that("robin_surv can work with interaction covariates", {
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ age + interaction(I(ph.karno < 80), I(wt.loss > 7)) + strata(ecog),
+    data = surv_data,
+    treatment = sex ~ sr(1)
+  ))
+  expect_s3_class(result, "surv_effect")
 })
