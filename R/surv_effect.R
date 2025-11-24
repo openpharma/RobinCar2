@@ -46,8 +46,7 @@ print.surv_effect <- function(x, ...) {
     )
   }
 
-  contr_type <- switch(
-    x$contrast,
+  contr_type <- switch(x$contrast,
     hazardratio = paste0(
       if (uses_covariates) "Covariate-adjusted ",
       if (uses_stratification) "Stratified ",
@@ -66,8 +65,7 @@ print.surv_effect <- function(x, ...) {
 
   cat("\n")
 
-  test_type <- switch(
-    x$test,
+  test_type <- switch(x$test,
     logrank = paste0(
       if (uses_covariates) "Covariate-adjusted ",
       if (uses_stratification) "Stratified ",
