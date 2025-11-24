@@ -1,4 +1,31 @@
-test_that("print method for surv_effect works as expected", {
+test_that("print method for surv_effect works as expected (unstratified, unadjusted)", {
+  x <- robin_surv(
+    formula = Surv(time, status) ~ 1,
+    data = surv_data,
+    treatment = sex ~ sr(1)
+  )
+  expect_snapshot(print(x))
+})
+
+test_that("print method for surv_effect works as expected (stratified, unadjusted)", {
+  x <- robin_surv(
+    formula = Surv(time, status) ~ 1 + strata(strata),
+    data = surv_data,
+    treatment = sex ~ sr(1)
+  )
+  expect_snapshot(print(x))
+})
+
+test_that("print method for surv_effect works as expected (unstratified, adjusted)", {
+  x <- robin_surv(
+    formula = Surv(time, status) ~ meal.cal + age,
+    data = surv_data,
+    treatment = sex ~ sr(1)
+  )
+  expect_snapshot(print(x))
+})
+
+test_that("print method for surv_effect works as expected (stratified, adjusted)", {
   x <- robin_surv(
     formula = Surv(time, status) ~ meal.cal + age + strata(strata),
     data = surv_data,

@@ -15,6 +15,7 @@
 ### Misc
 
 * Changed from `sp` to `sr` which is easier to read as "simple randomization".
+* The print output for `robin_surv` objects has been improved for better readability.
 
 # RobinCar2 0.2.1
 
