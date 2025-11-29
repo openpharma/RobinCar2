@@ -95,17 +95,19 @@ robin_surv(
   data = surv_data,
   treatment = sex ~ pb(strata)
 )
-#> Model        :  Surv(time, status) ~ meal.cal + age + strata(strata) 
-#> Randomization:  sex ~ pb(strata)  ( Permuted-Block )
+#> Model        : Surv(time, status) ~ meal.cal + age + strata(strata)
+#> Randomization: sex ~ pb(strata) (Permuted-Block)
+#> Stratification variables:  strata 
+#> Covariates adjusted for: meal.cal, age (including interactions with sex)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Covariate-adjusted Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     2.9496 0.003181 **
@@ -118,17 +120,18 @@ robin_surv(
   data = surv_data,
   treatment = sex ~ sr(1)
 )
-#> Model        :  Surv(time, status) ~ 1 + strata(strata, ecog) 
-#> Randomization:  sex ~ sr(1)  ( Simple )
+#> Model        : Surv(time, status) ~ 1 + strata(strata, ecog)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata, ecog 
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2856 0.001018 **
@@ -141,17 +144,17 @@ robin_surv(
   data = surv_data,
   treatment = sex ~ sr(1)
 )
-#> Model        :  Surv(time, status) ~ 1 
-#> Randomization:  sex ~ sr(1)  ( Simple )
+#> Model        : Surv(time, status) ~ 1
+#> Randomization: sex ~ sr(1) (Simple)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.53343 0.16727   3.189 0.001428 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2135 0.001311 **

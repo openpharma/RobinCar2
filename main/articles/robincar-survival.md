@@ -47,17 +47,17 @@ robin_surv(
   treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ 1 
-#> Randomization:  sex ~ sr(1)  ( Simple )
+#> Model        : Surv(time, status) ~ 1
+#> Randomization: sex ~ sr(1) (Simple)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.53343 0.16727   3.189 0.001428 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2135 0.001311 **
@@ -74,17 +74,18 @@ robin_surv(
   treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ 1 + strata(strata) 
-#> Randomization:  sex ~ sr(1)  ( Simple )
+#> Model        : Surv(time, status) ~ 1 + strata(strata)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata 
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2856 0.001018 **
@@ -101,17 +102,18 @@ robin_surv(
   treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ 1 + strata(strata, ecog) 
-#> Randomization:  sex ~ sr(1)  ( Simple )
+#> Model        : Surv(time, status) ~ 1 + strata(strata, ecog)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata, ecog 
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2856 0.001018 **
@@ -127,17 +129,18 @@ robin_surv(
   treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ age + meal.cal 
-#> Randomization:  sex ~ sr(1)  ( Simple )
+#> Model        : Surv(time, status) ~ age + meal.cal
+#> Randomization: sex ~ sr(1) (Simple)
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Covariate-adjusted Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)  
 #> Male v.s. Female  0.47686 0.18608  2.5626  0.01039 *
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Covariate-adjusted Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     2.6858 0.007236 **
@@ -153,17 +156,19 @@ robin_surv(
   treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ age + meal.cal + strata(strata, ecog) 
-#> Randomization:  sex ~ sr(1)  ( Simple )
+#> Model        : Surv(time, status) ~ age + meal.cal + strata(strata, ecog)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata, ecog 
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Covariate-adjusted Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     2.9496 0.003181 **
@@ -181,12 +186,13 @@ robin_surv(
   data = surv_data,
   contrast = "none"
 )
-#> Model        :  Surv(time, status) ~ age + meal.cal 
-#> Randomization:  sex ~ strata + ecog  ( Simple )
+#> Model        : Surv(time, status) ~ age + meal.cal
+#> Randomization: sex ~ strata + ecog (Simple)
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
 #> 
-#> Contrast     :  None
+#> Contrast     : None
 #> 
-#> Test         :  Log-Rank
+#> Test         : Covariate-adjusted Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     2.6858 0.007236 **
