@@ -16,20 +16,45 @@ NULL
 #' @examples
 #' print(x)
 print.surv_effect <- function(x, ...) {
-  cat("Model        : ", deparse(as.formula(x$model)), "\n")
+  cat("Model        : ", deparse(as.formula(x$model)), "\n", sep = "")
 
   cat(
     "Randomization: ",
     deparse(x$randomization),
     " (",
     randomization_schema$schema[randomization_schema$id == x$schema],
-    ")\n"
+    ")\n",
+    sep = ""
   )
+
+  strata_variables <- x$vars$strata
+  uses_stratification <- length(strata_variables) > 0
+  if (uses_stratification) {
+    cat("Stratification variables: ", toString(strata_variables), "\n")
+  }
+
+  covariates <- x$vars$covariates
+  uses_covariates <- length(covariates) > 0
+  if (uses_covariates) {
+    cat(
+      "Covariates adjusted for: ",
+      toString(covariates),
+      " (including interactions with ",
+      x$vars$treatment,
+      ")\n",
+      sep = ""
+    )
+  }
+
   contr_type <- switch(x$contrast,
-    hazardratio = "Log Hazard ratio",
+    hazardratio = paste0(
+      if (uses_covariates) "Covariate-adjusted ",
+      if (uses_stratification) "Stratified ",
+      "Log Hazard Ratio"
+    ),
     none = "None"
   )
-  cat(sprintf("\nContrast     :  %s\n", contr_type))
+  cat(sprintf("\nContrast     : %s\n", contr_type), sep = "")
 
   if (x$contrast == "hazardratio") {
     cat("\n")
@@ -41,9 +66,13 @@ print.surv_effect <- function(x, ...) {
   cat("\n")
 
   test_type <- switch(x$test,
-    logrank = "Log-Rank"
+    logrank = paste0(
+      if (uses_covariates) "Covariate-adjusted ",
+      if (uses_stratification) "Stratified ",
+      "Log-Rank"
+    )
   )
-  cat(sprintf("Test         :  %s\n\n", test_type))
+  cat(sprintf("Test         : %s\n\n", test_type), sep = "")
 
   stats::printCoefmat(
     x$test_mat,
