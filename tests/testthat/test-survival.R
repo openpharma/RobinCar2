@@ -699,3 +699,14 @@ test_that("robin_surv works in a case where previously separate design matrices 
   )
   expect_s3_class(result, "surv_effect")
 })
+
+test_that("robin_surv gives a warning if stratified randomization was specified but simple log rank test used", {
+  expect_warning(
+    result <- robin_surv(
+      Surv(time, status) ~ 1,
+      data = surv_data,
+      treatment = sex ~ pb(ecog)
+    ),
+    "It looks like you have not included all of the variables that were used during randomization"
+  )
+})
