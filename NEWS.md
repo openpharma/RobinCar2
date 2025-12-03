@@ -12,9 +12,12 @@
 * Fixed a issue in `robin_lm` that variance method does not apply correctly.
 * Fixed a issue in `robin_glm` that `vcovHC` can be used for non Gaussian family.
 
+* Fixed another bug in covariate-adjusted stratified survival function estimation in `robin_surv`, which resulted from design matrices separately derived per stratum. Now the design matrix is created once including the stratum indicator, and then the stratum-specific parts are extracted as needed.
+
 ### Misc
 
 * Changed from `sp` to `sr` which is easier to read as "simple randomization".
+* The print output for `robin_surv` objects has been improved for better readability.
 
 # RobinCar2 0.2.1
 
