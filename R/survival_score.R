@@ -46,9 +46,11 @@ h_lr_score_no_strata_no_cov <- function(
   treatment,
   time,
   status,
+  randomization_strata,
   n = nrow(df),
   use_ties_factor = TRUE,
-  calculate_variance = TRUE
+  calculate_variance = TRUE,
+  check_randomization_strata_warning = FALSE
 ) {
   assert_numeric(theta, min.len = 1L, finite = TRUE)
   assert_data_frame(df)
@@ -59,10 +61,16 @@ h_lr_score_no_strata_no_cov <- function(
   assert_numeric(df[[status]], any.missing = FALSE)
   assert_true(all(df[[status]] %in% c(0, 1)))
   assert_numeric(df[[time]], lower = 0, any.missing = FALSE)
+  assert_character(randomization_strata)
   assert_count(n)
   assert_true(n >= nrow(df))
   assert_flag(use_ties_factor)
   assert_flag(calculate_variance)
+  assert_flag(check_randomization_strata_warning)
+
+  # Check whether to warn about insufficient inclusion of randomization strata.
+  give_randomization_strata_warning <- (check_randomization_strata_warning &&
+    length(randomization_strata) > 0)
 
   # Standardize data set format, subset to relevant variables.
   df_stand <- data.frame(
@@ -129,7 +137,8 @@ h_lr_score_no_strata_no_cov <- function(
     u_l,
     sigma_l2 = sigma_l2,
     se_theta_l = se_theta_l,
-    n = n
+    n = n,
+    give_randomization_strata_warning = give_randomization_strata_warning
   )
 }
 

@@ -60,6 +60,7 @@ h_get_vars <- function(treatment) {
 #' - `treatment`: Name of the treatment variable.
 #' - `strata`: Name of the strata variable.
 #' - `schema`: Randomization schema.
+#' - `randomization_strata`: Names of the randomization strata variables.
 #' - `covariates`: Names of the covariates in the model.
 #' - `model`: A formula only including the covariates, but not treatment or strata variables.
 #' - `n_levels`: Number of treatment levels.
