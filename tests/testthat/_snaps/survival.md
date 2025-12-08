@@ -181,3 +181,130 @@
     0.0195198778286913), dim = c(1L, 4L), dimnames = list("Male v.s. Female", 
         c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")))
 
+# robin_surv gives a warning if stratified randomization was specified but simple log rank test used
+
+    Code
+      robin_surv(Surv(time, status) ~ 1, data = surv_data, treatment = sex ~ pb(ecog))
+    Condition
+      Warning:
+      It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:
+      
+      a. adjust for all joint levels in your `formula` using `+ ecog` or
+      b. perform a stratified test by adding to your `formula` the term `+ strata(ecog)`
+      
+      NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.
+    Output
+      Model        : Surv(time, status) ~ 1
+      Randomization: sex ~ pb(ecog) (Permuted-Block)
+      
+      Contrast     : Log Hazard Ratio
+      
+                       Estimate Std.Err Z Value Pr(>|z|)   
+      Male v.s. Female   0.5258  0.1675  3.1391 0.001695 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+      
+      Test         : Log-Rank
+      
+                       Test Stat. Pr(>|z|)   
+      Male v.s. Female     3.1636 0.001558 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+# robin_surv does give a warning if strata are not sufficiently included in the analysis model
+
+    Code
+      robin_surv(Surv(time, status) ~ 1 + strata(ecog), data = surv_data, treatment = sex ~
+        pb(strata))
+    Condition
+      Warning:
+      It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:
+      
+      a. adjust for all joint levels in your `formula` using `+ strata` or
+      b. perform a stratified test by adding to your `formula` the term `+ strata(strata)`
+      
+      NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.
+    Output
+      Model        : Surv(time, status) ~ 1 + strata(ecog)
+      Randomization: sex ~ pb(strata) (Permuted-Block)
+      Stratification variables:  ecog 
+      
+      Contrast     : Stratified Log Hazard Ratio
+      
+                       Estimate Std.Err Z Value Pr(>|z|)   
+      Male v.s. Female  0.55178 0.16997  3.2463 0.001169 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+      
+      Test         : Stratified Log-Rank
+      
+                       Test Stat. Pr(>|z|)   
+      Male v.s. Female     3.2776 0.001047 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+# robin_surv does give a warning if strata are not sufficiently included in the covariates
+
+    Code
+      robin_surv(Surv(time, status) ~ 1 + ph.karno, data = surv_data, treatment = sex ~
+        pb(ecog))
+    Condition
+      Warning:
+      It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:
+      
+      a. adjust for all joint levels in your `formula` using `+ ecog` or
+      b. perform a stratified test by adding to your `formula` the term `+ strata(ecog)`
+      
+      NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.
+    Output
+      Model        : Surv(time, status) ~ 1 + ph.karno
+      Randomization: sex ~ pb(ecog) (Permuted-Block)
+      Covariates adjusted for: ph.karno (including interactions with sex)
+      
+      Contrast     : Covariate-adjusted Log Hazard Ratio
+      
+                       Estimate Std.Err Z Value Pr(>|z|)   
+      Male v.s. Female  0.51573 0.16373  3.1499 0.001633 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+      
+      Test         : Covariate-adjusted Log-Rank
+      
+                       Test Stat. Pr(>|z|)   
+      Male v.s. Female      3.165 0.001551 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+# robin_surv does give a warning if strata are insufficiently included in covariate adjusted stratified model
+
+    Code
+      robin_surv(Surv(time, status) ~ 1 + strata(ecog) + ph.karno, data = surv_data,
+      treatment = sex ~ pb(strata))
+    Condition
+      Warning:
+      It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:
+      
+      a. adjust for all joint levels in your `formula` using `+ strata` or
+      b. perform a stratified test by adding to your `formula` the term `+ strata(strata)`
+      
+      NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.
+    Output
+      Model        : Surv(time, status) ~ 1 + strata(ecog) + ph.karno
+      Randomization: sex ~ pb(strata) (Permuted-Block)
+      Stratification variables:  ecog 
+      Covariates adjusted for: ph.karno (including interactions with sex)
+      
+      Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
+      
+                       Estimate Std.Err Z Value Pr(>|z|)   
+      Male v.s. Female  0.54011 0.16667  3.2406 0.001193 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+      
+      Test         : Covariate-adjusted Stratified Log-Rank
+      
+                       Test Stat. Pr(>|z|)   
+      Male v.s. Female     3.2683 0.001082 **
+      ---
+      Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+

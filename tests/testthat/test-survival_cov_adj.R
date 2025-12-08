@@ -162,7 +162,7 @@ test_that("h_get_strat_lm_input works as expected", {
   expect_numeric(result[["B"]][["y"]], len = 2L)
 })
 
-test_that("h_get_beta_estimates works as expected", {
+test_that("h_get_lm_results works as expected", {
   set.seed(941)
   nobs <- 10
   df <- data.frame(
@@ -172,11 +172,11 @@ test_that("h_get_beta_estimates works as expected", {
     O_hat = rnorm(nobs)
   )
   lm_input <- h_get_lm_input(df, model = ~ covariate1 + covariate2)
-  result <- h_get_beta_estimates(lm_input)
+  result <- h_get_lm_results(lm_input)
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
-test_that("h_get_strat_beta_estimates works as expected", {
+test_that("h_get_strat_lm_results works as expected", {
   set.seed(941)
   nobs <- 10
   df_with_stratum <- rbind(
@@ -196,7 +196,7 @@ test_that("h_get_strat_beta_estimates works as expected", {
     )
   )
   strat_lm_input <- h_get_strat_lm_input(df_with_stratum, model = ~ covariate1 + covariate2)
-  result <- h_get_strat_beta_estimates(strat_lm_input)
+  result <- h_get_strat_lm_results(strat_lm_input)
   expect_list(result, len = 2L)
   expect_names(names(result), identical.to = c("A", "B"))
   expect_snapshot_value(result, tolerance = 1e-4, style = "serialize")

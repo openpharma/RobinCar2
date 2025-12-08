@@ -703,13 +703,12 @@ test_that("robin_surv works in a case where previously separate design matrices 
 })
 
 test_that("robin_surv gives a warning if stratified randomization was specified but simple log rank test used", {
-  expect_warning(
+  expect_snapshot(
     robin_surv(
       Surv(time, status) ~ 1,
       data = surv_data,
       treatment = sex ~ pb(ecog)
-    ),
-    "It looks like you have not included all of the variables that were used during randomization"
+    )
   )
 })
 
@@ -730,13 +729,12 @@ test_that("robin_surv does give a warning if strata are not sufficiently include
   incl_strata <- surv_data$ecog
   assert_false(h_are_factors_nested(incl_strata, full_strata))
 
-  expect_warning(
+  expect_snapshot(
     robin_surv(
       Surv(time, status) ~ 1 + strata(ecog),
       data = surv_data,
       treatment = sex ~ pb(strata)
-    ),
-    "It looks like you have not included all of the variables that were used during randomization"
+    )
   )
   expect_warning(
     robin_surv(
@@ -755,13 +753,12 @@ test_that("robin_surv does give a warning if strata are not sufficiently include
 })
 
 test_that("robin_surv does give a warning if strata are not sufficiently included in the covariates", {
-  expect_warning(
+  expect_snapshot(
     robin_surv(
       Surv(time, status) ~ 1 + ph.karno,
       data = surv_data,
       treatment = sex ~ pb(ecog)
-    ),
-    "It looks like you have not included all of the variables that were used during randomization"
+    )
   )
   result <- expect_silent(robin_surv(
     Surv(time, status) ~ 1 + ph.karno + ecog,
@@ -787,13 +784,12 @@ test_that("robin_surv does give a warning if strata are not sufficiently include
 })
 
 test_that("robin_surv does give a warning if strata are insufficiently included in covariate adjusted stratified model", {
-  expect_warning(
+  expect_snapshot(
     robin_surv(
       Surv(time, status) ~ 1 + strata(ecog) + ph.karno,
       data = surv_data,
       treatment = sex ~ pb(strata)
-    ),
-    "It looks like you have not included all of the variables that were used during randomization"
+    )
   )
   expect_warning(
     robin_surv(
@@ -809,4 +805,19 @@ test_that("robin_surv does give a warning if strata are insufficiently included 
     data = surv_data,
     treatment = sex ~ pb(strata)
   ))
+})
+
+test_that("robin_surv only gives a single warning for randomization strata with multiple comparisons", {
+  expect_warning(
+    result <- robin_surv(
+      Surv(time, status) ~ 1,
+      data = surv_data,
+      treatment = strata ~ pb(ecog),
+    ),
+    "It looks like you have not included all of the variables that were used during randomization"
+  )
+  expect_s3_class(result, "surv_effect")
+  comparisons <- c("1 v.s. 0", "2 v.s. 0", "3 v.s. 0", "2 v.s. 1", "3 v.s. 1", "3 v.s. 2")
+  expect_matrix(result$log_hr_coef_mat, ncol = 4, nrow = 6)
+  expect_names(rownames(result$log_hr_coef_mat), identical.to = comparisons)
 })

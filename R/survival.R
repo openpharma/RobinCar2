@@ -533,6 +533,8 @@ robin_surv <- function(
         ...
       )
       if (!give_randomization_strata_warning) {
+        # Only update if we have checked for it in this iteration, otherwise
+        # we could overwrite a TRUE value with the default FALSE.
         give_randomization_strata_warning <<- result$give_randomization_strata_warning
       }
       result

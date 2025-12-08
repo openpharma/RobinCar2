@@ -1,10 +1,10 @@
-# h_get_beta_estimates works as expected
+# h_get_lm_results works as expected
 
     list(A = c(covariate1 = 0.124630109689139, covariate2 = 0.417147008547665
     ), B = c(covariate1 = 1.8889272308284, covariate2 = -0.824394901815606
     ))
 
-# h_get_strat_beta_estimates works as expected
+# h_get_strat_lm_results works as expected
 
     WAoAAAACAAQFAQACAwAAAAITAAAAAgAAAg4AAAACP9hKHWO6o1k/2IX/pWvUSAAABAIAAAAB
     AAQACQAAAANkaW0AAAANAAAAAgAAAAIAAAABAAAEAgAAAAEABAAJAAAACGRpbW5hbWVzAAAA

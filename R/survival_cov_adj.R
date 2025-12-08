@@ -5,11 +5,12 @@
 #' @inheritParams survival_score_functions
 #' @param covariates (`character`) The column names in `df` to be used for covariate adjustment.
 #' @return A data frame containing the same data as the input `df`, but restructured with standardized column names
-#'   `index`, `treatment`, `time`, `status`, the covariates, and an additional column `O_hat` containing the
-#'   derived outcome values. For the stratified version, the computations are done separately by stratum, and
+#'   `index`, `treatment`, `time`, `status`, the covariates and randomization stratification variables,
+#'   and an additional column `O_hat` containing the derived outcome values.
+#'   For the stratified version, the computations are done separately by stratum, and
 #'   the resulting `data.frame` contains an additional `.stratum` column indicating the stratum number.
-#' @details Please note that the `covariates` must not include `index`, `treatment`, `time`, `status`
-#'   to avoid naming conflicts.
+#' @details Please note that the `covariates` and `randomization_strata` must not include `index`,
+#'   `treatment`, `time`, `status` to avoid naming conflicts.
 #' @keywords internal
 #' @name derived_outcome_vals
 NULL
@@ -198,22 +199,27 @@ h_get_strat_lm_input <- function(df_with_stratum, model) {
   h_get_lm_input(df = df_with_stratum, model = model_with_stratum)
 }
 
-#' Calculate Coefficient Estimates from Linear Model Input
+#' Calculate Coefficient Estimates and Corresponding Residuals from Linear Model Input
 #'
 #' Calculate the coefficient estimates for each treatment arm from the linear model input data.
+#' Also returns the corresponding residuals.
 #'
 #' @param lm_input (`list`) A list containing the linear model input data for each treatment arm, as returned by
 #'   [h_get_lm_input()].
 #' @param strat_lm_input (`list`) A list containing the linear model input data
 #'   for each treatment arm and including the `.strata` column in the design matrix,
 #'   as returned by [h_get_strat_lm_input()].
-#' @return A list containing the coefficient estimates for each treatment arm.
+#' @return A list with:
+#'
+#'   - `beta_est`: the coefficient estimates for each treatment arm.
+#'   - `residuals`: the corresponding residuals for each treatment arm.
+#'
 #' @keywords internal
-#' @name get_beta_estimates
+#' @name get_lm_results
 NULL
 
-#' @describeIn get_beta_estimates Calculate the coefficient estimates for the overall data set.
-h_get_beta_estimates <- function(lm_input) {
+#' @describeIn get_lm_results Calculate the coefficient estimates for the overall data set.
+h_get_lm_results <- function(lm_input) {
   assert_list(lm_input, types = "list")
 
   # Fit the model separately for each treatment arm.
@@ -250,13 +256,9 @@ h_get_beta_estimates <- function(lm_input) {
   )
 }
 
-#' @describeIn get_beta_estimates Calculate the coefficient estimates using the stratified input.
-#' @param calc_residuals (`flag`) Whether to calculate and return the residuals as well
-#'   (only used in `h_strat_get_beta_estimates`).
-h_get_strat_beta_estimates <- function(strat_lm_input, calc_residuals = FALSE) {
+#' @describeIn get_lm_results Calculate the coefficient estimates using the stratified input.
+h_get_strat_lm_results <- function(strat_lm_input) {
   assert_list(strat_lm_input, types = "list", len = 2L, names = "unique")
-  assert_flag(calc_residuals)
-
   group_names <- names(strat_lm_input)
 
   # Get coefficient estimates separately for each treatment arm.
@@ -292,6 +294,9 @@ h_get_strat_beta_estimates <- function(strat_lm_input, calc_residuals = FALSE) {
       # Get the derived outcome values, the response.
       this_y <- y[in_stratum]
 
+      # Save the centered response back (for residual calculation later).
+      y[in_stratum] <- this_y - mean(this_y)
+
       # Save the cross products.
       xtxs[[stratum_index]] <- crossprod(this_x)
       xtys[[stratum_index]] <- crossprod(this_x, this_y)
@@ -305,17 +310,7 @@ h_get_strat_beta_estimates <- function(strat_lm_input, calc_residuals = FALSE) {
     beta_est[[group]] <- solve(xtx, xty)
 
     # Compute the residuals.
-    resids_by_stratum <- numeric(length(y))
-    if (calc_residuals) {
-      for (stratum_index in seq_along(unique_strata)) {
-        in_stratum <- stratum == unique_strata[stratum_index]
-        this_x <- x[in_stratum, , drop = FALSE]
-        this_y <- y[in_stratum]
-        resids_by_stratum[in_stratum] <-
-          this_y - as.numeric(this_x %*% beta_est[[group]]) - mean(this_y)
-      }
-    }
-    resids[[group]] <- resids_by_stratum
+    resids[[group]] <- y - as.numeric(x %*% beta_est[[group]])
   }
 
   list(
