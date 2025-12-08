@@ -359,8 +359,8 @@ h_are_factors_nested <- function(f1, f2) {
     return(FALSE)
   }
 
-  f1 <- droplevels(na.omit(f1))
-  f2 <- droplevels(na.omit(f2))
+  f1 <- droplevels(stats::na.omit(f1))
+  f2 <- droplevels(stats::na.omit(f2))
   if (nlevels(f1) < nlevels(f2)) {
     return(FALSE)
   }
@@ -387,10 +387,11 @@ h_are_factors_nested <- function(f1, f2) {
 #'
 #' @keywords internal
 h_unbiased_means_across_strata <- function(
-    residuals_per_group,
-    df,
-    randomization_strata,
-    eps = sqrt(.Machine$double.eps)) {
+  residuals_per_group,
+  df,
+  randomization_strata,
+  eps = sqrt(.Machine$double.eps)
+) {
   assert_list(residuals_per_group, types = "numeric", len = 2L)
   assert_data_frame(df)
   assert_character(randomization_strata, min.len = 1L, unique = TRUE)
