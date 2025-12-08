@@ -23,6 +23,7 @@ A list containing the following elements:
 \item \code{treatment}: Name of the treatment variable.
 \item \code{strata}: Name of the strata variable.
 \item \code{schema}: Randomization schema.
+\item \code{randomization_strata}: Names of the randomization strata variables.
 \item \code{covariates}: Names of the covariates in the model.
 \item \code{model}: A formula only including the covariates, but not treatment or strata variables.
 \item \code{n_levels}: Number of treatment levels.
