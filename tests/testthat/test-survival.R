@@ -783,7 +783,7 @@ test_that("robin_surv does give a warning if strata are not sufficiently include
   ))
 })
 
-test_that("robin_surv does give a warning if strata are insufficiently included in covariate adjusted stratified model", {
+test_that("robin_surv warns if strata are insufficiently included in covariate adjusted stratified model", {
   expect_snapshot(
     robin_surv(
       Surv(time, status) ~ 1 + strata(ecog) + ph.karno,

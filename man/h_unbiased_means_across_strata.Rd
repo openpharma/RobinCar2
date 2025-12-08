@@ -22,7 +22,8 @@ h_unbiased_means_across_strata(
 \item{eps}{(\code{numeric}) A small tolerance value to determine if means are close to zero.}
 }
 \value{
-\code{TRUE} if the means of residuals across randomization strata are within the specified tolerance, \code{FALSE} otherwise.
+\code{TRUE} if the means of residuals across randomization strata are within the specified tolerance,
+\code{FALSE} otherwise.
 }
 \description{
 This function checks whether the means of residuals are approximately zero

@@ -383,7 +383,8 @@ h_are_factors_nested <- function(f1, f2) {
 #' @param randomization_strata (`character`) A character vector of names of the randomization strata variables in `df`.
 #' @param eps (`numeric`) A small tolerance value to determine if means are close to zero.
 #'
-#' @return `TRUE` if the means of residuals across randomization strata are within the specified tolerance, `FALSE` otherwise.
+#' @return `TRUE` if the means of residuals across randomization strata are within the specified tolerance,
+#'   `FALSE` otherwise.
 #'
 #' @keywords internal
 h_unbiased_means_across_strata <- function(
@@ -401,11 +402,11 @@ h_unbiased_means_across_strata <- function(
     group_indices <- which(df$treatment == group)
     residuals_overall[group_indices] <- residuals_per_group[[group]]
   }
-  residuals_split_by_randomization_strata <- split(
+  resids_by_rand_strata <- split(
     residuals_overall,
     f = df[randomization_strata],
     drop = TRUE
   )
-  residuals_means <- sapply(residuals_split_by_randomization_strata, mean)
+  residuals_means <- sapply(resids_by_rand_strata, mean)
   all(abs(residuals_means) < eps)
 }

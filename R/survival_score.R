@@ -72,8 +72,7 @@ h_lr_score_no_strata_no_cov <- function(
   assert_flag(check_rand_strat_warning)
 
   # Check whether to warn about insufficient inclusion of randomization strata.
-  give_rand_strat_warning <- (check_rand_strat_warning &&
-    length(randomization_strata) > 0)
+  give_rand_strat_warning <- (check_rand_strat_warning && length(randomization_strata) > 0)
 
   # Standardize data set format, subset to relevant variables.
   df_stand <- data.frame(
