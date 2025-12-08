@@ -98,14 +98,25 @@ Note that it is also possible to skip estimation of the hazard ratio by specifyi
 
 ```{r}
 robin_surv(
-  Surv(time, status) ~ age + meal.cal,
-  treatment = sex ~ strata + ecog,
+  Surv(time, status) ~ age + meal.cal + strata(strata),
+  treatment = sex ~ pb(strata),
   data = surv_data,
   contrast = "none"
 )
 ```
 
 This can help to speed up simulation studies e.g. when there is no interest in the estimation performance.
+
+Note that a warning will be issued when the randomization strata are not adequately included in the analysis model, for example if we omit the `strata(strata)` term above:
+
+```{r}
+#| warning: true
+robin_surv(
+  Surv(time, status) ~ age + meal.cal,
+  treatment = sex ~ pb(strata),
+  data = surv_data
+)
+```
 
 # Details of the Methods
 

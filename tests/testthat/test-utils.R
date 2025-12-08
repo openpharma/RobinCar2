@@ -96,6 +96,28 @@ test_that("h_prep_survival_input works with multiple strata", {
   expect_equal(result, expected, ignore_formula_env = TRUE)
 })
 
+test_that("h_prep_survival_input works with multiple strata specified in separate strata() terms", {
+  result <- expect_silent(h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal + strata(strata) + strata(ecog),
+    data = surv_data,
+    treatment = sex ~ sr(1) # We do not necessarily need to have the strata in the randomization.
+  ))
+  expected <- list(
+    data = surv_data,
+    time = "time",
+    status = "status",
+    treatment = "sex",
+    randomization_strata = character(),
+    strata = c("strata", "ecog"),
+    schema = "sr",
+    covariates = c("age", "ph.karno", "meal.cal"),
+    model = ~ age + ph.karno + meal.cal,
+    n_levels = 2L,
+    levels = c("Female", "Male")
+  )
+  expect_equal(result, expected, ignore_formula_env = TRUE)
+})
+
 test_that("h_prep_survival_input works without strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,
@@ -198,4 +220,32 @@ test_that("sum_vectors_in_list works as expected", {
   result <- sum_vectors_in_list(lst)
   expected <- c(12, 15, 18)
   expect_equal(result, expected)
+})
+
+test_that("h_are_factors_nested works as expected without NAs", {
+  f1 <- factor(c("A", "B", "C"))
+  f2 <- factor(c("C", "A", "B"))
+  f3 <- factor(c("A", "B", "B"))
+  f4 <- factor(c("A", "B", "C", "D"))
+
+  expect_true(h_are_factors_nested(f1, f2))
+  expect_true(h_are_factors_nested(f2, f1))
+  expect_true(h_are_factors_nested(f1, f3))
+  expect_false(h_are_factors_nested(f3, f1))
+  expect_false(h_are_factors_nested(f1, f4))
+})
+
+test_that("h_are_factors_nested works as expected with NAs", {
+  f1 <- factor(c("A", "B", "C", NA))
+  f2 <- factor(c("C", "A", "B", NA))
+  f3 <- factor(c(NA, "B", "C", "D"))
+  f4 <- factor(c("A", "B", "C", "D", NA))
+  f5 <- factor(c("E", "E", "F", "F", NA))
+
+  expect_true(h_are_factors_nested(f1, f2))
+  expect_true(h_are_factors_nested(f2, f1))
+  expect_false(h_are_factors_nested(f1, f3))
+  expect_false(h_are_factors_nested(f1, f4))
+  expect_true(h_are_factors_nested(f4, f5))
+  expect_false(h_are_factors_nested(f5, f4))
 })

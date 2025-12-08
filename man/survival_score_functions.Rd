@@ -14,9 +14,11 @@ h_lr_score_no_strata_no_cov(
   treatment,
   time,
   status,
+  randomization_strata = character(),
   n = nrow(df),
   use_ties_factor = TRUE,
-  calculate_variance = TRUE
+  calculate_variance = TRUE,
+  check_rand_strat_warning = FALSE
 )
 
 h_lr_score_strat(
@@ -26,8 +28,10 @@ h_lr_score_strat(
   time,
   status,
   strata,
+  randomization_strata = character(),
   use_ties_factor = TRUE,
-  calculate_variance = TRUE
+  calculate_variance = TRUE,
+  check_rand_strat_warning = FALSE
 )
 
 h_lr_score_cov(
@@ -37,10 +41,12 @@ h_lr_score_cov(
   time,
   status,
   model,
+  randomization_strata = character(),
   theta_hat = theta,
   use_ties_factor = TRUE,
   hr_se_plugin_adjusted = TRUE,
-  calculate_variance = TRUE
+  calculate_variance = TRUE,
+  check_rand_strat_warning = FALSE
 )
 
 h_lr_score_strat_cov(
@@ -51,10 +57,12 @@ h_lr_score_strat_cov(
   status,
   strata,
   model,
+  randomization_strata = character(),
   theta_hat = theta,
   use_ties_factor = TRUE,
   hr_se_plugin_adjusted = TRUE,
-  calculate_variance = TRUE
+  calculate_variance = TRUE,
+  check_rand_strat_warning = FALSE
 )
 }
 \arguments{
@@ -69,6 +77,10 @@ two levels, where the first level is the reference group.}
 \item{time}{(\code{string}) The name of the time variable in \code{df}, representing the survival time.}
 
 \item{status}{(\code{string}) The name of the status variable in \code{df}, with 0 for censored and 1 for event.}
+
+\item{randomization_strata}{(\code{character}) The names of the randomization strata variables in \code{df}.
+These are used to check whether the means of the covariate adjustment residuals are unbiased across
+these strata.}
 
 \item{n}{(\code{count}) The number of observations. Note that this can be higher than the number of rows
 when used in stratified analyses computations.}
