@@ -253,19 +253,13 @@ h_lr_score_cov <- function(
   beta_est <- lm_results$beta_est
 
   give_randomization_strata_warning <- if (check_randomization_strata_warning) {
-    residuals_per_group <- lm_results$residuals
-    residuals_overall <- numeric(nrow(df))
-    for (group in names(residuals_per_group)) {
-      group_indices <- which(df[[treatment]] == group)
-      residuals_overall[group_indices] <- residuals_per_group[[group]]
-    }
-    residuals_split_by_randomization_strata <- split(
-      residuals_overall,
-      f = df[randomization_strata],
-      drop = TRUE
-    )
-    residuals_means <- sapply(residuals_split_by_randomization_strata, mean)
-    any(abs(residuals_means) > 1e-4)
+    length(randomization_strata) > 0 &&
+      !h_unbiased_means_across_strata(
+        residuals_per_group = lm_results$residuals,
+        df = df,
+        treatment = treatment,
+        randomization_strata = randomization_strata
+      )
   } else {
     FALSE
   }
