@@ -18,7 +18,7 @@ h_lr_score_no_strata_no_cov(
   n = nrow(df),
   use_ties_factor = TRUE,
   calculate_variance = TRUE,
-  check_randomization_strata_warning = FALSE
+  check_rand_strat_warning = FALSE
 )
 
 h_lr_score_strat(
@@ -31,7 +31,7 @@ h_lr_score_strat(
   randomization_strata = character(),
   use_ties_factor = TRUE,
   calculate_variance = TRUE,
-  check_randomization_strata_warning = FALSE
+  check_rand_strat_warning = FALSE
 )
 
 h_lr_score_cov(
@@ -46,7 +46,7 @@ h_lr_score_cov(
   use_ties_factor = TRUE,
   hr_se_plugin_adjusted = TRUE,
   calculate_variance = TRUE,
-  check_randomization_strata_warning = FALSE
+  check_rand_strat_warning = FALSE
 )
 
 h_lr_score_strat_cov(
@@ -62,7 +62,7 @@ h_lr_score_strat_cov(
   use_ties_factor = TRUE,
   hr_se_plugin_adjusted = TRUE,
   calculate_variance = TRUE,
-  check_randomization_strata_warning = FALSE
+  check_rand_strat_warning = FALSE
 )
 }
 \arguments{
