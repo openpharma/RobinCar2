@@ -327,3 +327,45 @@ h_confint <- function(x, parm, level = 0.95, transform, include_se = FALSE, ...)
   }
   transform(ret)
 }
+
+#' Check Whether Two Factors are Equivalent
+#'
+#' This function checks whether two factor variables are equivalent in terms of their levels
+#' and the mapping of observations to these levels:
+#'
+#' - Both factors must have the same length.
+#' - The positions of `NA` values must be identical in both factors.
+#' - After removing `NA` values, both factors must have the same number of observed levels.
+#' - The mapping of observations to levels must be the same for both factors.
+#'
+#' @param f1 A factor variable.
+#' @param f2 A factor variable.
+#' @return `TRUE` if the factors are equivalent, `FALSE` otherwise.
+#'
+#' @keywords internal
+h_are_factors_equivalent <- function(f1, f2) {
+  assert_factor(f1)
+  assert_factor(f2)
+
+  if (length(f1) != length(f2)) {
+    return(FALSE)
+  }
+
+  f1_na <- which(is.na(f1))
+  f2_na <- which(is.na(f2))
+  if (!identical(f1_na, f2_na)) {
+    return(FALSE)
+  }
+
+  f1 <- droplevels(na.omit(f1))
+  f2 <- droplevels(na.omit(f2))
+  if (nlevels(f1) != nlevels(f2)) {
+    return(FALSE)
+  }
+
+  f1_num <- as.numeric(f1)
+  f2_num <- as.numeric(f2)
+  f1_f2_num <- paste(f1_num, f2_num, sep = "-")
+  unique_combinations <- unique(f1_f2_num)
+  length(unique_combinations) == nlevels(f1)
+}

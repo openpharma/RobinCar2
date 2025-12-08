@@ -199,3 +199,25 @@ test_that("sum_vectors_in_list works as expected", {
   expected <- c(12, 15, 18)
   expect_equal(result, expected)
 })
+
+test_that("h_are_factors_equivalent works as expected without NAs", {
+  f1 <- factor(c("A", "B", "C"))
+  f2 <- factor(c("C", "A", "B"))
+  f3 <- factor(c("A", "B", "B"))
+  f4 <- factor(c("A", "B", "C", "D"))
+
+  expect_true(h_are_factors_equivalent(f1, f2))
+  expect_false(h_are_factors_equivalent(f1, f3))
+  expect_false(h_are_factors_equivalent(f1, f4))
+})
+
+test_that("h_are_factors_equivalent works as expected with NAs", {
+  f1 <- factor(c("A", "B", "C", NA))
+  f2 <- factor(c("C", "A", "B", NA))
+  f3 <- factor(c(NA, "B", "C", "D"))
+  f4 <- factor(c("A", "B", "C", "D", NA))
+
+  expect_true(h_are_factors_equivalent(f1, f2))
+  expect_false(h_are_factors_equivalent(f1, f3))
+  expect_false(h_are_factors_equivalent(f1, f4))
+})

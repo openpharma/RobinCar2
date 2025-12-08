@@ -710,3 +710,27 @@ test_that("robin_surv gives a warning if stratified randomization was specified 
     "It looks like you have not included all of the variables that were used during randomization"
   )
 })
+
+test_that("robin_surv does not give a warning if strata are sufficiently included in the analysis model", {
+  full_strata <- with(surv_data, interaction(strata, ecog, drop = TRUE))
+  incl_strata <- surv_data$strata
+  assert_true(h_are_factors_equivalent(full_strata, incl_strata))
+
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ 1 + strata(strata),
+    data = surv_data,
+    treatment = sex ~ pb(ecog, strata)
+  ))
+})
+
+test_that("robin_surv does give a warning if strata are not sufficiently included in the analysis model", {
+  full_strata <- surv_data$strata
+  incl_strata <- surv_data$ecog
+  assert_false(h_are_factors_equivalent(full_strata, incl_strata))
+
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ 1 + strata(ecog),
+    data = surv_data,
+    treatment = sex ~ pb(strata)
+  ))
+})
