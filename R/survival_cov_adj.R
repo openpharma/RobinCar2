@@ -278,7 +278,6 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
 
       # Center it.
       this_x <- scale(this_x, center = TRUE, scale = FALSE)
-      x[in_stratum, ] <- this_x
 
       # Get the derived outcome values, the response.
       this_y <- y[in_stratum]
@@ -288,7 +287,9 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
       xtys[[stratum_index]] <- crossprod(this_x, this_y)
 
       # Save the part of the residuals corresponding to this stratum.
-      group_resids[in_stratum] <- this_y - mean(this_y)
+      group_resids[in_stratum] <- this_y -
+        as.numeric(this_x %*% MASS::ginv(xtxs[[stratum_index]]) %*% xtys[[stratum_index]]) -
+        mean(this_y)
     }
 
     # Sum across strata.
@@ -299,7 +300,7 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
     beta_est[[group]] <- solve(xtx, xty)
 
     # Save the residuals.
-    resids[[group]] <- group_resids - as.numeric(x %*% beta_est[[group]])
+    resids[[group]] <- group_resids
   }
 
   list(
