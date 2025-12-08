@@ -66,7 +66,7 @@ test_that("h_strat_derived_outcome_vals works with multiple strata", {
   expect_data_frame(result, nrow = nrow(surv_data_full))
   expect_names(
     names(result),
-    identical.to = c("index", "treatment", "time", "status", "O_hat", "age", "ph.karno", ".stratum")
+    identical.to = c("index", "treatment", "time", "status", "O_hat", "age", "ph.karno", "ecog", ".stratum")
   )
   expect_identical(
     as.integer(table(result$.stratum)),
