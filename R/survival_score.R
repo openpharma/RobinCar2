@@ -150,8 +150,10 @@ h_lr_score_strat <- function(
   time,
   status,
   strata,
+  randomization_strata,
   use_ties_factor = TRUE,
-  calculate_variance = TRUE
+  calculate_variance = TRUE,
+  check_randomization_strata_warning = FALSE
 ) {
   assert_string(treatment)
   assert_string(time)
@@ -159,7 +161,17 @@ h_lr_score_strat <- function(
   assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
   assert_data_frame(df)
   lapply(df[strata], assert_factor)
+  lapply(df[randomization_strata], assert_factor)
   assert_flag(calculate_variance)
+  assert_flag(check_randomization_strata_warning)
+
+  give_randomization_strata_warning <- if (check_randomization_strata_warning) {
+    length(randomization_strata) > 0 &&
+      !all(randomization_strata %in% strata) &&
+      !h_are_factors_nested(interaction(df[strata]), interaction(df[randomization_strata]))
+  } else {
+    FALSE
+  }
 
   df <- stats::na.omit(df[, c(treatment, time, status, strata)])
   n <- nrow(df)
@@ -175,8 +187,10 @@ h_lr_score_strat <- function(
     time = time,
     status = status,
     n = n,
+    randomization_strata = randomization_strata,
     use_ties_factor = use_ties_factor,
-    calculate_variance = calculate_variance
+    calculate_variance = calculate_variance,
+    check_randomization_strata_warning = FALSE
   )
 
   u_sl <- sum_vectors_in_list(strata_results)
@@ -186,7 +200,8 @@ h_lr_score_strat <- function(
     u_sl,
     sigma_l2 = sigma_sl2,
     se_theta_l = se_theta_sl,
-    n = n
+    n = n,
+    give_randomization_strata_warning = give_randomization_strata_warning
   )
 }
 

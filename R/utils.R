@@ -328,22 +328,24 @@ h_confint <- function(x, parm, level = 0.95, transform, include_se = FALSE, ...)
   transform(ret)
 }
 
-#' Check Whether Two Factors are Equivalent
+#' Check Whether Two Factors are Nested
 #'
-#' This function checks whether two factor variables are equivalent in terms of their levels
+#' This function checks whether two factor variables are nested in terms of their levels
 #' and the mapping of observations to these levels:
 #'
 #' - Both factors must have the same length.
 #' - The positions of `NA` values must be identical in both factors.
-#' - After removing `NA` values, both factors must have the same number of observed levels.
-#' - The mapping of observations to levels must be the same for both factors.
+#' - After removing `NA` values, `f1` must have at least as many observed levels as `f2`.
+#' - The mapping of observations to levels must be consistent, meaning that each level in `f1`
+#'   corresponds to exactly one level in `f2`. On the other hand, multiple levels in `f1`
+#'   can map to the same level in `f2`.
 #'
-#' @param f1 A factor variable.
-#' @param f2 A factor variable.
-#' @return `TRUE` if the factors are equivalent, `FALSE` otherwise.
+#' @param f1 A factor variable, supposed to be more fine grained than `f2`.
+#' @param f2 A factor variable, supposed to be more coarse grained than `f1`.
+#' @return `TRUE` if `f1` is nested in `f2`, `FALSE` otherwise.
 #'
 #' @keywords internal
-h_are_factors_equivalent <- function(f1, f2) {
+h_are_factors_nested <- function(f1, f2) {
   assert_factor(f1)
   assert_factor(f2)
 
@@ -359,7 +361,7 @@ h_are_factors_equivalent <- function(f1, f2) {
 
   f1 <- droplevels(na.omit(f1))
   f2 <- droplevels(na.omit(f2))
-  if (nlevels(f1) != nlevels(f2)) {
+  if (nlevels(f1) < nlevels(f2)) {
     return(FALSE)
   }
 

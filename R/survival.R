@@ -237,7 +237,7 @@ robin_surv_no_strata_no_cov <- function(
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_strat()].
-robin_surv_strata <- function(vars, data, exp_level, control_level, contrast) {
+robin_surv_strata <- function(vars, data, exp_level, control_level, contrast, check_randomization_strata_warning) {
   robin_surv_comparison(
     score_fun = h_lr_score_strat,
     vars = vars,
@@ -248,7 +248,9 @@ robin_surv_strata <- function(vars, data, exp_level, control_level, contrast) {
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
-    strata = vars$strata
+    strata = vars$strata,
+    randomization_strata = vars$randomization_strata,
+    check_randomization_strata_warning = check_randomization_strata_warning
   )
 }
 
@@ -465,7 +467,15 @@ robin_surv <- function(
   input <- h_prep_survival_input(formula, data, treatment)
 
   # Subset to complete records here, so that we can use this for the strata/events tabulation.
-  data <- stats::na.omit(input$data[c(input$treatment, input$time, input$status, input$strata, input$covariates)])
+  data_columns_needed <- unique(c(
+    input$treatment,
+    input$time,
+    input$status,
+    input$strata,
+    input$covariates,
+    input$randomization_strata
+  ))
+  data <- stats::na.omit(input$data[data_columns_needed])
   events_table <- h_events_table(data, input)
 
   has_strata <- length(input$strata) > 0
@@ -513,7 +523,9 @@ robin_surv <- function(
         check_randomization_strata_warning = !give_randomization_strata_warning,
         ...
       )
-      give_randomization_strata_warning <<- result$give_randomization_strata_warning
+      if (!give_randomization_strata_warning) {
+        give_randomization_strata_warning <<- result$give_randomization_strata_warning
+      }
       result
     }
   )
