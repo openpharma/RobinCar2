@@ -258,6 +258,7 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
   for (group in group_names) {
     x <- strat_lm_input[[group]]$X
     y <- strat_lm_input[[group]]$y
+    group_resids <- numeric(length(y))
 
     stratum_col <- match(".stratum", colnames(x))
     stratum <- as.integer(x[, stratum_col])
@@ -277,19 +278,17 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
 
       # Center it.
       this_x <- scale(this_x, center = TRUE, scale = FALSE)
-
-      # Adjust the overall design matrix.
       x[in_stratum, ] <- this_x
 
       # Get the derived outcome values, the response.
       this_y <- y[in_stratum]
 
-      # Adjust the response by subtracting the stratum mean.
-      y[in_stratum] <- this_y - mean(this_y)
-
       # Save the cross products.
       xtxs[[stratum_index]] <- crossprod(this_x)
       xtys[[stratum_index]] <- crossprod(this_x, this_y)
+
+      # Save the part of the residuals corresponding to this stratum.
+      group_resids[in_stratum] <- this_y - mean(this_y)
     }
 
     # Sum across strata.
@@ -300,8 +299,7 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
     beta_est[[group]] <- solve(xtx, xty)
 
     # Save the residuals.
-    # Note: x and y have already been adjusted above.
-    resids[[group]] <- y - as.numeric(x %*% beta_est[[group]])
+    resids[[group]] <- group_resids - as.numeric(x %*% beta_est[[group]])
   }
 
   list(

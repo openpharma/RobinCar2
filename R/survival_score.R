@@ -392,7 +392,7 @@ h_lr_score_strat_cov <- function(
   strat_lm_input <- h_get_strat_lm_input(df_with_covs_ovals_stratum, model)
   lm_results <- h_get_strat_beta_estimates(strat_lm_input)
   beta_est <- lm_results$beta_est
-  browser()
+
   give_randomization_strata_warning <- if (check_randomization_strata_warning) {
     length(randomization_strata) > 0 &&
       !h_unbiased_means_across_strata(
