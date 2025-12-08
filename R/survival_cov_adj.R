@@ -214,6 +214,7 @@ h_get_beta_estimates <- function(lm_input) {
 
   # Fit the model separately for each treatment arm.
   beta_est <- list()
+  residuals <- list()
 
   for (group in names(lm_input)) {
     assert_matrix(lm_input[[group]]$X, any.missing = FALSE)
@@ -233,9 +234,15 @@ h_get_beta_estimates <- function(lm_input) {
 
     # Save the coefficients.
     beta_est[[group]] <- lm_fit$coefficients
+
+    # Save the residuals.
+    residuals[[group]] <- lm_fit$residuals
   }
 
-  beta_est
+  list(
+    beta_est = beta_est,
+    residuals = residuals
+  )
 }
 
 #' @describeIn get_beta_estimates Calculate the coefficient estimates using the stratified input.

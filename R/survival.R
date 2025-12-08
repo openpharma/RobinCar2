@@ -270,6 +270,7 @@ robin_surv_cov <- function(vars, data, exp_level, control_level, contrast, ...) 
     time = vars$time,
     status = vars$status,
     model = vars$model,
+    randomization_strata = vars$randomization_strata,
     ...
   )
 }
@@ -531,13 +532,13 @@ robin_surv <- function(
   )
 
   if (give_randomization_strata_warning) {
-    missing_strata_vars <- setdiff(input$randomization_strata, input$strata)
-    cov_string <- if (length(missing_strata_vars) > 1) {
-      paste0("interaction(", toString(missing_strata_vars), ")")
+    missing_vars <- setdiff(input$randomization_strata, c(input$covariates, input$strata))
+    cov_string <- if (length(missing_vars) > 1) {
+      paste0("interaction(", toString(missing_vars), ")")
     } else {
-      missing_strata_vars
+      missing_vars
     }
-    strata_string <- paste0("strata(", toString(missing_strata_vars), ")")
+    strata_string <- paste0("strata(", toString(missing_vars), ")")
     warning(
       paste0(
         "It looks like you have not included all of the variables that were used ",

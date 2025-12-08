@@ -761,6 +761,12 @@ test_that("robin_surv does give a warning if strata are not sufficiently include
     ),
     "It looks like you have not included all of the variables that were used during randomization"
   )
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ 1 + ph.karno + ecog,
+    data = surv_data,
+    treatment = sex ~ pb(ecog)
+  ))
+
   expect_warning(
     robin_surv(
       Surv(time, status) ~ 1 + ecog,
