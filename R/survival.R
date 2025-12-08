@@ -218,7 +218,7 @@ robin_surv_no_strata_no_cov <- function(
   exp_level,
   control_level,
   contrast,
-  check_randomization_strata_warning
+  check_randomization_strata_warning = FALSE
 ) {
   robin_surv_comparison(
     score_fun = h_lr_score_no_strata_no_cov,
@@ -237,7 +237,14 @@ robin_surv_no_strata_no_cov <- function(
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_strat()].
-robin_surv_strata <- function(vars, data, exp_level, control_level, contrast, check_randomization_strata_warning) {
+robin_surv_strata <- function(
+  vars,
+  data,
+  exp_level,
+  control_level,
+  contrast,
+  check_randomization_strata_warning = FALSE
+) {
   robin_surv_comparison(
     score_fun = h_lr_score_strat,
     vars = vars,

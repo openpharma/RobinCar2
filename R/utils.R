@@ -378,8 +378,8 @@ h_are_factors_nested <- function(f1, f2) {
 #' across specified randomization strata.
 #'
 #' @param residuals_per_group (`numeric`) A named numeric vector containing residuals for each treatment group.
-#' @param df (`data.frame`) The data frame containing the treatment and randomization strata variables.
-#' @param treatment (`string`) The name of the treatment variable in `df`.
+#' @param df (`data.frame`) The data frame containing the `treatment` and randomization strata variables, produced by
+#'   [h_derived_outcome_vals()] or [h_strat_derived_outcome_vals()].
 #' @param randomization_strata (`character`) A character vector of names of the randomization strata variables in `df`.
 #' @param eps (`numeric`) A small tolerance value to determine if means are close to zero.
 #'
@@ -389,18 +389,16 @@ h_are_factors_nested <- function(f1, f2) {
 h_unbiased_means_across_strata <- function(
   residuals_per_group,
   df,
-  treatment,
   randomization_strata,
   eps = sqrt(.Machine$double.eps)
 ) {
   assert_list(residuals_per_group, types = "numeric", len = 2L)
   assert_data_frame(df)
-  assert_string(treatment)
   assert_character(randomization_strata, min.len = 1L, unique = TRUE)
 
   residuals_overall <- numeric(nrow(df))
   for (group in names(residuals_per_group)) {
-    group_indices <- which(df[[treatment]] == group)
+    group_indices <- which(df$treatment == group)
     residuals_overall[group_indices] <- residuals_per_group[[group]]
   }
   residuals_split_by_randomization_strata <- split(

@@ -11,6 +11,9 @@
 #' @param time (`string`) The name of the time variable in `df`, representing the survival time.
 #' @param status (`string`) The name of the status variable in `df`, with 0 for censored and 1 for event.
 #' @param strata (`character`) The names of the strata variables in `df`, which must be factors.
+#' @param randomization_strata (`character`) The names of the randomization strata variables in `df`.
+#'   These are used to check whether the means of the covariate adjustment residuals are unbiased across
+#'   these strata.
 #' @param model (`formula`) The model formula for covariate adjustment, e.g., `~ cov1 + cov2`.
 #' @param theta_hat (`number`) The estimated log hazard ratio when not adjusting for covariates.
 #' @param n (`count`) The number of observations. Note that this can be higher than the number of rows
@@ -46,7 +49,7 @@ h_lr_score_no_strata_no_cov <- function(
   treatment,
   time,
   status,
-  randomization_strata,
+  randomization_strata = character(),
   n = nrow(df),
   use_ties_factor = TRUE,
   calculate_variance = TRUE,
@@ -150,7 +153,7 @@ h_lr_score_strat <- function(
   time,
   status,
   strata,
-  randomization_strata,
+  randomization_strata = character(),
   use_ties_factor = TRUE,
   calculate_variance = TRUE,
   check_randomization_strata_warning = FALSE
@@ -213,7 +216,7 @@ h_lr_score_cov <- function(
   time,
   status,
   model,
-  randomization_strata,
+  randomization_strata = character(),
   theta_hat = theta,
   use_ties_factor = TRUE,
   hr_se_plugin_adjusted = TRUE,
@@ -246,6 +249,7 @@ h_lr_score_cov <- function(
     time = time,
     status = status,
     covariates = covariates,
+    randomization_strata = randomization_strata,
     n = n
   )
   lm_input <- h_get_lm_input(df = df_with_covs_ovals, model = model)
@@ -256,8 +260,7 @@ h_lr_score_cov <- function(
     length(randomization_strata) > 0 &&
       !h_unbiased_means_across_strata(
         residuals_per_group = lm_results$residuals,
-        df = df,
-        treatment = treatment,
+        df = df_with_covs_ovals,
         randomization_strata = randomization_strata
       )
   } else {
@@ -345,7 +348,7 @@ h_lr_score_strat_cov <- function(
   status,
   strata,
   model,
-  randomization_strata,
+  randomization_strata = character(),
   theta_hat = theta,
   use_ties_factor = TRUE,
   hr_se_plugin_adjusted = TRUE,
@@ -387,18 +390,18 @@ h_lr_score_strat_cov <- function(
     time,
     status,
     strata,
-    covariates = covariates
+    covariates = covariates,
+    randomization_strata = randomization_strata
   )
   strat_lm_input <- h_get_strat_lm_input(df_with_covs_ovals_stratum, model)
-  lm_results <- h_get_strat_beta_estimates(strat_lm_input)
+  lm_results <- h_get_strat_beta_estimates(strat_lm_input, calc_residuals = check_randomization_strata_warning)
   beta_est <- lm_results$beta_est
 
   give_randomization_strata_warning <- if (check_randomization_strata_warning) {
     length(randomization_strata) > 0 &&
       !h_unbiased_means_across_strata(
         residuals_per_group = lm_results$residuals,
-        df = df,
-        treatment = treatment,
+        df = df_with_covs_ovals_stratum,
         randomization_strata = randomization_strata
       )
   } else {

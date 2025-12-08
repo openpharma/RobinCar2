@@ -17,7 +17,8 @@ test_that("h_log_hr_est_via_score does not give spurious warning", {
     time = "time",
     status = "status",
     strata = "sex",
-    model = ~ age + meal.cal + wt.loss
+    model = ~ age + meal.cal + wt.loss,
+    randomization_strata = character()
   ))
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -29,7 +30,8 @@ test_that("h_log_hr_est_via_score extends the search interval as needed", {
     df = surv_data,
     treatment = "sex",
     time = "time",
-    status = "status"
+    status = "status",
+    randomization_strata = character()
   )
   expect_true(result$theta > 0.2)
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
