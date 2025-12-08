@@ -96,6 +96,28 @@ test_that("h_prep_survival_input works with multiple strata", {
   expect_equal(result, expected, ignore_formula_env = TRUE)
 })
 
+test_that("h_prep_survival_input works with multiple strata specified in separate strata() terms", {
+  result <- expect_silent(h_prep_survival_input(
+    formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal + strata(strata) + strata(ecog),
+    data = surv_data,
+    treatment = sex ~ sr(1) # We do not necessarily need to have the strata in the randomization.
+  ))
+  expected <- list(
+    data = surv_data,
+    time = "time",
+    status = "status",
+    treatment = "sex",
+    randomization_strata = character(),
+    strata = c("strata", "ecog"),
+    schema = "sr",
+    covariates = c("age", "ph.karno", "meal.cal"),
+    model = ~ age + ph.karno + meal.cal,
+    n_levels = 2L,
+    levels = c("Female", "Male")
+  )
+  expect_equal(result, expected, ignore_formula_env = TRUE)
+})
+
 test_that("h_prep_survival_input works without strata", {
   result <- expect_silent(h_prep_survival_input(
     formula = survival::Surv(time, status) ~ age + ph.karno + meal.cal,

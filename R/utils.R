@@ -89,7 +89,7 @@ h_prep_survival_input <- function(formula, data, treatment) {
   tms <- terms(formula, specials = "strata")
   specials <- survival::untangle.specials(tms, "strata")
   analysis_strata <- if (length(specials$vars) > 0) {
-    all.vars(as.formula(paste("~", specials$vars)))
+    all.vars(as.formula(paste("~", paste(specials$vars, collapse = " + "))))
   } else {
     character()
   }

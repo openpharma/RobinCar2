@@ -530,7 +530,7 @@ robin_surv <- function(
     }
   )
 
-  strata_string <- toString(input$randomization_strata)
+  strata_string <- toString(setdiff(input$randomization_strata, input$strata))
   if (give_randomization_strata_warning) {
     warning(
       paste0(
