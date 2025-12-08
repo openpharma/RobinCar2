@@ -235,8 +235,9 @@ h_get_beta_estimates <- function(lm_input) {
     # Save the coefficients.
     beta_est[[group]] <- lm_fit$coefficients
 
-    # Save the residuals.
-    residuals[[group]] <- lm_fit$residuals
+    # Save the residuals, adjusted for the fact that we centered x and don't
+    # have an intercept in the model.
+    residuals[[group]] <- lm_fit$residuals - mean(y)
   }
 
   list(

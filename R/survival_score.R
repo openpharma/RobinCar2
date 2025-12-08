@@ -259,13 +259,12 @@ h_lr_score_cov <- function(
       group_indices <- which(df[[treatment]] == group)
       residuals_overall[group_indices] <- residuals_per_group[[group]]
     }
-    group_idx <- split(seq_len(nrow(df)), df[randomization_strata], drop = TRUE)
-    bias_per_stratum <- bias(
-      residual = residuals_overall,
-      treatment = df[[treatment]],
-      group_idx = group_idx
+    residuals_split_by_randomization_strata <- split(
+      residuals_overall,
+      f = df[randomization_strata],
+      drop = TRUE
     )
-
+    residuals_means <- sapply(residuals_split_by_randomization_strata, mean)
     any(abs(residuals_means) > 1e-4)
   } else {
     FALSE

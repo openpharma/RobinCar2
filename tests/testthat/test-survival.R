@@ -767,18 +767,19 @@ test_that("robin_surv does give a warning if strata are not sufficiently include
     treatment = sex ~ pb(ecog)
   ))
 
+  surv_data2 <- droplevels(surv_data[surv_data$strata != "3", ])
   expect_warning(
     robin_surv(
       Surv(time, status) ~ 1 + ecog,
-      data = surv_data,
+      data = surv_data2,
       treatment = sex ~ pb(strata, ecog)
     ),
     "adjust for all joint levels in your `formula` using `+ strata` or",
     fixed = TRUE
   )
   result <- expect_silent(robin_surv(
-    Surv(time, status) ~ 1 + strata * ecog,
-    data = surv_data,
-    treatment = sex ~ pb(strata, ecog)
+    Surv(time, status) ~ 1 + strata,
+    data = surv_data2,
+    treatment = sex ~ pb(ecog)
   ))
 })
