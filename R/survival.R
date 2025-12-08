@@ -530,18 +530,24 @@ robin_surv <- function(
     }
   )
 
-  strata_string <- toString(setdiff(input$randomization_strata, input$strata))
   if (give_randomization_strata_warning) {
+    missing_strata_vars <- setdiff(input$randomization_strata, input$strata)
+    cov_string <- if (length(missing_strata_vars) > 1) {
+      paste0("interaction(", toString(missing_strata_vars), ")")
+    } else {
+      missing_strata_vars
+    }
+    strata_string <- paste0("strata(", toString(missing_strata_vars), ")")
     warning(
       paste0(
         "It looks like you have not included all of the variables that were used ",
         "during randomization in your analysis `formula`. You can either:\n\n",
-        "a. adjust for all joint levels in your `formula` using `+ interaction(",
+        "a. adjust for all joint levels in your `formula` using `+ ",
+        cov_string,
+        "` or\n",
+        "b. perform a stratified test by adding to your `formula` the term `+ ",
         strata_string,
-        ")` or\n",
-        "b. perform a stratified test by adding to your `formula` the term `+ strata(",
-        strata_string,
-        ")`\n\n",
+        "`\n\n",
         "NOTE: (b) changes the null hypothesis from your current model specification. ",
         "Please see the vignette `robincar-survival` for details."
       ),
