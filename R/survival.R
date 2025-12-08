@@ -119,15 +119,14 @@ h_lr_test_via_score <- function(score_fun, ...) {
 #'
 #' @keywords internal
 robin_surv_comparison <- function(
-  score_fun,
-  vars,
-  data,
-  exp_level,
-  control_level,
-  contrast,
-  unadj_score_fun = NULL,
-  ...
-) {
+    score_fun,
+    vars,
+    data,
+    exp_level,
+    control_level,
+    contrast,
+    unadj_score_fun = NULL,
+    ...) {
   assert_list(vars)
   assert_names(names(vars), must.include = c("levels", "treatment", "covariates"))
   assert_character(vars$levels, min.len = 2L)
@@ -213,13 +212,12 @@ NULL
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_no_strata_no_cov()].
 robin_surv_no_strata_no_cov <- function(
-  vars,
-  data,
-  exp_level,
-  control_level,
-  contrast,
-  check_randomization_strata_warning = FALSE
-) {
+    vars,
+    data,
+    exp_level,
+    control_level,
+    contrast,
+    check_randomization_strata_warning = FALSE) {
   robin_surv_comparison(
     score_fun = h_lr_score_no_strata_no_cov,
     vars = vars,
@@ -238,13 +236,12 @@ robin_surv_no_strata_no_cov <- function(
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_strat()].
 robin_surv_strata <- function(
-  vars,
-  data,
-  exp_level,
-  control_level,
-  contrast,
-  check_randomization_strata_warning = FALSE
-) {
+    vars,
+    data,
+    exp_level,
+    control_level,
+    contrast,
+    check_randomization_strata_warning = FALSE) {
   robin_surv_comparison(
     score_fun = h_lr_score_strat,
     vars = vars,
@@ -456,14 +453,13 @@ h_events_table <- function(data, vars) {
 #'   treatment = sex ~ sr(1)
 #' )
 robin_surv <- function(
-  formula,
-  data,
-  treatment,
-  comparisons,
-  contrast = c("hazardratio", "none"),
-  test = "logrank",
-  ...
-) {
+    formula,
+    data,
+    treatment,
+    comparisons,
+    contrast = c("hazardratio", "none"),
+    test = "logrank",
+    ...) {
   attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_data_frame(data)
