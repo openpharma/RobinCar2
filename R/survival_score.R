@@ -345,10 +345,12 @@ h_lr_score_strat_cov <- function(
   status,
   strata,
   model,
+  randomization_strata,
   theta_hat = theta,
   use_ties_factor = TRUE,
   hr_se_plugin_adjusted = TRUE,
-  calculate_variance = TRUE
+  calculate_variance = TRUE,
+  check_randomization_strata_warning = FALSE
 ) {
   assert_data_frame(df)
   assert_string(treatment)
@@ -356,13 +358,16 @@ h_lr_score_strat_cov <- function(
   assert_string(status)
   assert_character(strata, any.missing = FALSE, min.len = 1L, unique = TRUE)
   assert_formula(model)
+  assert_character(randomization_strata)
   covariates <- all.vars(model)
   assert_subset(c(treatment, time, status, strata, covariates), names(df))
   assert_flag(hr_se_plugin_adjusted)
   assert_flag(calculate_variance)
+  assert_flag(check_randomization_strata_warning)
 
   # Subset to complete records here.
-  df <- stats::na.omit(df[c(treatment, time, status, strata, covariates)])
+  required_cols <- unique(c(treatment, time, status, covariates, strata, randomization_strata))
+  df <- stats::na.omit(df[required_cols])
   n <- nrow(df)
 
   # Ensure that all character covariates are converted to factors.
@@ -385,7 +390,20 @@ h_lr_score_strat_cov <- function(
     covariates = covariates
   )
   strat_lm_input <- h_get_strat_lm_input(df_with_covs_ovals_stratum, model)
-  beta_est <- h_get_strat_beta_estimates(strat_lm_input)
+  lm_results <- h_get_strat_beta_estimates(strat_lm_input)
+  beta_est <- lm_results$beta_est
+  browser()
+  give_randomization_strata_warning <- if (check_randomization_strata_warning) {
+    length(randomization_strata) > 0 &&
+      !h_unbiased_means_across_strata(
+        residuals_per_group = lm_results$residuals,
+        df = df,
+        treatment = treatment,
+        randomization_strata = randomization_strata
+      )
+  } else {
+    FALSE
+  }
 
   # Obtain unadjusted results.
   strat_unadj_score <- h_lr_score_strat(
@@ -395,8 +413,10 @@ h_lr_score_strat_cov <- function(
     time,
     status,
     strata,
+    randomization_strata,
     use_ties_factor = use_ties_factor,
-    calculate_variance = calculate_variance
+    calculate_variance = calculate_variance,
+    check_randomization_strata_warning = FALSE
   )
 
   # We assume here that the observed proportion of treatment 1 in the data set
@@ -455,8 +475,10 @@ h_lr_score_strat_cov <- function(
         time = time,
         status = status,
         strata = strata,
+        randomization_strata = randomization_strata,
         use_ties_factor = use_ties_factor,
-        calculate_variance = TRUE
+        calculate_variance = TRUE,
+        check_randomization_strata_warning = FALSE
       )
       attr(strat_unadj_score_theta_hat, "sigma_l2")
     }
@@ -471,6 +493,7 @@ h_lr_score_strat_cov <- function(
     u_csl,
     se_theta_l = if (calculate_variance) se_theta_csl else NA_real_,
     sigma_l2 = if (calculate_variance) sigma_csl2 else NA_real_,
-    n = n
+    n = n,
+    give_randomization_strata_warning = give_randomization_strata_warning
   )
 }

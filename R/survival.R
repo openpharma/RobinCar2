@@ -292,6 +292,7 @@ robin_surv_strata_cov <- function(vars, data, exp_level, control_level, contrast
     status = vars$status,
     strata = vars$strata,
     model = vars$model,
+    randomization_strata = vars$randomization_strata,
     ...
   )
 }

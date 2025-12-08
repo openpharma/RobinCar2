@@ -253,6 +253,7 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
 
   # Get coefficient estimates separately for each treatment arm.
   beta_est <- list()
+  resids <- list()
 
   for (group in group_names) {
     x <- strat_lm_input[[group]]$X
@@ -277,8 +278,14 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
       # Center it.
       this_x <- scale(this_x, center = TRUE, scale = FALSE)
 
+      # Adjust the overall design matrix.
+      x[in_stratum, ] <- this_x
+
       # Get the derived outcome values, the response.
       this_y <- y[in_stratum]
+
+      # Adjust the response by subtracting the stratum mean.
+      y[in_stratum] <- this_y - mean(this_y)
 
       # Save the cross products.
       xtxs[[stratum_index]] <- crossprod(this_x)
@@ -291,7 +298,14 @@ h_get_strat_beta_estimates <- function(strat_lm_input) {
 
     # Get the coefficients.
     beta_est[[group]] <- solve(xtx, xty)
+
+    # Save the residuals.
+    # Note: x and y have already been adjusted above.
+    resids[[group]] <- y - as.numeric(x %*% beta_est[[group]])
   }
 
-  beta_est
+  list(
+    beta_est = beta_est,
+    residuals = resids
+  )
 }
