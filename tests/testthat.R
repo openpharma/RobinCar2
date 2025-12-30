@@ -1,3 +1,3 @@
 pkg_name <- "RobinCar2"
 library(pkg_name, character.only = TRUE)
-test_check(pkg_name)
+testthat::test_check(pkg_name)

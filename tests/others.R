@@ -28,4 +28,4 @@ expected <- list(
   n_levels = 2L,
   levels = c("Female", "Male")
 )
-expect_equal(result, expected, ignore_formula_env = TRUE)
+testthat::expect_equal(result, expected, ignore_formula_env = TRUE)
