@@ -275,7 +275,7 @@
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-# robin_surv does give a warning if strata are insufficiently included in covariate adjusted stratified model
+# robin_surv warns if strata are insufficiently included in covariate adjusted stratified model
 
     Code
       robin_surv(Surv(time, status) ~ 1 + strata(ecog) + ph.karno, data = surv_data,
