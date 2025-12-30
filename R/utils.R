@@ -402,11 +402,15 @@ h_unbiased_means_across_strata <- function(
     group_indices <- which(df$treatment == group)
     residuals_overall[group_indices] <- residuals_per_group[[group]]
   }
-  resids_by_rand_strata <- split(
-    residuals_overall,
+  group_idx <- split(
+    seq_len(nrow(df)),
     f = df[randomization_strata],
     drop = TRUE
   )
-  residuals_means <- sapply(resids_by_rand_strata, mean)
-  all(abs(residuals_means) < eps)
+  bias_vals <- bias(
+    residual = residuals_overall,
+    treatment = df$treatment,
+    group_idx = group_idx
+  )
+  all(abs(bias_vals) < eps)
 }
