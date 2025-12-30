@@ -418,5 +418,8 @@ h_unbiased_means_across_strata <- function(
     treatment = df$treatment,
     group_idx = group_idx
   )
-  all(abs(bias_vals) < eps)
+  all(
+    abs(bias_vals) < eps,
+    na.rm = TRUE # Because some strata may not have both treatment groups.
+  )
 }
