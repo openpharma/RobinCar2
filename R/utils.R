@@ -396,6 +396,8 @@ h_unbiased_means_across_strata <- function(
   assert_list(residuals_per_group, types = "numeric", len = 2L)
   assert_data_frame(df)
   assert_character(randomization_strata, min.len = 1L, unique = TRUE)
+  assert_disjunct("treatment", randomization_strata)
+  assert_names(names(df), must.include = c("treatment", randomization_strata))
 
   residuals_overall <- numeric(nrow(df))
   for (group in names(residuals_per_group)) {
