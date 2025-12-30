@@ -31,8 +31,8 @@ bias <- function(residual, treatment, group_idx) {
 #' It is used in [robin_surv()] downstream functions to verify the correct inclusion of randomization strata
 #' variables in the analysis survival model.
 #'
-#' @param residuals_per_group (`numeric`) A named numeric vector containing residuals for each of the
-#'   two treatment groups.
+#' @param residuals_per_group (`list` of `numeric`) A named list of numeric vectors containing residuals for each
+#'   of the two treatment groups.
 #' @param df (`data.frame`) The data frame containing the `treatment` and randomization strata variables, produced by
 #'   [h_derived_outcome_vals()] or [h_strat_derived_outcome_vals()].
 #' @param randomization_strata (`character`) A character vector of names of the randomization strata variables

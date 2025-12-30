@@ -12,8 +12,8 @@ h_unbiased_means_across_strata(
 )
 }
 \arguments{
-\item{residuals_per_group}{(\code{numeric}) A named numeric vector containing residuals for each of the
-two treatment groups.}
+\item{residuals_per_group}{(\code{list} of \code{numeric}) A named list of numeric vectors containing residuals for each
+of the two treatment groups.}
 
 \item{df}{(\code{data.frame}) The data frame containing the \code{treatment} and randomization strata variables, produced by
 \code{\link[=h_derived_outcome_vals]{h_derived_outcome_vals()}} or \code{\link[=h_strat_derived_outcome_vals]{h_strat_derived_outcome_vals()}}.}
