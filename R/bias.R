@@ -2,7 +2,7 @@
 #' @description Obtain prediction bias within each stratum.
 #' @param residual (`numeric`) residuals.
 #' @param treatment (`factor`) treatment.
-#' @param group_idx (`character`) stratum index.
+#' @param group_idx (`list` of `integer`) indices for each stratum group.
 #'
 #' @return Numeric matrix of bias in each stratum.
 #' @keywords internal

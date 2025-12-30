@@ -222,30 +222,30 @@ test_that("sum_vectors_in_list works as expected", {
   expect_equal(result, expected)
 })
 
-test_that("h_are_factors_nested works as expected without NAs", {
+test_that("h_first_fct_nested_in_second works as expected without NAs", {
   f1 <- factor(c("A", "B", "C"))
   f2 <- factor(c("C", "A", "B"))
   f3 <- factor(c("A", "B", "B"))
   f4 <- factor(c("A", "B", "C", "D"))
 
-  expect_true(h_are_factors_nested(f1, f2))
-  expect_true(h_are_factors_nested(f2, f1))
-  expect_true(h_are_factors_nested(f1, f3))
-  expect_false(h_are_factors_nested(f3, f1))
-  expect_false(h_are_factors_nested(f1, f4))
+  expect_true(h_first_fct_nested_in_second(f1, f2))
+  expect_true(h_first_fct_nested_in_second(f2, f1))
+  expect_true(h_first_fct_nested_in_second(f1, f3))
+  expect_false(h_first_fct_nested_in_second(f3, f1))
+  expect_false(h_first_fct_nested_in_second(f1, f4))
 })
 
-test_that("h_are_factors_nested works as expected with NAs", {
+test_that("h_first_fct_nested_in_second works as expected with NAs", {
   f1 <- factor(c("A", "B", "C", NA))
   f2 <- factor(c("C", "A", "B", NA))
   f3 <- factor(c(NA, "B", "C", "D"))
   f4 <- factor(c("A", "B", "C", "D", NA))
   f5 <- factor(c("E", "E", "F", "F", NA))
 
-  expect_true(h_are_factors_nested(f1, f2))
-  expect_true(h_are_factors_nested(f2, f1))
-  expect_false(h_are_factors_nested(f1, f3))
-  expect_false(h_are_factors_nested(f1, f4))
-  expect_true(h_are_factors_nested(f4, f5))
-  expect_false(h_are_factors_nested(f5, f4))
+  expect_true(h_first_fct_nested_in_second(f1, f2))
+  expect_true(h_first_fct_nested_in_second(f2, f1))
+  expect_false(h_first_fct_nested_in_second(f1, f3))
+  expect_false(h_first_fct_nested_in_second(f1, f4))
+  expect_true(h_first_fct_nested_in_second(f4, f5))
+  expect_false(h_first_fct_nested_in_second(f5, f4))
 })

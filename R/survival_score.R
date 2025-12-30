@@ -170,7 +170,7 @@ h_lr_score_strat <- function(
   give_rand_strat_warning <- if (check_rand_strat_warning) {
     length(randomization_strata) > 0 &&
       !all(randomization_strata %in% strata) &&
-      !h_are_factors_nested(interaction(df[strata]), interaction(df[randomization_strata]))
+      !h_first_fct_nested_in_second(interaction(df[strata]), interaction(df[randomization_strata]))
   } else {
     FALSE
   }

@@ -715,7 +715,7 @@ test_that("robin_surv gives a warning if stratified randomization was specified 
 test_that("robin_surv does not give a warning if strata are sufficiently included in the analysis model", {
   full_strata <- with(surv_data, interaction(strata, ecog, drop = TRUE))
   incl_strata <- surv_data$strata
-  assert_true(h_are_factors_nested(incl_strata, full_strata))
+  assert_true(h_first_fct_nested_in_second(incl_strata, full_strata))
 
   result <- expect_silent(robin_surv(
     Surv(time, status) ~ 1 + strata(strata),
@@ -727,7 +727,7 @@ test_that("robin_surv does not give a warning if strata are sufficiently include
 test_that("robin_surv does give a warning if strata are not sufficiently included in the analysis model", {
   full_strata <- surv_data$strata
   incl_strata <- surv_data$ecog
-  assert_false(h_are_factors_nested(incl_strata, full_strata))
+  assert_false(h_first_fct_nested_in_second(incl_strata, full_strata))
 
   expect_snapshot(
     robin_surv(

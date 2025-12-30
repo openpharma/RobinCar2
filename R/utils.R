@@ -328,9 +328,9 @@ h_confint <- function(x, parm, level = 0.95, transform, include_se = FALSE, ...)
   transform(ret)
 }
 
-#' Check Whether Two Factors are Nested
+#' Check Whether First Factor is Nested in Second Factor
 #'
-#' This function checks whether two factor variables are nested in terms of their levels
+#' This function checks whether one factor variable is nested in another in terms of their levels
 #' and the mapping of observations to these levels:
 #'
 #' - Both factors must have the same length.
@@ -345,7 +345,7 @@ h_confint <- function(x, parm, level = 0.95, transform, include_se = FALSE, ...)
 #' @return `TRUE` if `f1` is nested in `f2`, `FALSE` otherwise.
 #'
 #' @keywords internal
-h_are_factors_nested <- function(f1, f2) {
+h_first_fct_nested_in_second <- function(f1, f2) {
   assert_factor(f1)
   assert_factor(f2)
 
@@ -365,10 +365,10 @@ h_are_factors_nested <- function(f1, f2) {
     return(FALSE)
   }
 
-  f1_num <- as.numeric(f1)
-  f2_num <- as.numeric(f2)
-  f1_f2_num <- paste(f1_num, f2_num, sep = "-")
-  unique_combinations <- unique(f1_f2_num)
+  f1_int <- as.integer(f1)
+  f2_int <- as.integer(f2)
+  f1_f2_int <- paste(f1_int, f2_int, sep = "-")
+  unique_combinations <- unique(f1_f2_int)
   length(unique_combinations) == nlevels(f1)
 }
 
