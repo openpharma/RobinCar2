@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{h_unbiased_means_across_strata}
 \alias{h_unbiased_means_across_strata}
-\title{Check Unbiased Means of Residuals Across Randomization Strata}
+\title{Check Unbiased Means of Residuals Across Randomization Strata and Treatment Groups}
 \usage{
 h_unbiased_means_across_strata(
   residuals_per_group,
@@ -12,21 +12,26 @@ h_unbiased_means_across_strata(
 )
 }
 \arguments{
-\item{residuals_per_group}{(\code{numeric}) A named numeric vector containing residuals for each treatment group.}
+\item{residuals_per_group}{(\code{numeric}) A named numeric vector containing residuals for each of the
+two treatment groups.}
 
 \item{df}{(\code{data.frame}) The data frame containing the \code{treatment} and randomization strata variables, produced by
 \code{\link[=h_derived_outcome_vals]{h_derived_outcome_vals()}} or \code{\link[=h_strat_derived_outcome_vals]{h_strat_derived_outcome_vals()}}.}
 
-\item{randomization_strata}{(\code{character}) A character vector of names of the randomization strata variables in \code{df}.}
+\item{randomization_strata}{(\code{character}) A character vector of names of the randomization strata variables
+in \code{df}.}
 
 \item{eps}{(\code{numeric}) A small tolerance value to determine if means are close to zero.}
 }
 \value{
-\code{TRUE} if the means of residuals across randomization strata are within the specified tolerance,
-\code{FALSE} otherwise.
+\code{TRUE} if the means of residuals across randomization strata are within the specified tolerance
+for both treatment groups, \code{FALSE} otherwise.
 }
 \description{
 This function checks whether the means of residuals are approximately zero
-across specified randomization strata.
+across specified randomization strata for each of the two treatment groups.
+}
+\seealso{
+\code{\link[=bias]{bias()}} for the underlying bias (means of residuals) calculation.
 }
 \keyword{internal}

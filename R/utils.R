@@ -372,19 +372,23 @@ h_first_fct_nested_in_second <- function(f1, f2) {
   length(unique_combinations) == nlevels(f1)
 }
 
-#' Check Unbiased Means of Residuals Across Randomization Strata
+#' Check Unbiased Means of Residuals Across Randomization Strata and Treatment Groups
 #'
 #' This function checks whether the means of residuals are approximately zero
-#' across specified randomization strata.
+#' across specified randomization strata for each of the two treatment groups.
 #'
-#' @param residuals_per_group (`numeric`) A named numeric vector containing residuals for each treatment group.
+#' @param residuals_per_group (`numeric`) A named numeric vector containing residuals for each of the
+#'   two treatment groups.
 #' @param df (`data.frame`) The data frame containing the `treatment` and randomization strata variables, produced by
 #'   [h_derived_outcome_vals()] or [h_strat_derived_outcome_vals()].
-#' @param randomization_strata (`character`) A character vector of names of the randomization strata variables in `df`.
+#' @param randomization_strata (`character`) A character vector of names of the randomization strata variables
+#'   in `df`.
 #' @param eps (`numeric`) A small tolerance value to determine if means are close to zero.
 #'
-#' @return `TRUE` if the means of residuals across randomization strata are within the specified tolerance,
-#'   `FALSE` otherwise.
+#' @return `TRUE` if the means of residuals across randomization strata are within the specified tolerance
+#'   for both treatment groups, `FALSE` otherwise.
+#'
+#' @seealso [bias()] for the underlying bias (means of residuals) calculation.
 #'
 #' @keywords internal
 h_unbiased_means_across_strata <- function(
