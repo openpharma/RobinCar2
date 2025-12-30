@@ -17,7 +17,8 @@ test_that("h_log_hr_est_via_score does not give spurious warning", {
     time = "time",
     status = "status",
     strata = "sex",
-    model = ~ age + meal.cal + wt.loss
+    model = ~ age + meal.cal + wt.loss,
+    randomization_strata = character()
   ))
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
@@ -29,7 +30,8 @@ test_that("h_log_hr_est_via_score extends the search interval as needed", {
     df = surv_data,
     treatment = "sex",
     time = "time",
-    status = "status"
+    status = "status",
+    randomization_strata = character()
   )
   expect_true(result$theta > 0.2)
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
@@ -698,4 +700,124 @@ test_that("robin_surv works in a case where previously separate design matrices 
     treatment = sex ~ sr(1)
   )
   expect_s3_class(result, "surv_effect")
+})
+
+test_that("robin_surv gives a warning if stratified randomization was specified but simple log rank test used", {
+  expect_snapshot(
+    robin_surv(
+      Surv(time, status) ~ 1,
+      data = surv_data,
+      treatment = sex ~ pb(ecog)
+    )
+  )
+})
+
+test_that("robin_surv does not give a warning if strata are sufficiently included in the analysis model", {
+  full_strata <- with(surv_data, interaction(strata, ecog, drop = TRUE))
+  incl_strata <- surv_data$strata
+  assert_true(h_first_fct_nested_in_second(incl_strata, full_strata))
+
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ 1 + strata(strata),
+    data = surv_data,
+    treatment = sex ~ pb(ecog, strata)
+  ))
+})
+
+test_that("robin_surv does give a warning if strata are not sufficiently included in the analysis model", {
+  full_strata <- surv_data$strata
+  incl_strata <- surv_data$ecog
+  assert_false(h_first_fct_nested_in_second(incl_strata, full_strata))
+
+  expect_snapshot(
+    robin_surv(
+      Surv(time, status) ~ 1 + strata(ecog),
+      data = surv_data,
+      treatment = sex ~ pb(strata)
+    )
+  )
+  expect_warning(
+    robin_surv(
+      Surv(time, status) ~ 1 + strata(ecog),
+      data = surv_data,
+      treatment = sex ~ pb(strata, ecog)
+    ),
+    "adjust for all joint levels in your `formula` using `+ strata` or",
+    fixed = TRUE
+  )
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ 1 + strata(ecog) + strata(strata),
+    data = surv_data,
+    treatment = sex ~ pb(strata)
+  ))
+})
+
+test_that("robin_surv does give a warning if strata are not sufficiently included in the covariates", {
+  expect_snapshot(
+    robin_surv(
+      Surv(time, status) ~ 1 + ph.karno,
+      data = surv_data,
+      treatment = sex ~ pb(ecog)
+    )
+  )
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ 1 + ph.karno + ecog,
+    data = surv_data,
+    treatment = sex ~ pb(ecog)
+  ))
+
+  surv_data2 <- droplevels(surv_data[surv_data$strata != "3", ])
+  expect_warning(
+    robin_surv(
+      Surv(time, status) ~ 1 + ecog,
+      data = surv_data2,
+      treatment = sex ~ pb(strata, ecog)
+    ),
+    "adjust for all joint levels in your `formula` using `+ strata` or",
+    fixed = TRUE
+  )
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ 1 + strata,
+    data = surv_data2,
+    treatment = sex ~ pb(ecog)
+  ))
+})
+
+test_that("robin_surv warns if strata are insufficiently included in covariate adjusted stratified model", {
+  expect_snapshot(
+    robin_surv(
+      Surv(time, status) ~ 1 + strata(ecog) + ph.karno,
+      data = surv_data,
+      treatment = sex ~ pb(strata)
+    )
+  )
+  expect_warning(
+    robin_surv(
+      Surv(time, status) ~ 1 + strata(ecog) + ph.karno,
+      data = surv_data,
+      treatment = sex ~ pb(strata, ecog)
+    ),
+    "adjust for all joint levels in your `formula` using `+ strata` or",
+    fixed = TRUE
+  )
+  result <- expect_silent(robin_surv(
+    Surv(time, status) ~ 1 + strata(strata) + ph.karno,
+    data = surv_data,
+    treatment = sex ~ pb(strata)
+  ))
+})
+
+test_that("robin_surv only gives a single warning for randomization strata with multiple comparisons", {
+  expect_warning(
+    result <- robin_surv(
+      Surv(time, status) ~ 1,
+      data = surv_data,
+      treatment = strata ~ pb(ecog),
+    ),
+    "It looks like you have not included all of the variables that were used during randomization"
+  )
+  expect_s3_class(result, "surv_effect")
+  comparisons <- c("1 v.s. 0", "2 v.s. 0", "3 v.s. 0", "2 v.s. 1", "3 v.s. 1", "3 v.s. 2")
+  expect_matrix(result$log_hr_coef_mat, ncol = 4, nrow = 6)
+  expect_names(rownames(result$log_hr_coef_mat), identical.to = comparisons)
 })

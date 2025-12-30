@@ -48,8 +48,8 @@ test_that("marginal means", {
     estimates2 <- mm$estimate
     variances2 <- mm$variance
 
-    testthat::expect_equal(estimates1, estimates2)
-    testthat::expect_equal(variances1, variances2)
+    expect_equal(estimates1, estimates2)
+    expect_equal(variances1, variances2)
   }
 
   families <- list(
@@ -168,8 +168,8 @@ test_that("contrast -- standard options", {
     # contrast vector elements from RobinCar2
     estimates2 <- r2$contrast$estimate
     variances2 <- r2$contrast$variance
-    testthat::expect_equal(estimates1, estimates2)
-    testthat::expect_equal(variances1, variances2, tolerance = 1e-4)
+    expect_equal(estimates1, estimates2)
+    expect_equal(variances1, variances2, tolerance = 1e-4)
   }
 
   for (scheme in c("simple", "pocock-simon", "permuted-block")) {
