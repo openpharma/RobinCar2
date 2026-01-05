@@ -37,7 +37,7 @@
 Source:
 [`DESCRIPTION`](https://github.com/openpharma/RobinCar2/blob/main/DESCRIPTION)
 
-Li L, Bannick M, Sabanes Bove D, Xi D, Ye T, Yi Y (2025). *RobinCar2:
+Li L, Bannick M, Sabanes Bove D, Xi D, Ye T, Yi Y (2026). *RobinCar2:
 ROBust INference for Covariate Adjustment in Randomized Clinical
 Trials*. R package version 0.2.1.9000,
 <https://github.com/openpharma/RobinCar2/>.
@@ -45,7 +45,7 @@ Trials*. R package version 0.2.1.9000,
     @Manual{,
       title = {RobinCar2: ROBust INference for Covariate Adjustment in Randomized Clinical Trials},
       author = {Liming Li and Marlena Bannick and Daniel {Sabanes Bove} and Dong Xi and Ting Ye and Yanyao Yi},
-      year = {2025},
+      year = {2026},
       note = {R package version 0.2.1.9000},
       url = {https://github.com/openpharma/RobinCar2/},
     }

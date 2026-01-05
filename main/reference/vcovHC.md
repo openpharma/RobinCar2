@@ -22,7 +22,7 @@ vcovHC(x, type = "HC3", ...)
 - ...:
 
   Additional arguments for
-  [`sandwich::vcovHC`](https://sandwich.R-Forge.R-project.org/reference/vcovHC.html).
+  [`sandwich::vcovHC`](https://rdrr.io/pkg/sandwich/man/vcovHC.html).
 
 ## Value
 

@@ -181,27 +181,63 @@ specifying `contrast = "none"`:
 
 ``` r
 robin_surv(
-  Surv(time, status) ~ age + meal.cal,
-  treatment = sex ~ strata + ecog,
+  Surv(time, status) ~ age + meal.cal + strata(strata),
+  treatment = sex ~ pb(strata),
   data = surv_data,
   contrast = "none"
 )
-#> Model        : Surv(time, status) ~ age + meal.cal
-#> Randomization: sex ~ strata + ecog (Simple)
+#> Model        : Surv(time, status) ~ age + meal.cal + strata(strata)
+#> Randomization: sex ~ pb(strata) (Permuted-Block)
+#> Stratification variables:  strata 
 #> Covariates adjusted for: age, meal.cal (including interactions with sex)
 #> 
 #> Contrast     : None
 #> 
-#> Test         : Covariate-adjusted Log-Rank
+#> Test         : Covariate-adjusted Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
-#> Male v.s. Female     2.6858 0.007236 **
+#> Male v.s. Female     2.9496 0.003181 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
 This can help to speed up simulation studies e.g. when there is no
 interest in the estimation performance.
+
+Note that a warning will be issued when the randomization strata are not
+adequately included in the analysis model, for example if we omit the
+`strata(strata)` term above:
+
+``` r
+robin_surv(
+  Surv(time, status) ~ age + meal.cal,
+  treatment = sex ~ pb(strata),
+  data = surv_data
+)
+#> Warning: It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:
+#> 
+#> a. adjust for all joint levels in your `formula` using `+ strata` or
+#> b. perform a stratified test by adding to your `formula` the term `+ strata(strata)`
+#> 
+#> NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.
+#> Model        : Surv(time, status) ~ age + meal.cal
+#> Randomization: sex ~ pb(strata) (Permuted-Block)
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
+#> 
+#> Contrast     : Covariate-adjusted Log Hazard Ratio
+#> 
+#>                  Estimate Std.Err Z Value Pr(>|z|)   
+#> Male v.s. Female  0.48134 0.18681  2.5765  0.00998 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Test         : Covariate-adjusted Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     2.6333 0.008455 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
 
 ## Details of the Methods
 

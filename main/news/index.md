@@ -9,8 +9,9 @@
   formula, similar to how it is done in
   [`survival::coxph`](https://rdrr.io/pkg/survival/man/coxph.html). In
   addition, the randomization scheme is now specified as for the other
-  `RobinCar2` functions for consistency. See the updated vignette for
-  details.
+  `RobinCar2` functions for consistency. A warning will be issued when
+  the randomization strata are not adequately included in the analysis
+  model. See the updated vignette for details.
 
 - It is now possible to only perform the log rank test, without
   estimating the log hazard ratio, in `robin_surv` by setting the
