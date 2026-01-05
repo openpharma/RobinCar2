@@ -1,441 +1,485 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="bias" timestamp="2025-11-29T06:23:29Z" hostname="67d3a89527a7" tests="1" skipped="1" failures="0" errors="0" time="0.08">
-    <testcase time="0.0800000000000001" classname="bias" name="bias_works_for_guassian">
+  <testsuite name="bias" timestamp="2026-01-05T05:10:44Z" hostname="3643b8e6943e" tests="8" skipped="1" failures="0" errors="0" time="0.179">
+    <testcase time="0.084" classname="bias" name="bias_works_for_guassian">
       <skipped message="Reason: On CRAN ('test-bias.R:1:1')"/>
     </testcase>
+    <testcase time="0.0579999999999999" classname="bias" name="bias_can_return_NaN_when_there_is_a_single_patient_in_a_group"/>
+    <testcase time="0.018" classname="bias" name="h_unbiased_means_across_strata_works_for_zero_residuals"/>
+    <testcase time="0.003" classname="bias" name="h_unbiased_means_across_strata_works_for_zero_residuals"/>
+    <testcase time="0.00600000000000001" classname="bias" name="h_unbiased_means_across_strata_works_for_non_zero_residuals"/>
+    <testcase time="0.002" classname="bias" name="h_unbiased_means_across_strata_works_for_non_zero_residuals"/>
+    <testcase time="0.005" classname="bias" name="h_unbiased_means_across_strata_works_if_one_stratum_just_has_one_patient"/>
+    <testcase time="0.003" classname="bias" name="h_unbiased_means_across_strata_works_if_one_stratum_just_has_one_patient"/>
   </testsuite>
-  <testsuite name="confint" timestamp="2025-11-29T06:23:29Z" hostname="67d3a89527a7" tests="8" skipped="4" failures="0" errors="0" time="0.325">
-    <testcase time="0.162" classname="confint" name="confint_works_correctly">
+  <testsuite name="confint" timestamp="2026-01-05T05:10:44Z" hostname="3643b8e6943e" tests="8" skipped="4" failures="0" errors="0" time="0.241">
+    <testcase time="0.09" classname="confint" name="confint_works_correctly">
       <skipped message="Reason: On CRAN ('test-confint.R:1:1')"/>
     </testcase>
-    <testcase time="0.0760000000000001" classname="confint" name="confint_works_with_parm_argument"/>
-    <testcase time="0.005" classname="confint" name="confint_works_with_parm_argument"/>
+    <testcase time="0.0660000000000001" classname="confint" name="confint_works_with_parm_argument"/>
+    <testcase time="0.00800000000000001" classname="confint" name="confint_works_with_parm_argument"/>
     <testcase time="0.005" classname="confint" name="confint_works_with_parm_argument"/>
     <testcase time="0.005" classname="confint" name="confint_works_with_parm_argument"/>
     <testcase time="0.001" classname="confint" name="confint_works_with_parm_argument">
       <skipped message="Reason: On CRAN ('test-confint.R:9:1')"/>
     </testcase>
-    <testcase time="0.0389999999999999" classname="confint" name="confint_works_with_level_argument">
+    <testcase time="0.0349999999999999" classname="confint" name="confint_works_with_level_argument">
       <skipped message="Reason: On CRAN ('test-confint.R:22:1')"/>
     </testcase>
-    <testcase time="0.032" classname="confint" name="confint_works_with_transform_argument">
+    <testcase time="0.031" classname="confint" name="confint_works_with_transform_argument">
       <skipped message="Reason: On CRAN ('test-confint.R:27:1')"/>
     </testcase>
   </testsuite>
-  <testsuite name="find_data" timestamp="2025-11-29T06:23:30Z" hostname="67d3a89527a7" tests="2" skipped="0" failures="0" errors="0" time="0.037">
-    <testcase time="0.029" classname="find_data" name="find_data_works_for_glm"/>
-    <testcase time="0.00800000000000001" classname="find_data" name="find_data_fails_for_lm"/>
+  <testsuite name="find_data" timestamp="2026-01-05T05:10:45Z" hostname="3643b8e6943e" tests="2" skipped="0" failures="0" errors="0" time="0.037">
+    <testcase time="0.027" classname="find_data" name="find_data_works_for_glm"/>
+    <testcase time="0.01" classname="find_data" name="find_data_fails_for_lm"/>
   </testsuite>
-  <testsuite name="predict_counterfactual" timestamp="2025-11-29T06:23:30Z" hostname="67d3a89527a7" tests="12" skipped="6" failures="0" errors="0" time="0.282">
-    <testcase time="0.023" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian">
+  <testsuite name="predict_counterfactual" timestamp="2026-01-05T05:10:45Z" hostname="3643b8e6943e" tests="12" skipped="6" failures="0" errors="0" time="0.284">
+    <testcase time="0.022" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:1:1')"/>
     </testcase>
-    <testcase time="0.0419999999999999" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian_with_lm">
+    <testcase time="0.0369999999999999" classname="predict_counterfactual" name="predict_counterfactual_works_for_guassian_with_lm">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:5:1')"/>
     </testcase>
-    <testcase time="0.036" classname="predict_counterfactual" name="predict_counterfactual_works_for_binomial">
+    <testcase time="0.04" classname="predict_counterfactual" name="predict_counterfactual_works_for_binomial">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:9:1')"/>
     </testcase>
-    <testcase time="0.032" classname="predict_counterfactual" name="predict_counterfactual_for_negative_binomial"/>
-    <testcase time="0.004" classname="predict_counterfactual" name="predict_counterfactual_for_negative_binomial"/>
+    <testcase time="0.03" classname="predict_counterfactual" name="predict_counterfactual_for_negative_binomial"/>
     <testcase time="0.004" classname="predict_counterfactual" name="predict_counterfactual_for_negative_binomial"/>
     <testcase time="0.00499999999999989" classname="predict_counterfactual" name="predict_counterfactual_for_negative_binomial"/>
+    <testcase time="0.00500000000000012" classname="predict_counterfactual" name="predict_counterfactual_for_negative_binomial"/>
     <testcase time="0.016" classname="predict_counterfactual" name="predict_counterfactual_works_if_contrast_are_non_standard"/>
-    <testcase time="0.016" classname="predict_counterfactual" name="predict_counterfactual_works_if_contrast_are_non_standard"/>
+    <testcase time="0.0169999999999999" classname="predict_counterfactual" name="predict_counterfactual_works_if_contrast_are_non_standard"/>
     <testcase time="0.002" classname="predict_counterfactual" name="predict_counterfactual_works_if_contrast_are_non_standard">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:38:1')"/>
     </testcase>
-    <testcase time="0.0609999999999999" classname="predict_counterfactual" name="predict_counterfactual_works_with_provided_vcov_function">
+    <testcase time="0.0620000000000001" classname="predict_counterfactual" name="predict_counterfactual_works_with_provided_vcov_function">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:52:1')"/>
     </testcase>
-    <testcase time="0.0410000000000001" classname="predict_counterfactual" name="confint_method_for_prediction_cf_works_as_expected">
+    <testcase time="0.044" classname="predict_counterfactual" name="confint_method_for_prediction_cf_works_as_expected">
       <skipped message="Reason: On CRAN ('test-predict_counterfactual.R:61:1')"/>
     </testcase>
   </testsuite>
-  <testsuite name="robin_glm" timestamp="2025-11-29T06:23:30Z" hostname="67d3a89527a7" tests="11" skipped="1" failures="0" errors="0" time="0.169">
+  <testsuite name="robin_glm" timestamp="2026-01-05T05:10:45Z" hostname="3643b8e6943e" tests="11" skipped="1" failures="0" errors="0" time="0.165">
     <testcase time="0.034" classname="robin_glm" name="robin_glm_works_correctly"/>
-    <testcase time="0.0129999999999999" classname="robin_glm" name="robin_glm_works_correctly"/>
-    <testcase time="0.00900000000000012" classname="robin_glm" name="robin_glm_works_correctly"/>
     <testcase time="0.0089999999999999" classname="robin_glm" name="robin_glm_works_correctly"/>
+    <testcase time="0.01" classname="robin_glm" name="robin_glm_works_correctly"/>
+    <testcase time="0.01" classname="robin_glm" name="robin_glm_works_correctly"/>
     <testcase time="0.0149999999999999" classname="robin_glm" name="robin_glm_works_correctly"/>
-    <testcase time="0.014" classname="robin_glm" name="robin_glm_works_correctly"/>
-    <testcase time="0.00700000000000012" classname="robin_glm" name="robin_glm_works_correctly"/>
+    <testcase time="0.0190000000000001" classname="robin_glm" name="robin_glm_works_correctly"/>
     <testcase time="0.0069999999999999" classname="robin_glm" name="robin_glm_works_correctly"/>
-    <testcase time="0.012" classname="robin_glm" name="robin_glm_works_correctly"/>
-    <testcase time="0.0270000000000001" classname="robin_glm" name="robin_glm_works_for_glm.nb"/>
+    <testcase time="0.00700000000000012" classname="robin_glm" name="robin_glm_works_correctly"/>
+    <testcase time="0.0109999999999999" classname="robin_glm" name="robin_glm_works_correctly"/>
+    <testcase time="0.0210000000000001" classname="robin_glm" name="robin_glm_works_for_glm.nb"/>
     <testcase time="0.022" classname="robin_glm" name="robin_glm_can_be_printed_correctly">
       <skipped message="Reason: On CRAN ('test-robin_glm.R:67:1')"/>
     </testcase>
   </testsuite>
-  <testsuite name="robin_lm" timestamp="2025-11-29T06:23:30Z" hostname="67d3a89527a7" tests="6" skipped="0" failures="0" errors="0" time="0.065">
-    <testcase time="0.0269999999999999" classname="robin_lm" name="h_interaction_works_correctly"/>
+  <testsuite name="robin_lm" timestamp="2026-01-05T05:10:45Z" hostname="3643b8e6943e" tests="6" skipped="0" failures="0" errors="0" time="0.07">
+    <testcase time="0.0309999999999999" classname="robin_lm" name="h_interaction_works_correctly"/>
     <testcase time="0.004" classname="robin_lm" name="h_interaction_works_correctly"/>
     <testcase time="0.004" classname="robin_lm" name="h_interaction_works_correctly"/>
     <testcase time="0.004" classname="robin_lm" name="h_interaction_works_correctly"/>
     <testcase time="0.014" classname="robin_lm" name="robin_lm_works_correctly"/>
-    <testcase time="0.012" classname="robin_lm" name="robin_lm_works_correctly"/>
+    <testcase time="0.0129999999999999" classname="robin_lm" name="robin_lm_works_correctly"/>
   </testsuite>
-  <testsuite name="surv_effect" timestamp="2025-11-29T06:23:30Z" hostname="67d3a89527a7" tests="10" skipped="7" failures="0" errors="0" time="2.144">
-    <testcase time="0.681" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_unstratified_unadjusted_">
+  <testsuite name="surv_effect" timestamp="2026-01-05T05:10:45Z" hostname="3643b8e6943e" tests="10" skipped="7" failures="0" errors="0" time="2.031">
+    <testcase time="0.625" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_unstratified_unadjusted_">
       <skipped message="Reason: On CRAN ('test-surv_effect.R:1:1')"/>
     </testcase>
-    <testcase time="0.119" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_stratified_unadjusted_">
+    <testcase time="0.111" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_stratified_unadjusted_">
       <skipped message="Reason: On CRAN ('test-surv_effect.R:10:1')"/>
     </testcase>
-    <testcase time="0.17" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_unstratified_adjusted_">
+    <testcase time="0.166" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_unstratified_adjusted_">
       <skipped message="Reason: On CRAN ('test-surv_effect.R:19:1')"/>
     </testcase>
-    <testcase time="0.348" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_stratified_adjusted_">
+    <testcase time="0.336" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_stratified_adjusted_">
       <skipped message="Reason: On CRAN ('test-surv_effect.R:28:1')"/>
     </testcase>
-    <testcase time="0.0470000000000002" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_when_no_hazard_ratio_was_estimated">
+    <testcase time="0.0430000000000001" classname="surv_effect" name="print_method_for_surv_effect_works_as_expected_when_no_hazard_ratio_was_estimated">
       <skipped message="Reason: On CRAN ('test-surv_effect.R:37:1')"/>
     </testcase>
-    <testcase time="0.344" classname="surv_effect" name="table_method_for_surv_effect_works_as_expected"/>
+    <testcase time="0.337" classname="surv_effect" name="table_method_for_surv_effect_works_as_expected"/>
     <testcase time="0.00099999999999989" classname="surv_effect" name="table_method_for_surv_effect_works_as_expected">
       <skipped message="Reason: On CRAN ('test-surv_effect.R:47:1')"/>
     </testcase>
-    <testcase time="0.399" classname="surv_effect" name="confint_method_for_surv_effect_works_as_expected"/>
-    <testcase time="0.00200000000000022" classname="surv_effect" name="confint_method_for_surv_effect_works_as_expected">
+    <testcase time="0.382" classname="surv_effect" name="confint_method_for_surv_effect_works_as_expected"/>
+    <testcase time="0.00199999999999978" classname="surv_effect" name="confint_method_for_surv_effect_works_as_expected">
       <skipped message="Reason: On CRAN ('test-surv_effect.R:57:1')"/>
     </testcase>
-    <testcase time="0.0329999999999999" classname="surv_effect" name="confint_method_returns_error_when_no_hazard_ratio_was_estimated"/>
+    <testcase time="0.028" classname="surv_effect" name="confint_method_returns_error_when_no_hazard_ratio_was_estimated"/>
   </testsuite>
-  <testsuite name="survival" timestamp="2025-11-29T06:23:32Z" hostname="67d3a89527a7" tests="93" skipped="18" failures="0" errors="0" time="5.247">
-    <testcase time="0.052" classname="survival" name="h_log_hr_est_via_score_works_as_expected">
+  <testsuite name="survival" timestamp="2026-01-05T05:10:47Z" hostname="3643b8e6943e" tests="109" skipped="22" failures="0" errors="0" time="7.136">
+    <testcase time="0.0550000000000002" classname="survival" name="h_log_hr_est_via_score_works_as_expected">
       <skipped message="Reason: On CRAN ('test-survival.R:1:1')"/>
     </testcase>
-    <testcase time="0.137" classname="survival" name="h_log_hr_est_via_score_does_not_give_spurious_warning"/>
-    <testcase time="0.00800000000000001" classname="survival" name="h_log_hr_est_via_score_does_not_give_spurious_warning">
+    <testcase time="0.131" classname="survival" name="h_log_hr_est_via_score_does_not_give_spurious_warning"/>
+    <testcase time="0.00700000000000012" classname="survival" name="h_log_hr_est_via_score_does_not_give_spurious_warning">
       <skipped message="Reason: On CRAN ('test-survival.R:12:1')"/>
     </testcase>
-    <testcase time="0.0919999999999996" classname="survival" name="h_log_hr_est_via_score_extends_the_search_interval_as_needed"/>
-    <testcase time="0.0110000000000001" classname="survival" name="h_log_hr_est_via_score_extends_the_search_interval_as_needed">
-      <skipped message="Reason: On CRAN ('test-survival.R:25:1')"/>
+    <testcase time="0.0949999999999998" classname="survival" name="h_log_hr_est_via_score_extends_the_search_interval_as_needed"/>
+    <testcase time="0.00600000000000023" classname="survival" name="h_log_hr_est_via_score_extends_the_search_interval_as_needed">
+      <skipped message="Reason: On CRAN ('test-survival.R:26:1')"/>
     </testcase>
-    <testcase time="0.024" classname="survival" name="h_lr_test_via_score_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival.R:38:1')"/>
+    <testcase time="0.0230000000000001" classname="survival" name="h_lr_test_via_score_works_as_expected">
+      <skipped message="Reason: On CRAN ('test-survival.R:40:1')"/>
     </testcase>
-    <testcase time="0.0649999999999999" classname="survival" name="robin_surv_comparison_works_as_expected_without_covariate_adjustment">
-      <skipped message="Reason: On CRAN ('test-survival.R:49:1')"/>
+    <testcase time="0.0619999999999998" classname="survival" name="robin_surv_comparison_works_as_expected_without_covariate_adjustment">
+      <skipped message="Reason: On CRAN ('test-survival.R:51:1')"/>
     </testcase>
-    <testcase time="0.0260000000000002" classname="survival" name="robin_surv_comparison_can_skip_the_hazard_ratio_estimation">
-      <skipped message="Reason: On CRAN ('test-survival.R:69:1')"/>
+    <testcase time="0.0249999999999999" classname="survival" name="robin_surv_comparison_can_skip_the_hazard_ratio_estimation">
+      <skipped message="Reason: On CRAN ('test-survival.R:71:1')"/>
     </testcase>
-    <testcase time="0.0640000000000001" classname="survival" name="robin_surv_no_strata_no_cov_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival.R:89:1')"/>
+    <testcase time="0.0609999999999999" classname="survival" name="robin_surv_no_strata_no_cov_works_as_expected">
+      <skipped message="Reason: On CRAN ('test-survival.R:91:1')"/>
     </testcase>
-    <testcase time="0.0449999999999999" classname="survival" name="robin_surv_no_strata_no_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_no_strata_no_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00399999999999956" classname="survival" name="robin_surv_no_strata_no_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_no_strata_no_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.103" classname="survival" name="robin_surv_strata_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival.R:133:1')"/>
+    <testcase time="0.0420000000000003" classname="survival" name="robin_surv_no_strata_no_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.004" classname="survival" name="robin_surv_no_strata_no_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.004" classname="survival" name="robin_surv_no_strata_no_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.00299999999999967" classname="survival" name="robin_surv_no_strata_no_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.103000000000001" classname="survival" name="robin_surv_strata_works_as_expected">
+      <skipped message="Reason: On CRAN ('test-survival.R:135:1')"/>
     </testcase>
-    <testcase time="0.207000000000001" classname="survival" name="robin_surv_strata_works_with_multiple_strata_variables"/>
-    <testcase time="0.0499999999999998" classname="survival" name="robin_surv_strata_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00399999999999956" classname="survival" name="robin_surv_strata_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.199" classname="survival" name="robin_surv_strata_works_with_multiple_strata_variables"/>
+    <testcase time="0.0439999999999996" classname="survival" name="robin_surv_strata_gives_the_same_results_as_RobinCar_functions"/>
     <testcase time="0.00400000000000045" classname="survival" name="robin_surv_strata_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00399999999999956" classname="survival" name="robin_surv_strata_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.183" classname="survival" name="robin_surv_cov_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival.R:206:1')"/>
+    <testcase time="0.00699999999999967" classname="survival" name="robin_surv_strata_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_strata_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.172" classname="survival" name="robin_surv_cov_works_as_expected">
+      <skipped message="Reason: On CRAN ('test-survival.R:208:1')"/>
     </testcase>
-    <testcase time="0.127000000000001" classname="survival" name="robin_surv_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00399999999999956" classname="survival" name="robin_surv_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00800000000000001" classname="survival" name="robin_surv_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.208" classname="survival" name="robin_surv_strata_cov_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival.R:251:1')"/>
+    <testcase time="0.128" classname="survival" name="robin_surv_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.00400000000000045" classname="survival" name="robin_surv_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.00299999999999923" classname="survival" name="robin_surv_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.00400000000000045" classname="survival" name="robin_surv_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.205" classname="survival" name="robin_surv_strata_cov_works_as_expected">
+      <skipped message="Reason: On CRAN ('test-survival.R:253:1')"/>
     </testcase>
-    <testcase time="0.709" classname="survival" name="robin_surv_strata_cov_works_with_multiple_strata_variables"/>
+    <testcase time="0.694" classname="survival" name="robin_surv_strata_cov_works_with_multiple_strata_variables"/>
     <testcase time="0.183" classname="survival" name="robin_surv_strata_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00400000000000045" classname="survival" name="robin_surv_strata_cov_gives_the_same_results_as_RobinCar_functions"/>
     <testcase time="0.00300000000000011" classname="survival" name="robin_surv_strata_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.00399999999999956" classname="survival" name="robin_surv_strata_cov_gives_the_same_results_as_RobinCar_functions"/>
-    <testcase time="0.0120000000000005" classname="survival" name="h_log_hr_coef_mat_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival.R:325:1')"/>
+    <testcase time="0.00400000000000045" classname="survival" name="robin_surv_strata_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.00299999999999923" classname="survival" name="robin_surv_strata_cov_gives_the_same_results_as_RobinCar_functions"/>
+    <testcase time="0.00800000000000001" classname="survival" name="h_log_hr_coef_mat_works_as_expected">
+      <skipped message="Reason: On CRAN ('test-survival.R:327:1')"/>
     </testcase>
-    <testcase time="0.0259999999999998" classname="survival" name="h_log_hr_coef_mat_works_as_expected_for_multiple_comparisons">
-      <skipped message="Reason: On CRAN ('test-survival.R:338:1')"/>
+    <testcase time="0.0230000000000006" classname="survival" name="h_log_hr_coef_mat_works_as_expected_for_multiple_comparisons">
+      <skipped message="Reason: On CRAN ('test-survival.R:340:1')"/>
     </testcase>
     <testcase time="0.0149999999999997" classname="survival" name="h_test_mat_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival.R:351:1')"/>
+      <skipped message="Reason: On CRAN ('test-survival.R:353:1')"/>
     </testcase>
-    <testcase time="0.0150000000000006" classname="survival" name="h_events_table_works_as_expected_with_strata"/>
-    <testcase time="0.00800000000000001" classname="survival" name="h_events_table_works_as_expected_with_multiple_strata"/>
-    <testcase time="0.00699999999999967" classname="survival" name="h_events_table_works_as_expected_without_strata"/>
-    <testcase time="0.0419999999999998" classname="survival" name="robin_surv_works_as_expected_without_strata_or_covariates"/>
-    <testcase time="0.0100000000000007" classname="survival" name="robin_surv_works_as_expected_without_strata_or_covariates">
-      <skipped message="Reason: On CRAN ('test-survival.R:415:1')"/>
+    <testcase time="0.0200000000000005" classname="survival" name="h_events_table_works_as_expected_with_strata"/>
+    <testcase time="0.00699999999999967" classname="survival" name="h_events_table_works_as_expected_with_multiple_strata"/>
+    <testcase time="0.00600000000000023" classname="survival" name="h_events_table_works_as_expected_without_strata"/>
+    <testcase time="0.0369999999999999" classname="survival" name="robin_surv_works_as_expected_without_strata_or_covariates"/>
+    <testcase time="0.0140000000000002" classname="survival" name="robin_surv_works_as_expected_without_strata_or_covariates">
+      <skipped message="Reason: On CRAN ('test-survival.R:417:1')"/>
     </testcase>
-    <testcase time="0.0469999999999997" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_without_strata_or_covariates"/>
+    <testcase time="0.0409999999999995" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_without_strata_or_covariates"/>
+    <testcase time="0.00400000000000045" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_without_strata_or_covariates"/>
     <testcase time="0.00399999999999956" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_without_strata_or_covariates"/>
     <testcase time="0.00400000000000045" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_without_strata_or_covariates"/>
-    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_without_strata_or_covariates"/>
-    <testcase time="0.0980000000000008" classname="survival" name="robin_surv_works_as_expected_with_strata"/>
-    <testcase time="0.0139999999999993" classname="survival" name="robin_surv_works_as_expected_with_strata">
-      <skipped message="Reason: On CRAN ('test-survival.R:448:1')"/>
+    <testcase time="0.105" classname="survival" name="robin_surv_works_as_expected_with_strata"/>
+    <testcase time="0.00800000000000001" classname="survival" name="robin_surv_works_as_expected_with_strata">
+      <skipped message="Reason: On CRAN ('test-survival.R:450:1')"/>
     </testcase>
-    <testcase time="0.0579999999999998" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata"/>
+    <testcase time="0.0609999999999999" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata"/>
+    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata"/>
     <testcase time="0.00400000000000045" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata"/>
-    <testcase time="0.00399999999999956" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata"/>
-    <testcase time="0.00800000000000001" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata"/>
-    <testcase time="0.139" classname="survival" name="robin_surv_works_as_expected_with_covariates"/>
-    <testcase time="0.0140000000000002" classname="survival" name="robin_surv_works_as_expected_with_covariates">
-      <skipped message="Reason: On CRAN ('test-survival.R:481:1')"/>
+    <testcase time="0.00299999999999923" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata"/>
+    <testcase time="0.246" classname="survival" name="robin_surv_works_as_expected_with_covariates"/>
+    <testcase time="0.00900000000000034" classname="survival" name="robin_surv_works_as_expected_with_covariates">
+      <skipped message="Reason: On CRAN ('test-survival.R:483:1')"/>
     </testcase>
-    <testcase time="0.238" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_covariates"/>
-    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_covariates"/>
+    <testcase time="0.114" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_covariates"/>
+    <testcase time="0.00399999999999956" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_covariates"/>
     <testcase time="0.00400000000000045" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_covariates"/>
     <testcase time="0.00399999999999956" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_covariates"/>
-    <testcase time="0.127000000000001" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_single_factor_covariate"/>
+    <testcase time="0.107" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_single_factor_covariate"/>
     <testcase time="0.00399999999999956" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_single_factor_covariate"/>
     <testcase time="0.00300000000000011" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_single_factor_covariate"/>
-    <testcase time="0.00399999999999956" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_single_factor_covariate"/>
-    <testcase time="0.2" classname="survival" name="robin_surv_works_as_expected_with_strata_and_covariates"/>
-    <testcase time="0.00999999999999979" classname="survival" name="robin_surv_works_as_expected_with_strata_and_covariates">
-      <skipped message="Reason: On CRAN ('test-survival.R:536:1')"/>
+    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_single_factor_covariate"/>
+    <testcase time="0.188" classname="survival" name="robin_surv_works_as_expected_with_strata_and_covariates"/>
+    <testcase time="0.00900000000000034" classname="survival" name="robin_surv_works_as_expected_with_strata_and_covariates">
+      <skipped message="Reason: On CRAN ('test-survival.R:538:1')"/>
     </testcase>
-    <testcase time="0.173" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata_and_covariates"/>
+    <testcase time="0.17" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata_and_covariates"/>
     <testcase time="0.00400000000000045" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata_and_covariates"/>
-    <testcase time="0.00999999999999979" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata_and_covariates"/>
-    <testcase time="0.00400000000000045" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata_and_covariates"/>
-    <testcase time="0.164" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
-    <testcase time="0.00199999999999978" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
-    <testcase time="0.00100000000000033" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
-    <testcase time="0.00199999999999978" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
-    <testcase time="0.00100000000000033" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
-    <testcase time="0.0649999999999995" classname="survival" name="robin_surv_allows_the_user_to_optionally_define_the_comparisons_of_interest"/>
-    <testcase time="0.00200000000000067" classname="survival" name="robin_surv_allows_the_user_to_optionally_define_the_comparisons_of_interest"/>
-    <testcase time="0.000999999999999446" classname="survival" name="robin_surv_allows_the_user_to_optionally_define_the_comparisons_of_interest"/>
+    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata_and_covariates"/>
+    <testcase time="0.00299999999999923" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_functions_with_strata_and_covariates"/>
+    <testcase time="0.165" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
+    <testcase time="0.00200000000000067" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
+    <testcase time="0.000999999999999446" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
+    <testcase time="0.00200000000000067" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
+    <testcase time="0.000999999999999446" classname="survival" name="robin_surv_also_works_with_multiple_pairwise_comparisons"/>
+    <testcase time="0.056" classname="survival" name="robin_surv_allows_the_user_to_optionally_define_the_comparisons_of_interest"/>
+    <testcase time="0.00100000000000033" classname="survival" name="robin_surv_allows_the_user_to_optionally_define_the_comparisons_of_interest"/>
     <testcase time="0.00199999999999978" classname="survival" name="robin_surv_allows_the_user_to_optionally_define_the_comparisons_of_interest"/>
     <testcase time="0.00100000000000033" classname="survival" name="robin_surv_allows_the_user_to_optionally_define_the_comparisons_of_interest"/>
-    <testcase time="0.286" classname="survival" name="robin_surv_allows_to_use_unadjusted_standard_error"/>
-    <testcase time="0.00299999999999923" classname="survival" name="robin_surv_allows_to_use_unadjusted_standard_error"/>
+    <testcase time="0.00199999999999978" classname="survival" name="robin_surv_allows_the_user_to_optionally_define_the_comparisons_of_interest"/>
+    <testcase time="0.266999999999999" classname="survival" name="robin_surv_allows_to_use_unadjusted_standard_error"/>
     <testcase time="0.00300000000000011" classname="survival" name="robin_surv_allows_to_use_unadjusted_standard_error"/>
     <testcase time="0.00300000000000011" classname="survival" name="robin_surv_allows_to_use_unadjusted_standard_error"/>
-    <testcase time="0.205" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_strong_correlation_covariate_with_strata"/>
-    <testcase time="0.00400000000000045" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_strong_correlation_covariate_with_strata"/>
+    <testcase time="0.00199999999999978" classname="survival" name="robin_surv_allows_to_use_unadjusted_standard_error"/>
+    <testcase time="0.196000000000001" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_strong_correlation_covariate_with_strata"/>
     <testcase time="0.00399999999999956" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_strong_correlation_covariate_with_strata"/>
     <testcase time="0.00300000000000011" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_strong_correlation_covariate_with_strata"/>
-    <testcase time="0.204999999999999" classname="survival" name="robin_surv_works_also_with_character_variable_in_the_correlation_case"/>
-    <testcase time="0.00600000000000023" classname="survival" name="robin_surv_works_also_with_character_variable_in_the_correlation_case">
-      <skipped message="Reason: On CRAN ('test-survival.R:649:1')"/>
+    <testcase time="0.00400000000000045" classname="survival" name="robin_surv_gives_the_same_results_as_RobinCar_for_strong_correlation_covariate_with_strata"/>
+    <testcase time="0.191999999999999" classname="survival" name="robin_surv_works_also_with_character_variable_in_the_correlation_case"/>
+    <testcase time="0.00500000000000078" classname="survival" name="robin_surv_works_also_with_character_variable_in_the_correlation_case">
+      <skipped message="Reason: On CRAN ('test-survival.R:651:1')"/>
     </testcase>
-    <testcase time="0.0300000000000011" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
-    <testcase time="0.00199999999999889" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
-    <testcase time="0.00100000000000122" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
-    <testcase time="0.00199999999999889" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
-    <testcase time="0.00100000000000122" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
-    <testcase time="0.00299999999999834" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
-    <testcase time="0.239000000000001" classname="survival" name="robin_surv_can_work_with_interaction_covariates"/>
+    <testcase time="0.0269999999999992" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
+    <testcase time="0.00200000000000067" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
+    <testcase time="0.000999999999999446" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
+    <testcase time="0.00199999999999978" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
+    <testcase time="0.00700000000000056" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
+    <testcase time="0.00300000000000011" classname="survival" name="robin_surv_can_skip_the_hazard_ratio_estimation"/>
+    <testcase time="0.222" classname="survival" name="robin_surv_can_work_with_interaction_covariates"/>
     <testcase time="0.00200000000000067" classname="survival" name="robin_surv_can_work_with_interaction_covariates"/>
-    <testcase time="0.341999999999999" classname="survival" name="robin_surv_works_in_a_case_where_previously_separate_design_matrices_led_to_failure"/>
+    <testcase time="0.312999999999999" classname="survival" name="robin_surv_works_in_a_case_where_previously_separate_design_matrices_led_to_failure"/>
+    <testcase time="0.0630000000000006" classname="survival" name="robin_surv_gives_a_warning_if_stratified_randomization_was_specified_but_simple_log_rank_test_used">
+      <skipped message="Reason: On CRAN ('test-survival.R:705:1')"/>
+    </testcase>
+    <testcase time="0.106" classname="survival" name="robin_surv_does_not_give_a_warning_if_strata_are_sufficiently_included_in_the_analysis_model"/>
+    <testcase time="0.154" classname="survival" name="robin_surv_does_give_a_warning_if_strata_are_not_sufficiently_included_in_the_analysis_model"/>
+    <testcase time="0.0950000000000006" classname="survival" name="robin_surv_does_give_a_warning_if_strata_are_not_sufficiently_included_in_the_analysis_model"/>
+    <testcase time="0.000999999999999446" classname="survival" name="robin_surv_does_give_a_warning_if_strata_are_not_sufficiently_included_in_the_analysis_model">
+      <skipped message="Reason: On CRAN ('test-survival.R:727:1')"/>
+    </testcase>
+    <testcase time="0.355" classname="survival" name="robin_surv_does_give_a_warning_if_strata_are_not_sufficiently_included_in_the_covariates"/>
+    <testcase time="0.166" classname="survival" name="robin_surv_does_give_a_warning_if_strata_are_not_sufficiently_included_in_the_covariates"/>
+    <testcase time="0.170999999999999" classname="survival" name="robin_surv_does_give_a_warning_if_strata_are_not_sufficiently_included_in_the_covariates"/>
+    <testcase time="0.00100000000000122" classname="survival" name="robin_surv_does_give_a_warning_if_strata_are_not_sufficiently_included_in_the_covariates">
+      <skipped message="Reason: On CRAN ('test-survival.R:755:1')"/>
+    </testcase>
+    <testcase time="0.494" classname="survival" name="robin_surv_warns_if_strata_are_insufficiently_included_in_covariate_adjusted_stratified_model"/>
+    <testcase time="0.328999999999999" classname="survival" name="robin_surv_warns_if_strata_are_insufficiently_included_in_covariate_adjusted_stratified_model"/>
+    <testcase time="0.00200000000000067" classname="survival" name="robin_surv_warns_if_strata_are_insufficiently_included_in_covariate_adjusted_stratified_model">
+      <skipped message="Reason: On CRAN ('test-survival.R:786:1')"/>
+    </testcase>
+    <testcase time="0.18" classname="survival" name="robin_surv_only_gives_a_single_warning_for_randomization_strata_with_multiple_comparisons"/>
+    <testcase time="0.00200000000000067" classname="survival" name="robin_surv_only_gives_a_single_warning_for_randomization_strata_with_multiple_comparisons"/>
+    <testcase time="0.00200000000000067" classname="survival" name="robin_surv_only_gives_a_single_warning_for_randomization_strata_with_multiple_comparisons"/>
+    <testcase time="0.000999999999999446" classname="survival" name="robin_surv_only_gives_a_single_warning_for_randomization_strata_with_multiple_comparisons"/>
   </testsuite>
-  <testsuite name="survival_cov_adj" timestamp="2025-11-29T06:23:38Z" hostname="67d3a89527a7" tests="32" skipped="2" failures="0" errors="0" time="0.152">
+  <testsuite name="survival_cov_adj" timestamp="2026-01-05T05:10:54Z" hostname="3643b8e6943e" tests="32" skipped="2" failures="0" errors="0" time="0.151">
     <testcase time="0.016" classname="survival_cov_adj" name="h_derived_outcome_vals_works_as_expected"/>
     <testcase time="0.00600000000000023" classname="survival_cov_adj" name="h_derived_outcome_vals_works_as_expected"/>
-    <testcase time="0.0170000000000012" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_as_expected"/>
+    <testcase time="0.016" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_as_expected"/>
     <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_as_expected"/>
-    <testcase time="0.00399999999999956" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_as_expected"/>
-    <testcase time="0.0169999999999995" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_with_multiple_strata"/>
-    <testcase time="0.00100000000000122" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_with_multiple_strata"/>
-    <testcase time="0.00399999999999956" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_with_multiple_strata"/>
-    <testcase time="0.00500000000000078" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
-    <testcase time="0.00199999999999889" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
+    <testcase time="0.00300000000000011" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_as_expected"/>
+    <testcase time="0.016" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_with_multiple_strata"/>
+    <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_with_multiple_strata"/>
+    <testcase time="0.00300000000000011" classname="survival_cov_adj" name="h_strat_derived_outcome_vals_works_with_multiple_strata"/>
+    <testcase time="0.00600000000000023" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
     <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
     <testcase time="0.00100000000000122" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
     <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
+    <testcase time="0.00200000000000067" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
     <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
-    <testcase time="0.00100000000000122" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
-    <testcase time="0.016" classname="survival_cov_adj" name="h_get_lm_input_fails_when_there_is_no_intercept"/>
+    <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_lm_input_works_as_expected"/>
+    <testcase time="0.0080000000000009" classname="survival_cov_adj" name="h_get_lm_input_fails_when_there_is_no_intercept"/>
     <testcase time="0.00600000000000023" classname="survival_cov_adj" name="h_get_lm_input_works_correctly_across_treatment_levels_with_character_covariates"/>
     <testcase time="0.00300000000000011" classname="survival_cov_adj" name="h_get_lm_input_works_correctly_across_treatment_levels_with_character_covariates"/>
     <testcase time="0.00599999999999845" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
     <testcase time="0.00100000000000122" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
+    <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
+    <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
+    <testcase time="0.00100000000000122" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
     <testcase time="0.00199999999999889" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
     <testcase time="0.00100000000000122" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
     <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
-    <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
-    <testcase time="0.00100000000000122" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
-    <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
+    <testcase time="0.00799999999999912" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
     <testcase time="0.00200000000000067" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
-    <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_strat_lm_input_works_as_expected"/>
-    <testcase time="0.0120000000000005" classname="survival_cov_adj" name="h_get_beta_estimates_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival_cov_adj.R:165:1')"/>
+    <testcase time="0.016" classname="survival_cov_adj" name="h_get_lm_results_works_as_expected">
+      <skipped message="Reason: On CRAN ('test-survival_cov_adj.R:168:1')"/>
     </testcase>
-    <testcase time="0.0149999999999988" classname="survival_cov_adj" name="h_get_strat_beta_estimates_works_as_expected"/>
-    <testcase time="0.00200000000000067" classname="survival_cov_adj" name="h_get_strat_beta_estimates_works_as_expected"/>
-    <testcase time="0.00300000000000011" classname="survival_cov_adj" name="h_get_strat_beta_estimates_works_as_expected">
-      <skipped message="Reason: On CRAN ('test-survival_cov_adj.R:179:1')"/>
+    <testcase time="0.0150000000000006" classname="survival_cov_adj" name="h_get_strat_lm_results_works_as_expected"/>
+    <testcase time="0.000999999999999446" classname="survival_cov_adj" name="h_get_strat_lm_results_works_as_expected"/>
+    <testcase time="0.00300000000000011" classname="survival_cov_adj" name="h_get_strat_lm_results_works_as_expected">
+      <skipped message="Reason: On CRAN ('test-survival_cov_adj.R:182:1')"/>
     </testcase>
   </testsuite>
-  <testsuite name="survival_score" timestamp="2025-11-29T06:23:38Z" hostname="67d3a89527a7" tests="36" skipped="14" failures="0" errors="0" time="0.743">
-    <testcase time="0.0280000000000005" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_as_expected_with_default_options">
+  <testsuite name="survival_score" timestamp="2026-01-05T05:10:55Z" hostname="3643b8e6943e" tests="36" skipped="14" failures="0" errors="0" time="0.679">
+    <testcase time="0.0259999999999998" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_as_expected_with_default_options">
       <skipped message="Reason: On CRAN ('test-survival_score.R:1:1')"/>
     </testcase>
-    <testcase time="0.0219999999999985" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_as_expected_with_custom_n">
+    <testcase time="0.0220000000000002" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_as_expected_with_custom_n">
       <skipped message="Reason: On CRAN ('test-survival_score.R:12:1')"/>
     </testcase>
-    <testcase time="0.0230000000000015" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_as_expected_when_not_using_ties_factor">
+    <testcase time="0.020999999999999" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_as_expected_when_not_using_ties_factor">
       <skipped message="Reason: On CRAN ('test-survival_score.R:24:1')"/>
     </testcase>
-    <testcase time="0.0299999999999994" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_as_expected_with_multiple_theta_values"/>
+    <testcase time="0.0290000000000017" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_as_expected_with_multiple_theta_values"/>
     <testcase time="0.00999999999999979" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_when_not_calculating_the_variance"/>
-    <testcase time="0.00200000000000067" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_when_not_calculating_the_variance"/>
     <testcase time="0.000999999999999446" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_when_not_calculating_the_variance"/>
-    <testcase time="0.00300000000000011" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_when_not_calculating_the_variance"/>
+    <testcase time="0.00200000000000067" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_when_not_calculating_the_variance"/>
+    <testcase time="0.00199999999999889" classname="survival_score" name="h_lr_score_no_strata_no_cov_works_when_not_calculating_the_variance"/>
     <testcase time="0.0180000000000007" classname="survival_score" name="h_lr_score_strat_works_as_expected_with_default_options">
       <skipped message="Reason: On CRAN ('test-survival_score.R:74:1')"/>
     </testcase>
-    <testcase time="0.032" classname="survival_score" name="h_lr_score_strat_works_with_multiple_strata_variables">
+    <testcase time="0.0259999999999998" classname="survival_score" name="h_lr_score_strat_works_with_multiple_strata_variables">
       <skipped message="Reason: On CRAN ('test-survival_score.R:86:1')"/>
     </testcase>
-    <testcase time="0.0259999999999998" classname="survival_score" name="h_lr_score_strat_works_as_expected_when_not_using_ties_factor">
+    <testcase time="0.032" classname="survival_score" name="h_lr_score_strat_works_as_expected_when_not_using_ties_factor">
       <skipped message="Reason: On CRAN ('test-survival_score.R:98:1')"/>
     </testcase>
-    <testcase time="0.0239999999999991" classname="survival_score" name="h_lr_score_strat_works_as_expected_when_not_calculating_the_variance"/>
+    <testcase time="0.0229999999999997" classname="survival_score" name="h_lr_score_strat_works_as_expected_when_not_calculating_the_variance"/>
     <testcase time="0.000999999999999446" classname="survival_score" name="h_lr_score_strat_works_as_expected_when_not_calculating_the_variance"/>
     <testcase time="0.00100000000000122" classname="survival_score" name="h_lr_score_strat_works_as_expected_when_not_calculating_the_variance"/>
     <testcase time="0.00399999999999956" classname="survival_score" name="h_lr_score_strat_works_as_expected_when_not_calculating_the_variance"/>
-    <testcase time="0.0389999999999997" classname="survival_score" name="h_lr_score_strat_works_as_expected_with_multiple_theta_values"/>
-    <testcase time="0.0220000000000002" classname="survival_score" name="h_lr_score_cov_works_as_expected_with_default_options">
+    <testcase time="0.0359999999999996" classname="survival_score" name="h_lr_score_strat_works_as_expected_with_multiple_theta_values"/>
+    <testcase time="0.0210000000000008" classname="survival_score" name="h_lr_score_cov_works_as_expected_with_default_options">
       <skipped message="Reason: On CRAN ('test-survival_score.R:153:1')"/>
     </testcase>
-    <testcase time="0.0310000000000006" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_using_ties_factor">
+    <testcase time="0.0289999999999999" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_using_ties_factor">
       <skipped message="Reason: On CRAN ('test-survival_score.R:165:1')"/>
     </testcase>
-    <testcase time="0.0289999999999999" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_calculating_the_variance"/>
+    <testcase time="0.0259999999999998" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_calculating_the_variance"/>
     <testcase time="0.000999999999999446" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_calculating_the_variance"/>
-    <testcase time="0.00100000000000122" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_calculating_the_variance"/>
-    <testcase time="0.00399999999999956" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_calculating_the_variance"/>
-    <testcase time="0.0519999999999996" classname="survival_score" name="h_lr_score_cov_works_when_using_the_unadjusted_standard_error_option"/>
-    <testcase time="0.00399999999999956" classname="survival_score" name="h_lr_score_cov_works_when_using_the_unadjusted_standard_error_option"/>
-    <testcase time="0.00100000000000122" classname="survival_score" name="h_lr_score_cov_works_when_using_the_unadjusted_standard_error_option">
+    <testcase time="0.00200000000000067" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_calculating_the_variance"/>
+    <testcase time="0.00300000000000011" classname="survival_score" name="h_lr_score_cov_works_as_expected_when_not_calculating_the_variance"/>
+    <testcase time="0.048" classname="survival_score" name="h_lr_score_cov_works_when_using_the_unadjusted_standard_error_option"/>
+    <testcase time="0.00300000000000011" classname="survival_score" name="h_lr_score_cov_works_when_using_the_unadjusted_standard_error_option"/>
+    <testcase time="0.000999999999999446" classname="survival_score" name="h_lr_score_cov_works_when_using_the_unadjusted_standard_error_option">
       <skipped message="Reason: On CRAN ('test-survival_score.R:195:1')"/>
     </testcase>
-    <testcase time="0.0329999999999995" classname="survival_score" name="h_lr_score_cov_works_with_a_single_factor_covariate">
+    <testcase time="0.0269999999999992" classname="survival_score" name="h_lr_score_cov_works_with_a_single_factor_covariate">
       <skipped message="Reason: On CRAN ('test-survival_score.R:230:1')"/>
     </testcase>
-    <testcase time="0.0449999999999999" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_with_default_options">
+    <testcase time="0.0380000000000003" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_with_default_options">
       <skipped message="Reason: On CRAN ('test-survival_score.R:242:1')"/>
     </testcase>
-    <testcase time="0.0459999999999994" classname="survival_score" name="h_lr_score_strat_cov_works_with_multiple_strata_variables">
+    <testcase time="0.0400000000000009" classname="survival_score" name="h_lr_score_strat_cov_works_with_multiple_strata_variables">
       <skipped message="Reason: On CRAN ('test-survival_score.R:255:1')"/>
     </testcase>
-    <testcase time="0.0449999999999999" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_using_ties_factor">
+    <testcase time="0.0380000000000003" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_using_ties_factor">
       <skipped message="Reason: On CRAN ('test-survival_score.R:268:1')"/>
     </testcase>
-    <testcase time="0.0459999999999994" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_calculating_the_variance"/>
+    <testcase time="0.0419999999999998" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_calculating_the_variance"/>
     <testcase time="0.000999999999999446" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_calculating_the_variance"/>
-    <testcase time="0.00100000000000122" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_calculating_the_variance"/>
-    <testcase time="0.00399999999999956" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_calculating_the_variance"/>
-    <testcase time="0.109" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_with_unadjusted_standard_error"/>
-    <testcase time="0.00300000000000011" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_with_unadjusted_standard_error"/>
-    <testcase time="0.000999999999999446" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_with_unadjusted_standard_error">
+    <testcase time="0.00200000000000067" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_calculating_the_variance"/>
+    <testcase time="0.00300000000000011" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_when_not_calculating_the_variance"/>
+    <testcase time="0.0960000000000001" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_with_unadjusted_standard_error"/>
+    <testcase time="0.00299999999999834" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_with_unadjusted_standard_error"/>
+    <testcase time="0.00100000000000122" classname="survival_score" name="h_lr_score_strat_cov_works_as_expected_with_unadjusted_standard_error">
       <skipped message="Reason: On CRAN ('test-survival_score.R:300:1')"/>
     </testcase>
   </testsuite>
-  <testsuite name="treatment_effect" timestamp="2025-11-29T06:23:39Z" hostname="67d3a89527a7" tests="41" skipped="4" failures="0" errors="0" time="0.406">
-    <testcase time="0.0220000000000002" classname="treatment_effect" name="h_diff_works_as_expected"/>
+  <testsuite name="treatment_effect" timestamp="2026-01-05T05:10:55Z" hostname="3643b8e6943e" tests="41" skipped="4" failures="0" errors="0" time="0.385">
+    <testcase time="0.0180000000000007" classname="treatment_effect" name="h_diff_works_as_expected"/>
     <testcase time="0.00300000000000011" classname="treatment_effect" name="h_diff_works_as_expected"/>
-    <testcase time="0.00699999999999967" classname="treatment_effect" name="h_jac_diff_work_as_expected"/>
-    <testcase time="0.00200000000000067" classname="treatment_effect" name="h_jac_diff_work_as_expected"/>
-    <testcase time="0.00600000000000023" classname="treatment_effect" name="h_risk_ratio_works_as_expected"/>
-    <testcase time="0.00200000000000067" classname="treatment_effect" name="h_risk_ratio_works_as_expected"/>
-    <testcase time="0.00799999999999912" classname="treatment_effect" name="h_jac_risk_ratio_work_as_expected"/>
-    <testcase time="0.00900000000000034" classname="treatment_effect" name="h_jac_risk_ratio_work_as_expected"/>
-    <testcase time="0.00699999999999967" classname="treatment_effect" name="h_odds_ratio_works_as_expected"/>
+    <testcase time="0.00499999999999901" classname="treatment_effect" name="h_jac_diff_work_as_expected"/>
+    <testcase time="0.00300000000000011" classname="treatment_effect" name="h_jac_diff_work_as_expected"/>
+    <testcase time="0.00500000000000078" classname="treatment_effect" name="h_risk_ratio_works_as_expected"/>
+    <testcase time="0.00300000000000011" classname="treatment_effect" name="h_risk_ratio_works_as_expected"/>
+    <testcase time="0.00699999999999967" classname="treatment_effect" name="h_jac_risk_ratio_work_as_expected"/>
+    <testcase time="0.00300000000000011" classname="treatment_effect" name="h_jac_risk_ratio_work_as_expected"/>
+    <testcase time="0.00600000000000023" classname="treatment_effect" name="h_odds_ratio_works_as_expected"/>
     <testcase time="0.00399999999999956" classname="treatment_effect" name="h_odds_ratio_works_as_expected"/>
-    <testcase time="0.00700000000000145" classname="treatment_effect" name="h_jac_odds_ratio_work_as_expected"/>
+    <testcase time="0.00600000000000023" classname="treatment_effect" name="h_jac_odds_ratio_work_as_expected"/>
     <testcase time="0.00399999999999956" classname="treatment_effect" name="h_jac_odds_ratio_work_as_expected"/>
-    <testcase time="0.00600000000000023" classname="treatment_effect" name="h_log_risk_ratio_works_as_expected"/>
-    <testcase time="0.00300000000000011" classname="treatment_effect" name="h_log_risk_ratio_works_as_expected"/>
+    <testcase time="0.0120000000000005" classname="treatment_effect" name="h_log_risk_ratio_works_as_expected"/>
+    <testcase time="0.00199999999999889" classname="treatment_effect" name="h_log_risk_ratio_works_as_expected"/>
     <testcase time="0.00600000000000023" classname="treatment_effect" name="h_jac_risk_ratio_work_as_expected"/>
-    <testcase time="0.00299999999999834" classname="treatment_effect" name="h_jac_risk_ratio_work_as_expected"/>
-    <testcase time="0.00700000000000145" classname="treatment_effect" name="h_log_odds_ratio_works_as_expected"/>
-    <testcase time="0.00399999999999956" classname="treatment_effect" name="h_log_odds_ratio_works_as_expected"/>
+    <testcase time="0.00200000000000067" classname="treatment_effect" name="h_jac_risk_ratio_work_as_expected"/>
+    <testcase time="0.00600000000000023" classname="treatment_effect" name="h_log_odds_ratio_works_as_expected"/>
+    <testcase time="0.00300000000000011" classname="treatment_effect" name="h_log_odds_ratio_works_as_expected"/>
     <testcase time="0.00600000000000023" classname="treatment_effect" name="h_jac_log_odds_ratio_work_as_expected"/>
-    <testcase time="0.00300000000000011" classname="treatment_effect" name="h_jac_log_odds_ratio_work_as_expected"/>
-    <testcase time="0.00799999999999912" classname="treatment_effect" name="eff_jacob_works_as_expected"/>
+    <testcase time="0.00199999999999889" classname="treatment_effect" name="h_jac_log_odds_ratio_work_as_expected"/>
+    <testcase time="0.00699999999999967" classname="treatment_effect" name="eff_jacob_works_as_expected"/>
+    <testcase time="0.00400000000000134" classname="treatment_effect" name="eff_jacob_works_as_expected"/>
     <testcase time="0.00399999999999956" classname="treatment_effect" name="eff_jacob_works_as_expected"/>
-    <testcase time="0.00500000000000078" classname="treatment_effect" name="eff_jacob_works_as_expected"/>
     <testcase time="0.00399999999999956" classname="treatment_effect" name="eff_jacob_works_as_expected"/>
-    <testcase time="0.00500000000000078" classname="treatment_effect" name="eff_jacob_works_as_expected"/>
-    <testcase time="0.00999999999999979" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
+    <testcase time="0.00399999999999956" classname="treatment_effect" name="eff_jacob_works_as_expected"/>
+    <testcase time="0.00900000000000034" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
     <testcase time="0.00399999999999956" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
     <testcase time="0.00300000000000011" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
+    <testcase time="0.00400000000000134" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
+    <testcase time="0.00399999999999956" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
+    <testcase time="0.00499999999999901" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
     <testcase time="0.00500000000000078" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
     <testcase time="0.00399999999999956" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
-    <testcase time="0.00600000000000023" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
-    <testcase time="0.00499999999999901" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
-    <testcase time="0.00400000000000134" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
-    <testcase time="0.00499999999999901" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
     <testcase time="0.00500000000000078" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
     <testcase time="0.00499999999999901" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
+    <testcase time="0.00500000000000078" classname="treatment_effect" name="treatment_effect_works_as_expected"/>
     <testcase time="0.0120000000000005" classname="treatment_effect" name="treatment_effect_works_as_expected_for_custom_contrast"/>
-    <testcase time="0.0519999999999996" classname="treatment_effect" name="treatment_effect_works_for_lm_glm_object">
+    <testcase time="0.0489999999999995" classname="treatment_effect" name="treatment_effect_works_for_lm_glm_object">
       <skipped message="Reason: On CRAN ('test-treatment_effect.R:256:1')"/>
     </testcase>
-    <testcase time="0.0440000000000005" classname="treatment_effect" name="treatment_effect_works_if_variance_is_not_used">
+    <testcase time="0.0429999999999993" classname="treatment_effect" name="treatment_effect_works_if_variance_is_not_used">
       <skipped message="Reason: On CRAN ('test-treatment_effect.R:261:1')"/>
     </testcase>
-    <testcase time="0.0540000000000003" classname="treatment_effect" name="treatment_effect_works_if_pair_is_defined">
+    <testcase time="0.0510000000000002" classname="treatment_effect" name="treatment_effect_works_if_pair_is_defined">
       <skipped message="Reason: On CRAN ('test-treatment_effect.R:265:1')"/>
     </testcase>
-    <testcase time="0.0429999999999993" classname="treatment_effect" name="confint_method_for_treatment_effect_works_as_expected">
+    <testcase time="0.048" classname="treatment_effect" name="confint_method_for_treatment_effect_works_as_expected">
       <skipped message="Reason: On CRAN ('test-treatment_effect.R:276:1')"/>
     </testcase>
   </testsuite>
-  <testsuite name="utils" timestamp="2025-11-29T06:23:39Z" hostname="67d3a89527a7" tests="41" skipped="0" failures="0" errors="0" time="0.206">
+  <testsuite name="utils" timestamp="2026-01-05T05:10:56Z" hostname="3643b8e6943e" tests="54" skipped="0" failures="0" errors="0" time="0.249">
     <testcase time="0.027000000000001" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.00399999999999956" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.00300000000000011" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.00799999999999912" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.00399999999999956" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.00699999999999967" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.00700000000000145" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.00599999999999845" classname="utils" name="h_get_vars_works_for_formula"/>
-    <testcase time="0.00700000000000145" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.00699999999999967" classname="utils" name="h_get_vars_works_for_formula"/>
+    <testcase time="0.00699999999999967" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.00699999999999967" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.00699999999999967" classname="utils" name="h_get_vars_works_for_formula"/>
     <testcase time="0.00699999999999967" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
-    <testcase time="0.00399999999999956" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
-    <testcase time="0.00200000000000067" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
-    <testcase time="0.00399999999999956" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
-    <testcase time="0.00300000000000011" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
+    <testcase time="0.00400000000000134" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
+    <testcase time="0.00199999999999889" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
     <testcase time="0.00300000000000011" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
     <testcase time="0.00200000000000067" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
+    <testcase time="0.00199999999999889" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
+    <testcase time="0.00200000000000067" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
     <testcase time="0.00300000000000011" classname="utils" name="h_get_vars_works_for_formula_with_schemas"/>
-    <testcase time="0.00500000000000078" classname="utils" name="h_get_vars_is_backwards_compatible_for_use_of_sp_instead_of_sr"/>
-    <testcase time="0.00299999999999834" classname="utils" name="h_get_vars_is_backwards_compatible_for_use_of_sp_instead_of_sr"/>
+    <testcase time="0.00399999999999956" classname="utils" name="h_get_vars_is_backwards_compatible_for_use_of_sp_instead_of_sr"/>
+    <testcase time="0.00300000000000011" classname="utils" name="h_get_vars_is_backwards_compatible_for_use_of_sp_instead_of_sr"/>
     <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_with_strata"/>
     <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_with_strata"/>
-    <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_with_multiple_strata"/>
-    <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_with_multiple_strata"/>
-    <testcase time="0.00500000000000078" classname="utils" name="h_prep_survival_input_works_without_strata"/>
-    <testcase time="0.00599999999999845" classname="utils" name="h_prep_survival_input_works_without_strata"/>
+    <testcase time="0.00500000000000078" classname="utils" name="h_prep_survival_input_works_with_multiple_strata"/>
+    <testcase time="0.00599999999999845" classname="utils" name="h_prep_survival_input_works_with_multiple_strata"/>
+    <testcase time="0.00500000000000078" classname="utils" name="h_prep_survival_input_works_with_multiple_strata_specified_in_separate_strata_terms"/>
+    <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_with_multiple_strata_specified_in_separate_strata_terms"/>
+    <testcase time="0.00499999999999901" classname="utils" name="h_prep_survival_input_works_without_strata"/>
+    <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_without_strata"/>
+    <testcase time="0.00500000000000078" classname="utils" name="h_prep_survival_input_works_without_covariates"/>
     <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_without_covariates"/>
-    <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_without_covariates"/>
+    <testcase time="0.00499999999999901" classname="utils" name="h_prep_survival_input_works_without_covariates_and_without_strata"/>
     <testcase time="0.00500000000000078" classname="utils" name="h_prep_survival_input_works_without_covariates_and_without_strata"/>
-    <testcase time="0.00600000000000023" classname="utils" name="h_prep_survival_input_works_without_covariates_and_without_strata"/>
-    <testcase time="0.00699999999999967" classname="utils" name="h_n_events_per_time_works_as_expected"/>
-    <testcase time="0.000999999999999446" classname="utils" name="h_n_events_per_time_works_as_expected"/>
-    <testcase time="0.000999999999999446" classname="utils" name="h_n_events_per_time_works_as_expected"/>
+    <testcase time="0.00600000000000023" classname="utils" name="h_n_events_per_time_works_as_expected"/>
+    <testcase time="0.00199999999999889" classname="utils" name="h_n_events_per_time_works_as_expected"/>
+    <testcase time="0.00100000000000122" classname="utils" name="h_n_events_per_time_works_as_expected"/>
     <testcase time="0.00300000000000011" classname="utils" name="h_n_events_per_time_works_as_expected"/>
-    <testcase time="0.00300000000000011" classname="utils" name="h_n_events_per_time_works_as_expected"/>
-    <testcase time="0.00500000000000078" classname="utils" name="h_n_events_per_time_works_as_expected"/>
-    <testcase time="0.00300000000000011" classname="utils" name="h_n_events_per_time_works_as_expected"/>
-    <testcase time="0.00499999999999901" classname="utils" name="h_n_events_per_time_works_when_there_are_no_events"/>
-    <testcase time="0.00100000000000122" classname="utils" name="h_n_events_per_time_works_when_there_are_no_events"/>
+    <testcase time="0.00199999999999889" classname="utils" name="h_n_events_per_time_works_as_expected"/>
+    <testcase time="0.00200000000000067" classname="utils" name="h_n_events_per_time_works_as_expected"/>
+    <testcase time="0.00199999999999889" classname="utils" name="h_n_events_per_time_works_as_expected"/>
+    <testcase time="0.00500000000000078" classname="utils" name="h_n_events_per_time_works_when_there_are_no_events"/>
+    <testcase time="0.00200000000000067" classname="utils" name="h_n_events_per_time_works_when_there_are_no_events"/>
     <testcase time="0.000999999999999446" classname="utils" name="h_n_events_per_time_works_when_there_are_no_events"/>
     <testcase time="0.000999999999999446" classname="utils" name="h_n_events_per_time_works_when_there_are_no_events"/>
-    <testcase time="0.00499999999999901" classname="utils" name="sum_vectors_in_list_works_as_expected"/>
+    <testcase time="0.011000000000001" classname="utils" name="sum_vectors_in_list_works_as_expected"/>
+    <testcase time="0.00499999999999901" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_without_NAs"/>
+    <testcase time="0.00300000000000011" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_without_NAs"/>
+    <testcase time="0.00300000000000011" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_without_NAs"/>
+    <testcase time="0.00300000000000011" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_without_NAs"/>
+    <testcase time="0.00200000000000067" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_without_NAs"/>
+    <testcase time="0.00600000000000023" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_with_NAs"/>
+    <testcase time="0.00299999999999834" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_with_NAs"/>
+    <testcase time="0.00300000000000011" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_with_NAs"/>
+    <testcase time="0.00200000000000067" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_with_NAs"/>
+    <testcase time="0.00300000000000011" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_with_NAs"/>
+    <testcase time="0.00300000000000011" classname="utils" name="h_first_fct_nested_in_second_works_as_expected_with_NAs"/>
   </testsuite>
-  <testsuite name="variance" timestamp="2025-11-29T06:23:39Z" hostname="67d3a89527a7" tests="2" skipped="2" failures="0" errors="0" time="0.127">
-    <testcase time="0.0449999999999999" classname="variance" name="vcovHC_works">
+  <testsuite name="variance" timestamp="2026-01-05T05:10:56Z" hostname="3643b8e6943e" tests="2" skipped="2" failures="0" errors="0" time="0.132">
+    <testcase time="0.0489999999999995" classname="variance" name="vcovHC_works">
       <skipped message="Reason: On CRAN ('test-variance.R:1:1')"/>
     </testcase>
-    <testcase time="0.0820000000000007" classname="variance" name="vcovG_works">
+    <testcase time="0.0830000000000002" classname="variance" name="vcovG_works">
       <skipped message="Reason: On CRAN ('test-variance.R:12:1')"/>
     </testcase>
   </testsuite>
