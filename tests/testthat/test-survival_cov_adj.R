@@ -7,6 +7,7 @@ test_that("h_derived_outcome_vals works as expected", {
     time = "time",
     status = "status",
     covariates = c("age", "ph.karno"),
+    randomization_strata = character(),
     n = 400
   )
   expect_data_frame(result, ncol = 4 + 2 + 1, nrow = nrow(surv_data_full))
@@ -39,7 +40,8 @@ test_that("h_strat_derived_outcome_vals works as expected", {
     time = "time",
     status = "status",
     strata = "strata",
-    covariates = c("age", "ph.karno")
+    covariates = c("age", "ph.karno"),
+    randomization_strata = character()
   )
   expect_data_frame(result, nrow = nrow(surv_data_full))
   expect_names(
@@ -58,12 +60,13 @@ test_that("h_strat_derived_outcome_vals works with multiple strata", {
     time = "time",
     status = "status",
     strata = c("strata", "ecog"),
-    covariates = c("age", "ph.karno")
+    covariates = c("age", "ph.karno"),
+    randomization_strata = "ecog"
   )
   expect_data_frame(result, nrow = nrow(surv_data_full))
   expect_names(
     names(result),
-    identical.to = c("index", "treatment", "time", "status", "O_hat", "age", "ph.karno", ".stratum")
+    identical.to = c("index", "treatment", "time", "status", "O_hat", "age", "ph.karno", "ecog", ".stratum")
   )
   expect_identical(
     as.integer(table(result$.stratum)),
@@ -162,7 +165,7 @@ test_that("h_get_strat_lm_input works as expected", {
   expect_numeric(result[["B"]][["y"]], len = 2L)
 })
 
-test_that("h_get_beta_estimates works as expected", {
+test_that("h_get_lm_results works as expected", {
   set.seed(941)
   nobs <- 10
   df <- data.frame(
@@ -172,11 +175,11 @@ test_that("h_get_beta_estimates works as expected", {
     O_hat = rnorm(nobs)
   )
   lm_input <- h_get_lm_input(df, model = ~ covariate1 + covariate2)
-  result <- h_get_beta_estimates(lm_input)
+  result <- h_get_lm_results(lm_input)
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
-test_that("h_get_strat_beta_estimates works as expected", {
+test_that("h_get_strat_lm_results works as expected", {
   set.seed(941)
   nobs <- 10
   df_with_stratum <- rbind(
@@ -196,8 +199,8 @@ test_that("h_get_strat_beta_estimates works as expected", {
     )
   )
   strat_lm_input <- h_get_strat_lm_input(df_with_stratum, model = ~ covariate1 + covariate2)
-  result <- h_get_strat_beta_estimates(strat_lm_input)
+  result <- h_get_strat_lm_results(strat_lm_input)
   expect_list(result, len = 2L)
-  expect_names(names(result), identical.to = c("A", "B"))
+  expect_names(names(result), identical.to = c("beta_est", "residuals"))
   expect_snapshot_value(result, tolerance = 1e-4, style = "serialize")
 })

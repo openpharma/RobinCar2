@@ -11,7 +11,7 @@ bias(residual, treatment, group_idx)
 
 \item{treatment}{(\code{factor}) treatment.}
 
-\item{group_idx}{(\code{character}) stratum index.}
+\item{group_idx}{(\code{list} of \code{integer}) indices for each stratum group.}
 }
 \value{
 Numeric matrix of bias in each stratum.

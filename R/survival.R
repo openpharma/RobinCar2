@@ -85,7 +85,8 @@ h_lr_test_via_score <- function(score_fun, ...) {
     sigma_l2 = sigma_l2,
     tau_l = tau_l,
     pval = pval,
-    n = n
+    n = n,
+    give_rand_strat_warning = score_attrs$give_rand_strat_warning
   )
 }
 
@@ -161,7 +162,7 @@ robin_surv_comparison <- function(
     if (!is.null(unadj_score_fun)) {
       assert_function(unadj_score_fun)
       assert_true(length(vars$covariates) > 0)
-      args_to_drop <- c("model", "hr_se_plugin_adjusted")
+      args_to_drop <- c("model", "hr_se_plugin_adjusted", "check_rand_strat_warning")
       unadj_args <- args[!(names(args) %in% args_to_drop)]
       unadj_args$score_fun <- unadj_score_fun
       # Get theta_hat from the unadjusted score function.
@@ -192,7 +193,8 @@ robin_surv_comparison <- function(
     p_value = test_result$pval,
     test_score = test_result$u_l,
     test_n = test_result$n,
-    test_sigma_l2 = test_result$sigma_l2
+    test_sigma_l2 = test_result$sigma_l2,
+    give_rand_strat_warning = test_result$give_rand_strat_warning
   )
 }
 
@@ -210,7 +212,14 @@ NULL
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_no_strata_no_cov()].
-robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level, contrast) {
+robin_surv_no_strata_no_cov <- function(
+  vars,
+  data,
+  exp_level,
+  control_level,
+  contrast,
+  check_rand_strat_warning = FALSE
+) {
   robin_surv_comparison(
     score_fun = h_lr_score_no_strata_no_cov,
     vars = vars,
@@ -220,13 +229,22 @@ robin_surv_no_strata_no_cov <- function(vars, data, exp_level, control_level, co
     contrast = contrast,
     treatment = vars$treatment,
     time = vars$time,
-    status = vars$status
+    status = vars$status,
+    randomization_strata = vars$randomization_strata,
+    check_rand_strat_warning = check_rand_strat_warning
   )
 }
 
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_strat()].
-robin_surv_strata <- function(vars, data, exp_level, control_level, contrast) {
+robin_surv_strata <- function(
+  vars,
+  data,
+  exp_level,
+  control_level,
+  contrast,
+  check_rand_strat_warning = FALSE
+) {
   robin_surv_comparison(
     score_fun = h_lr_score_strat,
     vars = vars,
@@ -237,7 +255,9 @@ robin_surv_strata <- function(vars, data, exp_level, control_level, contrast) {
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
-    strata = vars$strata
+    strata = vars$strata,
+    randomization_strata = vars$randomization_strata,
+    check_rand_strat_warning = check_rand_strat_warning
   )
 }
 
@@ -257,6 +277,7 @@ robin_surv_cov <- function(vars, data, exp_level, control_level, contrast, ...) 
     time = vars$time,
     status = vars$status,
     model = vars$model,
+    randomization_strata = vars$randomization_strata,
     ...
   )
 }
@@ -278,6 +299,7 @@ robin_surv_strata_cov <- function(vars, data, exp_level, control_level, contrast
     status = vars$status,
     strata = vars$strata,
     model = vars$model,
+    randomization_strata = vars$randomization_strata,
     ...
   )
 }
@@ -454,7 +476,15 @@ robin_surv <- function(
   input <- h_prep_survival_input(formula, data, treatment)
 
   # Subset to complete records here, so that we can use this for the strata/events tabulation.
-  data <- stats::na.omit(input$data[c(input$treatment, input$time, input$status, input$strata, input$covariates)])
+  data_columns_needed <- unique(c(
+    input$treatment,
+    input$time,
+    input$status,
+    input$strata,
+    input$covariates,
+    input$randomization_strata
+  ))
+  data <- stats::na.omit(input$data[data_columns_needed])
   events_table <- h_events_table(data, input)
 
   has_strata <- length(input$strata) > 0
@@ -482,21 +512,59 @@ robin_surv <- function(
   assert_integer(comparisons[[1]], lower = 1L, upper = length(input$levels))
   assert_integer(comparisons[[2]], lower = 1L, upper = length(input$levels))
 
+  # Variable to keep track whether a warning about insufficient inclusion of
+  # randomization strata in the analysis model has already been required in a comparison.
+  # We want to avoid checking for the need of a warning, or giving a warning,
+  # multiple times.
+  give_rand_strat_warning <- FALSE
+
   estimates <- lapply(
     seq_len(n_comparisons),
     function(i) {
       exp_level <- comparisons[[1]][i]
       control_level <- comparisons[[2]][i]
-      calc_function(
+      result <- calc_function(
         vars = input,
         data = data,
         exp_level = exp_level,
         control_level = control_level,
         contrast = contrast,
+        check_rand_strat_warning = !give_rand_strat_warning,
         ...
       )
+      if (!give_rand_strat_warning) {
+        # Only update if we have checked for it in this iteration, otherwise
+        # we could overwrite a TRUE value with the default FALSE.
+        give_rand_strat_warning <<- result$give_rand_strat_warning
+      }
+      result
     }
   )
+
+  if (give_rand_strat_warning) {
+    missing_vars <- setdiff(input$randomization_strata, c(input$covariates, input$strata))
+    cov_string <- if (length(missing_vars) > 1) {
+      paste0("interaction(", toString(missing_vars), ")")
+    } else {
+      missing_vars
+    }
+    strata_string <- paste0("strata(", toString(missing_vars), ")")
+    warning(
+      paste0(
+        "It looks like you have not included all of the variables that were used ",
+        "during randomization in your analysis `formula`. You can either:\n\n",
+        "a. adjust for all joint levels in your `formula` using `+ ",
+        cov_string,
+        "` or\n",
+        "b. perform a stratified test by adding to your `formula` the term `+ ",
+        strata_string,
+        "`\n\n",
+        "NOTE: (b) changes the null hypothesis from your current model specification. ",
+        "Please see the vignette `robincar-survival` for details."
+      ),
+      call. = FALSE
+    )
+  }
 
   result <- list(
     model = formula,

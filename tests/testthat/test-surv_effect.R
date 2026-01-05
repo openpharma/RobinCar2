@@ -74,7 +74,7 @@ test_that("confint method returns error when no hazard ratio was estimated", {
   x <- robin_surv(
     formula = Surv(time, status) ~ meal.cal + age,
     data = surv_data,
-    treatment = sex ~ strata,
+    treatment = sex ~ sr(1),
     contrast = "none"
   )
   expect_error(
