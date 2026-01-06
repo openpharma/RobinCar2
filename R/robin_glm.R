@@ -24,30 +24,36 @@
 #'   treatment = treatment ~ s1, contrast = "difference"
 #' )
 robin_glm <- function(
-    formula,
-    data,
-    treatment,
-    contrast = c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio", "log_odds_ratio"),
-    contrast_jac = NULL,
-    vcov = "vcovG",
-    family = gaussian(),
-    vcov_args = list(),
-    pair,
-    ...) {
+  formula,
+  data,
+  treatment,
+  contrast = c("difference", "risk_ratio", "odds_ratio", "log_risk_ratio", "log_odds_ratio"),
+  contrast_jac = NULL,
+  vcov = "vcovG",
+  family = gaussian(),
+  vcov_args = list(),
+  pair,
+  ...
+) {
   attr(formula, ".Environment") <- environment()
-  # check if using negative.binomial family with NA as theta.
-  # If so, use MASS::glm.nb instead of glm.
+  if (is.function(family)) {
+    family <- family()
+  }
   assert_subset(all.vars(formula), names(data))
   assert_subset(all.vars(treatment), names(data))
   has_interaction <- h_interaction(formula, treatment)
   use_vcovhc <- identical(vcov, "vcovHC") || identical(vcov, vcovHC)
-  if (use_vcovhc && (has_interaction || !identical(contrast, "difference"))) {
+  if (test_character(contrast)) {
+    contrast <- match.arg(contrast)
+  }
+  if (use_vcovhc && (has_interaction || !identical(contrast, "difference") || !identical(family$family, "gaussian"))) {
     stop(
       "Huber-White variance estimator is ONLY supported when the expected outcome difference is estimated",
       "using a linear model without treatment-covariate interactions; see the 2023 FDA guidance."
     )
   }
-
+  # check if using negative.binomial family with NA as theta.
+  # If so, use MASS::glm.nb instead of glm.
   if (identical(family$family, "Negative Binomial(NA)")) {
     fit <- MASS::glm.nb(formula, data = data, ...)
   } else {
@@ -59,7 +65,6 @@ robin_glm <- function(
   }
 
   if (test_character(contrast)) {
-    contrast <- match.arg(contrast)
     if (contrast %in% c("odds_ratio", "risk_ratio")) {
       warning(
         c(

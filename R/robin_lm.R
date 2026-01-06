@@ -17,18 +17,17 @@
 #'   treatment = treatment ~ s1
 #' )
 robin_lm <- function(
-    formula,
-    data,
-    treatment,
-    vcov = "vcovG",
-    vcov_args = list(),
-    pair,
-    ...) {
+  formula,
+  data,
+  treatment,
+  vcov = "vcovG",
+  vcov_args = list(),
+  pair,
+  ...
+) {
   attr(formula, ".Environment") <- environment()
   assert_subset(all.vars(formula), names(data))
   assert_subset(all.vars(treatment), names(data))
-  fit <- lm(formula, data = data, ...)
-  pc <- predict_counterfactual(fit, treatment, data, variance = vcov, vcov_args = vcov_args)
   has_interaction <- h_interaction(formula, treatment)
   use_vcovhc <- identical(vcov, "vcovHC") || identical(vcov, vcovHC)
   if (use_vcovhc && has_interaction) {
@@ -37,6 +36,9 @@ robin_lm <- function(
       without treatment-covariate interactions; see the 2023 FDA guidance."
     )
   }
+  fit <- lm(formula, data = data, ...)
+  # same as robin_glm, to allow vcov as function to be used, also allow the function name to be captured.
+  pc <- eval(bquote(predict_counterfactual(fit, treatment, data, vcov = .(substitute(vcov)), vcov_args = vcov_args)))
   if (missing(pair)) {
     pair <- pairwise(names(pc$estimate))
   }
