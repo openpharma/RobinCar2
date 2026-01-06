@@ -86,18 +86,18 @@ robin_lm(y ~ treatment + s1 + covar,
 )
 #> Model        :  y ~ treatment + s1 + covar 
 #> Randomization:  treatment ~ pb(s1)  ( Permuted-Block )
-#> Variance Type:  vcovG 
+#> Variance Type:  vcovHC 
 #> Marginal Mean: 
 #>      Estimate  Std.Err    2.5 % 97.5 %
-#> pbo  0.200449 0.067690 0.067779 0.3331
-#> trt1 0.763978 0.075930 0.615158 0.9128
-#> trt2 0.971285 0.076539 0.821271 1.1213
+#> pbo  0.200449 0.066934 0.069261 0.3316
+#> trt1 0.763978 0.075402 0.616194 0.9118
+#> trt2 0.971285 0.076888 0.820586 1.1220
 #> 
 #> Contrast     :  h_diff
 #>                Estimate Std.Err Z Value  Pr(>|z|)    
-#> trt1 v.s. pbo   0.56353 0.10074  5.5941 2.218e-08 ***
-#> trt2 v.s. pbo   0.77084 0.10133  7.6074 2.796e-14 ***
-#> trt2 v.s. trt1  0.20731 0.10683  1.9405   0.05232 .  
+#> trt1 v.s. pbo   0.56353 0.10063  5.5998 2.146e-08 ***
+#> trt2 v.s. pbo   0.77084 0.10183  7.5698 3.738e-14 ***
+#> trt2 v.s. trt1  0.20731 0.10788  1.9217   0.05465 .  
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
