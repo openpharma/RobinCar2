@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">RobinCar2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,6 +53,7 @@
     <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/release-candidate">release-candidate</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/latest-tag">latest-tag</a>
+<a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.2-rc1">v0.2.2-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.1-rc1">v0.2.1-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0">v0.2.0</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0-rc2">v0.2.0-rc2</a>
@@ -85,7 +86,7 @@
       <h1>Survival Analysis with RobinCar2</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.1-rc1/vignettes/articles/robincar-survival.Rmd" class="external-link"><code>vignettes/articles/robincar-survival.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.2-rc1/vignettes/articles/robincar-survival.Rmd" class="external-link"><code>vignettes/articles/robincar-survival.Rmd</code></a></small>
       <div class="d-none name"><code>robincar-survival.Rmd</code></div>
     </div>
 
@@ -102,14 +103,20 @@ underlying algorithms.</p>
 function, and the syntax is:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
-<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="va">covariates</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="va">group</span> <span class="op">~</span> <span class="va">strata</span>,</span>
+<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="va">covariates</span> <span class="op">+</span> <span class="fu">strata</span><span class="op">(</span><span class="va">strata</span><span class="op">)</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">group</span> <span class="op">~</span> <span class="fu">sr</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">df</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>When there are no covariates or strata, then these can just be
-replaced by an intercept (<code>1</code>) term, respectively. Depending
-on the choice of <code>strata</code> and <code>covariates</code>, the
-following four methods are available:</p>
+replaced by an intercept (<code>1</code>) term, respectively. Note that
+the <code>treatment</code> argument specifies the treatment assignment
+variable on the left-hand side, and on the right-hand side it specifies
+the randomization scheme used in the study design. Currently the
+randomization scheme does not affect the analysis, but it is included
+for future extensions and for consistency with the other functions in
+<code>RobinCar2</code>.</p>
+<p>Depending on the choice of <code>strata</code> and
+<code>covariates</code>, the following four methods are available:</p>
 <ul>
 <li>Standard log-rank test without strata or covariates by omitting
 <code>strata</code> and <code>covariates</code>
@@ -130,69 +137,70 @@ standard log-rank test:</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/openpharma/RobinCar2/" class="external-link">RobinCar2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
 <span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fu">sr</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">surv_data</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Model        :  Surv(time, status) ~ 1 </span></span>
-<span><span class="co">#&gt; Randomization:  sex ~ 1  ( Simple )</span></span>
+<span><span class="co">#&gt; Model        : Surv(time, status) ~ 1</span></span>
+<span><span class="co">#&gt; Randomization: sex ~ sr(1) (Simple)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Contrast     :  Log Hazard ratio</span></span>
+<span><span class="co">#&gt; Contrast     : Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female  0.53343 0.16727   3.189 0.001428 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Test         :  Log-Rank</span></span>
+<span><span class="co">#&gt; Test         : Log-Rank</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Test Stat. Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female     3.2135 0.001311 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p>We can perform the stratified log-rank test by adding a
-<code>strata</code> right-hand side in the <code>treatment</code>
-formula:</p>
+<code>strata</code> right-hand side in the model formula:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
-<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">strata</span>,</span>
+<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu">strata</span><span class="op">(</span><span class="va">strata</span><span class="op">)</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fu">sr</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">surv_data</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Model        :  Surv(time, status) ~ 1 </span></span>
-<span><span class="co">#&gt; Randomization:  sex ~ strata  ( Simple )</span></span>
+<span><span class="co">#&gt; Model        : Surv(time, status) ~ 1 + strata(strata)</span></span>
+<span><span class="co">#&gt; Randomization: sex ~ sr(1) (Simple)</span></span>
+<span><span class="co">#&gt; Stratification variables:  strata </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Contrast     :  Log Hazard ratio</span></span>
+<span><span class="co">#&gt; Contrast     : Stratified Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Test         :  Log-Rank</span></span>
+<span><span class="co">#&gt; Test         : Stratified Log-Rank</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Test Stat. Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female     3.2856 0.001018 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p>We can also use multiple stratification variables by adding them on
-the right-hand side of <code>treatment</code>, as follows:</p>
+the right-hand side of the model formula, as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
-<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">strata</span> <span class="op">+</span> <span class="va">ecog</span>,</span>
+<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu">strata</span><span class="op">(</span><span class="va">strata</span>, <span class="va">ecog</span><span class="op">)</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fu">sr</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">surv_data</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Model        :  Surv(time, status) ~ 1 </span></span>
-<span><span class="co">#&gt; Randomization:  sex ~ strata + ecog  ( Simple )</span></span>
+<span><span class="co">#&gt; Model        : Surv(time, status) ~ 1 + strata(strata, ecog)</span></span>
+<span><span class="co">#&gt; Randomization: sex ~ sr(1) (Simple)</span></span>
+<span><span class="co">#&gt; Stratification variables:  strata, ecog </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Contrast     :  Log Hazard ratio</span></span>
+<span><span class="co">#&gt; Contrast     : Stratified Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Test         :  Log-Rank</span></span>
+<span><span class="co">#&gt; Test         : Stratified Log-Rank</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Test Stat. Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female     3.2856 0.001018 **</span></span>
@@ -202,20 +210,21 @@ the right-hand side of <code>treatment</code>, as follows:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
 <span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">meal.cal</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fu">sr</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">surv_data</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Model        :  Surv(time, status) ~ age + meal.cal </span></span>
-<span><span class="co">#&gt; Randomization:  sex ~ 1  ( Simple )</span></span>
+<span><span class="co">#&gt; Model        : Surv(time, status) ~ age + meal.cal</span></span>
+<span><span class="co">#&gt; Randomization: sex ~ sr(1) (Simple)</span></span>
+<span><span class="co">#&gt; Covariates adjusted for: age, meal.cal (including interactions with sex)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Contrast     :  Log Hazard ratio</span></span>
+<span><span class="co">#&gt; Contrast     : Covariate-adjusted Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)  </span></span>
 <span><span class="co">#&gt; Male v.s. Female  0.47686 0.18608  2.5626  0.01039 *</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Test         :  Log-Rank</span></span>
+<span><span class="co">#&gt; Test         : Covariate-adjusted Log-Rank</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Test Stat. Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female     2.6858 0.007236 **</span></span>
@@ -224,24 +233,82 @@ the right-hand side of <code>treatment</code>, as follows:</p>
 <p>Or we combine both stratification and covariate adjustment:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
-<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">meal.cal</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">strata</span> <span class="op">+</span> <span class="va">ecog</span>,</span>
+<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">meal.cal</span> <span class="op">+</span> <span class="fu">strata</span><span class="op">(</span><span class="va">strata</span>, <span class="va">ecog</span><span class="op">)</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fu">sr</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">surv_data</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Model        :  Surv(time, status) ~ age + meal.cal </span></span>
-<span><span class="co">#&gt; Randomization:  sex ~ strata + ecog  ( Simple )</span></span>
+<span><span class="co">#&gt; Model        : Surv(time, status) ~ age + meal.cal + strata(strata, ecog)</span></span>
+<span><span class="co">#&gt; Randomization: sex ~ sr(1) (Simple)</span></span>
+<span><span class="co">#&gt; Stratification variables:  strata, ecog </span></span>
+<span><span class="co">#&gt; Covariates adjusted for: age, meal.cal (including interactions with sex)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Contrast     :  Log Hazard ratio</span></span>
+<span><span class="co">#&gt; Contrast     : Covariate-adjusted Stratified Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Test         :  Log-Rank</span></span>
+<span><span class="co">#&gt; Test         : Covariate-adjusted Stratified Log-Rank</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Test Stat. Pr(&gt;|z|)   </span></span>
 <span><span class="co">#&gt; Male v.s. Female     2.9496 0.003181 **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>Note that it is also possible to skip estimation of the hazard ratio
+by specifying <code>contrast = "none"</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
+<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">meal.cal</span> <span class="op">+</span> <span class="fu">strata</span><span class="op">(</span><span class="va">strata</span><span class="op">)</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">strata</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">surv_data</span>,</span>
+<span>  contrast <span class="op">=</span> <span class="st">"none"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Model        : Surv(time, status) ~ age + meal.cal + strata(strata)</span></span>
+<span><span class="co">#&gt; Randomization: sex ~ pb(strata) (Permuted-Block)</span></span>
+<span><span class="co">#&gt; Stratification variables:  strata </span></span>
+<span><span class="co">#&gt; Covariates adjusted for: age, meal.cal (including interactions with sex)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Contrast     : None</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test         : Covariate-adjusted Stratified Log-Rank</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  Test Stat. Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; Male v.s. Female     2.9496 0.003181 **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>This can help to speed up simulation studies e.g. when there is no
+interest in the estimation performance.</p>
+<p>Note that a warning will be issued when the randomization strata are
+not adequately included in the analysis model, for example if we omit
+the <code>strata(strata)</code> term above:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
+<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">meal.cal</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fu">pb</span><span class="op">(</span><span class="va">strata</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">surv_data</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; a. adjust for all joint levels in your `formula` using `+ strata` or</span></span>
+<span><span class="co">#&gt; b. perform a stratified test by adding to your `formula` the term `+ strata(strata)`</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.</span></span>
+<span><span class="co">#&gt; Model        : Surv(time, status) ~ age + meal.cal</span></span>
+<span><span class="co">#&gt; Randomization: sex ~ pb(strata) (Permuted-Block)</span></span>
+<span><span class="co">#&gt; Covariates adjusted for: age, meal.cal (including interactions with sex)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Contrast     : Covariate-adjusted Log Hazard Ratio</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; Male v.s. Female  0.48134 0.18681  2.5765  0.00998 **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test         : Covariate-adjusted Log-Rank</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  Test Stat. Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; Male v.s. Female     2.6333 0.008455 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 </div>
@@ -821,7 +888,7 @@ Applicability.”</span> <em>Biometrika</em> 111 (2): 691–705. <a href="https:
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

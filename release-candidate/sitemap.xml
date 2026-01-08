@@ -15,12 +15,13 @@
 <url><loc>https://openpharma.github.io/RobinCar2/reference/contrast.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/derived_outcome_vals.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/find_data.html</loc></url>
-<url><loc>https://openpharma.github.io/RobinCar2/reference/get_beta_estimates.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/get_lm_input.html</loc></url>
+<url><loc>https://openpharma.github.io/RobinCar2/reference/get_lm_results.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/glm_data.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_adjust_pi.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_confint.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_events_table.html</loc></url>
+<url><loc>https://openpharma.github.io/RobinCar2/reference/h_first_fct_nested_in_second.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_get_erb.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_get_vars.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_interaction.html</loc></url>
@@ -30,6 +31,7 @@
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_n_events_per_time.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_prep_survival_input.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/h_test_mat.html</loc></url>
+<url><loc>https://openpharma.github.io/RobinCar2/reference/h_unbiased_means_across_strata.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/index.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/jac_mat.html</loc></url>
 <url><loc>https://openpharma.github.io/RobinCar2/reference/predict_counterfactual.html</loc></url>

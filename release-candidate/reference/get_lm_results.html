@@ -6,14 +6,16 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Calculate Coefficient Estimates from Linear Model Input — get_beta_estimates • RobinCar2</title>
+<title>Calculate Coefficient Estimates and Corresponding Residuals from Linear Model Input — get_lm_results • RobinCar2</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Calculate Coefficient Estimates from Linear Model Input — get_beta_estimates">
-<meta name="description" content="Calculate the coefficient estimates for each treatment arm from the linear model input data.">
-<meta property="og:description" content="Calculate the coefficient estimates for each treatment arm from the linear model input data.">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Calculate Coefficient Estimates and Corresponding Residuals from Linear Model Input — get_lm_results">
+<meta name="description" content="Calculate the coefficient estimates for each treatment arm from the linear model input data.
+Also returns the corresponding residuals.">
+<meta property="og:description" content="Calculate the coefficient estimates for each treatment arm from the linear model input data.
+Also returns the corresponding residuals.">
 <!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-125641273-1"></script><script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -29,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">RobinCar2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +57,7 @@
     <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/release-candidate">release-candidate</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/latest-tag">latest-tag</a>
+<a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.2-rc1">v0.2.2-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.1-rc1">v0.2.1-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0">v0.2.0</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0-rc2">v0.2.0-rc2</a>
@@ -80,21 +83,22 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Calculate Coefficient Estimates from Linear Model Input</h1>
-      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.1-rc1/R/survival_cov_adj.R" class="external-link"><code>R/survival_cov_adj.R</code></a></small>
-      <div class="d-none name"><code>get_beta_estimates.Rd</code></div>
+      <h1>Calculate Coefficient Estimates and Corresponding Residuals from Linear Model Input</h1>
+      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.2-rc1/R/survival_cov_adj.R" class="external-link"><code>R/survival_cov_adj.R</code></a></small>
+      <div class="d-none name"><code>get_lm_results.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
-    <p>Calculate the coefficient estimates for each treatment arm from the linear model input data.</p>
+    <p>Calculate the coefficient estimates for each treatment arm from the linear model input data.
+Also returns the corresponding residuals.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a>
 </h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">h_get_beta_estimates</span><span class="op">(</span><span class="va">lm_input</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">h_get_lm_results</span><span class="op">(</span><span class="va">lm_input</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">h_get_strat_beta_estimates</span><span class="op">(</span><span class="va">strat_lm_input</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">h_get_strat_lm_results</span><span class="op">(</span><span class="va">strat_lm_input</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -111,23 +115,28 @@
 
 <dt id="arg-strat-lm-input">strat_lm_input<a class="anchor" aria-label="anchor" href="#arg-strat-lm-input"></a>
 </dt>
-<dd><p>(<code>list</code>) A list of lists, one for each stratum, containing the linear model input data
-for each treatment arm, as returned by <code><a href="get_lm_input.html">h_get_strat_lm_input()</a></code>.</p></dd>
+<dd><p>(<code>list</code>) A list containing the linear model input data
+for each treatment arm and including the <code>.strata</code> column in the design matrix,
+as returned by <code><a href="get_lm_input.html">h_get_strat_lm_input()</a></code>.</p></dd>
 
 </dl>
 </div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a>
 </h2>
-    <p>A list containing the coefficient estimates for each treatment arm.</p>
-    </div>
+    <p>A list with:</p>
+<ul>
+<li><p><code>beta_est</code>: the coefficient estimates for each treatment arm.</p></li>
+<li><p><code>residuals</code>: the corresponding residuals for each treatment arm.</p></li>
+</ul>
+</div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
 </h2>
 
 <ul>
-<li><p><code>h_get_beta_estimates()</code>: Calculate the coefficient estimates for the overall data set.</p></li>
-<li><p><code>h_get_strat_beta_estimates()</code>: Calculate the coefficient estimates using the stratified input.</p></li>
+<li><p><code>h_get_lm_results()</code>: Calculate the coefficient estimates for the overall data set.</p></li>
+<li><p><code>h_get_strat_lm_results()</code>: Calculate the coefficient estimates using the stratified input.</p></li>
 </ul>
 </div>
 
@@ -141,7 +150,7 @@ for each treatment arm, as returned by <code><a href="get_lm_input.html">h_get_s
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">RobinCar2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
     <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/release-candidate">release-candidate</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/latest-tag">latest-tag</a>
+<a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.2-rc1">v0.2.2-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.1-rc1">v0.2.1-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0">v0.2.0</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0-rc2">v0.2.0-rc2</a>
@@ -81,7 +82,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Derive Outcome Values Based on Log Hazard Ratio</h1>
-      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.1-rc1/R/survival_cov_adj.R" class="external-link"><code>R/survival_cov_adj.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.2-rc1/R/survival_cov_adj.R" class="external-link"><code>R/survival_cov_adj.R</code></a></small>
       <div class="d-none name"><code>derived_outcome_vals.Rd</code></div>
     </div>
 
@@ -99,6 +100,7 @@
 <span>  <span class="va">time</span>,</span>
 <span>  <span class="va">status</span>,</span>
 <span>  <span class="va">covariates</span>,</span>
+<span>  <span class="va">randomization_strata</span>,</span>
 <span>  n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -109,7 +111,8 @@
 <span>  <span class="va">time</span>,</span>
 <span>  <span class="va">status</span>,</span>
 <span>  <span class="va">strata</span>,</span>
-<span>  <span class="va">covariates</span></span>
+<span>  <span class="va">covariates</span>,</span>
+<span>  <span class="va">randomization_strata</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -151,6 +154,13 @@ two levels, where the first level is the reference group.</p></dd>
 <dd><p>(<code>character</code>) The column names in <code>df</code> to be used for covariate adjustment.</p></dd>
 
 
+<dt id="arg-randomization-strata">randomization_strata<a class="anchor" aria-label="anchor" href="#arg-randomization-strata"></a>
+</dt>
+<dd><p>(<code>character</code>) The names of the randomization strata variables in <code>df</code>.
+These are used to check whether the means of the covariate adjustment residuals are unbiased across
+these strata.</p></dd>
+
+
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a>
 </dt>
 <dd><p>(<code>count</code>) The number of observations. Note that this can be higher than the number of rows
@@ -167,14 +177,16 @@ when used in stratified analyses computations.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a>
 </h2>
     <p>A data frame containing the same data as the input <code>df</code>, but restructured with standardized column names
-<code>index</code>, <code>treatment</code>, <code>time</code>, <code>status</code>, the covariates, and an additional column <code>O_hat</code> containing the
-derived outcome values. For the stratified version, the list of data frames is returned, one for each stratum.</p>
+<code>index</code>, <code>treatment</code>, <code>time</code>, <code>status</code>, the covariates and randomization stratification variables,
+and an additional column <code>O_hat</code> containing the derived outcome values.
+For the stratified version, the computations are done separately by stratum, and
+the resulting <code>data.frame</code> contains an additional <code>.stratum</code> column indicating the stratum number.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a>
 </h2>
-    <p>Please note that the <code>covariates</code> must not include <code>index</code>, <code>treatment</code>, <code>time</code>, <code>status</code>
-to avoid naming conflicts.</p>
+    <p>Please note that the <code>covariates</code> and <code>randomization_strata</code> must not include <code>index</code>,
+<code>treatment</code>, <code>time</code>, <code>status</code> to avoid naming conflicts.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
@@ -196,7 +208,7 @@ to avoid naming conflicts.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
