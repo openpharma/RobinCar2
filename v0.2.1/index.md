@@ -1,0 +1,67 @@
+# RobinCar2
+
+RobinCar2 is a package that provides robust covariate adjustment methods
+for estimating and inferring treatment effects under stratified
+randomization. The implemented methods follow the [FDA’s final guidance
+on covariate
+adjustment](https://www.regulations.gov/docket/FDA-2019-D-0934) and are
+supported by a well-established body of literature. For linear
+adjustment, see, for example, [Tsiatis
+(2008)](https://pubmed.ncbi.nlm.nih.gov/17960577/), [Bugni et
+al. (2018)](https://pubmed.ncbi.nlm.nih.gov/30906087/), [Ye, Shao, Yi,
+and Zhao (2023)](https://doi.org/10.1080/01621459.2022.2049278), and
+[Ye, Shao, and Yi (2022)](https://doi.org/10.1093/biomet/asab015). For
+nonlinear adjustment, see, e.g., [Rosenblum and van der Laan
+(2010)](https://www.degruyter.com/document/doi/10.2202/1557-4679.1138/html?lang=en&srsltid=AfmBOoo_ikKbaLeBYcxie-99GCMnZfRNzf6aGn8Uxxnw0X3boYtm69U0),
+[Wang et al. (2021)](https://doi.org/10.1080/01621459.2021.1981338),
+[Ye, Bannick, Yi, and Shao
+(2023)](https://doi.org/10.1080/24754269.2023.2205802), and [Bannick,
+Shao, Liu, Du, Yi, and Ye (2024)](https://arxiv.org/abs/2306.10213).
+
+All the following papers (added above) are cited in the FDA guidance.
+
+- Bugni, F, IA Canay, and AM Shaikh, 2018, Inference Under
+  Covariate-Adaptive Randomization, Journal of the American Statistical
+  Association, 113(524):1784-1796.
+
+- Tsiatis, AA, M Davidian, M Zhang, and X Lu, 2008, Covariate Adjustment
+  for Two-Sample Treatment Comparisons in Randomized Trials: A
+  Principled Yet Flexible Approach, Statistics in Medicine,
+  27(23):4658-4677.
+
+- Wang, B, R Susukida, R Mojtabai, M Amin-Esmaeili, and M
+  Rosemblum, 2021. Model-Robust Inference for Clinical Trials that
+  Improve Precision by Stratified Randomization and Covariate
+  Adjustment, Journal of the American Statistical Association, doi:
+  10.1080/01621459.2021.1981338.
+
+- Rosenblum, M and MJ van der Laan, 2010, Simple, Efficient Estimators
+  of Treatment Effects in Randomized Trials Using Generalized Linear
+  Models to Leverage Baseline Variables, International Journal of
+  Biostatistics, 6(1):13.
+
+## Installation
+
+### Development
+
+You can install the current development version from `github` with:
+
+``` r
+if (!require("remotes")) {
+  install.packages("remotes")
+}
+
+remotes::install_github(
+  "openpharma/RobinCar2"
+)
+```
+
+## Citing `RobinCar2`
+
+To cite `RobinCar2` please see
+[here](https://openpharma.github.io/RobinCar2/main/authors.html#citation).
+
+## Acknowledgement
+
+This package is supported by [ASA-BIOP Covariate Adjustment SWG Software
+Subteam](https://carswg.github.io/subteam_software.html).

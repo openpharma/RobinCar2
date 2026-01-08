@@ -1,0 +1,156 @@
+# Log-Rank Score Functions for Survival Analysis
+
+These functions compute the log-rank score statistics for a survival
+analysis. Depending on the function, these are stratified and/or
+adjusted for covariates.
+
+## Usage
+
+``` r
+h_lr_score_no_strata_no_cov(
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  n = nrow(df),
+  use_ties_factor = TRUE,
+  calculate_variance = TRUE
+)
+
+h_lr_score_strat(
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  strata,
+  use_ties_factor = TRUE,
+  calculate_variance = TRUE
+)
+
+h_lr_score_cov(
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  hr_se_plugin_adjusted = TRUE,
+  calculate_variance = TRUE
+)
+
+h_lr_score_strat_cov(
+  theta,
+  df,
+  treatment,
+  time,
+  status,
+  strata,
+  model,
+  theta_hat = theta,
+  use_ties_factor = TRUE,
+  hr_se_plugin_adjusted = TRUE,
+  calculate_variance = TRUE
+)
+```
+
+## Arguments
+
+- theta:
+
+  (`number`) The assumed log hazard ratio of the second vs. the first
+  level of the treatment arm variable.
+
+- df:
+
+  (`data.frame`) The data frame containing the survival data.
+
+- treatment:
+
+  (`string`) The name of the treatment arm variable in `df`. It should
+  be a factor with two levels, where the first level is the reference
+  group.
+
+- time:
+
+  (`string`) The name of the time variable in `df`, representing the
+  survival time.
+
+- status:
+
+  (`string`) The name of the status variable in `df`, with 0 for
+  censored and 1 for event.
+
+- n:
+
+  (`count`) The number of observations. Note that this can be higher
+  than the number of rows when used in stratified analyses computations.
+
+- use_ties_factor:
+
+  (`flag`) Whether to use the ties factor in the variance calculation.
+  This is used when calculating the score test statistic, but not when
+  estimating the log hazard ratio.
+
+- calculate_variance:
+
+  (`flag`) Whether to calculate the variance. This is useful to avoid
+  unnecessary computations when only the score function value is needed,
+  e.g., during root finding.
+
+- strata:
+
+  (`character`) The names of the strata variables in `df`, which must be
+  factors.
+
+- model:
+
+  (`formula`) The model formula for covariate adjustment, e.g.,
+  `~ cov1 + cov2`.
+
+- theta_hat:
+
+  (`number`) The estimated log hazard ratio when not adjusting for
+  covariates.
+
+- hr_se_plugin_adjusted:
+
+  (`flag`) Defines the method for calculating the standard error of the
+  log hazard ratio estimate when adjusting for covariates, see details.
+
+## Value
+
+The score function value(s), with the following attributes:
+
+- `sigma_l2`: The variance of the log-rank statistic.
+
+- `se_theta_l`: The corresponding standard error term for the log hazard
+  ratio.
+
+- `n`: The number of observations used in the calculation.
+
+## Details
+
+- The `hr_se_plugin_adjusted` flag is relevant only for the standard
+  error of the covariate adjusted log hazard ratio estimate: When
+  `TRUE`, the adjusted hazard ratio estimate is plugged in into the
+  variance formula, as per the original publication. On the other hand,
+  when `FALSE`, the unadjusted estimate is used instead. This is
+  explained in more detail in the vignette "Survival Analysis with
+  RobinCar2" in Section "Covariate adjusted analysis without strata".
+
+- Note that for the not covariate adjusted score functions, these also
+  work with a `numeric` `theta` vector of length \> 1.
+
+## Functions
+
+- `h_lr_score_no_strata_no_cov()`: without strata or covariates.
+
+- `h_lr_score_strat()`: with strata but without covariates.
+
+- `h_lr_score_cov()`: with covariates but without strata.
+
+- `h_lr_score_strat_cov()`: with strata and covariates.
