@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">RobinCar2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/latest-tag">latest-tag</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.2-rc1">v0.2.2-rc1</a>
+<a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.1">v0.2.1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.1-rc1">v0.2.1-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0">v0.2.0</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0-rc2">v0.2.0-rc2</a>
@@ -86,7 +87,7 @@
       <h1>Survival Analysis with RobinCar2</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.0/vignettes/articles/robincar-survival.Rmd" class="external-link"><code>vignettes/articles/robincar-survival.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.1/vignettes/articles/robincar-survival.Rmd" class="external-link"><code>vignettes/articles/robincar-survival.Rmd</code></a></small>
       <div class="d-none name"><code>robincar-survival.Rmd</code></div>
     </div>
 
@@ -175,8 +176,32 @@ formula:</p>
 <span><span class="co">#&gt; Male v.s. Female     3.2856 0.001018 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
-<p>We could also just use covariate adjustment:</p>
+<p>We can also use multiple stratification variables by adding them on
+the right-hand side of <code>treatment</code>, as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
+<span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">strata</span> <span class="op">+</span> <span class="va">ecog</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">surv_data</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Model        :  Surv(time, status) ~ 1 </span></span>
+<span><span class="co">#&gt; Randomization:  sex ~ strata + ecog  ( Simple )</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Contrast     :  Log Hazard ratio</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test         :  Log-Rank</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  Test Stat. Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; Male v.s. Female     3.2856 0.001018 **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>We could also just use covariate adjustment:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
 <span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">meal.cal</span>,</span>
 <span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="fl">1</span>,</span>
@@ -199,14 +224,14 @@ formula:</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p>Or we combine both stratification and covariate adjustment:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/robin_surv.html">robin_surv</a></span><span class="op">(</span></span>
 <span>  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">meal.cal</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">strata</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">strata</span> <span class="op">+</span> <span class="va">ecog</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">surv_data</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Model        :  Surv(time, status) ~ age + meal.cal </span></span>
-<span><span class="co">#&gt; Randomization:  sex ~ strata  ( Simple )</span></span>
+<span><span class="co">#&gt; Randomization:  sex ~ strata + ecog  ( Simple )</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Contrast     :  Log Hazard ratio</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -794,11 +819,11 @@ Applicability.”</span> <em>Biometrika</em> 111 (2): 691–705. <a href="https:
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Liming Li, Marlena Bannick, Daniel Sabanes Bove, Dong Xi, Ting Ye, Yanyao Yi, Gilead Sciences, Inc., F. Hoffmann-La Roche AG, Merck Sharp &amp; Dohme, Inc., AstraZeneca plc, Eli Lilly and Company, The University of Washington.</p>
+  <p>Developed by Liming Li, Marlena Bannick, Daniel Sabanes Bove, Dong Xi, Ting Ye, Yanyao Yi, Gilead Sciences, Inc., F. Hoffmann-La Roche AG, Merck Sharp &amp; Dohme, Inc., AstraZeneca plc, Eli Lilly and Company, Novartis Pharma AG, The University of Washington.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

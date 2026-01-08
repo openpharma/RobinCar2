@@ -31,7 +31,7 @@ for covariates and a stratification factor.">
 
     <a class="navbar-brand me-2" href="../index.html">RobinCar2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,6 +58,7 @@ for covariates and a stratification factor.">
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/latest-tag">latest-tag</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.2-rc1">v0.2.2-rc1</a>
+<a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.1">v0.2.1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.1-rc1">v0.2.1-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0">v0.2.0</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.0-rc2">v0.2.0-rc2</a>
@@ -84,7 +85,7 @@ for covariates and a stratification factor.">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Covariate Adjusted and Stratified Survival Analysis</h1>
-      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.0/R/survival.R" class="external-link"><code>R/survival.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.1/R/survival.R" class="external-link"><code>R/survival.R</code></a></small>
       <div class="d-none name"><code>robin_surv.Rd</code></div>
     </div>
 
@@ -117,7 +118,7 @@ for covariates and a stratification factor.</p>
 </dt>
 <dd><p>(<code>formula</code>) A formula of analysis, of the form
 <code>Surv(time, status) ~ covariates</code>. (If no covariates should be adjusted for, use <code>1</code> instead
-on the right hand side.)</p></dd>
+on the right hand side. The intercept must not be removed.)</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a>
@@ -127,7 +128,8 @@ on the right hand side.)</p></dd>
 
 <dt id="arg-treatment">treatment<a class="anchor" aria-label="anchor" href="#arg-treatment"></a>
 </dt>
-<dd><p>(<code>formula</code>) A formula of treatment assignment or assignment by stratification.</p></dd>
+<dd><p>(<code>formula</code>) A formula of treatment assignment or assignment by stratification, of the form
+<code>treatment ~ strata</code>. (If no stratification should be adjusted for, use <code>1</code> instead on the right hand side.)</p></dd>
 
 
 <dt id="arg-comparisons">comparisons<a class="anchor" aria-label="anchor" href="#arg-comparisons"></a>
@@ -181,7 +183,7 @@ The list must have two elements:</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a>
 </h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Adjusted for covariates meal.cal and age and adjusted for stratification by sex:</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Adjusted for covariates meal.cal and age and adjusted for stratification by strata:</span></span></span>
 <span class="r-in"><span><span class="fu">robin_surv</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">meal.cal</span> <span class="op">+</span> <span class="va">age</span>,</span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">surv_data</span>,</span></span>
@@ -204,14 +206,14 @@ The list must have two elements:</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Adjusted for stratification by strata but not for covariates:</span></span></span>
+<span class="r-in"><span><span class="co"># Adjusted for stratification by strata and ecog but not for covariates:</span></span></span>
 <span class="r-in"><span><span class="fu">robin_surv</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">surv_data</span>,</span></span>
-<span class="r-in"><span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">strata</span></span></span>
+<span class="r-in"><span>  treatment <span class="op">=</span> <span class="va">sex</span> <span class="op">~</span> <span class="va">strata</span> <span class="op">+</span> <span class="va">ecog</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model        :  Surv(time, status) ~ 1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Randomization:  sex ~ strata  ( Simple )</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Randomization:  sex ~ strata + ecog  ( Simple )</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Contrast     :  Log Hazard ratio</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -257,11 +259,11 @@ The list must have two elements:</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Liming Li, Marlena Bannick, Daniel Sabanes Bove, Dong Xi, Ting Ye, Yanyao Yi, Gilead Sciences, Inc., F. Hoffmann-La Roche AG, Merck Sharp &amp; Dohme, Inc., AstraZeneca plc, Eli Lilly and Company, The University of Washington.</p>
+  <p>Developed by Liming Li, Marlena Bannick, Daniel Sabanes Bove, Dong Xi, Ting Ye, Yanyao Yi, Gilead Sciences, Inc., F. Hoffmann-La Roche AG, Merck Sharp &amp; Dohme, Inc., AstraZeneca plc, Eli Lilly and Company, Novartis Pharma AG, The University of Washington.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
