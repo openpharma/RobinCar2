@@ -35,7 +35,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/openpharma/RobinCar2/blob/v0.2.2-rc1/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/openpharma/RobinCar2/blob/v0.2.2-rc2/DESCRIPTION)
 
 Li L, Bannick M, Sabanes Bove D, Xi D, Ye T, Yi Y (2026). *RobinCar2:
 ROBust INference for Covariate Adjustment in Randomized Clinical
