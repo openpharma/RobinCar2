@@ -11,6 +11,7 @@ Survival analysis is performed with the `robin_surv` function, and the
 syntax is:
 
 ``` r
+
 robin_surv(
   Surv(time, event) ~ covariates + strata(strata),
   treatment = group ~ sr(1),
@@ -41,6 +42,7 @@ Let’s go through these in a simple example. We start with the standard
 log-rank test:
 
 ``` r
+
 library(RobinCar2)
 robin_surv(
   Surv(time, status) ~ 1,
@@ -69,6 +71,7 @@ We can perform the stratified log-rank test by adding a `strata`
 right-hand side in the model formula:
 
 ``` r
+
 robin_surv(
   Surv(time, status) ~ 1 + strata(strata),
   treatment = sex ~ sr(1),
@@ -97,6 +100,7 @@ We can also use multiple stratification variables by adding them on the
 right-hand side of the model formula, as follows:
 
 ``` r
+
 robin_surv(
   Surv(time, status) ~ 1 + strata(strata, ecog),
   treatment = sex ~ sr(1),
@@ -124,6 +128,7 @@ robin_surv(
 We could also just use covariate adjustment:
 
 ``` r
+
 robin_surv(
   Surv(time, status) ~ age + meal.cal,
   treatment = sex ~ sr(1),
@@ -151,6 +156,7 @@ robin_surv(
 Or we combine both stratification and covariate adjustment:
 
 ``` r
+
 robin_surv(
   Surv(time, status) ~ age + meal.cal + strata(strata, ecog),
   treatment = sex ~ sr(1),
@@ -180,6 +186,7 @@ Note that it is also possible to skip estimation of the hazard ratio by
 specifying `contrast = "none"`:
 
 ``` r
+
 robin_surv(
   Surv(time, status) ~ age + meal.cal + strata(strata),
   treatment = sex ~ pb(strata),
@@ -209,6 +216,7 @@ adequately included in the analysis model, for example if we omit the
 `strata(strata)` term above:
 
 ``` r
+
 robin_surv(
   Surv(time, status) ~ age + meal.cal,
   treatment = sex ~ pb(strata),
@@ -263,8 +271,8 @@ the method used and detailed below.
 
 ### Standard analysis without strata or covariates
 
-Following Section 2 in Ye, Shao, and Yi (2023), the score function from
-the partial likelihood under the Cox proportional hazards model
+Following Section 2 in Ye et al. (2023), the score function from the
+partial likelihood under the Cox proportional hazards model
 $`\lambda_{1}(t) = \lambda_{0}(t) \exp(\theta)`$ is given by:
 
 ``` math
@@ -362,8 +370,8 @@ internal function `RobinCar2:::h_lr_score_no_strata_no_cov()`.
 
 ### Stratified analysis without covariates
 
-Following Section S2.3 in Ye, Shao, and Yi (2023), the score function
-for the stratified log-rank test is given by:
+Following Section S2.3 in Ye et al. (2023), the score function for the
+stratified log-rank test is given by:
 
 ``` math
 \begin{align*}
@@ -411,8 +419,8 @@ patients.
 ### Covariate adjusted analysis without strata
 
 A little bit more complex is the calculation of the score function for
-the covariate adjusted log-rank test, which following Section 3 in Ye,
-Shao, and Yi (2023) is given by:
+the covariate adjusted log-rank test, which following Section 3 in Ye et
+al. (2023) is given by:
 
 ``` math
 U_{CL}(\theta) =
@@ -437,8 +445,8 @@ $`U_{CL}(\theta)`$ to estimate the log hazard ratio
 $`\hat{\theta}_{CL}`$. The reason for this is that the asymptotic
 guaranteed efficiency gain of the covariate adjusted log hazard ratio
 estimator is only proven using this version of the score function, see
-Section 3 in Ye, Shao, and Yi (2023). On the other hand, for calculating
-the covariate adjusted log-rank score test statistic, we set both
+Section 3 in Ye et al. (2023). On the other hand, for calculating the
+covariate adjusted log-rank score test statistic, we set both
 $`\theta = 0`$ and $`\theta_{L} = 0`$.
 
 How are the regression coefficients $`\hat{\beta}_{1}`$ and
@@ -554,7 +562,7 @@ internal function `RobinCar2:::h_lr_score_cov()`.
 ### Covariate adjusted and stratified analysis
 
 Finally, using both covariate adjustment and stratification, following
-Section S2.3 in Ye, Shao, and Yi (2023), the score function is given by:
+Section S2.3 in Ye et al. (2023), the score function is given by:
 
 ``` math
 U_{CSL}(\theta) =

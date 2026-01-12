@@ -3,6 +3,7 @@
 This document validates RobinCar2 against RobinCar.
 
 ``` r
+
 if (!requireNamespace("RobinCar", quietly = TRUE)) {
   install.packages("RobinCar")
 }
@@ -18,6 +19,7 @@ library(RobinCar2)
     ##     table
 
 ``` r
+
 library(MASS)
 library(testthat)
 ```
@@ -30,6 +32,7 @@ The response is following negative binomial distribution with a
 dispersion parameter of 1. This checks the marginal means and variance.
 
 ``` r
+
 # Make categorical outcome to test counts
 # Not informative at all
 glm_data$y_c <- MASS::rnegbin(n = nrow(glm_data), theta = 1)
@@ -160,6 +163,7 @@ test_that("marginal means", {
 The response is continuous.
 
 ``` r
+
 test_that("contrast -- standard options", {
   compare_contrast <- function(r1, r2) {
     # Estimates and variance from RobinCar

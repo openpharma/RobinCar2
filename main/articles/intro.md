@@ -14,6 +14,7 @@ consisting of only formula, data arguments and the randomization scheme,
 will produce an object of class `treatment_effect`.
 
 ``` r
+
 library(RobinCar2)
 #> 
 #> Attaching package: 'RobinCar2'
@@ -51,6 +52,7 @@ also includes the treatment by stratification interaction as
 `y ~ treatment * s1 + covar`.
 
 ``` r
+
 robin_lm(y ~ treatment * s1 + covar,
   data = glm_data,
   treatment = treatment ~ pb(s1)
@@ -79,6 +81,7 @@ should not contain the treatment by stratification (covariate)
 interaction.
 
 ``` r
+
 robin_lm(y ~ treatment + s1 + covar,
   data = glm_data,
   treatment = treatment ~ pb(s1),
@@ -115,6 +118,7 @@ includes the treatment by stratification interaction as
 be `binomial(link = "logit")`.
 
 ``` r
+
 robin_glm(y_b ~ treatment * s1 + covar,
   data = glm_data,
   treatment = treatment ~ pb(s1),
@@ -150,6 +154,7 @@ treatment by stratification interaction as
 model. A fixed `theta` could be provided if it is known.
 
 ``` r
+
 glm_data$y_count <- rpois(nrow(glm_data), lambda = 20)
 robin_glm(
   y_count ~ treatment * s1 + covar,
@@ -184,6 +189,7 @@ permuted-block randomization, and `ps` for the Pocock-Simon
 randomization.
 
 ``` r
+
 robin_glm(y_b ~ treatment * s1 + covar,
   data = glm_data,
   treatment = treatment ~ ps(s1),
@@ -214,6 +220,7 @@ To obtain the confidence interval, we can use `confint` function.
 Given the following model
 
 ``` r
+
 robin_res <- robin_glm(y_b ~ treatment * s1 + covar,
   data = glm_data,
   treatment = treatment ~ ps(s1),
@@ -244,6 +251,7 @@ mean, at specified level. If `parm` is not provided, the complete matrix
 (all treatment groups) will be provided.
 
 ``` r
+
 confint(robin_res$marginal_mean, parm = 1:2, level = 0.7)
 #>       Estimate      15 %      85 %
 #> pbo  0.3560965 0.3212733 0.3909198
@@ -264,6 +272,7 @@ function. You can also specify the `transform` to be `identity` to avoid
 the transformation.
 
 ``` r
+
 confint(robin_res$contrast)
 #> The confidence interval is transformed.
 #>                Estimate     2.5 %   97.5 %

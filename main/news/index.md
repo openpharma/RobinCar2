@@ -1,6 +1,8 @@
 # Changelog
 
-## RobinCar2 0.2.1.9000
+## RobinCar2 0.2.2
+
+CRAN release: 2026-01-09
 
 #### New features
 
