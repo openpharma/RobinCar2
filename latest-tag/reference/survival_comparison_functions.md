@@ -7,13 +7,27 @@ called with the corresponding log-rank score functions.
 ## Usage
 
 ``` r
-robin_surv_no_strata_no_cov(vars, data, exp_level, control_level)
+robin_surv_no_strata_no_cov(
+  vars,
+  data,
+  exp_level,
+  control_level,
+  contrast,
+  check_rand_strat_warning = FALSE
+)
 
-robin_surv_strata(vars, data, exp_level, control_level)
+robin_surv_strata(
+  vars,
+  data,
+  exp_level,
+  control_level,
+  contrast,
+  check_rand_strat_warning = FALSE
+)
 
-robin_surv_cov(vars, data, exp_level, control_level, ...)
+robin_surv_cov(vars, data, exp_level, control_level, contrast, ...)
 
-robin_surv_strata_cov(vars, data, exp_level, control_level, ...)
+robin_surv_strata_cov(vars, data, exp_level, control_level, contrast, ...)
 ```
 
 ## Arguments

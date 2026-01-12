@@ -1,6 +1,7 @@
 # Generalized Linear Regression in RobinCar and RobinCar2
 
 ``` r
+
 if (!requireNamespace("RobinCar", quietly = TRUE)) {
   install.packages("RobinCar")
 }
@@ -69,6 +70,7 @@ model* with *stratified permuted block randomization*, and the
 Here is the call in RobinCar, and the output:
 
 ``` r
+
 robincar_glm(
   df = glm_data,
   treat_col = "treatment",
@@ -127,6 +129,7 @@ contrasts with RobinCar, where the information is required in
 `treat_col`, `car_strata_cols`, and `car_scheme`.
 
 ``` r
+
 robin_glm(
   data = glm_data,
   formula = y_b ~ treatment * s1 + covar,

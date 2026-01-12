@@ -40,6 +40,8 @@ A list containing the following elements:
 
 - `schema`: Randomization schema.
 
+- `randomization_strata`: Names of the randomization strata variables.
+
 - `covariates`: Names of the covariates in the model.
 
 - `model`: A formula only including the covariates, but not treatment or

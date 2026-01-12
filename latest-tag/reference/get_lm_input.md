@@ -8,7 +8,7 @@ frame and model formula.
 ``` r
 h_get_lm_input(df, model)
 
-h_get_strat_lm_input(df_split, model)
+h_get_strat_lm_input(df_with_stratum, model)
 ```
 
 ## Arguments
@@ -22,22 +22,22 @@ h_get_strat_lm_input(df_split, model)
 
   (`formula`) The right-hand side only model formula.
 
-- df_split:
+- df_with_stratum:
 
-  (`list`) A list of data frames, one for each stratum, as returned by
+  (`data.frame`) A data frame with an additional column for the stratum,
+  as returned by
   [`h_strat_derived_outcome_vals()`](https://openpharma.github.io/RobinCar2/reference/derived_outcome_vals.md).
 
 ## Value
 
 A list containing for each element of the `treatment` factor a list with
 the corresponding model matrix `X` and the response vector `y`. For the
-stratified version, a list of such lists is returned, one for each
-stratum.
+stratified version, the model matrix `X` includes the `.stratum` column.
 
 ## Functions
 
 - `h_get_lm_input()`: Get the linear model input data for the overall
   data set.
 
-- `h_get_strat_lm_input()`: Get the linear model input data for each
-  stratum separately.
+- `h_get_strat_lm_input()`: Get the linear model input data with
+  attached stratum column.

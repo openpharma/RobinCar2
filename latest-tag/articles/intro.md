@@ -14,6 +14,7 @@ consisting of only formula, data arguments and the randomization scheme,
 will produce an object of class `treatment_effect`.
 
 ``` r
+
 library(RobinCar2)
 #> 
 #> Attaching package: 'RobinCar2'
@@ -51,6 +52,7 @@ also includes the treatment by stratification interaction as
 `y ~ treatment * s1 + covar`.
 
 ``` r
+
 robin_lm(y ~ treatment * s1 + covar,
   data = glm_data,
   treatment = treatment ~ pb(s1)
@@ -79,6 +81,7 @@ should not contain the treatment by stratification (covariate)
 interaction.
 
 ``` r
+
 robin_lm(y ~ treatment + s1 + covar,
   data = glm_data,
   treatment = treatment ~ pb(s1),
@@ -86,18 +89,18 @@ robin_lm(y ~ treatment + s1 + covar,
 )
 #> Model        :  y ~ treatment + s1 + covar 
 #> Randomization:  treatment ~ pb(s1)  ( Permuted-Block )
-#> Variance Type:  vcovG 
+#> Variance Type:  vcovHC 
 #> Marginal Mean: 
 #>      Estimate  Std.Err    2.5 % 97.5 %
-#> pbo  0.200449 0.067690 0.067779 0.3331
-#> trt1 0.763978 0.075930 0.615158 0.9128
-#> trt2 0.971285 0.076539 0.821271 1.1213
+#> pbo  0.200449 0.066934 0.069261 0.3316
+#> trt1 0.763978 0.075402 0.616194 0.9118
+#> trt2 0.971285 0.076888 0.820586 1.1220
 #> 
 #> Contrast     :  h_diff
 #>                Estimate Std.Err Z Value  Pr(>|z|)    
-#> trt1 v.s. pbo   0.56353 0.10074  5.5941 2.218e-08 ***
-#> trt2 v.s. pbo   0.77084 0.10133  7.6074 2.796e-14 ***
-#> trt2 v.s. trt1  0.20731 0.10683  1.9405   0.05232 .  
+#> trt1 v.s. pbo   0.56353 0.10063  5.5998 2.146e-08 ***
+#> trt2 v.s. pbo   0.77084 0.10183  7.5698 3.738e-14 ***
+#> trt2 v.s. trt1  0.20731 0.10788  1.9217   0.05465 .  
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -115,6 +118,7 @@ includes the treatment by stratification interaction as
 be `binomial(link = "logit")`.
 
 ``` r
+
 robin_glm(y_b ~ treatment * s1 + covar,
   data = glm_data,
   treatment = treatment ~ pb(s1),
@@ -150,6 +154,7 @@ treatment by stratification interaction as
 model. A fixed `theta` could be provided if it is known.
 
 ``` r
+
 glm_data$y_count <- rpois(nrow(glm_data), lambda = 20)
 robin_glm(
   y_count ~ treatment * s1 + covar,
@@ -178,11 +183,13 @@ robin_glm(
 ### Using Different Covariate-Adaptive Randomization Schema
 
 If the randomization schema is not permuted-block randomization, we can
-use other randomization schema. Currently RobinCar2 supports `sp` for
-the simple randomization, `pb` for the permuted-block randomization, and
-`ps` for the Pocock-Simon randomization.
+use other randomization schema. Currently RobinCar2 supports `sr` for
+the simple randomization (this was previously called `sp`), `pb` for the
+permuted-block randomization, and `ps` for the Pocock-Simon
+randomization.
 
 ``` r
+
 robin_glm(y_b ~ treatment * s1 + covar,
   data = glm_data,
   treatment = treatment ~ ps(s1),
@@ -213,6 +220,7 @@ To obtain the confidence interval, we can use `confint` function.
 Given the following model
 
 ``` r
+
 robin_res <- robin_glm(y_b ~ treatment * s1 + covar,
   data = glm_data,
   treatment = treatment ~ ps(s1),
@@ -243,6 +251,7 @@ mean, at specified level. If `parm` is not provided, the complete matrix
 (all treatment groups) will be provided.
 
 ``` r
+
 confint(robin_res$marginal_mean, parm = 1:2, level = 0.7)
 #>       Estimate      15 %      85 %
 #> pbo  0.3560965 0.3212733 0.3909198
@@ -263,6 +272,7 @@ function. You can also specify the `transform` to be `identity` to avoid
 the transformation.
 
 ``` r
+
 confint(robin_res$contrast)
 #> The confidence interval is transformed.
 #>                Estimate     2.5 %   97.5 %

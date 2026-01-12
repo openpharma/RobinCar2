@@ -11,7 +11,7 @@ robin_surv(
   data,
   treatment,
   comparisons,
-  contrast = "hazardratio",
+  contrast = c("hazardratio", "none"),
   test = "logrank",
   ...
 )
@@ -22,9 +22,10 @@ robin_surv(
 - formula:
 
   (`formula`) A formula of analysis, of the form
-  `Surv(time, status) ~ covariates`. (If no covariates should be
-  adjusted for, use `1` instead on the right hand side. The intercept
-  must not be removed.)
+  `Surv(time, status) ~ covariates + strata(x, y, z)`. If no covariates
+  should be adjusted for, use `1` instead on the right hand side. The
+  intercept must not be removed. If no stratification factors should be
+  used for the analysis, do not use `strata()` in the formula.
 
 - data:
 
@@ -33,9 +34,11 @@ robin_surv(
 - treatment:
 
   (`formula`) A formula of treatment assignment or assignment by
-  stratification, of the form `treatment ~ strata`. (If no
-  stratification should be adjusted for, use `1` instead on the right
-  hand side.)
+  stratification, of the form `treatment ~ scheme(vars)`. Note that
+  currently the randomization scheme is not used in the analysis.
+  However, any variables that were used in the randomization scheme must
+  be included in the model formula, either as covariates, or as
+  `strata()`.
 
 - comparisons:
 
@@ -46,7 +49,8 @@ robin_surv(
 - contrast:
 
   (`character(1)`) The contrast statistic to be used, currently only
-  `"hazardratio"` is supported.
+  `"hazardratio"` is supported. Can be disabled by specifying `"none"`,
+  in which case only the log-rank test is performed.
 
 - test:
 
@@ -87,21 +91,23 @@ for S3 methods.
 ``` r
 # Adjusted for covariates meal.cal and age and adjusted for stratification by strata:
 robin_surv(
-  formula = Surv(time, status) ~ meal.cal + age,
+  formula = Surv(time, status) ~ meal.cal + age + strata(strata),
   data = surv_data,
-  treatment = sex ~ strata
+  treatment = sex ~ pb(strata)
 )
-#> Model        :  Surv(time, status) ~ meal.cal + age 
-#> Randomization:  sex ~ strata  ( Simple )
+#> Model        : Surv(time, status) ~ meal.cal + age + strata(strata)
+#> Randomization: sex ~ pb(strata) (Permuted-Block)
+#> Stratification variables:  strata 
+#> Covariates adjusted for: meal.cal, age (including interactions with sex)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Covariate-adjusted Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     2.9496 0.003181 **
@@ -110,21 +116,22 @@ robin_surv(
 
 # Adjusted for stratification by strata and ecog but not for covariates:
 robin_surv(
-  formula = Surv(time, status) ~ 1,
+  formula = Surv(time, status) ~ 1 + strata(strata, ecog),
   data = surv_data,
-  treatment = sex ~ strata + ecog
+  treatment = sex ~ sr(1)
 )
-#> Model        :  Surv(time, status) ~ 1 
-#> Randomization:  sex ~ strata + ecog  ( Simple )
+#> Model        : Surv(time, status) ~ 1 + strata(strata, ecog)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata, ecog 
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2856 0.001018 **
@@ -135,19 +142,19 @@ robin_surv(
 robin_surv(
   formula = Surv(time, status) ~ 1,
   data = surv_data,
-  treatment = sex ~ 1
+  treatment = sex ~ sr(1)
 )
-#> Model        :  Surv(time, status) ~ 1 
-#> Randomization:  sex ~ 1  ( Simple )
+#> Model        : Surv(time, status) ~ 1
+#> Randomization: sex ~ sr(1) (Simple)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.53343 0.16727   3.189 0.001428 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2135 0.001311 **

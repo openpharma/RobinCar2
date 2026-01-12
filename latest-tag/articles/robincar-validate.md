@@ -3,6 +3,7 @@
 This document validates RobinCar2 against RobinCar.
 
 ``` r
+
 if (!requireNamespace("RobinCar", quietly = TRUE)) {
   install.packages("RobinCar")
 }
@@ -18,6 +19,7 @@ library(RobinCar2)
     ##     table
 
 ``` r
+
 library(MASS)
 library(testthat)
 ```
@@ -30,6 +32,7 @@ The response is following negative binomial distribution with a
 dispersion parameter of 1. This checks the marginal means and variance.
 
 ``` r
+
 # Make categorical outcome to test counts
 # Not informative at all
 glm_data$y_c <- MASS::rnegbin(n = nrow(glm_data), theta = 1)
@@ -51,8 +54,8 @@ test_that("marginal means", {
     estimates2 <- mm$estimate
     variances2 <- mm$variance
 
-    testthat::expect_equal(estimates1, estimates2)
-    testthat::expect_equal(variances1, variances2)
+    expect_equal(estimates1, estimates2)
+    expect_equal(variances1, variances2)
   }
 
   families <- list(
@@ -98,7 +101,7 @@ test_that("marginal means", {
           }
 
           if (scheme == "simple") {
-            scheme2 <- "sp"
+            scheme2 <- "sr"
           } else if (scheme == "permuted-block") {
             scheme2 <- "pb"
           } else {
@@ -160,6 +163,7 @@ test_that("marginal means", {
 The response is continuous.
 
 ``` r
+
 test_that("contrast -- standard options", {
   compare_contrast <- function(r1, r2) {
     # Estimates and variance from RobinCar
@@ -173,8 +177,8 @@ test_that("contrast -- standard options", {
     # contrast vector elements from RobinCar2
     estimates2 <- r2$contrast$estimate
     variances2 <- r2$contrast$variance
-    testthat::expect_equal(estimates1, estimates2)
-    testthat::expect_equal(variances1, variances2, tolerance = 1e-4)
+    expect_equal(estimates1, estimates2)
+    expect_equal(variances1, variances2, tolerance = 1e-4)
   }
 
   for (scheme in c("simple", "pocock-simon", "permuted-block")) {
@@ -185,7 +189,7 @@ test_that("contrast -- standard options", {
     strata <- c("s1")
 
     if (scheme == "simple") {
-      scheme2 <- "sp"
+      scheme2 <- "sr"
     } else if (scheme == "permuted-block") {
       scheme2 <- "pb"
     } else {

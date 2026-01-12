@@ -11,16 +11,24 @@ Survival analysis is performed with the `robin_surv` function, and the
 syntax is:
 
 ``` r
+
 robin_surv(
-  Surv(time, event) ~ covariates,
-  treatment = group ~ strata,
+  Surv(time, event) ~ covariates + strata(strata),
+  treatment = group ~ sr(1),
   data = df
 )
 ```
 
 When there are no covariates or strata, then these can just be replaced
-by an intercept (`1`) term, respectively. Depending on the choice of
-`strata` and `covariates`, the following four methods are available:
+by an intercept (`1`) term, respectively. Note that the `treatment`
+argument specifies the treatment assignment variable on the left-hand
+side, and on the right-hand side it specifies the randomization scheme
+used in the study design. Currently the randomization scheme does not
+affect the analysis, but it is included for future extensions and for
+consistency with the other functions in `RobinCar2`.
+
+Depending on the choice of `strata` and `covariates`, the following four
+methods are available:
 
 - Standard log-rank test without strata or covariates by omitting
   `strata` and `covariates`
@@ -34,23 +42,24 @@ Let’s go through these in a simple example. We start with the standard
 log-rank test:
 
 ``` r
+
 library(RobinCar2)
 robin_surv(
   Surv(time, status) ~ 1,
-  treatment = sex ~ 1,
+  treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ 1 
-#> Randomization:  sex ~ 1  ( Simple )
+#> Model        : Surv(time, status) ~ 1
+#> Randomization: sex ~ sr(1) (Simple)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.53343 0.16727   3.189 0.001428 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2135 0.001311 **
@@ -59,25 +68,27 @@ robin_surv(
 ```
 
 We can perform the stratified log-rank test by adding a `strata`
-right-hand side in the `treatment` formula:
+right-hand side in the model formula:
 
 ``` r
+
 robin_surv(
-  Surv(time, status) ~ 1,
-  treatment = sex ~ strata,
+  Surv(time, status) ~ 1 + strata(strata),
+  treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ 1 
-#> Randomization:  sex ~ strata  ( Simple )
+#> Model        : Surv(time, status) ~ 1 + strata(strata)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata 
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2856 0.001018 **
@@ -86,25 +97,27 @@ robin_surv(
 ```
 
 We can also use multiple stratification variables by adding them on the
-right-hand side of `treatment`, as follows:
+right-hand side of the model formula, as follows:
 
 ``` r
+
 robin_surv(
-  Surv(time, status) ~ 1,
-  treatment = sex ~ strata + ecog,
+  Surv(time, status) ~ 1 + strata(strata, ecog),
+  treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ 1 
-#> Randomization:  sex ~ strata + ecog  ( Simple )
+#> Model        : Surv(time, status) ~ 1 + strata(strata, ecog)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata, ecog 
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     3.2856 0.001018 **
@@ -115,22 +128,24 @@ robin_surv(
 We could also just use covariate adjustment:
 
 ``` r
+
 robin_surv(
   Surv(time, status) ~ age + meal.cal,
-  treatment = sex ~ 1,
+  treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ age + meal.cal 
-#> Randomization:  sex ~ 1  ( Simple )
+#> Model        : Surv(time, status) ~ age + meal.cal
+#> Randomization: sex ~ sr(1) (Simple)
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Covariate-adjusted Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)  
 #> Male v.s. Female  0.47686 0.18608  2.5626  0.01039 *
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Covariate-adjusted Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     2.6858 0.007236 **
@@ -141,25 +156,93 @@ robin_surv(
 Or we combine both stratification and covariate adjustment:
 
 ``` r
+
 robin_surv(
-  Surv(time, status) ~ age + meal.cal,
-  treatment = sex ~ strata + ecog,
+  Surv(time, status) ~ age + meal.cal + strata(strata, ecog),
+  treatment = sex ~ sr(1),
   data = surv_data
 )
-#> Model        :  Surv(time, status) ~ age + meal.cal 
-#> Randomization:  sex ~ strata + ecog  ( Simple )
+#> Model        : Surv(time, status) ~ age + meal.cal + strata(strata, ecog)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata, ecog 
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
 #> 
-#> Contrast     :  Log Hazard ratio
+#> Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
 #> Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> Test         :  Log-Rank
+#> Test         : Covariate-adjusted Stratified Log-Rank
 #> 
 #>                  Test Stat. Pr(>|z|)   
 #> Male v.s. Female     2.9496 0.003181 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Note that it is also possible to skip estimation of the hazard ratio by
+specifying `contrast = "none"`:
+
+``` r
+
+robin_surv(
+  Surv(time, status) ~ age + meal.cal + strata(strata),
+  treatment = sex ~ pb(strata),
+  data = surv_data,
+  contrast = "none"
+)
+#> Model        : Surv(time, status) ~ age + meal.cal + strata(strata)
+#> Randomization: sex ~ pb(strata) (Permuted-Block)
+#> Stratification variables:  strata 
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
+#> 
+#> Contrast     : None
+#> 
+#> Test         : Covariate-adjusted Stratified Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     2.9496 0.003181 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+This can help to speed up simulation studies e.g. when there is no
+interest in the estimation performance.
+
+Note that a warning will be issued when the randomization strata are not
+adequately included in the analysis model, for example if we omit the
+`strata(strata)` term above:
+
+``` r
+
+robin_surv(
+  Surv(time, status) ~ age + meal.cal,
+  treatment = sex ~ pb(strata),
+  data = surv_data
+)
+#> Warning: It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:
+#> 
+#> a. adjust for all joint levels in your `formula` using `+ strata` or
+#> b. perform a stratified test by adding to your `formula` the term `+ strata(strata)`
+#> 
+#> NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.
+#> Model        : Surv(time, status) ~ age + meal.cal
+#> Randomization: sex ~ pb(strata) (Permuted-Block)
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
+#> 
+#> Contrast     : Covariate-adjusted Log Hazard Ratio
+#> 
+#>                  Estimate Std.Err Z Value Pr(>|z|)   
+#> Male v.s. Female  0.48134 0.18681  2.5765  0.00998 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Test         : Covariate-adjusted Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     2.6333 0.008455 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -188,8 +271,8 @@ the method used and detailed below.
 
 ### Standard analysis without strata or covariates
 
-Following Section 2 in Ye, Shao, and Yi (2023), the score function from
-the partial likelihood under the Cox proportional hazards model
+Following Section 2 in Ye et al. (2023), the score function from the
+partial likelihood under the Cox proportional hazards model
 $`\lambda_{1}(t) = \lambda_{0}(t) \exp(\theta)`$ is given by:
 
 ``` math
@@ -287,8 +370,8 @@ internal function `RobinCar2:::h_lr_score_no_strata_no_cov()`.
 
 ### Stratified analysis without covariates
 
-Following Section S2.3 in Ye, Shao, and Yi (2023), the score function
-for the stratified log-rank test is given by:
+Following Section S2.3 in Ye et al. (2023), the score function for the
+stratified log-rank test is given by:
 
 ``` math
 \begin{align*}
@@ -336,8 +419,8 @@ patients.
 ### Covariate adjusted analysis without strata
 
 A little bit more complex is the calculation of the score function for
-the covariate adjusted log-rank test, which following Section 3 in Ye,
-Shao, and Yi (2023) is given by:
+the covariate adjusted log-rank test, which following Section 3 in Ye et
+al. (2023) is given by:
 
 ``` math
 U_{CL}(\theta) =
@@ -362,8 +445,8 @@ $`U_{CL}(\theta)`$ to estimate the log hazard ratio
 $`\hat{\theta}_{CL}`$. The reason for this is that the asymptotic
 guaranteed efficiency gain of the covariate adjusted log hazard ratio
 estimator is only proven using this version of the score function, see
-Section 3 in Ye, Shao, and Yi (2023). On the other hand, for calculating
-the covariate adjusted log-rank score test statistic, we set both
+Section 3 in Ye et al. (2023). On the other hand, for calculating the
+covariate adjusted log-rank score test statistic, we set both
 $`\theta = 0`$ and $`\theta_{L} = 0`$.
 
 How are the regression coefficients $`\hat{\beta}_{1}`$ and
@@ -479,7 +562,7 @@ internal function `RobinCar2:::h_lr_score_cov()`.
 ### Covariate adjusted and stratified analysis
 
 Finally, using both covariate adjustment and stratification, following
-Section S2.3 in Ye, Shao, and Yi (2023), the score function is given by:
+Section S2.3 in Ye et al. (2023), the score function is given by:
 
 ``` math
 U_{CSL}(\theta) =

@@ -20,7 +20,7 @@ bias(residual, treatment, group_idx)
 
 - group_idx:
 
-  (`character`) stratum index.
+  (`list` of `integer`) indices for each stratum group.
 
 ## Value
 

@@ -47,6 +47,7 @@ All the following papers (added above) are cited in the FDA guidance.
 You can install the current development version from `github` with:
 
 ``` r
+
 if (!require("remotes")) {
   install.packages("remotes")
 }
