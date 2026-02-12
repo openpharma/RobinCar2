@@ -126,11 +126,11 @@ This package is supported by [ASA Biopharmaceutical Section Covariate Adjustment
 
 # References
 
-Bannick M, Qian Y, Ye T, Yi Y, Bian F (2026a). RobinCar: Robust Inference for Covariate Adjustment in Randomized Clinical Trials. R package version 1.1.0, <https://CRAN.R-project.org/package=RobinCar>.
+Bannick M, Qian Y, Ye T, Yi Y, Bian F (2026a). RobinCar: Robust Inference for Covariate Adjustment in Randomized Clinical Trials. R package version 1.1.0, https://CRAN.R-project.org/package=RobinCar.
 
 Bannick M, Bian Y, Chen G, Li L, Qian Y, Sabanés Bové D, Xi D, Ye T, Yi Y (2026b). The RobinCar Family: R Tools for Robust Covariate Adjustment in Randomized Clinical Trials. *arXiv preprint*, arXiv:2601.14498.
 
-Food and Drug Administration (2023). Adjusting for Covariates in Randomized Clinical Trials for Drugs and Biological Products: Final Guidance for Industry. <https://www.fda.gov/media/148910/download>.
+Food and Drug Administration (2023). Adjusting for Covariates in Randomized Clinical Trials for Drugs and Biological Products: Final Guidance for Industry, https://www.fda.gov/media/148910/download.
 
 Lin W (2013). Agnostic Notes on Regression Adjustments to Experimental Data: Reexamining Freedman's Critique. *Annals of Applied Statistics*, 7(1):295-318.
 
