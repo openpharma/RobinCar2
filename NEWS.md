@@ -1,3 +1,9 @@
+# RobinCar2 0.2.2.9000
+
+### Misc
+
+* Added Biometric Bulletin vignette article.
+
 # RobinCar2 0.2.2
 
 ### New features
