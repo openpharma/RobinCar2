@@ -9,9 +9,11 @@ author: |
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output:
   html_document:
-    toc: true
+    toc: no
     toc_float: true
     number_sections: true
+  pdf_document:
+    toc: no
 ---
 
 ```{r setup, include=FALSE}
