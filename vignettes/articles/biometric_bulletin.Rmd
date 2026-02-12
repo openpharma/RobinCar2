@@ -2,7 +2,7 @@
 title: "RobinCar2: ROBust INference for Covariate Adjustment in Randomized Clinical Trials"
 author: |
   | Dong Xi^1^, Marlena Bannick^2^, Gregory Chen^3^, Liming Li^4^,
-  | Daniel Sabanés Bové^5^ (RCONIS), Ting Ye^6^, Yanyao Yi^7^
+  | Daniel Sabanés Bové^5^, Ting Ye^6^, Yanyao Yi^7^
   |
   | ^1^Gilead Sciences, ^2^Seattle Children's Therapeutics, ^3^MSD, ^4^AstraZeneca,
   | ^5^RCONIS, ^6^University of Washington, ^7^Eli Lilly and Company
@@ -48,8 +48,8 @@ Covariate adjustment leverages baseline variables to improve the precision of tr
 
 The package provides two variance estimation approaches:
 
-- vcovG: The default heteroskedasticity-consistent variance estimator that accounts for covariate-adaptive randomization
-- vcovHC: The Huber-White sandwich estimator, appropriate when treatment-by-covariate interactions are not included in the model for continuous outcomes
+- `vcovG`: The default heteroskedasticity-consistent variance estimator that accounts for covariate-adaptive randomization
+- `vcovHC`: The Huber-White sandwich estimator, which is appropriate when treatment-by-covariate interactions are not included in the model for continuous outcomes
 
 # Analysis of Continuous Outcomes
 
@@ -68,11 +68,11 @@ result_lm <- robin_lm(
 print(result_lm)
 ```
 
-The output has three main parts. The first part re-iterates the input parameters and the model specification. The second part provides results on **Marginal Mean**, which includes estimated response means for each treatment group with standard errors and confidence intervals. The last part provides the **Contrast** results including pairwise treatment comparisons (the difference in means) with test statistics and p-values. The Huber-White variance estimator can be applied when the linear model does not include treatment-by-stratification/covariate interactions, by specifying `vcov = "vcovHC"` (Rosenblum and ver der Laan, 2009; Lin, 2013). The confidence interval of treatment effect contrasts can be obtained via the `confint` function.
+The output has three main parts. The first part re-iterates the input parameters and the model specification. The second part provides results on **Marginal Mean**, which includes estimated response means for each treatment group with standard errors and confidence intervals. The last part provides the **Contrast** results including pairwise treatment comparisons (the difference in means) with test statistics and p-values. The Huber-White variance estimator can be applied when the linear model does not include treatment-by-stratification/covariate interactions, by specifying `vcov = "vcovHC"` (Rosenblum and ver der Laan, 2009; Lin, 2013). The confidence interval of treatment effect contrasts can be obtained via the `confint()` function.
 
 # Analysis of Binary Outcomes
 
-For binary outcomes, **RobinCar2** provides `robin_glm()` which extends the framework to generalized linear models (Ye et al., 2023b). The following code fits a logistic model (`family = binomial(link = "logit")`), which include the treatment assignment (`treatment`), the stratification factor (`s1`), the treatment-by-stratification interaction (`treatment * s1`) and a covariate (`covar`). The randomization scheme is permuted-block randomization, stratified by the stratification factor (`treatment ~ pb(s1)`). Currently, the method `vcovG` is the only supported method for variance estimation.
+For binary outcomes, **RobinCar2** provides `robin_glm()` which extends the framework to generalized linear models (Ye et al., 2023b). The following code fits a logistic model (`family = binomial(link = "logit")`), which includes the treatment assignment (`treatment`), the stratification factor (`s1`), the treatment-by-stratification interaction (`treatment * s1`) and a covariate (`covar`). The randomization scheme is permuted-block randomization, stratified by the stratification factor (`treatment ~ pb(s1)`). Currently, the method `vcovG` is the only supported method for variance estimation.
 
 ```{r}
 result_binary <- robin_glm(
@@ -86,7 +86,7 @@ result_binary <- robin_glm(
 print(result_binary)
 ```
 
-The output of `robin_glm` has a similar structure compared to `robin_lm`. The default contrast for binary outcomes is the difference in probabilities (`contrast = "difference"`). **RobinCar2** supports other contrast functions including risk ratio, odds ratio, and their log transformations. The confidence interval of treatment effect contrasts can be obtained via the `confint` function.
+The output of `robin_glm()` has a similar structure compared to `robin_lm()`. The default contrast for binary outcomes is the difference in probabilities (`contrast = "difference"`). **RobinCar2** supports other contrast functions including risk ratio, odds ratio, and their log transformations. The confidence interval of treatment effect contrasts can be obtained via the `confint()` function.
 
 # Analysis of Time-to-Event Outcomes
 
@@ -102,7 +102,7 @@ result_tte <- robin_surv(
 print(result_tte)
 ```
 
-The output of `robin_surv()` has a similar structure compared to `robin_lm` and `robin_glm`. The section **Contrast** provides unconditional (marginal) hazard ratios for all pairwise treatment comparisons. The section **Test** provides the logrank test results. The confidence interval of treatment effect contrasts can be obtained via the `confint` function.
+The output of `robin_surv()` again has a similar structure compared to `robin_lm()` and `robin_glm()`. The section **Contrast** provides unconditional (marginal) hazard ratios for all pairwise treatment comparisons. The section **Test** provides the logrank test results. The confidence interval of treatment effect contrasts can be obtained via the `confint()` function.
 
 # Best Practices of using **RobinCar** and **RobinCar2**
 
@@ -115,7 +115,7 @@ The output of `robin_surv()` has a similar structure compared to `robin_lm` and 
 | Methods | Comprehensive | Curated subset |
 | Support | Research community | ASA BIOP Covariate Adjustment Working Group |
 
-Methods included in **RobinCar2** have undergone additional validation and are recommended for interactions with regulatory agencies. Users should transition from **RobinCar** to **RobinCar2** when possible.
+Methods included in **RobinCar2** have undergone additional validation and are recommended for interactions with regulatory agencies. Previous users of **RobinCar** should therefore consider transitioning to **RobinCar2** when possible.
 
 # Conclusions
 
