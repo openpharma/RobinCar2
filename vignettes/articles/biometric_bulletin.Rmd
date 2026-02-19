@@ -2,10 +2,10 @@
 title: "RobinCar2: ROBust INference for Covariate Adjustment in Randomized Clinical Trials"
 author: |
   | Dong Xi^1^, Marlena Bannick^2^, Gregory Chen^3^, Liming Li^4^,
-  | Daniel Sabanés Bové^5^, Ting Ye^6^, Yanyao Yi^7^
+  | Daniel Sabanés Bové^5^, Ting Ye^2^, Yanyao Yi^6^
   |
-  | ^1^Gilead Sciences, ^2^Seattle Children's Therapeutics, ^3^MSD, ^4^AstraZeneca,
-  | ^5^RCONIS, ^6^University of Washington, ^7^Eli Lilly and Company
+  | ^1^Gilead Sciences, ^2^University of Washington, ^3^MSD, ^4^AstraZeneca,
+  | ^5^RCONIS, ^6^Eli Lilly and Company
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output:
   html_document:
@@ -48,7 +48,7 @@ Covariate adjustment leverages baseline variables to improve the precision of tr
 The package provides two variance estimation approaches:
 
 - `vcovG`: The default heteroskedasticity-consistent variance estimator that accounts for covariate-adaptive randomization.
-- `vcovHC`: The Huber-White sandwich estimator, which is appropriate only when treatment-by-covariate interactions are not included in the model for continuous outcomes.
+- `vcovHC`: The Huber-White sandwich estimator, which is appropriate for linear covariate adjustment and only when treatment-by-covariate interactions are not included in the model.
 
 # Analysis of Continuous Outcomes
 
@@ -69,9 +69,9 @@ print(result_lm)
 
 The output has three main parts. The first part reiterates the input parameters and the model specification. The second part provides results on **Marginal Mean**, which includes estimated response means for each treatment group with standard errors and confidence intervals. The last part provides the **Contrast** results, including pairwise treatment comparisons (the difference in means) with test statistics and p-values. The Huber-White variance estimator can be applied when the linear model does not include treatment-by-stratification/covariate interactions, by specifying `vcov = "vcovHC"` (Rosenblum and van der Laan, 2009; Lin, 2013). The confidence interval of treatment effect contrasts can be obtained via the `confint()` function.
 
-# Analysis of Binary Outcomes
+# Analysis of Binary and Count Outcomes
 
-For binary outcomes, **RobinCar2** provides `robin_glm()`, which extends the framework to generalized linear models (Ye et al., 2023b). The following code fits a logistic model (`family = binomial(link = "logit")`), which includes the treatment assignment (`treatment`), the stratification factor (`s1`), the treatment-by-stratification interaction (`treatment * s1`), and a continuous covariate (`covar`). The randomization scheme is permuted-block randomization stratified by `s1`, specified as `treatment ~ pb(s1)`. Currently, `vcovG` is the only supported method for variance estimation in generalized linear models.
+For binary and count outcomes, **RobinCar2** provides `robin_glm()`, which extends the framework to generalized linear models (Ye et al., 2023b, Bannick et al. 2025). The following code fits a logistic model (`family = binomial(link = "logit")`), which includes the treatment assignment (`treatment`), the stratification factor (`s1`), the treatment-by-stratification interaction (`treatment * s1`), and a continuous covariate (`covar`). The randomization scheme is permuted-block randomization stratified by `s1`, specified as `treatment ~ pb(s1)`. Currently, `vcovG` is the only supported method for variance estimation in generalized linear models.
 
 ```{r}
 result_binary <- robin_glm(
@@ -85,7 +85,7 @@ result_binary <- robin_glm(
 print(result_binary)
 ```
 
-The output of `robin_glm()` has a similar structure to `robin_lm()`. The default contrast for binary outcomes is the difference in probabilities (`contrast = "difference"`). **RobinCar2** supports other contrast functions, including risk ratio, odds ratio, and their log transformations (`"log_risk_ratio"`, `"log_odds_ratio"`). The confidence interval of treatment effect contrasts can be obtained via the `confint()` function.
+The output of `robin_glm()` has a similar structure to `robin_lm()`. The default contrast for binary outcomes is the difference in probabilities (`contrast = "difference"`). **RobinCar2** supports other contrast functions, including risk ratio, odds ratio, and their log transformations (`"log_risk_ratio"`, `"log_odds_ratio"`). The confidence interval of treatment effect contrasts can be obtained via the `confint()` function. Any family argument handled by `glm()` can be used with `robin_glm()`.
 
 # Analysis of Time-to-Event Outcomes
 
@@ -118,7 +118,7 @@ Methods included in **RobinCar2** have undergone additional validation and are r
 
 # Conclusions
 
-**RobinCar2** provides a validated, user-friendly implementation of covariate adjustment methods for randomized clinical trials. Its simple interface, based on familiar R formula syntax, makes it accessible to clinical trial statisticians while ensuring robust inference aligned with the FDA guideline. The package covers the most common outcome types encountered in clinical trials: continuous, binary, and time-to-event outcomes. Future development of **RobinCar2** may include additional variance estimation methods, the Mantel-Haenszel risk difference estimator, and bootstrap methods.
+**RobinCar2** provides a validated, user-friendly implementation of covariate adjustment methods for randomized clinical trials. Its simple interface, based on familiar R formula syntax, makes it accessible to clinical trial statisticians while ensuring robust inference aligned with the FDA guideline. The package covers the most common outcome types encountered in clinical trials: continuous, binary, and time-to-event outcomes. Future development of **RobinCar2** may include additional variance estimation methods, the Mantel-Haenszel risk difference estimator (currently available in **RobinCar**), and bootstrap methods.
 
 For more information, including additional vignettes and documentation, visit the package GitHub repository at [github.com/openpharma/RobinCar2](https://github.com/openpharma/RobinCar2).
 
@@ -127,6 +127,8 @@ For more information, including additional vignettes and documentation, visit th
 This package is supported by [ASA Biopharmaceutical Section Covariate Adjustment Scientific Working Group Software Subteam](https://carswg.github.io/subteam_software.html).
 
 # References
+
+Bannick M, Shao J, Liu J, Du Y, Yi Y, Ye T (2025). A General Form of Covariate Adjustment in Randomized Clinical Trials. *Biometrika*, 112(3) asaf029.
 
 Bannick M, Qian Y, Ye T, Yi Y, Bian F (2026a). RobinCar: Robust Inference for Covariate Adjustment in Randomized Clinical Trials. R package version 1.1.0, https://CRAN.R-project.org/package=RobinCar.
 
