@@ -56,8 +56,7 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
     }
   )
 
-  df[[trt_vars$treatment]] <- rep(trt_lvls, each = nrow(data))
-  df[[trt_vars$treatment]] <- factor(df[[trt_vars$treatment]], levels = trt_lvls)
+  df[[trt_vars$treatment]] <- gl(n = n_lvls, k = nrow(data), labels = trt_lvls)
 
   mm <- model.matrix(fit, data = df)
   pred_linear <- mm %*% coefficients(fit)
