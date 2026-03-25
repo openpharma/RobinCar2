@@ -63,3 +63,16 @@ test_that("confint method for prediction_cf works as expected", {
     confint(predict_counterfactual(fit_binom, treatment = treatment ~ s1, eff_measure = h_diff))
   )
 })
+
+
+test_that("predict_counterfactual works for treatment factor levels in non-alphabetical order", {
+  expected_result <- predict_counterfactual(fit_glm, treatment ~ 1)
+
+  relabel_dat <- find_data(fit_glm)
+  levels(relabel_dat$treatment)[1] <- "trtpbo"
+  result_relabel <- predict_counterfactual(fit_glm, treatment ~ 1, data = relabel_dat)
+
+  expected <- expected_result$estimate
+  names(expected)[1] <- "trtpbo"
+  expect_equal(expected, result_relabel$estimate)
+})
