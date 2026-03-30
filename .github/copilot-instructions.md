@@ -125,6 +125,7 @@ air format R/
 ### Key Dependencies
 
 From `DESCRIPTION`:
+
 - `checkmate` - Input validation
 - `numDeriv` - Numerical derivatives (Jacobian)
 - `MASS` - Negative binomial GLM
@@ -145,6 +146,7 @@ The `h_get_vars()` function extracts treatment, strata, and randomization schema
 ### Return Objects
 
 Main functions return `robin_output` objects with:
+
 - `marginal_mean`: Counterfactual predictions
 - `contrast`: Treatment effect estimates
 
@@ -163,6 +165,7 @@ Main functions return `robin_output` objects with:
 ## References
 
 Key papers (cited in FDA guidance):
+
 - Tsiatis et al. (2008) - ANCOVA theory
 - Wang et al. (2021) - Model-robust inference
 - Ye et al. (2022, 2023) - Stratified randomization
