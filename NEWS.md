@@ -1,5 +1,9 @@
 # RobinCar2 0.2.2.9000
 
+### Bug Fixes
+
+* Fixed a bug in `predict_counterfactual` that the ordering of the treatment levels affect the order of the marginal mean.
+
 ### Misc
 
 * Added Biometric Bulletin vignette article.
