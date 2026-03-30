@@ -21,7 +21,7 @@
 
 ## Project Structure
 
-```
+```plaintext
 R/                    # Source code
 ├── robin_lm.R        # Linear model adjustment
 ├── robin_glm.R       # GLM adjustment
