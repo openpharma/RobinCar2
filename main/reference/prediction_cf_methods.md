@@ -13,12 +13,12 @@ print(x, level = 0.95, ...)
 
 - x:
 
-  (`prediction_cf`)  
+  (`prediction_cf`)\
   the obtained counter-factual prediction object.
 
 - level:
 
-  (`number`)  
+  (`number`)\
   the significance level.
 
 ## Value
