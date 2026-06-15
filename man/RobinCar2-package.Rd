@@ -21,6 +21,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Liming Li \email{liming.li1@astrazeneca.com} (\href{https://orcid.org/0009-0008-6870-0878}{ORCID})
   \item Marlena Bannick \email{mnorwood@uw.edu} (\href{https://orcid.org/0000-0001-6279-5978}{ORCID})
   \item Daniel Sabanes Bove \email{daniel@rconis.com} (\href{https://orcid.org/0000-0002-0176-9239}{ORCID})
   \item Dong Xi \email{Dong.Xi1@gilead.com}
