@@ -77,7 +77,7 @@ specs <- specs[!(specs$estimand == "ATE" & specs$ci_type != "mGR"), ]
 
 cmp <- do.call(rbind, lapply(seq_len(nrow(specs)), function(i) {
   est <- specs$estimand[i]
-  ci  <- specs$ci_type[i]
+  ci <- specs$ci_type[i]
   new <- robin_mh(
     y_b ~ s1 + s2,
     data = df_two,
@@ -92,7 +92,7 @@ cmp <- do.call(rbind, lapply(seq_len(nrow(specs)), function(i) {
     estimand   = est,
     ci_type    = ci,
     new_est    = unname(new$estimate),
-    ref_est    = -as.numeric(ref$estimate),  # sign convention
+    ref_est    = -as.numeric(ref$estimate), # sign convention
     new_se     = unname(new$se),
     ref_se     = as.numeric(ref$se),
     diff_est   = unname(new$estimate) + as.numeric(ref$estimate),

@@ -129,10 +129,14 @@ robin_mh <- function(
   flat <- (trt_idx - 1L) * n_strata + strata_idx
   n_vec <- tabulate(flat, nbins = n_strata * n_trt)
   r_vec <- tabulate(flat[y == 1L], nbins = n_strata * n_trt)
-  n_mat <- matrix(n_vec, nrow = n_strata, ncol = n_trt,
-                  dimnames = list(levels(strata_factor), trt_lvls))
-  r_mat <- matrix(r_vec, nrow = n_strata, ncol = n_trt,
-                  dimnames = list(levels(strata_factor), trt_lvls))
+  n_mat <- matrix(n_vec,
+    nrow = n_strata, ncol = n_trt,
+    dimnames = list(levels(strata_factor), trt_lvls)
+  )
+  r_mat <- matrix(r_vec,
+    nrow = n_strata, ncol = n_trt,
+    dimnames = list(levels(strata_factor), trt_lvls)
+  )
 
   if (missing(pair)) {
     pair <- pairwise(trt_lvls)

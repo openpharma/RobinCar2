@@ -84,7 +84,11 @@ h_mh_reference <- function(df, treat_col, response_col, strata_cols,
       total_n / (sum(weight) / total_n)^2
   }
 
-  v <- switch(ci_type, GR = var_gr, mGR = var_mgr, Sato = var_sato)
+  v <- switch(ci_type,
+    GR = var_gr,
+    mGR = var_mgr,
+    Sato = var_sato
+  )
   if (estimand == "ATE") {
     v <- v + var_ate_extra
   }
@@ -140,10 +144,14 @@ test_that("robin_mh matches reference formulas across estimand and variance choi
       exp_lvl = "trt1", ref_lvl = "pbo",
       estimand = estimand, ci_type = ci_type
     )
-    expect_equal(unname(res$estimate), ref$estimate, tolerance = 1e-12,
-      info = paste(estimand, ci_type))
-    expect_equal(unname(res$se), ref$se, tolerance = 1e-12,
-      info = paste(estimand, ci_type))
+    expect_equal(unname(res$estimate), ref$estimate,
+      tolerance = 1e-12,
+      info = paste(estimand, ci_type)
+    )
+    expect_equal(unname(res$se), ref$se,
+      tolerance = 1e-12,
+      info = paste(estimand, ci_type)
+    )
   }
 })
 
@@ -199,8 +207,10 @@ test_that("robin_mh validates inputs", {
     "lower|upper|integerish"
   )
   expect_error(
-    robin_mh(y_b ~ s1, data = glm_data, treatment = treatment ~ pb(s1),
-      estimand = "ATE", ci_type = "GR"),
+    robin_mh(y_b ~ s1,
+      data = glm_data, treatment = treatment ~ pb(s1),
+      estimand = "ATE", ci_type = "GR"
+    ),
     "ci_type = 'mGR'"
   )
   expect_error(
