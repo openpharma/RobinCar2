@@ -2,6 +2,9 @@
 
 ### All vignettes
 
+- [RobinCar2: ROBust INference for Covariate Adjustment in Randomized
+  Clinical
+  Trials](https://openpharma.github.io/RobinCar2/articles/biometric_bulletin.md):
 - [Package
   Introduction](https://openpharma.github.io/RobinCar2/articles/intro.md):
 - [Generalized Linear Regression in RobinCar and
