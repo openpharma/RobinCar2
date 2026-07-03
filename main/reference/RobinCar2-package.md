@@ -18,6 +18,9 @@ Useful links:
 
 Authors:
 
+- Liming Li <liming.li1@astrazeneca.com>
+  ([ORCID](https://orcid.org/0009-0008-6870-0878))
+
 - Marlena Bannick <mnorwood@uw.edu>
   ([ORCID](https://orcid.org/0000-0001-6279-5978))
 

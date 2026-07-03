@@ -1,6 +1,8 @@
 # Changelog
 
-## RobinCar2 0.2.2.9000
+## RobinCar2 0.2.3
+
+CRAN release: 2026-07-02
 
 #### Bug Fixes
 
