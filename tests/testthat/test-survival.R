@@ -447,6 +447,44 @@ test_that("robin_surv gives the same results as RobinCar functions without strat
   expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-4)
 })
 
+test_that("robin_surv gives the same estimate as coxph", {
+  skip_if_not_installed("speff2trial")
+
+  data("ACTG175", package = "speff2trial", envir = environment())
+  trial_dat <- ACTG175
+  trial_dat <- trial_dat[trial_dat$arms %in% c(0, 3), ]
+  trial_dat <- data.frame(
+    id = trial_dat$pidnum,
+    drugs = trial_dat$drugs,
+    cd40 = trial_dat$cd40,
+    days = trial_dat$days,
+    obs = trial_dat$cens,
+    didanosine = factor(trial_dat$arms == 3),
+    strat = factor(trial_dat$strat)
+  )
+
+  coxres <- survival::coxph(
+    survival::Surv(days, obs) ~ didanosine,
+    data = trial_dat,
+    ties = "breslow"
+  )
+  expect_warning(
+    robinres <- robin_surv(
+      survival::Surv(days, obs) ~ 1,
+      treatment = didanosine ~ pb(strat),
+      data = trial_dat
+    ),
+    "It looks like you have not included all of the variables that were used during randomization",
+    fixed = TRUE
+  )
+
+  expect_equal(
+    robinres$estimate,
+    coxres$coefficients,
+    ignore_attr = TRUE
+  )
+})
+
 test_that("robin_surv works as expected with strata", {
   result <- robin_surv(
     Surv(time, status) ~ 1 + strata(strata),

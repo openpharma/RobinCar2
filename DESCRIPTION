@@ -44,6 +44,7 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
+    speff2trial,
     testthat (>= 3.0)
 VignetteBuilder:
     knitr
