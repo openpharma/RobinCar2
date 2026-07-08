@@ -1,0 +1,146 @@
+---
+title: "Mantel-Haenszel Risk Difference in RobinCar and RobinCar2"
+output: rmarkdown::html_document
+vignette: >
+  %\VignetteIndexEntry{Mantel-Haenszel Risk Difference in RobinCar and RobinCar2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+if (!requireNamespace("RobinCar", quietly = TRUE)) {
+  install.packages("RobinCar")
+}
+library(RobinCar2)
+library(RobinCar)
+```
+
+`RobinCar2` provides the Mantel-Haenszel (MH) risk difference and the average
+treatment effect (ATE) on the risk-difference scale via `robin_mh()`. The
+underlying estimands and variance estimators match `RobinCar::robincar_mh()`,
+but the package grammar matches the rest of `RobinCar2`: the response,
+analysis strata, treatment column and randomization scheme are conveyed via
+two formulas.
+
+## Interface
+
+```{r}
+df_two <- subset(glm_data, treatment != "trt2")
+df_two$treatment <- droplevels(df_two$treatment)
+```
+
+### `RobinCar::robincar_mh()`
+
+```{r}
+robincar_mh(
+  df = df_two,
+  treat_col = "treatment",
+  response_col = "y_b",
+  strata_cols = c("s1", "s2"),
+  estimand = "ATE",
+  ci_type = "mGR"
+)
+```
+
+### `RobinCar2::robin_mh()`
+
+```{r}
+robin_mh(
+  formula = y_b ~ s1 + s2,
+  data = df_two,
+  treatment = treatment ~ pb(s1, s2),
+  estimand = "ATE",
+  ci_type = "mGR"
+)
+```
+
+The two estimators agree to machine precision; `RobinCar2` reports the contrast
+as `trt1 v.s. pbo`, matching the sign convention used elsewhere in the package
+(experimental arm minus reference arm).
+
+## Numerical equivalence across all estimand / variance combinations
+
+```{r}
+specs <- expand.grid(
+  estimand = c("MH", "ATE"),
+  ci_type = c("GR", "mGR", "Sato"),
+  stringsAsFactors = FALSE
+)
+specs <- specs[!(specs$estimand == "ATE" & specs$ci_type != "mGR"), ]
+
+cmp <- do.call(rbind, lapply(seq_len(nrow(specs)), function(i) {
+  est <- specs$estimand[i]
+  ci <- specs$ci_type[i]
+  new <- robin_mh(
+    y_b ~ s1 + s2,
+    data = df_two,
+    treatment = treatment ~ pb(s1, s2),
+    estimand = est, ci_type = ci
+  )
+  ref <- robincar_mh(
+    df = df_two, treat_col = "treatment", response_col = "y_b",
+    strata_cols = c("s1", "s2"), estimand = est, ci_type = ci
+  )$result
+  data.frame(
+    estimand   = est,
+    ci_type    = ci,
+    new_est    = unname(new$estimate),
+    ref_est    = -as.numeric(ref$estimate), # sign convention
+    new_se     = unname(new$se),
+    ref_se     = as.numeric(ref$se),
+    diff_est   = unname(new$estimate) + as.numeric(ref$estimate),
+    diff_se    = unname(new$se) - as.numeric(ref$se)
+  )
+}))
+knitr::kable(cmp, digits = 12)
+```
+
+## Multi-arm extension
+
+`RobinCar::robincar_mh()` requires a binary treatment column. `RobinCar2`'s
+`robin_mh()` extends to all pairwise contrasts in a single call, with a
+fully-vectorised matrix-based implementation:
+
+```{r}
+robin_mh(
+  y_b ~ s1 + s2,
+  data = glm_data,
+  treatment = treatment ~ pb(s1, s2),
+  estimand = "ATE",
+  ci_type = "mGR"
+)
+```
+
+The user can also restrict the comparisons via `pair`:
+
+```{r}
+robin_mh(
+  y_b ~ s1 + s2,
+  data = glm_data,
+  treatment = treatment ~ pb(s1, s2),
+  pair = against_ref(levels(glm_data$treatment), ref = "pbo")
+)
+```
+
+## Differences in argument usage
+
+| Concept | `RobinCar::robincar_mh()` | `RobinCar2::robin_mh()` |
+|---|---|---|
+| Response | `response_col = "y_b"` | LHS of `formula = y_b ~ ...` |
+| Treatment | `treat_col = "treatment"` (binary only) | LHS of `treatment = treatment ~ ...` |
+| Analysis strata | `strata_cols = c("s1", "s2")` | RHS of `formula` |
+| Randomization scheme | implicit | `pb(...)`, `ps(...)`, `sr(...)` on RHS of `treatment` |
+| Multi-arm pairwise | not supported | supported via `pair` |
+| Output | `MHResult` | `mh_effect` (with `print`/`confint`/`table` methods) |
+
+Both packages compute the same MH estimator, the same Greenland-Robins (GR),
+modified Greenland-Robins (mGR), and Sato variance estimators, and the same
+ATE additive correction (`nu`). Numerical agreement is verified above and
+exercised in the unit tests under `tests/testthat/test-robin_mh.R`.

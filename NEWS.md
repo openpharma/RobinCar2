@@ -1,5 +1,15 @@
 # RobinCar2 0.2.3
 
+### New features
+
+* Added `robin_mh()` for the Mantel-Haenszel risk difference and the
+  corresponding average treatment effect on the risk-difference scale, with
+  Greenland-Robins, modified Greenland-Robins, and Sato variance estimators
+  and the Bannick-Ye additive correction for the ATE. The interface follows
+  the package's `treatment ~ schema(strata)` grammar; the implementation is
+  vectorised across joint analysis strata and pairwise treatment comparisons,
+  so multi-arm trials are supported in a single call.
+
 ### Bug Fixes
 
 * Fixed a bug in `predict_counterfactual` that the ordering of the treatment levels affect the order of the marginal mean.
@@ -7,6 +17,8 @@
 ### Misc
 
 * Added Biometric Bulletin vignette article.
+* Added `robincar-mh` vignette article comparing `robin_mh()` to
+  `RobinCar::robincar_mh()`.
 
 # RobinCar2 0.2.2
 
