@@ -1,3 +1,13 @@
+# RobinCar2 0.2.3.9000
+
+### New Features
+
+* The new `surv_control` argument in `robin_surv()` allows to fine-control the root finding algorithm used for the hazard ratio estimation.
+
+### Bug Fixes
+
+* Previously `robin_surv()` gave small numerical differences to `survival::coxph()` for the hazard ratio estimate. This is now fixed.
+
 # RobinCar2 0.2.3
 
 ### Bug Fixes

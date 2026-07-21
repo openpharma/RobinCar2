@@ -4,12 +4,19 @@
 \alias{h_log_hr_est_via_score}
 \title{Estimate Log Hazard Ratio via Score Function}
 \usage{
-h_log_hr_est_via_score(score_fun, interval = c(-5, 5), ...)
+h_log_hr_est_via_score(
+  score_fun,
+  interval = c(-5, 5),
+  control = surv_control(),
+  ...
+)
 }
 \arguments{
 \item{score_fun}{(\code{function}) The log-rank score function to be used for estimation.}
 
 \item{interval}{(\code{numeric}) A numeric vector of length 2 specifying the interval in which to search for the root.}
+
+\item{control}{(\code{list}) Control parameters from \code{\link[=surv_control]{surv_control()}} for the root-finding algorithm.}
 
 \item{...}{Additional arguments passed to \code{score_fun}.}
 }

@@ -67,3 +67,4 @@ reference:
     contents:
     - find_data
     - confint
+    - surv_control

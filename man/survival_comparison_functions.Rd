@@ -14,6 +14,7 @@ robin_surv_no_strata_no_cov(
   exp_level,
   control_level,
   contrast,
+  control = surv_control(),
   check_rand_strat_warning = FALSE
 )
 
@@ -23,12 +24,29 @@ robin_surv_strata(
   exp_level,
   control_level,
   contrast,
+  control = surv_control(),
   check_rand_strat_warning = FALSE
 )
 
-robin_surv_cov(vars, data, exp_level, control_level, contrast, ...)
+robin_surv_cov(
+  vars,
+  data,
+  exp_level,
+  control_level,
+  contrast,
+  control = surv_control(),
+  ...
+)
 
-robin_surv_strata_cov(vars, data, exp_level, control_level, contrast, ...)
+robin_surv_strata_cov(
+  vars,
+  data,
+  exp_level,
+  control_level,
+  contrast,
+  control = surv_control(),
+  ...
+)
 }
 \arguments{
 \item{vars}{(\code{list}) A list containing \code{levels}, \code{treatment}, and \code{covariates}.}
