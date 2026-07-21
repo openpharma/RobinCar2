@@ -13,6 +13,7 @@ robin_surv(
   comparisons,
   contrast = c("hazardratio", "none"),
   test = "logrank",
+  control = surv_control(),
   ...
 )
 ```
@@ -56,6 +57,14 @@ robin_surv(
 
   (`character(1)`) The test to be used, currently only `"logrank"` is
   supported.
+
+- control:
+
+  (`list`) Control parameters for the root-finding algorithm used to
+  estimate the log hazard ratio, usually created with
+  [`surv_control()`](https://openpharma.github.io/RobinCar2/reference/surv_control.md).
+  The arguments correspond to `tol`, `maxiter`, and `trace` in
+  [`stats::uniroot()`](https://rdrr.io/r/stats/uniroot.html).
 
 - ...:
 
@@ -103,7 +112,7 @@ robin_surv(
 #> Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **
+#> Male v.s. Female  0.54791 0.19118   2.866 0.004157 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
@@ -127,7 +136,7 @@ robin_surv(
 #> Contrast     : Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
+#> Male v.s. Female   0.5536  0.1706  3.2451 0.001174 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
@@ -150,7 +159,7 @@ robin_surv(
 #> Contrast     : Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female  0.53343 0.16727   3.189 0.001428 **
+#> Male v.s. Female  0.53037 0.16718  3.1724 0.001512 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 

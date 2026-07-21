@@ -6,7 +6,12 @@ log-rank score function.
 ## Usage
 
 ``` r
-h_log_hr_est_via_score(score_fun, interval = c(-5, 5), ...)
+h_log_hr_est_via_score(
+  score_fun,
+  interval = c(-5, 5),
+  control = surv_control(),
+  ...
+)
 ```
 
 ## Arguments
@@ -19,6 +24,12 @@ h_log_hr_est_via_score(score_fun, interval = c(-5, 5), ...)
 
   (`numeric`) A numeric vector of length 2 specifying the interval in
   which to search for the root.
+
+- control:
+
+  (`list`) Control parameters from
+  [`surv_control()`](https://openpharma.github.io/RobinCar2/reference/surv_control.md)
+  for the root-finding algorithm.
 
 - ...:
 

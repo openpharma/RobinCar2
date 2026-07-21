@@ -14,6 +14,7 @@ robin_surv_comparison(
   exp_level,
   control_level,
   contrast,
+  control = surv_control(),
   unadj_score_fun = NULL,
   ...
 )

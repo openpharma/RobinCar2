@@ -1,5 +1,22 @@
 # Changelog
 
+## RobinCar2 0.2.3.9000
+
+#### New Features
+
+- The new `surv_control` argument in
+  [`robin_surv()`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)
+  allows to fine-control the root finding algorithm used for the hazard
+  ratio estimation.
+
+#### Bug Fixes
+
+- Previously
+  [`robin_surv()`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)
+  gave small numerical differences to
+  [`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html) for
+  the hazard ratio estimate. This is now fixed.
+
 ## RobinCar2 0.2.3
 
 CRAN release: 2026-07-02
