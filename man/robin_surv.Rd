@@ -11,6 +11,7 @@ robin_surv(
   comparisons,
   contrast = c("hazardratio", "none"),
   test = "logrank",
+  control = surv_control(),
   ...
 )
 }
@@ -34,6 +35,10 @@ see details. By default, all pairwise comparisons are performed automatically.}
 is supported. Can be disabled by specifying \code{"none"}, in which case only the log-rank test is performed.}
 
 \item{test}{(\code{character(1)}) The test to be used, currently only \code{"logrank"} is supported.}
+
+\item{control}{(\code{list}) Control parameters for the root-finding algorithm used to estimate the
+log hazard ratio, usually created with \code{\link[=surv_control]{surv_control()}}. The arguments correspond to
+\code{tol}, \code{maxiter}, and \code{trace} in \code{\link[stats:uniroot]{stats::uniroot()}}.}
 
 \item{...}{Additional arguments passed to the survival analysis functions, in particular \code{hr_se_plugin_adjusted}
 (please see \link[=survival_score_functions]{here} for details).}

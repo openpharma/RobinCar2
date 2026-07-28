@@ -1,6 +1,6 @@
 # h_log_hr_est_via_score works as expected
 
-    list(theta = 0.53342923961288, se = 0.167270504465807, sigma_l2 = 0.156756810948865, 
+    list(theta = 0.530368384142102, se = 0.167180005660338, sigma_l2 = 0.156926569811932, 
         n = 228L)
 
 # h_log_hr_est_via_score does not give spurious warning
@@ -10,7 +10,7 @@
 
 # h_log_hr_est_via_score extends the search interval as needed
 
-    list(theta = 0.529999478789383, se = 0.167169124542081, sigma_l2 = 0.156946999327738, 
+    list(theta = 0.530397994806822, se = 0.167180879290955, sigma_l2 = 0.156924929726076, 
         n = 228L)
 
 # h_lr_test_via_score works as expected
@@ -20,8 +20,8 @@
 
 # robin_surv_comparison works as expected without covariate adjustment
 
-    list(estimate = 0.53342923961288, se = 0.167270504465807, hr_n = 228L, 
-        hr_sigma_l2 = 0.156756810948865, test_stat = 3.21352484896035, 
+    list(estimate = 0.530368384142102, se = 0.167180005660338, hr_n = 228L, 
+        hr_sigma_l2 = 0.156926569811932, test_stat = 3.21352484896035, 
         p_value = 0.0013111645203555, test_score = 0.0895537761860842, 
         test_n = 228L, test_sigma_l2 = 0.17706769289317, give_rand_strat_warning = FALSE)
 
@@ -34,22 +34,22 @@
 
 # robin_surv_no_strata_no_cov works as expected
 
-    list(estimate = -0.53342923961288, se = 0.167270504465807, hr_n = 228L, 
-        hr_sigma_l2 = 0.156756810948865, test_stat = -3.21352484896035, 
+    list(estimate = -0.530368384142102, se = 0.167180005660338, hr_n = 228L, 
+        hr_sigma_l2 = 0.156926569811932, test_stat = -3.21352484896035, 
         p_value = 0.0013111645203555, test_score = -0.0895537761860842, 
         test_n = 228L, test_sigma_l2 = 0.17706769289317, give_rand_strat_warning = FALSE)
 
 # robin_surv_strata works as expected
 
-    list(estimate = -0.554820697243091, se = 0.170628735365298, hr_n = 227L, 
-        hr_sigma_l2 = 0.151310755205329, test_stat = -3.2855836062253, 
+    list(estimate = -0.553595870294275, se = 0.17059512525311, hr_n = 227L, 
+        hr_sigma_l2 = 0.151370382611702, test_stat = -3.2855836062253, 
         p_value = 0.00101771334472415, test_score = -0.0896871248297144, 
         test_n = 227L, test_sigma_l2 = 0.169145720705825, give_rand_strat_warning = FALSE)
 
 # robin_surv_cov works as expected
 
-    list(estimate = -0.503821677843015, se = 0.1656799127954, hr_n = 228L, 
-        hr_sigma_l2 = 0.156990532256188, test_stat = -3.06610317830763, 
+    list(estimate = -0.5016113861505, se = 0.16561813992359, hr_n = 228L, 
+        hr_sigma_l2 = 0.157110113177543, test_stat = -3.06610317830763, 
         p_value = 0.0021686846372504, test_score = -0.0851266162073163, 
         test_n = 228L, test_sigma_l2 = 0.175748674116587, give_rand_strat_warning = FALSE)
 
@@ -104,8 +104,8 @@
 
 # robin_surv works as expected with strata
 
-    structure(c(0.554820697243091, 0.170628735365298, 3.25162520870402, 
-    0.00114747222174709), dim = c(1L, 4L), dimnames = list("Male v.s. Female", 
+    structure(c(0.553595870294275, 0.17059512525311, 3.24508610356194, 
+    0.00117415114967595), dim = c(1L, 4L), dimnames = list("Male v.s. Female", 
         c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")))
 
 ---
@@ -130,8 +130,8 @@
 
 # robin_surv works as expected with covariates
 
-    structure(c(-0.00438916915405738, 0.155227542623415, -0.0282757111262503, 
-    0.977442252566086), dim = c(1L, 4L), dimnames = list("1 v.s. 0", 
+    structure(c(-0.00445020431030736, 0.155227462755351, -0.0286689238573794, 
+    0.977128641344646), dim = c(1L, 4L), dimnames = list("1 v.s. 0", 
         c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")))
 
 ---
@@ -152,8 +152,8 @@
 
 # robin_surv works as expected with strata and covariates
 
-    structure(c(-0.0122310580846328, 0.159010010937409, -0.0769200505837796, 
-    0.938687146743022), dim = c(1L, 4L), dimnames = list("1 v.s. 0", 
+    structure(c(-0.0122920932408829, 0.159009954919017, -0.0773039225571954, 
+    0.938381770498044), dim = c(1L, 4L), dimnames = list("1 v.s. 0", 
         c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")))
 
 ---
@@ -177,8 +177,8 @@
 
 # robin_surv works also with character variable in the correlation case
 
-    structure(c(0.553358244734497, 0.236938504567525, 2.33545090421045, 
-    0.0195198778286913), dim = c(1L, 4L), dimnames = list("Male v.s. Female", 
+    structure(c(0.546676517528469, 0.237207661991659, 2.30463262838319, 
+    0.0211871569907112), dim = c(1L, 4L), dimnames = list("Male v.s. Female", 
         c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")))
 
 # robin_surv gives a warning if stratified randomization was specified but simple log rank test used
@@ -200,7 +200,7 @@
       Contrast     : Log Hazard Ratio
       
                        Estimate Std.Err Z Value Pr(>|z|)   
-      Male v.s. Female   0.5258  0.1675  3.1391 0.001695 **
+      Male v.s. Female  0.52309 0.16742  3.1244 0.001782 **
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
       
@@ -232,7 +232,7 @@
       Contrast     : Stratified Log Hazard Ratio
       
                        Estimate Std.Err Z Value Pr(>|z|)   
-      Male v.s. Female  0.55178 0.16997  3.2463 0.001169 **
+      Male v.s. Female  0.54989 0.16992  3.2362 0.001211 **
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
       
@@ -264,7 +264,7 @@
       Contrast     : Covariate-adjusted Log Hazard Ratio
       
                        Estimate Std.Err Z Value Pr(>|z|)   
-      Male v.s. Female  0.51573 0.16373  3.1499 0.001633 **
+      Male v.s. Female  0.51335 0.16366  3.1366 0.001709 **
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
       
@@ -297,7 +297,7 @@
       Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
       
                        Estimate Std.Err Z Value Pr(>|z|)   
-      Male v.s. Female  0.54011 0.16667  3.2406 0.001193 **
+      Male v.s. Female  0.53849 0.16663  3.2317 0.001231 **
       ---
       Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
       

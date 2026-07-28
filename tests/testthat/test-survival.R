@@ -37,6 +37,33 @@ test_that("h_log_hr_est_via_score extends the search interval as needed", {
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
+test_that("surv_control works as expected", {
+  expect_identical(
+    surv_control(tol = 1e-6, maxiter = 10, trace = 1),
+    list(tol = 1e-6, maxiter = 10L, trace = 1L)
+  )
+  expect_error(surv_control(tol = -1), "Assertion")
+  expect_error(surv_control(maxiter = 0), "Assertion")
+  expect_error(surv_control(trace = -1), "Assertion")
+})
+
+test_that("h_log_hr_est_via_score passes control to uniroot", {
+  expect_error(
+    h_log_hr_est_via_score(
+      h_lr_score_no_strata_no_cov,
+      interval = c(-0.2, 0.2),
+      control = surv_control(maxiter = 1),
+      df = surv_data,
+      treatment = "sex",
+      time = "time",
+      status = "status",
+      randomization_strata = character()
+    ),
+    "no sign change found in 1 iteration",
+    fixed = TRUE
+  )
+})
+
 test_that("h_lr_test_via_score works as expected", {
   result <- h_lr_test_via_score(
     h_lr_score_no_strata_no_cov,
@@ -418,7 +445,8 @@ test_that("robin_surv works as expected without strata or covariates", {
   result <- robin_surv(
     Surv(time, status) ~ 1,
     data = surv_data,
-    treatment = ecog ~ sr(1)
+    treatment = ecog ~ sr(1),
+    control = surv_control()
   )
   expect_s3_class(result, "surv_effect")
   expect_snapshot_value(result$log_hr_coef_mat, tolerance = 1e-4, style = "deparse")
@@ -445,6 +473,44 @@ test_that("robin_surv gives the same results as RobinCar functions without strat
   expect_equal(result$test_mat[, "Pr(>|z|)"], robincar_result$test_p_val, tolerance = 1e-5)
   expect_equal(result$log_hr_coef_mat[, "Estimate"], robincar_result$estimate, tolerance = 1e-4)
   expect_equal(result$log_hr_coef_mat[, "Std.Err"], robincar_result$se, tolerance = 1e-4)
+})
+
+test_that("robin_surv gives the same estimate as coxph", {
+  skip_if_not_installed("speff2trial")
+
+  data("ACTG175", package = "speff2trial", envir = environment())
+  trial_dat <- ACTG175
+  trial_dat <- trial_dat[trial_dat$arms %in% c(0, 3), ]
+  trial_dat <- data.frame(
+    id = trial_dat$pidnum,
+    drugs = trial_dat$drugs,
+    cd40 = trial_dat$cd40,
+    days = trial_dat$days,
+    obs = trial_dat$cens,
+    didanosine = factor(trial_dat$arms == 3),
+    strat = factor(trial_dat$strat)
+  )
+
+  coxres <- survival::coxph(
+    survival::Surv(days, obs) ~ didanosine,
+    data = trial_dat,
+    ties = "breslow"
+  )
+  expect_warning(
+    robinres <- robin_surv(
+      survival::Surv(days, obs) ~ 1,
+      treatment = didanosine ~ pb(strat),
+      data = trial_dat
+    ),
+    "It looks like you have not included all of the variables that were used during randomization",
+    fixed = TRUE
+  )
+  expect_equal(
+    robinres$estimate,
+    coxres$coefficients,
+    ignore_attr = TRUE,
+    tolerance = 1e-6
+  )
 })
 
 test_that("robin_surv works as expected with strata", {

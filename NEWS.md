@@ -1,6 +1,6 @@
-# RobinCar2 0.2.2.9000
+# RobinCar2 0.2.3.9000
 
-### New features
+### New Features
 
 * Added `robin_mh()` for the Mantel-Haenszel risk difference and the
   corresponding average treatment effect on the risk-difference scale, with
@@ -9,6 +9,18 @@
   the package's `treatment ~ schema(strata)` grammar; the implementation is
   vectorised across joint analysis strata and pairwise treatment comparisons,
   so multi-arm trials are supported in a single call.
+* The new `surv_control` argument in `robin_surv()` allows to fine-control the root finding algorithm used for the hazard ratio estimation.
+
+### Bug Fixes
+
+* Previously `robin_surv()` gave small numerical differences to `survival::coxph()` for the hazard ratio estimate. This is now fixed.
+
+### Misc
+
+* Added `robincar-mh` vignette article comparing `robin_mh()` to
+  `RobinCar::robincar_mh()`.
+
+# RobinCar2 0.2.3
 
 ### Bug Fixes
 
@@ -17,8 +29,6 @@
 ### Misc
 
 * Added Biometric Bulletin vignette article.
-* Added `robincar-mh` vignette article comparing `robin_mh()` to
-  `RobinCar::robincar_mh()`.
 
 # RobinCar2 0.2.2
 

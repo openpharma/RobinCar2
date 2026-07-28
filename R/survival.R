@@ -10,6 +10,7 @@
 #'
 #' @param score_fun (`function`) The log-rank score function to be used for estimation.
 #' @param interval (`numeric`) A numeric vector of length 2 specifying the interval in which to search for the root.
+#' @param control (`list`) Control parameters from [surv_control()] for the root-finding algorithm.
 #' @param ... Additional arguments passed to `score_fun`.
 #' @return A list containing:
 #' - `theta`: The estimated log hazard ratio.
@@ -18,10 +19,11 @@
 #' - `n`: The number of observations used in the calculation.
 #'
 #' @keywords internal
-h_log_hr_est_via_score <- function(score_fun, interval = c(-5, 5), ...) {
+h_log_hr_est_via_score <- function(score_fun, interval = c(-5, 5), control = surv_control(), ...) {
   assert_function(score_fun, args = c("theta", "use_ties_factor", "calculate_variance"))
   assert_numeric(interval, len = 2L, finite = TRUE)
   assert_true(interval[1] < interval[2])
+  h_assert_surv_control(control)
 
   score_solution <- stats::uniroot(
     score_fun,
@@ -30,7 +32,9 @@ h_log_hr_est_via_score <- function(score_fun, interval = c(-5, 5), ...) {
     check.conv = TRUE, # If the root cannot be found, an error is thrown.
     use_ties_factor = FALSE,
     calculate_variance = FALSE, # We will only do this at the solution.
-    tol = .Machine$double.eps^0.1, # Use a small tolerance for convergence.
+    tol = control$tol,
+    maxiter = control$maxiter,
+    trace = control$trace,
     ...
   )
   score_root <- score_solution$root
@@ -125,6 +129,7 @@ robin_surv_comparison <- function(
   exp_level,
   control_level,
   contrast,
+  control = surv_control(),
   unadj_score_fun = NULL,
   ...
 ) {
@@ -138,6 +143,7 @@ robin_surv_comparison <- function(
   assert_count(control_level)
   assert_true(exp_level != control_level)
   assert_string(contrast)
+  h_assert_surv_control(control)
 
   # Subset data to the two treatment arms of interest.
   trt_levels <- vars$levels[c(control_level, exp_level)]
@@ -147,34 +153,35 @@ robin_surv_comparison <- function(
   data[[vars$treatment]] <- stats::relevel(data[[vars$treatment]], ref = trt_levels[1L])
 
   # Prepare arguments for the test and estimation calls below.
-  args <- list(
+  score_args <- list(
     score_fun = score_fun,
     df = data,
     ...
   )
 
   # Perform the log-rank test via the score function.
-  test_result <- do.call(h_lr_test_via_score, args)
+  test_result <- do.call(h_lr_test_via_score, score_args)
 
   # Estimate the log hazard ratio via the score function, if requested.
   hr_result <- if (contrast == "hazardratio") {
+    hr_args <- c(score_args, list(control = control))
     # If an unadjusted score function is provided, use it to estimate the log hazard ratio first.
     if (!is.null(unadj_score_fun)) {
       assert_function(unadj_score_fun)
       assert_true(length(vars$covariates) > 0)
       args_to_drop <- c("model", "hr_se_plugin_adjusted", "check_rand_strat_warning")
-      unadj_args <- args[!(names(args) %in% args_to_drop)]
+      unadj_args <- hr_args[!(names(hr_args) %in% args_to_drop)]
       unadj_args$score_fun <- unadj_score_fun
       # Get theta_hat from the unadjusted score function.
       unadj_hr_result <- do.call(h_log_hr_est_via_score, unadj_args)
       # Add this to the arguments for the adjusted score function call below.
-      args$theta_hat <- unadj_hr_result$theta
+      hr_args$theta_hat <- unadj_hr_result$theta
     } else {
       # We enforce to have no covariates in this case.
       assert_true(length(vars$covariates) == 0L)
     }
     # Estimate the log hazard ratio via the score function.
-    do.call(h_log_hr_est_via_score, args)
+    do.call(h_log_hr_est_via_score, hr_args)
   } else {
     list(
       theta = NA_real_,
@@ -218,6 +225,7 @@ robin_surv_no_strata_no_cov <- function(
   exp_level,
   control_level,
   contrast,
+  control = surv_control(),
   check_rand_strat_warning = FALSE
 ) {
   robin_surv_comparison(
@@ -227,6 +235,7 @@ robin_surv_no_strata_no_cov <- function(
     exp_level = exp_level,
     control_level = control_level,
     contrast = contrast,
+    control = control,
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
@@ -243,6 +252,7 @@ robin_surv_strata <- function(
   exp_level,
   control_level,
   contrast,
+  control = surv_control(),
   check_rand_strat_warning = FALSE
 ) {
   robin_surv_comparison(
@@ -252,6 +262,7 @@ robin_surv_strata <- function(
     exp_level = exp_level,
     control_level = control_level,
     contrast = contrast,
+    control = control,
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
@@ -264,7 +275,7 @@ robin_surv_strata <- function(
 #' @describeIn survival_comparison_functions without strata and without covariates, based on
 #'   [h_lr_score_cov()] and [h_lr_score_no_strata_no_cov()] (which is used to find the unadjusted
 #'   log hazard ratio estimate).
-robin_surv_cov <- function(vars, data, exp_level, control_level, contrast, ...) {
+robin_surv_cov <- function(vars, data, exp_level, control_level, contrast, control = surv_control(), ...) {
   robin_surv_comparison(
     score_fun = h_lr_score_cov,
     unadj_score_fun = h_lr_score_no_strata_no_cov,
@@ -273,6 +284,7 @@ robin_surv_cov <- function(vars, data, exp_level, control_level, contrast, ...) 
     exp_level = exp_level,
     control_level = control_level,
     contrast = contrast,
+    control = control,
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
@@ -285,7 +297,7 @@ robin_surv_cov <- function(vars, data, exp_level, control_level, contrast, ...) 
 #' @describeIn survival_comparison_functions with strata and covariates, based on
 #'   [h_lr_score_strat_cov()] and [h_lr_score_strat()] (which is used to find the unadjusted
 #'   log hazard ratio estimate).
-robin_surv_strata_cov <- function(vars, data, exp_level, control_level, contrast, ...) {
+robin_surv_strata_cov <- function(vars, data, exp_level, control_level, contrast, control = surv_control(), ...) {
   robin_surv_comparison(
     score_fun = h_lr_score_strat_cov,
     unadj_score_fun = h_lr_score_strat,
@@ -294,6 +306,7 @@ robin_surv_strata_cov <- function(vars, data, exp_level, control_level, contrast
     exp_level = exp_level,
     control_level = control_level,
     contrast = contrast,
+    control = control,
     treatment = vars$treatment,
     time = vars$time,
     status = vars$status,
@@ -397,6 +410,43 @@ h_events_table <- function(data, vars) {
   )
 }
 
+#' Control Survival Analysis Root Finding
+#'
+#' Control parameters for the root-finding algorithm used by [robin_surv()] to estimate
+#' the log hazard ratio.
+#'
+#' @param tol (`number`) The desired accuracy, passed to [stats::uniroot()].
+#' @param maxiter (`count`) The maximum number of iterations, passed to [stats::uniroot()].
+#' @param trace (`count`) Tracing level, passed to [stats::uniroot()].
+#'
+#' @return A named list with elements `tol`, `maxiter`, and `trace`.
+#'
+#' @export
+surv_control <- function(tol = .Machine$double.eps^0.25, maxiter = 1000, trace = 0) {
+  control <- list(
+    tol = tol,
+    maxiter = maxiter,
+    trace = trace
+  )
+  h_assert_surv_control(control)
+
+  list(
+    tol = tol,
+    maxiter = as.integer(maxiter),
+    trace = as.integer(trace)
+  )
+}
+
+h_assert_surv_control <- function(control) {
+  assert_list(control, len = 3L, names = "unique")
+  assert_names(names(control), must.include = c("tol", "maxiter", "trace"))
+  assert_number(control$tol, lower = 0, finite = TRUE)
+  assert_integerish(control$maxiter, len = 1L, lower = 1L, any.missing = FALSE)
+  assert_integerish(control$trace, len = 1L, lower = 0L, any.missing = FALSE)
+
+  invisible(control)
+}
+
 #' Covariate Adjusted and Stratified Survival Analysis
 #'
 #' Calculate log-rank test as well as hazard ratio estimates for survival data, optionally adjusted
@@ -416,6 +466,9 @@ h_events_table <- function(data, vars) {
 #' @param contrast (`character(1)`) The contrast statistic to be used, currently only `"hazardratio"`
 #'   is supported. Can be disabled by specifying `"none"`, in which case only the log-rank test is performed.
 #' @param test (`character(1)`) The test to be used, currently only `"logrank"` is supported.
+#' @param control (`list`) Control parameters for the root-finding algorithm used to estimate the
+#'   log hazard ratio, usually created with [surv_control()]. The arguments correspond to
+#'   `tol`, `maxiter`, and `trace` in [stats::uniroot()].
 #' @param ... Additional arguments passed to the survival analysis functions, in particular `hr_se_plugin_adjusted`
 #'   (please see [here][survival_score_functions] for details).
 #' @return A `surv_effect` object containing the results of the survival analysis.
@@ -462,6 +515,7 @@ robin_surv <- function(
   comparisons,
   contrast = c("hazardratio", "none"),
   test = "logrank",
+  control = surv_control(),
   ...
 ) {
   attr(formula, ".Environment") <- environment()
@@ -472,6 +526,7 @@ robin_surv <- function(
   assert_subset(all.vars(treatment), names(data))
   contrast <- match.arg(contrast)
   test <- match.arg(test)
+  h_assert_surv_control(control)
 
   input <- h_prep_survival_input(formula, data, treatment)
 
@@ -529,6 +584,7 @@ robin_surv <- function(
         exp_level = exp_level,
         control_level = control_level,
         contrast = contrast,
+        control = control,
         check_rand_strat_warning = !give_rand_strat_warning,
         ...
       )
