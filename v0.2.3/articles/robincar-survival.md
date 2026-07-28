@@ -1,0 +1,705 @@
+# Survival Analysis with RobinCar2
+
+`RobinCar2` implements survival analysis methods for testing treatment
+effects with log-rank tests and estimating hazard ratios using score
+functions. This vignette provides an overview of the underlying
+algorithms.
+
+## Overview of Survival Analysis Methods
+
+Survival analysis is performed with the `robin_surv` function, and the
+syntax is:
+
+``` r
+
+robin_surv(
+  Surv(time, event) ~ covariates + strata(strata),
+  treatment = group ~ sr(1),
+  data = df
+)
+```
+
+When there are no covariates or strata, then these can just be replaced
+by an intercept (`1`) term, respectively. Note that the `treatment`
+argument specifies the treatment assignment variable on the left-hand
+side, and on the right-hand side it specifies the randomization scheme
+used in the study design. Currently the randomization scheme does not
+affect the analysis, but it is included for future extensions and for
+consistency with the other functions in `RobinCar2`.
+
+Depending on the choice of `strata` and `covariates`, the following four
+methods are available:
+
+- Standard log-rank test without strata or covariates by omitting
+  `strata` and `covariates`
+- Stratified log-rank test by specifying `strata` but no `covariates`
+- Covariate adjusted log-rank test by specifying `covariates` but no
+  `strata`
+- Covariate adjusted and stratified log-rank test by specifying both
+  `strata` and `covariates`
+
+Let’s go through these in a simple example. We start with the standard
+log-rank test:
+
+``` r
+
+library(RobinCar2)
+robin_surv(
+  Surv(time, status) ~ 1,
+  treatment = sex ~ sr(1),
+  data = surv_data
+)
+#> Model        : Surv(time, status) ~ 1
+#> Randomization: sex ~ sr(1) (Simple)
+#> 
+#> Contrast     : Log Hazard Ratio
+#> 
+#>                  Estimate Std.Err Z Value Pr(>|z|)   
+#> Male v.s. Female  0.53343 0.16727   3.189 0.001428 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Test         : Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     3.2135 0.001311 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+We can perform the stratified log-rank test by adding a `strata`
+right-hand side in the model formula:
+
+``` r
+
+robin_surv(
+  Surv(time, status) ~ 1 + strata(strata),
+  treatment = sex ~ sr(1),
+  data = surv_data
+)
+#> Model        : Surv(time, status) ~ 1 + strata(strata)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata 
+#> 
+#> Contrast     : Stratified Log Hazard Ratio
+#> 
+#>                  Estimate Std.Err Z Value Pr(>|z|)   
+#> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Test         : Stratified Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     3.2856 0.001018 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+We can also use multiple stratification variables by adding them on the
+right-hand side of the model formula, as follows:
+
+``` r
+
+robin_surv(
+  Surv(time, status) ~ 1 + strata(strata, ecog),
+  treatment = sex ~ sr(1),
+  data = surv_data
+)
+#> Model        : Surv(time, status) ~ 1 + strata(strata, ecog)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata, ecog 
+#> 
+#> Contrast     : Stratified Log Hazard Ratio
+#> 
+#>                  Estimate Std.Err Z Value Pr(>|z|)   
+#> Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Test         : Stratified Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     3.2856 0.001018 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+We could also just use covariate adjustment:
+
+``` r
+
+robin_surv(
+  Surv(time, status) ~ age + meal.cal,
+  treatment = sex ~ sr(1),
+  data = surv_data
+)
+#> Model        : Surv(time, status) ~ age + meal.cal
+#> Randomization: sex ~ sr(1) (Simple)
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
+#> 
+#> Contrast     : Covariate-adjusted Log Hazard Ratio
+#> 
+#>                  Estimate Std.Err Z Value Pr(>|z|)  
+#> Male v.s. Female  0.47686 0.18608  2.5626  0.01039 *
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Test         : Covariate-adjusted Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     2.6858 0.007236 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Or we combine both stratification and covariate adjustment:
+
+``` r
+
+robin_surv(
+  Surv(time, status) ~ age + meal.cal + strata(strata, ecog),
+  treatment = sex ~ sr(1),
+  data = surv_data
+)
+#> Model        : Surv(time, status) ~ age + meal.cal + strata(strata, ecog)
+#> Randomization: sex ~ sr(1) (Simple)
+#> Stratification variables:  strata, ecog 
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
+#> 
+#> Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
+#> 
+#>                  Estimate Std.Err Z Value Pr(>|z|)   
+#> Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Test         : Covariate-adjusted Stratified Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     2.9496 0.003181 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Note that it is also possible to skip estimation of the hazard ratio by
+specifying `contrast = "none"`:
+
+``` r
+
+robin_surv(
+  Surv(time, status) ~ age + meal.cal + strata(strata),
+  treatment = sex ~ pb(strata),
+  data = surv_data,
+  contrast = "none"
+)
+#> Model        : Surv(time, status) ~ age + meal.cal + strata(strata)
+#> Randomization: sex ~ pb(strata) (Permuted-Block)
+#> Stratification variables:  strata 
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
+#> 
+#> Contrast     : None
+#> 
+#> Test         : Covariate-adjusted Stratified Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     2.9496 0.003181 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+This can help to speed up simulation studies e.g. when there is no
+interest in the estimation performance.
+
+Note that a warning will be issued when the randomization strata are not
+adequately included in the analysis model, for example if we omit the
+`strata(strata)` term above:
+
+``` r
+
+robin_surv(
+  Surv(time, status) ~ age + meal.cal,
+  treatment = sex ~ pb(strata),
+  data = surv_data
+)
+#> Warning: It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:
+#> 
+#> a. adjust for all joint levels in your `formula` using `+ strata` or
+#> b. perform a stratified test by adding to your `formula` the term `+ strata(strata)`
+#> 
+#> NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.
+#> Model        : Surv(time, status) ~ age + meal.cal
+#> Randomization: sex ~ pb(strata) (Permuted-Block)
+#> Covariates adjusted for: age, meal.cal (including interactions with sex)
+#> 
+#> Contrast     : Covariate-adjusted Log Hazard Ratio
+#> 
+#>                  Estimate Std.Err Z Value Pr(>|z|)   
+#> Male v.s. Female  0.48134 0.18681  2.5765  0.00998 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Test         : Covariate-adjusted Log-Rank
+#> 
+#>                  Test Stat. Pr(>|z|)   
+#> Male v.s. Female     2.6333 0.008455 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+## Details of the Methods
+
+The four methods introduced above are implemented based on the
+corresponding score functions $`U(\theta)`$ with corresponding variance
+estimators $`\sigma^{2}(\theta)`$, where $`\theta`$ is the log hazard
+ratio.
+
+The log-rank test statistic is defined as
+
+``` math
+\mathcal{T}_{L} = \sqrt{n} U_{L}(0) / \sigma_{L}(0)
+```
+
+and it asymptotically follows a standard normal distribution under the
+null hypothesis of no treatment effect, i.e. $`\theta = 0`$.
+
+For estimation of $`\theta`$, we find the root $`\hat{\theta}`$ of the
+score function $`U(\theta)`$ such that $`U(\hat{\theta}) = 0`$. The
+standard error of $`\hat{\theta}`$ is derived from the variance
+estimator $`\sigma(\hat{\theta})`$, with specific formulas depending on
+the method used and detailed below.
+
+### Standard analysis without strata or covariates
+
+Following Section 2 in Ye et al. (2023), the score function from the
+partial likelihood under the Cox proportional hazards model
+$`\lambda_{1}(t) = \lambda_{0}(t) \exp(\theta)`$ is given by:
+
+``` math
+\begin{align*}
+U_{L}(\theta) 
+&= 
+\frac{1}{n} \sum_{i=1}^{n} \int_{0}^{\tau} 
+\left\{
+I_{i} - \frac{\exp(\theta) \overline{Y}_{1}(t)}{\overline{Y}_{0}(t) + \exp(\theta) \overline{Y}_{1}(t)}
+\right\}
+dN_i(t)\\
+&=
+\frac{1}{n} \sum_{j=1}^{m}
+I_{j} - \frac{\exp(\theta) \overline{Y}_{1}(t_{j})}{\overline{Y}_{0}(t_{j}) + \exp(\theta) \overline{Y}_{1}(t_{j})}
+\end{align*}
+```
+
+where we switched from the summation over all patients
+$`i = 1, \dotsc, n`$ to the summation over all patients with events
+$`j = 1, \dotsc, m`$ where $`m \leq n`$. The treatment indicator is
+$`I_{j} = 1`$ if patient $`j`$ is in treatment group 1, and
+$`I_{j} = 0`$ if patient $`j`$ is in treatment group 0. The proportions
+of patients at risk at time $`t_{j}`$, per arm $`k = 0, 1`$ is given by
+
+``` math
+\overline{Y}_{k}(t_{j}) = \frac{1}{n} \sum_{i=1}^{n} \mathbb{I}(I_{i} = k) \mathbb{I}(t_{i} \geq t_{j})
+```
+
+where $`t_{i}`$ is the potentially right-censored time of patient $`i`$
+and $`\mathbb{I}(\cdot)`$ is the indicator function.
+
+The corresponding variance estimate is given by this adapted version
+using the correction factor $`c_{\theta}(t)`$ which accounts for ties in
+the survival times in the log-rank test.
+
+``` math
+\begin{align*}
+\sigma_{L}^{2}(\theta)
+&=
+\frac{1}{n} \sum_{i=1}^{n} \int_{0}^{\tau}
+\frac{\exp(\theta) \overline{Y}_{0}(t) \overline{Y}_{1}(t) c_{\theta}(t)}{\overline{Y}_{\theta}(t)^{2}}
+dN_i(t)
+\\
+&= 
+\frac{1}{n} \sum_{j=1}^{m}
+\frac{\exp(\theta) \overline{Y}_{0}(t_{j}) \overline{Y}_{1}(t_{j}) c_{\theta}(t_{j})}{\overline{Y}_{\theta}(t_{j})^{2}}
+\end{align*}
+```
+
+where we abbreviated
+
+``` math
+\overline{Y}_{\theta}(t) = \overline{Y}_{0}(t) + \exp(\theta) \overline{Y}_{1}(t)
+```
+
+and similarly
+
+``` math
+\overline{Y}_{\theta}(t_{j}) = \overline{Y}_{0}(t_{j}) + \exp(\theta) \overline{Y}_{1}(t_{j}).
+```
+
+Let $`\delta_{i}`$ be the binary event indicator for patient $`i`$, and
+let the number of events at time $`t_{j}`$ be denoted by
+$`m(t_{j}) = \sum_{i=1}^{n} \delta_{i} \mathbb{I}(t_{i} = t_{j})`$. We
+define then the correction factor $`c_{\theta}(t_{j})`$ as follows:
+
+``` math
+c_{\theta}(t_{j}) = 
+\begin{cases}
+1 & \text{if } m(t_{j}) = 1 \\
+\frac{n \overline{Y}_{\theta}(t_{j}) - m(t_{j})}{n \overline{Y}_{\theta}(t_{j}) - 1} & \text{if } m(t_{j}) > 1
+\end{cases}
+```
+
+Furthermore, we note that this correction factor is only used when
+calculating the log-rank test statistic, which is given at
+$`\theta = 0`$ by
+
+``` math
+\mathcal{T}_{L} = \sqrt{n} U_{L}(0) / \sigma_{L}(0).
+```
+
+However, when we estimate the log hazard ratio $`\theta`$ by finding the
+root $`\hat{\theta}_{L}`$ of the score function such that
+$`U_{L}(\hat{\theta}_{L}) = 0`$, we set $`c_{\theta}(t_{j}) \equiv 1`$.
+
+The standard error of $`\hat{\theta}_{L}`$ is given by
+
+``` math
+\frac{1}{\sqrt{n} \sigma_{L}(\hat{\theta}_{L})}.
+```
+
+This score function and the variance estimator are implemented in the
+internal function `RobinCar2:::h_lr_score_no_strata_no_cov()`.
+
+### Stratified analysis without covariates
+
+Following Section S2.3 in Ye et al. (2023), the score function for the
+stratified log-rank test is given by:
+
+``` math
+\begin{align*}
+U_{SL}(\theta) 
+&= 
+\frac{1}{n} \sum_{z} \sum_{i: Z_{i} = z} \int_{0}^{\tau} 
+\left\{
+I_{i} - \frac{\exp(\theta) \overline{Y}_{z1}(t)}{\overline{Y}_{z0}(t) + \exp(\theta) \overline{Y}_{z1}(t)}
+\right\}
+dN_i(t)\\
+&=
+\frac{1}{n} \sum_{z} \sum_{j(z)}
+I_{j} - \frac{\exp(\theta) \overline{Y}_{z1}(t_{j})}{\overline{Y}_{z0}(t_{j}) + \exp(\theta) \overline{Y}_{z1}(t_{j})}
+\end{align*}
+```
+
+where the last sum is over the unique event times $`j`$ in stratum
+$`z`$, therefore written here simply as indices $`j(z)`$. The
+proportions of patients at risk at time $`t_{j}`$, per arm $`k = 0, 1`$
+in stratum $`z`$ are denoted by $`\overline{Y}_{zk}(t_{j})`$.
+Importantly, the proportion is with regards to the total number of
+patients across all strata, not just within stratum $`z`$.
+
+So we can see that the score function is a sum over strata $`z`$ of the
+standard log-rank score function. In the same way, the variance
+estimator $`\sigma_{SL}^{2}(\theta)`$ is the sum over strata $`z`$ of
+the standard log-rank variance estimator $`\sigma_{L}^{2}(\theta)`$.
+
+The standard error of the correspondingly estimated log hazard ratio
+$`\hat{\theta}_{SL}`$ is given by
+
+``` math
+\frac{1}{\sqrt{n} \sigma_{SL}(\hat{\theta}_{SL})}.
+```
+
+One small important detail is that the number of patients $`n`$ in the
+denominator is always the total number of patients across all strata,
+not the number of patients in stratum $`z`$. This is the reason why the
+standard log-rank score function
+`RobinCar2:::h_lr_score_no_strata_no_cov()` has an argument `n`, which
+is used here by the stratified log-rank score function
+`RobinCar2:::h_lr_score_strat()` to pass on the total number of
+patients.
+
+### Covariate adjusted analysis without strata
+
+A little bit more complex is the calculation of the score function for
+the covariate adjusted log-rank test, which following Section 3 in Ye et
+al. (2023) is given by:
+
+``` math
+U_{CL}(\theta) =
+U_{L}(\theta) - \frac{1}{n} \sum_{i=1}^{n} 
+\{
+I_{i}(X_{i} - \overline{X})^{\top} \hat{\beta}_{1}(\theta_{L}) - 
+(1 - I_{i})(X_{i} - \overline{X})^{\top} \hat{\beta}_{0}(\theta_{L}) 
+\}.
+```
+
+Here we have to explain a lot of notation. The score function
+$`U_{CL}(\theta)`$ is based on the standard log-rank score function
+$`U_{L}(\theta)`$, but we subtract a correction term that accounts for
+the covariates $`X_{i}`$ of patient $`i`$. The covariates are assumed to
+be centered, i.e. $`\overline{X} = \frac{1}{n} \sum_{i=1}^{n} X_{i}`$ is
+the mean of the covariates across all patients.
+
+Interestingly on the right hand side we see also $`\theta_{L}`$. This is
+supposed to be the log hazard ratio estimated by the standard log-rank
+analysis, i.e. $`\hat{\theta}_{L}`$, when finding the root of
+$`U_{CL}(\theta)`$ to estimate the log hazard ratio
+$`\hat{\theta}_{CL}`$. The reason for this is that the asymptotic
+guaranteed efficiency gain of the covariate adjusted log hazard ratio
+estimator is only proven using this version of the score function, see
+Section 3 in Ye et al. (2023). On the other hand, for calculating the
+covariate adjusted log-rank score test statistic, we set both
+$`\theta = 0`$ and $`\theta_{L} = 0`$.
+
+How are the regression coefficients $`\hat{\beta}_{1}`$ and
+$`\hat{\beta}_{0}`$ in the correction term estimated given a log hazard
+ratio $`\theta`$?
+
+First, the so-called derived outcomes $`O_{ik}`$ for patients $`i`$ and
+arms $`k=0,1`$ need to be calculated. Let $`Y_{ik}(t)`$ be the indicator
+whether patient $`i`$ in treatment arm $`k = 0,1`$ is at risk at time
+$`t`$, and let $`\delta_{i}`$ be the binary event indicator for patient
+$`i`$. Then the derived outcomes are defined as:
+
+``` math
+\begin{align*}
+O_{ik}(\theta) 
+&= \int_{0}^{\tau} 
+\frac{
+  \{\exp(\theta) \overline{Y}_{1}(t)\}^{(1-k)}
+  \{\overline{Y}_{0}(t)\}^{k}
+}{\overline{Y}_{\theta}(t)} 
+\left\{ 
+  dN_{ik}(t) - 
+\frac{Y_{ik}(t) \exp(\theta) d\overline{N}(t)}
+{\overline{Y}_{\theta}(t)} 
+\right\}
+\\
+&= 
+\sum_{j=1}^{m}
+\frac{
+  \{\exp(\theta) \overline{Y}_{1}(t_{j})\}^{(1-k)}
+  \{\overline{Y}_{0}(t_{j})\}^{k}
+}{\overline{Y}_{\theta}(t_{j})} 
+\left\{ 
+  \delta_{i} \mathbb{I}(t_{j} = t_{i}) - 
+\frac{Y_{ik}(t_{j}) \exp(\theta) m(t_{j}) / n}
+{\overline{Y}_{\theta}(t_{j})} 
+\right\}
+\end{align*}
+```
+
+where we can see that the count measure integral was again replaced by a
+sum over the unique event times $`t_{j}, j = 1, \dotsc, m`$.
+
+Second, given the derived outcomes $`O_{ik}(\theta)`$, the coefficients
+estimate $`\hat{\beta}_{k}(\theta)`$ for treatment arm $`k = 0, 1`$ is
+defined as the solution to the least squares problem with the centered
+covariates $`X_{i} - \overline{X}_{k}`$ (therefore no constant intercept
+column in $`X_{i}`$) and responses $`O_{ik}(\theta)`$.
+
+Finally, we can define the variance estimator as follows:
+
+``` math
+\sigma_{CL}^{2}(\theta) =
+\sigma_{L}^{2}(\theta) - 
+  \hat{\pi}(1 - \hat{\pi}) 
+  (\hat{\beta}_{0}(\theta_{L}) + \hat{\beta}_{1}(\theta_{L}))^{\top}
+  \hat{\Sigma}_{X}
+  (\hat{\beta}_{0}(\theta_{L}) + \hat{\beta}_{1}(\theta_{L}))
+```
+
+where $`\hat{\pi} = \frac{1}{n} \sum_{i=1}^{n} I_{i}`$ is the proportion
+of patients in treatment arm 1, and $`\hat{\Sigma}_{X}`$ is the sample
+covariance matrix of the centered covariates $`X_{i} - \overline{X}`$
+(where the average is now taken across all patients, not just within
+treatment arm $`k`$).
+
+Similarly as the for the score function defined above, the right hand
+side of the variance estimator is evaluated at $`\theta = 0`$ and
+$`\theta_{L} = 0`$ when calculating the covariate adjusted log-rank test
+statistic.
+
+However, when estimating the covariate adjusted log hazard ratio
+$`\hat{\theta}_{CL}`$, the regression coefficients
+$`\hat{\beta}_{0}(\hat{\theta}_{L})`$ and
+$`\hat{\beta}_{1}(\hat{\theta}_{L})`$ are fixed at the unadjusted log
+hazard ratio $`\hat{\theta}_{L}`$ in this expression for the standard
+error of $`\hat{\theta}_{CL}`$:
+
+``` math
+\frac{\sqrt{
+  \sigma_{L}^{2}(\hat{\theta}_{CL}) - 
+  \hat{\pi}(1 - \hat{\pi}) 
+  (\hat{\beta}_{0}(\hat{\theta}_{L}) + \hat{\beta}_{1}(\hat{\theta}_{L}))^{\top}
+  \hat{\Sigma}_{X}
+  (\hat{\beta}_{0}(\hat{\theta}_{L}) + \hat{\beta}_{1}(\hat{\theta}_{L}))
+}}{
+  \sqrt{n} \sigma_{L}^{2}(\hat{\theta}_{CL}) 
+}
+```
+
+This is the published version of the variance estimator when used for
+estimating the standard error of $`\hat{\theta}_{CL}`$ via
+$`\sigma_{L}^{2}(\hat{\theta}_{CL})`$, which is the default in
+`RobinCar2`. However, there is also an alternative version which we call
+“unadjusted” where $`\sigma_{L}^{2}(\hat{\theta}_{CL})`$ on the right
+hand side of the definition is replaced by
+$`\sigma_{L}^{2}(\hat{\theta}_{L})`$. That is, the log-rank score
+variance estimator is evaluated at the unadjusted log hazard ratio
+estimate $`\hat{\theta}_{L}`$, rather than at the covariate adjusted log
+hazard ratio estimate $`\hat{\theta}_{CL}`$. This version is available
+via the option `hr_se_plugin_adjusted = FALSE`, and is the version
+implemented in the `RobinCar` package.
+
+Note that the results will differ only very slightly. Both resulting
+standard errors are consistent and valid. One motivation for the
+unadjusted version is that it is guaranteed to be smaller than the
+standard error of the unadjusted log hazard ratio, due to the fact that
+the correction term is always positive.
+
+This score function and the variance estimator are implemented in the
+internal function `RobinCar2:::h_lr_score_cov()`.
+
+### Covariate adjusted and stratified analysis
+
+Finally, using both covariate adjustment and stratification, following
+Section S2.3 in Ye et al. (2023), the score function is given by:
+
+``` math
+U_{CSL}(\theta) =
+U_{SL}(\theta) - \frac{1}{n} \sum_{z} \sum_{i: Z_{i} = z}
+\{
+I_{i}(X_{i} - \overline{X}_{z})^{\top} \hat{\beta}_{1}(\theta_{SL}) - 
+(1 - I_{i})(X_{i} - \overline{X}_{z})^{\top} \hat{\beta}_{0}(\theta_{SL}) 
+\},
+```
+
+which shows us that it is based on the score function $`U_{SL}(\theta)`$
+from the stratified but not covariate-adjusted log-rank test. The
+correction term is added up over the strata $`z`$, but based on overall
+regression coefficients $`\hat{\beta}_{0}(\theta_{SL})`$ and
+$`\hat{\beta}_{1}(\theta_{SL})`$.
+
+Similarly as for the unstratified covariate adjusted log-rank test, the
+derived outcomes $`O_{zik}(\theta)`$ in stratum $`z`$ are defined as:
+
+``` math
+\begin{align*}
+O_{zik}(\theta) 
+&= \int_{0}^{\tau} 
+\frac{
+  \{\exp(\theta) \overline{Y}_{z1}(t)\}^{(1-k)}
+  \{\overline{Y}_{z0}(t)\}^{k}
+}{\overline{Y}_{z\theta}(t)} 
+\left\{ 
+  dN_{ik}(t) - 
+\frac{Y_{ik}(t) \exp(\theta) d\overline{N}_{z}(t)}
+{\overline{Y}_{z\theta}(t)} 
+\right\}
+\\
+&= 
+\sum_{j(z)}
+\frac{
+  \{\exp(\theta) \overline{Y}_{z1}(t_{j})\}^{(1-k)}
+  \{\overline{Y}_{z0}(t_{j})\}^{k}
+}{\overline{Y}_{z\theta}(t_{j})} 
+\left\{ 
+  \delta_{i} \mathbb{I}(t_{j} = t_{i}) - 
+\frac{Y_{ik}(t_{j}) \exp(\theta) m_{z}(t_{j}) / n}
+{\overline{Y}_{z\theta}(t_{j})} 
+\right\}
+\end{align*}
+```
+
+where
+$`m_{z}(t_{j}) = \sum_{i: Z_{i} = z} \delta_{i} \mathbb{I}(t_{j} = t_{i})`$
+is the number of events in stratum $`z`$ at the unique event time
+$`t_{j}`$, and we further abbreviated
+
+``` math
+Y_{z\theta}(t) = \overline{Y}_{z0}(t) + \exp(\theta) \overline{Y}_{z1}(t).
+```
+
+Now as a second step, given the derived outcomes $`O_{zik}(\theta)`$,
+the coefficients estimate $`\hat{\beta}_{k}(\theta)`$ for treatment arm
+$`k = 0, 1`$ is defined as:
+
+``` math
+\hat{\beta}_{k}(\theta) = 
+\left\{
+  \sum_{z} \sum_{i: I_{i} = k, Z_{i} = z}
+  (X_{i} - \overline{X}_{zk})
+  (X_{i} - \overline{X}_{zk})^{\top}
+\right\}^{-1}
+\sum_{z} \sum_{i: I_{i} = k, Z_{i} = z}
+  (X_{i} - \overline{X}_{zk})
+  O_{zik}(\theta).
+```
+
+So we see that within each treatment group and within each stratum, the
+covariates are centered separately, and the required cross-products are
+added from all strata. Finally the coefficient estimates are obtained by
+solving the least squares problem with the derived outcomes
+$`O_{zik}(\theta)`$ as responses.
+
+Finally, the variance estimator is defined very similarly to the
+covariate adjusted but unstratified log-rank test:
+
+``` math
+\sigma_{CSL}^{2}(\theta) =
+\sigma_{SL}^{2}(\theta) - 
+  \hat{\pi}(1 - \hat{\pi}) 
+  (\hat{\beta}_{0}(\theta_{SL}) + \hat{\beta}_{1}(\theta_{SL}))^{\top}
+  \left\{\sum_{z} n_z / n \hat{\Sigma}_{X\vert z}\right\}
+  (\hat{\beta}_{0}(\theta_{SL}) + \hat{\beta}_{1}(\theta_{SL}))
+```
+
+where $`n_z`$ is the number of patients in stratum $`z`$ and
+$`\hat{\Sigma}_{X\vert z}`$ is the sample covariance matrix of the
+original covariates $`X_{i}`$ within stratum $`z`$.
+
+In the same way as for the unstratified case, when estimating the
+covariate adjusted stratified log hazard ratio $`\hat{\theta}_{CSL}`$,
+the regression coefficients $`\hat{\beta}_{0}(\hat{\theta}_{SL})`$ and
+$`\hat{\beta}_{1}(\hat{\theta}_{SL})`$ are fixed at the unadjusted log
+hazard ratio $`\hat{\theta}_{SL}`$ in this expression for the standard
+error of $`\hat{\theta}_{CSL}`$:
+
+``` math
+\frac{\sqrt{
+  \sigma_{SL}^{2}(\hat{\theta}_{CSL}) - 
+  \hat{\pi}(1 - \hat{\pi}) 
+  (\hat{\beta}_{0}(\hat{\theta}_{SL}) + \hat{\beta}_{1}(\hat{\theta}_{SL}))^{\top}
+  \{\sum_{z} n_z / n \hat{\Sigma}_{X\vert z}\}
+  (\hat{\beta}_{0}(\hat{\theta}_{SL}) + \hat{\beta}_{1}(\hat{\theta}_{SL}))
+}}{
+  \sqrt{n} \sigma_{SL}^{2}(\hat{\theta}_{CSL}) 
+}
+```
+
+This is the published version of the variance estimator when used for
+estimating the standard error of $`\hat{\theta}_{CSL}`$ via
+$`\sigma_{SL}^{2}(\hat{\theta}_{CSL})`$, which is the default in
+`RobinCar2`. However, there is also an alternative version which we call
+“unadjusted” where $`\sigma_{SL}^{2}(\hat{\theta}_{CSL})`$ on the right
+hand side of the definition is replaced by
+$`\sigma_{SL}^{2}(\hat{\theta}_{SL})`$. That is, the log-rank score
+variance estimator is evaluated at the unadjusted log hazard ratio
+estimate $`\hat{\theta}_{SL}`$, rather than at the covariate adjusted
+log hazard ratio estimate $`\hat{\theta}_{CSL}`$. This version is
+available via the option `hr_se_plugin_adjusted = FALSE`, and is the
+version implemented in the `RobinCar` package.
+
+Note that the results will differ only very slightly. Both resulting
+standard errors are consistent and valid. One motivation for the
+unadjusted version is that it is guaranteed to be smaller than the
+standard error of the unadjusted log hazard ratio, due to the fact that
+the correction term is always positive.
+
+This score function and the variance estimator are implemented in the
+internal function `RobinCar2:::h_lr_score_strat_cov()`.
+
+## References
+
+Ye, Ting, Jun Shao, and Yanyao Yi. 2023. “Covariate-Adjusted Log-Rank
+Test: Guaranteed Efficiency Gain and Universal Applicability.”
+*Biometrika* 111 (2): 691–705. <https://doi.org/10.1093/biomet/asad045>.
