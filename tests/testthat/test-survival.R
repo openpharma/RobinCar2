@@ -351,7 +351,7 @@ test_that("robin_surv_strata_cov gives the same results as RobinCar functions", 
   expect_equal(result$se, robincar_result$se, tolerance = 1e-3)
 })
 
-test_that("h_log_hr_coef_mat works as expected", {
+test_that("h_coef_mat works as expected", {
   x <- list(
     estimate = 0.5,
     se = 1,
@@ -360,11 +360,11 @@ test_that("h_log_hr_coef_mat works as expected", {
       levels = c("A", "B")
     )
   )
-  result <- h_log_hr_coef_mat(x)
+  result <- h_coef_mat(x)
   expect_snapshot_value(result, tolerance = 1e-4, style = "deparse")
 })
 
-test_that("h_log_hr_coef_mat works as expected for multiple comparisons", {
+test_that("h_coef_mat works as expected for multiple comparisons", {
   x <- list(
     estimate = c(0.5, 0.7, 0.9),
     se = c(1, 2, 3),
@@ -373,7 +373,7 @@ test_that("h_log_hr_coef_mat works as expected for multiple comparisons", {
       levels = c("A", "B", "C")
     )
   )
-  result <- h_log_hr_coef_mat(x)
+  result <- h_coef_mat(x)
   expect_snapshot_value(result, tolerance = 1e-4, style = "serialize")
 })
 

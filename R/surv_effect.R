@@ -94,14 +94,7 @@ table.default <- function(x, ...) base::table(x, ...)
 #' @examples
 #' table(x)
 table.surv_effect <- function(x, ...) {
-  cat(
-    "Number of patients and events per",
-    ifelse(length(x$vars$strata), " stratum and ", " "),
-    "treatment arm:\n",
-    sep = ""
-  )
-  print(x$events_table)
-  invisible(x$events_table)
+  h_print_events_table(x)
 }
 
 #' Confidence interval function.

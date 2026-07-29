@@ -92,10 +92,10 @@ cmp <- do.call(rbind, lapply(seq_len(nrow(specs)), function(i) {
     estimand   = est,
     ci_type    = ci,
     new_est    = unname(new$estimate),
-    ref_est    = -as.numeric(ref$estimate), # sign convention
+    ref_est    = as.numeric(ref$estimate),
     new_se     = unname(new$se),
     ref_se     = as.numeric(ref$se),
-    diff_est   = unname(new$estimate) + as.numeric(ref$estimate),
+    diff_est   = unname(new$estimate) - as.numeric(ref$estimate),
     diff_se    = unname(new$se) - as.numeric(ref$se)
   )
 }))

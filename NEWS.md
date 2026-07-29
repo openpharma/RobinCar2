@@ -19,6 +19,8 @@
 
 * Added `robincar-mh` vignette article comparing `robin_mh()` to
   `RobinCar::robincar_mh()`.
+* The internal Wald coefficient matrix and events table helpers are now shared
+  between the survival and Mantel-Haenszel result classes.
 
 # RobinCar2 0.2.3
 

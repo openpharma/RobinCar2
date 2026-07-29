@@ -15,16 +15,21 @@ robin_mh(
 }
 \arguments{
 \item{formula}{(\code{formula}) Response formula of the form \code{y ~ s1 + s2} where
-the LHS is a binary 0/1 outcome and the RHS variables define the joint
-analysis strata. Use \code{y ~ 1} for the unstratified case.}
+the LHS names a binary outcome and the RHS variables define the joint
+analysis strata. Use \code{y ~ 1} for the unstratified case. The response may
+be \code{0}/\code{1}, \code{logical}, or a two-level \code{factor} whose second level is the
+event. Both sides must be bare variable names: transformed terms such as
+\code{I(1 - y)} or \code{factor(s1)} are rejected rather than silently ignored.}
 
-\item{data}{(\code{data.frame}) Input data frame.}
+\item{data}{(\code{data.frame}) Input data frame. Rows with missing values in the
+response, treatment or analysis strata are dropped with a message.}
 
 \item{treatment}{(\code{formula}) A treatment formula \code{treatment ~ scheme(vars)}
 following the same grammar as the rest of the package (\code{sr}, \code{pb}, \code{ps}).
-The randomization scheme is informational; if any randomization
-stratification variable is not part of the analysis strata a warning is
-emitted, paralleling \code{\link[=robin_surv]{robin_surv()}}.}
+The randomization scheme is informational; if the analysis strata do not
+cover the randomization strata a warning is emitted, paralleling
+\code{\link[=robin_surv]{robin_surv()}}. Analysis strata finer than the randomization strata are
+accepted without a warning.}
 
 \item{estimand}{(\code{character(1)}) Either \code{"ATE"} (default) for the average
 treatment effect, or \code{"MH"} for the Mantel-Haenszel risk difference.}
@@ -37,7 +42,7 @@ Bannick-Ye nu correction term.}
 
 \item{pair}{(\code{contrast}) Optional contrast specification (default: all
 pairwise comparisons, with the higher-indexed level as the experimental
-arm).}
+arm). It must only reference treatment levels observed in \code{data}.}
 }
 \value{
 An \code{mh_effect} object. See \link{mh_effect_methods} for available S3

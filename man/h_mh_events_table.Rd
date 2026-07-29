@@ -6,6 +6,17 @@
 \usage{
 h_mh_events_table(n_mat, r_mat, analysis_strata)
 }
+\arguments{
+\item{n_mat}{(\code{matrix}) \verb{K x J} matrix of cell sizes.}
+
+\item{r_mat}{(\code{matrix}) \verb{K x J} matrix of within-cell event counts.}
+
+\item{analysis_strata}{(\code{character}) Analysis strata variable names; when
+empty the \code{Stratum} column is dropped.}
+}
+\value{
+A \code{data.frame} with one row per stratum and treatment arm.
+}
 \description{
 Build the Events / Patient Counts Table for \code{mh_effect}
 }

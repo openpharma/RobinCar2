@@ -5,14 +5,19 @@
 #' stratified or covariate-adaptive randomization.
 #'
 #' @param formula (`formula`) Response formula of the form `y ~ s1 + s2` where
-#'   the LHS is a binary 0/1 outcome and the RHS variables define the joint
-#'   analysis strata. Use `y ~ 1` for the unstratified case.
-#' @param data (`data.frame`) Input data frame.
+#'   the LHS names a binary outcome and the RHS variables define the joint
+#'   analysis strata. Use `y ~ 1` for the unstratified case. The response may
+#'   be `0`/`1`, `logical`, or a two-level `factor` whose second level is the
+#'   event. Both sides must be bare variable names: transformed terms such as
+#'   `I(1 - y)` or `factor(s1)` are rejected rather than silently ignored.
+#' @param data (`data.frame`) Input data frame. Rows with missing values in the
+#'   response, treatment or analysis strata are dropped with a message.
 #' @param treatment (`formula`) A treatment formula `treatment ~ scheme(vars)`
 #'   following the same grammar as the rest of the package (`sr`, `pb`, `ps`).
-#'   The randomization scheme is informational; if any randomization
-#'   stratification variable is not part of the analysis strata a warning is
-#'   emitted, paralleling [robin_surv()].
+#'   The randomization scheme is informational; if the analysis strata do not
+#'   cover the randomization strata a warning is emitted, paralleling
+#'   [robin_surv()]. Analysis strata finer than the randomization strata are
+#'   accepted without a warning.
 #' @param estimand (`character(1)`) Either `"ATE"` (default) for the average
 #'   treatment effect, or `"MH"` for the Mantel-Haenszel risk difference.
 #' @param ci_type (`character(1)`) Variance estimator:
@@ -22,7 +27,7 @@
 #'   Bannick-Ye nu correction term.
 #' @param pair (`contrast`) Optional contrast specification (default: all
 #'   pairwise comparisons, with the higher-indexed level as the experimental
-#'   arm).
+#'   arm). It must only reference treatment levels observed in `data`.
 #' @return An `mh_effect` object. See [mh_effect_methods] for available S3
 #'   methods.
 #'
@@ -73,11 +78,14 @@ robin_mh <- function(
   ci_type = c("mGR", "GR", "Sato"),
   pair
 ) {
-  attr(formula, ".Environment") <- environment()
   assert_formula(formula)
   assert_true(identical(length(formula), 3L))
   assert_data_frame(data)
   assert_formula(treatment)
+  # Unlike `robin_lm`/`robin_glm`, the formula is never evaluated here - all
+  # variables are looked up by name in `data`. Detaching the environment keeps
+  # the returned object from retaining the caller's frame.
+  environment(formula) <- baseenv()
   estimand <- match.arg(estimand)
   ci_type <- match.arg(ci_type)
   if (estimand == "ATE" && ci_type != "mGR") {
@@ -87,24 +95,36 @@ robin_mh <- function(
   trt_vars <- h_get_vars(treatment)
   trt_var <- trt_vars$treatment
 
-  response_var <- all.vars(formula[[2]])
-  if (length(response_var) != 1L) {
-    stop("Left hand side of `formula` must be a single response variable.")
+  if (!is.name(formula[[2]])) {
+    stop("Left hand side of `formula` must be a single response variable, without transformation.")
   }
-  analysis_strata <- setdiff(all.vars(formula[[3]]), ".")
+  response_var <- as.character(formula[[2]])
+  analysis_strata <- h_mh_strata_vars(formula)
+  assert_disjunct(trt_var, analysis_strata)
 
   needed <- unique(c(response_var, trt_var, analysis_strata))
-  assert_subset(needed, names(data))
+  assert_subset(c(needed, trt_vars$strata), names(data))
 
-  data <- stats::na.omit(data[, needed, drop = FALSE])
+  # Completeness is only required of the analysis variables; the randomization
+  # strata are carried along for the warning below without restricting the
+  # analysis population.
+  n_original <- nrow(data)
+  data <- data[
+    stats::complete.cases(data[, needed, drop = FALSE]),
+    unique(c(needed, trt_vars$strata)),
+    drop = FALSE
+  ]
   if (nrow(data) == 0L) {
     stop("No complete observations remain after removing missing values.")
   }
+  if (nrow(data) < n_original) {
+    message(
+      "Removed ", n_original - nrow(data), " of ", n_original,
+      " observations with missing values in the analysis variables."
+    )
+  }
 
-  y <- data[[response_var]]
-  if (is.logical(y)) y <- as.integer(y)
-  assert_integerish(y, lower = 0L, upper = 1L, any.missing = FALSE)
-  y <- as.integer(y)
+  y <- h_mh_response(data[[response_var]], response_var)
 
   if (is.character(data[[trt_var]])) {
     data[[trt_var]] <- factor(data[[trt_var]])
@@ -121,7 +141,7 @@ robin_mh <- function(
   if (length(analysis_strata) == 0L) {
     strata_factor <- factor(rep("all", nrow(data)))
   } else {
-    strata_factor <- interaction(data[, analysis_strata, drop = FALSE], drop = TRUE, sep = ":")
+    strata_factor <- h_mh_joint_strata(data[, analysis_strata, drop = FALSE])
   }
   n_strata <- nlevels(strata_factor)
   strata_idx <- as.integer(strata_factor)
@@ -141,34 +161,51 @@ robin_mh <- function(
   if (missing(pair)) {
     pair <- pairwise(trt_lvls)
   }
+  assert_class(pair, "contrast")
+  unobserved <- setdiff(attr(pair, "levels")[unlist(pair)], trt_lvls)
+  if (length(unobserved) > 0L) {
+    stop(
+      "`pair` refers to treatment level(s) `",
+      toString(unobserved),
+      "` which are not observed in `data`."
+    )
+  }
   pair <- update_levels(pair, trt_lvls)
-  exp_idx <- pair[[1]]
-  ref_idx <- pair[[2]]
-  n_pair <- length(exp_idx)
 
-  mh_res <- h_mh_estimate(n_mat, r_mat, exp_idx, ref_idx, estimand, ci_type)
-  pair_labels <- sprintf("%s v.s. %s", trt_lvls[exp_idx], trt_lvls[ref_idx])
-  estimate <- setNames(as.numeric(mh_res$estimate), pair_labels)
-  se <- setNames(as.numeric(mh_res$se), pair_labels)
+  mh_res <- h_mh_estimate(n_mat, r_mat, pair[[1]], pair[[2]], estimand, ci_type)
+  coef_mat <- h_coef_mat(list(
+    estimate = as.numeric(mh_res$estimate),
+    se = as.numeric(mh_res$se),
+    pair = pair
+  ))
+  # `setNames()` is required: indexing a single-row matrix drops the names, so
+  # a one-contrast fit would otherwise return unnamed estimates.
+  estimate <- setNames(coef_mat[, "Estimate"], rownames(coef_mat))
+  se <- setNames(coef_mat[, "Std.Err"], rownames(coef_mat))
 
-  z_value <- estimate / se
-  p_value <- 2 * pnorm(-abs(z_value))
-  coef_mat <- matrix(
-    c(estimate, se, z_value, p_value),
-    nrow = n_pair,
-    dimnames = list(pair_labels, c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)"))
-  )
-
-  give_rand_strat_warning <- length(setdiff(trt_vars$strata, analysis_strata)) > 0L
-  if (give_rand_strat_warning) {
-    missing_vars <- setdiff(trt_vars$strata, analysis_strata)
+  missing_vars <- setdiff(trt_vars$strata, analysis_strata)
+  # Analysis strata finer than the randomization strata are still valid, so the
+  # names alone are not enough to decide - compare the joint levels as well.
+  # Only the analysis variables are complete-cased above, so the randomization
+  # strata may still hold missing values; restrict the comparison to the rows
+  # where they are observed, otherwise the differing `NA` positions alone would
+  # make the nesting check fail and warn about strata that are in fact covered.
+  covers_rand_strata <- if (length(missing_vars) == 0L) {
+    TRUE
+  } else {
+    rand_strata <- interaction(data[trt_vars$strata], drop = TRUE)
+    observed <- !is.na(rand_strata)
+    h_first_fct_nested_in_second(
+      droplevels(strata_factor[observed]),
+      droplevels(rand_strata[observed])
+    )
+  }
+  if (!covers_rand_strata) {
     warning(
-      paste0(
-        "It looks like you have not included all of the variables that were used ",
-        "during randomization in your analysis strata. Consider adding `",
-        toString(missing_vars),
-        "` to the right-hand side of `formula` to ensure valid stratified inference."
-      ),
+      "It looks like you have not included all of the variables that were used ",
+      "during randomization in your analysis strata. Consider adding `",
+      toString(missing_vars),
+      "` to the right-hand side of `formula` to ensure valid stratified inference.",
       call. = FALSE
     )
   }
@@ -198,6 +235,88 @@ robin_mh <- function(
   )
   class(result) <- "mh_effect"
   result
+}
+
+#' Extract the Analysis Strata Variables of an `robin_mh` Formula
+#'
+#' The right hand side must be `1` or a sum of bare variable names; transformed
+#' terms such as `factor(x)` are rejected because they would be silently
+#' ignored when the joint strata are built from the raw columns of `data`.
+#'
+#' @param formula (`formula`) Two-sided analysis formula.
+#' @return A `character` vector of variable names, empty for `y ~ 1`.
+#' @keywords internal
+h_mh_strata_vars <- function(formula) {
+  term_labels <- attr(terms(formula), "term.labels")
+  not_names <- term_labels[!vapply(term_labels, function(x) is.name(str2lang(x)), logical(1L))]
+  if (length(not_names) > 0L) {
+    stop(
+      "Right hand side of `formula` must be `1` or a sum of variable names. ",
+      "Transformed or interaction terms are not allowed: `",
+      toString(not_names),
+      "`."
+    )
+  }
+  term_labels
+}
+
+#' Coerce and Validate a Binary `robin_mh` Response
+#'
+#' Accepts `0`/`1` numeric, `logical`, or a two-level `factor` where the second
+#' level is taken as the event.
+#'
+#' @param y (`vector`) Raw response column.
+#' @param response_var (`string`) Column name, used in error messages.
+#' @return An `integer` vector of `0`/`1`.
+#' @keywords internal
+h_mh_response <- function(y, response_var) {
+  if (is.factor(y)) {
+    if (nlevels(y) != 2L) {
+      stop(
+        "Response `", response_var, "` is a factor with ", nlevels(y),
+        " levels; a binary response with exactly 2 levels is required."
+      )
+    }
+    return(as.integer(y) - 1L)
+  }
+  if (is.logical(y)) {
+    y <- as.integer(y)
+  }
+  assert_integerish(y, lower = 0L, upper = 1L, any.missing = FALSE, .var.name = response_var)
+  as.integer(y)
+}
+
+#' Build the Joint Analysis Strata Factor
+#'
+#' Unlike [interaction()], the stratum identity is derived from the level
+#' *codes* of the input columns rather than from pasted labels, so levels that
+#' happen to contain the separator (e.g. `"x:y"` crossed with `"z"` versus
+#' `"x"` crossed with `"y:z"`) remain distinct strata instead of silently
+#' collapsing into one. Labels are only cosmetic and are made unique for
+#' printing.
+#'
+#' @param df (`data.frame`) Analysis strata columns, without missing values.
+#' @return A `factor` of observed joint strata, with `interaction()`-style
+#'   `:`-separated labels and the first variable varying fastest.
+#' @keywords internal
+h_mh_joint_strata <- function(df) {
+  codes <- lapply(df, function(x) as.integer(as.factor(x)))
+  labels <- lapply(df, function(x) levels(as.factor(x)))
+  n_lvls <- vapply(labels, length, integer(1L))
+  # Mixed-radix index with the first variable varying fastest, matching the
+  # level order that `interaction()` would produce.
+  radix <- cumprod(c(1L, n_lvls[-length(n_lvls)]))
+  flat <- 1L + as.integer(Reduce(`+`, Map(function(x, m) (x - 1L) * m, codes, radix)))
+
+  observed <- sort(unique(flat))
+  grid <- lapply(seq_along(labels), function(i) {
+    labels[[i]][((observed - 1L) %/% radix[i]) %% n_lvls[i] + 1L]
+  })
+  factor(
+    flat,
+    levels = observed,
+    labels = make.unique(do.call(paste, c(grid, sep = ":")))
+  )
 }
 
 #' Mantel-Haenszel Estimate and Variance for All Pairs
@@ -338,22 +457,23 @@ h_mh_var_ate_nu <- function(n1k, n0k, n11k, n10k, weight_mat, total_weight, esti
 
   p1k <- n11k / safe_n1k
   p0k <- n10k / safe_n0k
+  # These are already zero where the cell holds at most one observation.
   y1_var_k <- ifelse(n1k > 1, p1k * (1 - p1k) * n1k / pmax(n1k - 1, 1), 0)
   y0_var_k <- ifelse(n0k > 1, p0k * (1 - p0k) * n0k / pmax(n0k - 1, 1), 0)
-  p1k_sq <- p1k^2 - ifelse(n1k > 1, y1_var_k, 0) / safe_n1k
-  p0k_sq <- p0k^2 - ifelse(n0k > 1, y0_var_k, 0) / safe_n0k
+  p1k_sq <- p1k^2 - y1_var_k / safe_n1k
+  p0k_sq <- p0k^2 - y0_var_k / safe_n0k
   delta_k_sq <- p1k_sq - 2 * p1k * p0k + p0k_sq
   delta_k <- p1k - p0k
 
-  est_mat <- matrix(estimate, nrow = nrow(n_sum_k), ncol = length(estimate), byrow = TRUE)
-  pi1_mat <- matrix(pi1, nrow = nrow(n_sum_k), ncol = length(estimate), byrow = TRUE)
-  pi0_mat <- matrix(pi0, nrow = nrow(n_sum_k), ncol = length(estimate), byrow = TRUE)
-  total_n_mat <- matrix(total_n, nrow = nrow(n_sum_k), ncol = length(estimate), byrow = TRUE)
+  # Expand a per-pair value to a K x P matrix, constant down each column.
+  per_pair <- function(x) matrix(x, nrow = nrow(n_sum_k), ncol = length(x), byrow = TRUE)
+  est_mat <- per_pair(estimate)
+  pi1_pi0_mat <- per_pair(pi1 * pi0)
 
   tmp1 <- rho_k * (delta_k_sq - est_mat^2)
-  fac <- pi1_mat * pi0_mat *
+  fac <- pi1_pi0_mat *
     (n_sum_k - 1) / safe_sum_k *
-    (n_sum_k - 1 - (4 * n_sum_k - 6) * pi1_mat * pi0_mat) / total_n_mat
+    (n_sum_k - 1 - (4 * n_sum_k - 6) * pi1_pi0_mat) / per_pair(total_n)
   tmp2 <- (delta_k_sq - 2 * delta_k * est_mat + est_mat^2) * fac
 
   mask <- weight_mat != 0
@@ -365,22 +485,24 @@ h_mh_var_ate_nu <- function(n1k, n0k, n11k, n10k, weight_mat, total_weight, esti
 }
 
 #' Build the Events / Patient Counts Table for `mh_effect`
+#'
+#' @param n_mat (`matrix`) `K x J` matrix of cell sizes.
+#' @param r_mat (`matrix`) `K x J` matrix of within-cell event counts.
+#' @param analysis_strata (`character`) Analysis strata variable names; when
+#'   empty the `Stratum` column is dropped.
+#' @return A `data.frame` with one row per stratum and treatment arm.
 #' @keywords internal
 h_mh_events_table <- function(n_mat, r_mat, analysis_strata) {
-  trt_lvls <- colnames(n_mat)
-  strata_lvls <- rownames(n_mat)
   rows <- expand.grid(
-    Stratum = strata_lvls,
-    Treatment = trt_lvls,
+    Stratum = rownames(n_mat),
+    Treatment = colnames(n_mat),
     KEEP.OUT.ATTRS = FALSE,
     stringsAsFactors = FALSE
   )
-  rows$Patients <- as.integer(c(n_mat))
-  rows$Events <- as.integer(c(r_mat))
+  rows$Patients <- as.integer(n_mat)
+  rows$Events <- as.integer(r_mat)
   if (length(analysis_strata) == 0L) {
     rows$Stratum <- NULL
-  } else {
-    names(rows)[1L] <- "Stratum"
   }
   rows
 }

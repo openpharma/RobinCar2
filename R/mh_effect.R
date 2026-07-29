@@ -49,14 +49,7 @@ print.mh_effect <- function(x, ...) {
 #' @examples
 #' table(x)
 table.mh_effect <- function(x, ...) {
-  cat(
-    "Number of patients and events per",
-    if (length(x$vars$strata) > 0L) " stratum and " else " ",
-    "treatment arm:\n",
-    sep = ""
-  )
-  print(x$events_table)
-  invisible(x$events_table)
+  h_print_events_table(x)
 }
 
 #' @export
