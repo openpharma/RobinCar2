@@ -4,15 +4,13 @@
 \alias{h_mh_var_sato}
 \title{Sato Variance for the Mantel-Haenszel Risk Difference}
 \usage{
-h_mh_var_sato(n11k, n10k, n1k, n0k, weight_mat, total_weight, estimate)
+h_mh_var_sato(n11k, n10k, n1k, n0k, total_weight, estimate)
 }
 \arguments{
 \item{n11k, n10k, n1k, n0k}{(\code{matrix}) \verb{K x P} matrices of within-stratum
 counts and event counts.}
 
-\item{weight_mat}{(\code{matrix}) \verb{K x P} matrix of MH weights.}
-
-\item{total_weight}{(\code{numeric}) length-\code{P} column sums of \code{weight_mat}.}
+\item{total_weight}{(\code{numeric}) length-\code{P} column sums of the MH weights.}
 
 \item{estimate}{(\code{numeric}) Length-\code{P} vector of MH point estimates.}
 }

@@ -14,17 +14,16 @@ h_mh_reference <- function(df, treat_col, response_col, strata_cols,
   keep <- is_exp | is_ref
   df <- df[keep, , drop = FALSE]
   strata <- droplevels(strata[keep])
-  is_exp <- df[[treat_col]] == exp_lvl
-  is_ref <- df[[treat_col]] == ref_lvl
+  is_exp <- is_exp[keep]
+  is_ref <- is_ref[keep]
   y <- as.integer(df[[response_col]])
 
-  s_lvls <- levels(strata)
-  n1k <- as.integer(table(factor(strata[is_exp], levels = s_lvls)))
-  n0k <- as.integer(table(factor(strata[is_ref], levels = s_lvls)))
-  r1 <- strata[is_exp & y == 1L]
-  r0 <- strata[is_ref & y == 1L]
-  n11k <- as.integer(table(factor(r1, levels = s_lvls)))
-  n10k <- as.integer(table(factor(r0, levels = s_lvls)))
+  # `strata` was just dropped to its observed levels, so `table()` on any subset
+  # already spans all of them.
+  n1k <- as.integer(table(strata[is_exp]))
+  n0k <- as.integer(table(strata[is_ref]))
+  n11k <- as.integer(table(strata[is_exp & y == 1L]))
+  n10k <- as.integer(table(strata[is_ref & y == 1L]))
 
   weight <- n1k * n0k / (n1k + n0k)
   weight[(n1k + n0k) == 0L] <- 0
@@ -231,8 +230,16 @@ test_that("robin_mh stays silent when the analysis strata are finer than the ran
 })
 
 test_that("robin_mh does not retain the input data in the returned object", {
-  res <- robin_mh(y_b ~ s1 + s2, data = df_two, treatment = treatment ~ pb(s1, s2))
+  # Both stored formulas must be detached: either one would otherwise keep the
+  # caller's frame, and with it the whole input data set, alive.
+  res <- local({
+    d <- df_two
+    robin_mh(y_b ~ s1 + s2, data = d, treatment = treatment ~ pb(s1, s2))
+  })
   expect_identical(attr(res$formula, ".Environment"), baseenv())
+  expect_identical(attr(res$randomization, ".Environment"), baseenv())
+  # `object.size()` does not follow environments, but serialization does.
+  expect_lt(length(serialize(res, NULL)), length(serialize(df_two, NULL)))
 })
 
 test_that("robin_mh errors on randomization strata absent from data", {
@@ -397,7 +404,7 @@ test_that("table.mh_effect returns the events table invisibly", {
     data = df_two,
     treatment = treatment ~ pb(s1, s2)
   )
-  out <- capture.output(tab <- table(res))
+  capture.output(tab <- table(res))
   expect_s3_class(tab, "data.frame")
   expect_named(tab, c("Stratum", "Treatment", "Patients", "Events"))
   expect_equal(sum(tab$Patients), nrow(df_two))

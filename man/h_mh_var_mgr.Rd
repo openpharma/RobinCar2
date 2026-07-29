@@ -12,7 +12,7 @@ counts and event counts.}
 
 \item{weight_mat}{(\code{matrix}) \verb{K x P} matrix of MH weights.}
 
-\item{total_weight}{(\code{numeric}) length-\code{P} column sums of \code{weight_mat}.}
+\item{total_weight}{(\code{numeric}) length-\code{P} column sums of the MH weights.}
 }
 \value{
 Length-\code{P} numeric vector of variance estimates.

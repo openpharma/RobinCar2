@@ -17,7 +17,7 @@ NULL
 #' @examples
 #' print(x)
 print.mh_effect <- function(x, ...) {
-  cat("Model        : ", deparse(as.formula(x$formula)), "\n", sep = "")
+  cat("Model        : ", deparse(x$formula), "\n", sep = "")
   cat(
     "Randomization: ",
     deparse(x$randomization),

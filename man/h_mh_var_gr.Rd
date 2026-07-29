@@ -4,20 +4,22 @@
 \alias{h_mh_var_gr}
 \title{Greenland-Robins Variance for the Mantel-Haenszel Risk Difference}
 \usage{
-h_mh_var_gr(n11k, n10k, n1k, n0k, weight_mat, total_weight)
+h_mh_var_gr(n11k, n10k, n1k, n0k, total_weight)
 }
 \arguments{
 \item{n11k, n10k, n1k, n0k}{(\code{matrix}) \verb{K x P} matrices of within-stratum
 counts and event counts.}
 
-\item{weight_mat}{(\code{matrix}) \verb{K x P} matrix of MH weights.}
-
-\item{total_weight}{(\code{numeric}) length-\code{P} column sums of \code{weight_mat}.}
+\item{total_weight}{(\code{numeric}) length-\code{P} column sums of the MH weights.}
 }
 \value{
 Length-\code{P} numeric vector of variance estimates.
 }
 \description{
 Vectorised across pairs.
+}
+\details{
+Strata with an empty arm need no explicit masking: every term of the
+numerator already carries a factor that is zero for such a cell.
 }
 \keyword{internal}

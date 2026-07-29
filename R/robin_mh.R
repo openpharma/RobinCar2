@@ -82,10 +82,12 @@ robin_mh <- function(
   assert_true(identical(length(formula), 3L))
   assert_data_frame(data)
   assert_formula(treatment)
-  # Unlike `robin_lm`/`robin_glm`, the formula is never evaluated here - all
-  # variables are looked up by name in `data`. Detaching the environment keeps
-  # the returned object from retaining the caller's frame.
+  # Unlike `robin_lm`/`robin_glm`, the formulas are never evaluated here - all
+  # variables are looked up by name in `data`. Detaching the environments keeps
+  # the returned object from retaining the caller's frame, which would otherwise
+  # pin the whole input data set for the lifetime of the result.
   environment(formula) <- baseenv()
+  environment(treatment) <- baseenv()
   estimand <- match.arg(estimand)
   ci_type <- match.arg(ci_type)
   if (estimand == "ATE" && ci_type != "mGR") {
@@ -178,10 +180,8 @@ robin_mh <- function(
     se = as.numeric(mh_res$se),
     pair = pair
   ))
-  # `setNames()` is required: indexing a single-row matrix drops the names, so
-  # a one-contrast fit would otherwise return unnamed estimates.
-  estimate <- setNames(coef_mat[, "Estimate"], rownames(coef_mat))
-  se <- setNames(coef_mat[, "Std.Err"], rownames(coef_mat))
+  estimate <- setNames(mh_res$estimate, rownames(coef_mat))
+  se <- setNames(mh_res$se, rownames(coef_mat))
 
   missing_vars <- setdiff(trt_vars$strata, analysis_strata)
   # Analysis strata finer than the randomization strata are still valid, so the
@@ -193,12 +193,10 @@ robin_mh <- function(
   covers_rand_strata <- if (length(missing_vars) == 0L) {
     TRUE
   } else {
-    rand_strata <- interaction(data[trt_vars$strata], drop = TRUE)
+    rand_strata <- h_mh_joint_strata(data[trt_vars$strata])
     observed <- !is.na(rand_strata)
-    h_first_fct_nested_in_second(
-      droplevels(strata_factor[observed]),
-      droplevels(rand_strata[observed])
-    )
+    # `h_first_fct_nested_in_second()` drops unused levels itself.
+    h_first_fct_nested_in_second(strata_factor[observed], rand_strata[observed])
   }
   if (!covers_rand_strata) {
     warning(
@@ -300,22 +298,21 @@ h_mh_response <- function(y, response_var) {
 #'   `:`-separated labels and the first variable varying fastest.
 #' @keywords internal
 h_mh_joint_strata <- function(df) {
-  codes <- lapply(df, function(x) as.integer(as.factor(x)))
-  labels <- lapply(df, function(x) levels(as.factor(x)))
-  n_lvls <- vapply(labels, length, integer(1L))
+  fcts <- lapply(df, as.factor)
+  n_lvls <- vapply(fcts, nlevels, integer(1L))
   # Mixed-radix index with the first variable varying fastest, matching the
   # level order that `interaction()` would produce.
   radix <- cumprod(c(1L, n_lvls[-length(n_lvls)]))
-  flat <- 1L + as.integer(Reduce(`+`, Map(function(x, m) (x - 1L) * m, codes, radix)))
+  flat <- 1L + as.integer(Reduce(`+`, Map(function(f, m) (as.integer(f) - 1L) * m, fcts, radix)))
 
   observed <- sort(unique(flat))
-  grid <- lapply(seq_along(labels), function(i) {
-    labels[[i]][((observed - 1L) %/% radix[i]) %% n_lvls[i] + 1L]
-  })
+  # Decode each observed index back into its per-variable level for labelling.
+  grid <- arrayInd(observed, .dim = n_lvls)
+  labels <- Map(function(f, i) levels(f)[grid[, i]], fcts, seq_along(fcts))
   factor(
     flat,
     levels = observed,
-    labels = make.unique(do.call(paste, c(grid, sep = ":")))
+    labels = make.unique(do.call(paste, c(labels, sep = ":")))
   )
 }
 
@@ -344,11 +341,10 @@ h_mh_estimate <- function(n_mat, r_mat, exp_idx, ref_idx, estimand, ci_type) {
   n_sum_k <- n1k + n0k
   safe_sum_k <- pmax(n_sum_k, 1)
 
+  # Empty cells need no masking: `n1k * n0k` is already zero whenever either arm
+  # is empty, which also zeroes that stratum's contribution to the numerator.
   weight_mat <- n1k * n0k / safe_sum_k
-  weight_mat[n_sum_k == 0] <- 0
-
   delta_mat <- n11k / safe_n1k - n10k / safe_n0k
-  delta_mat[n1k == 0 | n0k == 0] <- 0
 
   total_weight <- colSums(weight_mat)
   if (any(total_weight == 0)) {
@@ -357,9 +353,9 @@ h_mh_estimate <- function(n_mat, r_mat, exp_idx, ref_idx, estimand, ci_type) {
   estimate <- colSums(weight_mat * delta_mat) / total_weight
 
   var_per_pair <- switch(ci_type,
-    GR = h_mh_var_gr(n11k, n10k, n1k, n0k, weight_mat, total_weight),
+    GR = h_mh_var_gr(n11k, n10k, n1k, n0k, total_weight),
     mGR = h_mh_var_mgr(n11k, n10k, n1k, n0k, weight_mat, total_weight),
-    Sato = h_mh_var_sato(n11k, n10k, n1k, n0k, weight_mat, total_weight, estimate)
+    Sato = h_mh_var_sato(n11k, n10k, n1k, n0k, total_weight, estimate)
   )
 
   if (estimand == "ATE") {
@@ -369,10 +365,11 @@ h_mh_estimate <- function(n_mat, r_mat, exp_idx, ref_idx, estimand, ci_type) {
       estimate = estimate
     )
   }
-  if (any(var_per_pair < 0)) {
+  negative <- var_per_pair < 0
+  if (any(negative)) {
     warning("Negative variance estimate produced; standard error set to NA.", call. = FALSE)
   }
-  se <- ifelse(var_per_pair >= 0, sqrt(pmax(var_per_pair, 0)), NA_real_)
+  se <- sqrt(replace(var_per_pair, negative, NA_real_))
 
   list(estimate = estimate, se = se)
 }
@@ -382,23 +379,24 @@ h_mh_estimate <- function(n_mat, r_mat, exp_idx, ref_idx, estimand, ci_type) {
 #' Vectorised across pairs.
 #' @param n11k,n10k,n1k,n0k (`matrix`) `K x P` matrices of within-stratum
 #'   counts and event counts.
-#' @param weight_mat (`matrix`) `K x P` matrix of MH weights.
-#' @param total_weight (`numeric`) length-`P` column sums of `weight_mat`.
+#' @param total_weight (`numeric`) length-`P` column sums of the MH weights.
 #' @return Length-`P` numeric vector of variance estimates.
+#'
+#' @details Strata with an empty arm need no explicit masking: every term of the
+#'   numerator already carries a factor that is zero for such a cell.
 #' @keywords internal
-h_mh_var_gr <- function(n11k, n10k, n1k, n0k, weight_mat, total_weight) {
+h_mh_var_gr <- function(n11k, n10k, n1k, n0k, total_weight) {
   safe_n1k <- pmax(n1k, 1)
   safe_n0k <- pmax(n0k, 1)
   safe_sum_k <- pmax(n1k + n0k, 1)
   num <- n11k * (n1k - n11k) * n0k^3 + n10k * (n0k - n10k) * n1k^3
   den <- safe_n1k * safe_n0k * safe_sum_k^2
-  var_k <- num / den
-  var_k[weight_mat == 0] <- 0
-  colSums(var_k) / total_weight^2
+  colSums(num / den) / total_weight^2
 }
 
 #' Modified Greenland-Robins Variance for the Mantel-Haenszel Risk Difference
 #' @inheritParams h_mh_var_gr
+#' @param weight_mat (`matrix`) `K x P` matrix of MH weights.
 #' @return Length-`P` numeric vector of variance estimates.
 #' @keywords internal
 h_mh_var_mgr <- function(n11k, n10k, n1k, n0k, weight_mat, total_weight) {
@@ -412,7 +410,6 @@ h_mh_var_mgr <- function(n11k, n10k, n1k, n0k, weight_mat, total_weight) {
     n11k * n01k / safe_n1k^3 * help1 +
       n10k * n00k / safe_n0k^3 * help0
   )
-  var_k[weight_mat == 0] <- 0
   colSums(var_k) / total_weight^2
 }
 
@@ -421,12 +418,10 @@ h_mh_var_mgr <- function(n11k, n10k, n1k, n0k, weight_mat, total_weight) {
 #' @param estimate (`numeric`) Length-`P` vector of MH point estimates.
 #' @return Length-`P` numeric vector of variance estimates.
 #' @keywords internal
-h_mh_var_sato <- function(n11k, n10k, n1k, n0k, weight_mat, total_weight, estimate) {
+h_mh_var_sato <- function(n11k, n10k, n1k, n0k, total_weight, estimate) {
   safe_sum_k <- pmax(n1k + n0k, 1)
   pk <- (n1k^2 * n10k - n0k^2 * n11k + n1k * n0k * (n0k - n1k) / 2) / safe_sum_k^2
   qk <- (n11k * (n0k - n10k) + n10k * (n1k - n11k)) / (2 * safe_sum_k)
-  pk[weight_mat == 0] <- 0
-  qk[weight_mat == 0] <- 0
   (estimate * colSums(pk) + colSums(qk)) / total_weight^2
 }
 
@@ -447,19 +442,18 @@ h_mh_var_ate_nu <- function(n1k, n0k, n11k, n10k, weight_mat, total_weight, esti
   n_sum_k <- n1k + n0k
   safe_sum_k <- pmax(n_sum_k, 1)
 
+  # `total_n > 0` is guaranteed by the `total_weight > 0` check in the caller.
   total_n <- colSums(n_sum_k)
-  if (any(total_n == 0)) {
-    stop("No observations available for at least one treatment comparison.")
-  }
   pi1 <- colSums(n1k) / total_n
   pi0 <- colSums(n0k) / total_n
   rho_k <- sweep(n_sum_k, 2L, total_n, "/")
 
   p1k <- n11k / safe_n1k
   p0k <- n10k / safe_n0k
-  # These are already zero where the cell holds at most one observation.
-  y1_var_k <- ifelse(n1k > 1, p1k * (1 - p1k) * n1k / pmax(n1k - 1, 1), 0)
-  y0_var_k <- ifelse(n0k > 1, p0k * (1 - p0k) * n0k / pmax(n0k - 1, 1), 0)
+  # `p * (1 - p) * n` is already zero where the cell holds at most one
+  # observation, so no explicit guard is needed.
+  y1_var_k <- p1k * (1 - p1k) * n1k / pmax(n1k - 1, 1)
+  y0_var_k <- p0k * (1 - p0k) * n0k / pmax(n0k - 1, 1)
   p1k_sq <- p1k^2 - y1_var_k / safe_n1k
   p0k_sq <- p0k^2 - y0_var_k / safe_n0k
   delta_k_sq <- p1k_sq - 2 * p1k * p0k + p0k_sq
@@ -468,19 +462,22 @@ h_mh_var_ate_nu <- function(n1k, n0k, n11k, n10k, weight_mat, total_weight, esti
   # Expand a per-pair value to a K x P matrix, constant down each column.
   per_pair <- function(x) matrix(x, nrow = nrow(n_sum_k), ncol = length(x), byrow = TRUE)
   est_mat <- per_pair(estimate)
+  est_sq_mat <- est_mat^2
   pi1_pi0_mat <- per_pair(pi1 * pi0)
 
-  tmp1 <- rho_k * (delta_k_sq - est_mat^2)
+  tmp1 <- rho_k * (delta_k_sq - est_sq_mat)
   fac <- pi1_pi0_mat *
     (n_sum_k - 1) / safe_sum_k *
-    (n_sum_k - 1 - (4 * n_sum_k - 6) * pi1_pi0_mat) / per_pair(total_n)
-  tmp2 <- (delta_k_sq - 2 * delta_k * est_mat + est_mat^2) * fac
+    (n_sum_k - 1 - (4 * n_sum_k - 6) * pi1_pi0_mat)
+  tmp2 <- (delta_k_sq - 2 * delta_k * est_mat + est_sq_mat) * fac
 
   mask <- weight_mat != 0
   tmp1[!mask] <- 0
   tmp2[!mask] <- 0
 
-  numer <- pi1^2 * pi0^2 * colSums(tmp1) + colSums(tmp2)
+  # `tmp2`'s per-pair `1 / total_n` factor is applied here rather than expanded
+  # into a full `K x P` matrix above.
+  numer <- pi1^2 * pi0^2 * colSums(tmp1) + colSums(tmp2) / total_n
   numer / total_n / (total_weight / total_n)^2
 }
 
