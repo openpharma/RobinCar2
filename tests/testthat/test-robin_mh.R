@@ -163,6 +163,33 @@ test_that("robin_mh handles unstratified analysis (y ~ 1) and reduces to plain r
   expect_equal(unname(res$estimate), p1 - p0)
 })
 
+test_that("robin_mh with y ~ 1 reproduces the classic two-sample standard errors", {
+  n1 <- sum(df_two$treatment == "trt1")
+  n0 <- sum(df_two$treatment == "pbo")
+  p1 <- mean(df_two$y_b[df_two$treatment == "trt1"])
+  p0 <- mean(df_two$y_b[df_two$treatment == "pbo"])
+  se_wald <- sqrt(p1 * (1 - p1) / n1 + p0 * (1 - p0) / n0)
+  # `mGR` carries an n / (n - 1) factor, giving the unbiased-variance version.
+  se_wald_unbiased <- sqrt(p1 * (1 - p1) / (n1 - 1) + p0 * (1 - p0) / (n0 - 1))
+
+  ses <- vapply(
+    c("GR", "Sato", "mGR"),
+    function(ct) {
+      unname(robin_mh(
+        y_b ~ 1,
+        data = df_two,
+        treatment = treatment ~ sr(1),
+        estimand = "MH",
+        ci_type = ct
+      )$se)
+    },
+    numeric(1L)
+  )
+  expect_equal(ses[["GR"]], se_wald)
+  expect_equal(ses[["Sato"]], se_wald)
+  expect_equal(ses[["mGR"]], se_wald_unbiased)
+})
+
 test_that("robin_mh extends to multi-arm pairwise comparisons and is consistent with two-arm fits", {
   res_all <- robin_mh(
     y_b ~ s1 + s2,
@@ -213,12 +240,28 @@ test_that("robin_mh validates inputs", {
 test_that("robin_mh emits a warning if randomization strata are not analysis strata", {
   expect_warning(
     robin_mh(y_b ~ s1, data = glm_data, treatment = treatment ~ pb(s1, s2)),
-    "Consider adding `s2`"
+    "Add `s2`"
   )
   expect_warning(
     robin_mh(y_b ~ 1, data = glm_data, treatment = treatment ~ pb(s1), estimand = "MH"),
-    "Consider adding `s1`"
+    "Add `s1`"
   )
+})
+
+test_that("robin_mh rejects continuous analysis strata", {
+  # Stratification is the only adjustment mechanism, so a continuous column
+  # would silently contribute one stratum per distinct value.
+  expect_error(
+    robin_mh(y_b ~ covar, data = df_two, treatment = treatment ~ sr(1)),
+    "is continuous"
+  )
+  # Integer-valued columns are legitimate coarse strata and must still work.
+  d_int <- df_two
+  d_int$s_int <- as.integer(d_int$s1)
+  expect_silent(
+    res <- robin_mh(y_b ~ s_int + s2, data = d_int, treatment = treatment ~ pb(s1, s2))
+  )
+  expect_equal(nrow(res$n_per_arm_stratum), 4L)
 })
 
 test_that("robin_mh stays silent when the analysis strata are finer than the randomization strata", {
@@ -326,7 +369,7 @@ test_that("robin_mh does not warn when randomization strata carry missing values
   # A genuinely uncovered randomization stratum still warns.
   expect_warning(
     robin_mh(y_b ~ s1, data = d, treatment = treatment ~ pb(s1, s2)),
-    "Consider adding `s2`"
+    "Add `s2`"
   )
 })
 

@@ -15,19 +15,23 @@ robin_mh(
 }
 \arguments{
 \item{formula}{(\code{formula}) Response formula of the form \code{y ~ s1 + s2} where
-the LHS names a binary outcome and the RHS variables define the joint
-analysis strata. Use \code{y ~ 1} for the unstratified case. The response may
-be \code{0}/\code{1}, \code{logical}, or a two-level \code{factor} whose second level is the
-event. Both sides must be bare variable names: transformed terms such as
-\code{I(1 - y)} or \code{factor(s1)} are rejected rather than silently ignored.}
+the LHS names a binary outcome and the RHS names the variables to adjust
+for. \code{robin_mh()} adjusts by stratification only, so every RHS term defines
+analysis strata rather than model covariates, and continuous columns are
+rejected; see the "Choosing the analysis strata" section below. Use
+\code{y ~ 1} for the unstratified case. The response may be \code{0}/\code{1}, \code{logical},
+or a two-level \code{factor} whose second level is the event. Both sides must be
+bare variable names: transformed terms such as \code{I(1 - y)} or \code{factor(s1)}
+are rejected rather than silently ignored.}
 
 \item{data}{(\code{data.frame}) Input data frame. Rows with missing values in the
 response, treatment or analysis strata are dropped with a message.}
 
 \item{treatment}{(\code{formula}) A treatment formula \code{treatment ~ scheme(vars)}
 following the same grammar as the rest of the package (\code{sr}, \code{pb}, \code{ps}).
-The randomization scheme is informational; if the analysis strata do not
-cover the randomization strata a warning is emitted, paralleling
+Only the treatment column enters the estimator; the scheme is used for
+labelling, and the randomization strata to check that the analysis strata
+cover them. If they do not, a warning is emitted, paralleling
 \code{\link[=robin_surv]{robin_surv()}}. Analysis strata finer than the randomization strata are
 accepted without a warning.}
 
@@ -63,6 +67,39 @@ is \deqn{\widehat{\Delta}_{MH} =
 Variance estimators: see Greenland & Robins (1985), Sato (1989), and
 Bannick et al. (2024) for the ATE additive correction.
 }
+\section{Choosing the analysis strata}{
+
+The analysis strata should cover the randomization strata; being finer than,
+or a relabelling of, them is fine, as the check compares joint levels rather
+than names. Leaving a randomization variable out has two distinct costs,
+neither of which \code{\link[=robin_glm]{robin_glm()}} pays - see the "Package Introduction" vignette
+for that comparison:
+\itemize{
+\item Under a scheme that forces balance within strata (\code{pb}), the standard error
+is conservative rather than wrong: the scheme suppresses variability that
+the unstratified formula still assumes is present, so coverage exceeds the
+nominal level and power is lost. \code{y ~ 1} under \code{sr} has no such penalty.
+\item If the allocation ratio varies across the omitted variable, the estimate is
+confounded, since the arms then differ in composition. This is a bias, not a
+precision loss.
+}
+
+Baseline variables that were \emph{not} used for randomization may be added, and
+stratifying on a strongly prognostic one is the usual route to a precision
+gain. Two cautions:
+\itemize{
+\item Each added variable multiplies the number of cells. Strata in which one arm
+is empty carry zero weight and drop out silently, so check the cell counts
+with \code{table()} on the result. Only if \emph{every} stratum loses an arm is an
+error raised.
+\item For \code{estimand = "ATE"}, the MH weights target the ATE when the allocation
+ratio is constant across strata, and the \code{nu} correction likewise uses
+pooled allocation proportions. Stratified randomization on the analysis
+strata guarantees this by construction; a self-chosen stratification does
+not.
+}
+}
+
 \examples{
 robin_mh(
   y_b ~ s1 + s2,
@@ -70,7 +107,9 @@ robin_mh(
   treatment = treatment ~ pb(s1, s2)
 )
 
-# Unstratified MH risk difference (degenerates to plain difference of proportions):
+# Unstratified MH risk difference. With one stratum the weights cancel, so this
+# is the plain difference of proportions; `GR`/`Sato` reproduce the unpooled
+# Wald standard error and `mGR` its `n - 1` variant.
 robin_mh(
   y_b ~ 1,
   data = subset(glm_data, treatment != "trt2"),

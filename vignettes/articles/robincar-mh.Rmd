@@ -129,6 +129,81 @@ robin_mh(
 )
 ```
 
+## What the right-hand side of `formula` means
+
+Across `RobinCar2` the right-hand side of the analysis formula lists the
+variables adjusted for, but each function adjusts by a different mechanism, and
+`robin_mh()` is the one where that difference has consequences. It has no
+working outcome model: the terms on the right-hand side define the joint strata
+$k$ over which the $w_k$-weighted average of within-stratum risk differences is
+taken. They are stratification variables, not model covariates -- which is why
+the print method labels them "Stratification variables".
+
+Because there is no working model, there is also no scheme-specific variance
+correction, so the analysis strata are the only route by which the randomization
+is accounted for. Leaving a randomization variable out is therefore flagged:
+
+```{r}
+res_partial <- robin_mh(
+  y_b ~ s1,
+  data = df_two,
+  treatment = treatment ~ pb(s1, s2)
+)
+```
+
+Adding `s2` back resolves it:
+
+```{r}
+robin_mh(
+  y_b ~ s1 + s2,
+  data = df_two,
+  treatment = treatment ~ pb(s1, s2)
+)
+```
+
+The same omission in a `robin_glm()` model is benign, since there the
+randomization strata reach a variance correction via the `treatment` formula
+regardless of the model formula; the "Package Introduction" vignette contrasts
+the two mechanisms.
+
+The check compares joint levels rather than names, so analysis strata that are
+finer than -- or a relabelling of -- the randomization strata pass silently:
+
+```{r}
+df_two$sjoint <- interaction(df_two$s1, df_two$s2, drop = TRUE)
+robin_mh(
+  y_b ~ sjoint,
+  data = df_two,
+  treatment = treatment ~ pb(s1, s2),
+  estimand = "MH"
+)
+```
+
+Baseline variables that were not used for randomization may also be added, and
+stratifying on a strongly prognostic one is the usual route to a precision gain.
+The cost is sparsity: each added variable multiplies the cell count, and strata
+in which one arm is empty carry zero weight and drop out silently. Use `table()`
+to inspect the cells:
+
+```{r}
+table(res_partial)
+```
+
+Since stratification is the only adjustment mechanism, the variables must be
+categorical. A continuous column would contribute one stratum per distinct
+value, so it is rejected rather than silently expanded:
+
+```{r, error = TRUE}
+robin_mh(
+  y_b ~ covar,
+  data = df_two,
+  treatment = treatment ~ sr(1)
+)
+```
+
+To adjust for a continuous covariate with a binary outcome, use `robin_glm()`
+with `family = binomial()` instead.
+
 ## Differences in argument usage
 
 | Concept | `RobinCar::robincar_mh()` | `RobinCar2::robin_mh()` |

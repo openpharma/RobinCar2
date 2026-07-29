@@ -126,6 +126,75 @@ robin_glm(y_b ~ treatment * s1 + covar,
 )
 ```
 
+## How the Randomization Scheme Enters Each Function
+
+All analysis functions give valid inference under covariate-adaptive
+randomization, but they get there by two different routes, and the route
+determines whether the randomization strata have to appear in the analysis
+formula.
+
+`robin_lm()` and `robin_glm()` read the randomization strata from the
+`treatment` formula, *independently of the model formula*, and use them to build
+a scheme-specific variance correction (zero under `sr` and `ps`, non-zero under
+`pb`). So a randomization variable may be omitted from the model without
+invalidating anything -- here we randomize on `s1` and `s2` but adjust for
+neither:
+
+```{r}
+robin_glm(y_b ~ treatment,
+  data = glm_data,
+  treatment = treatment ~ pb(s1, s2),
+  family = binomial(link = "logit")
+)
+```
+
+No warning: the permuted-block dependence is still accounted for. Omitting `s1`
+and `s2` costs precision, not validity.
+
+`robin_mh()` and `robin_surv()` have no such correction term. They are
+scheme-agnostic precisely *because* they condition on the strata directly, which
+leaves no residual scheme-induced dependence to correct. The analysis formula is
+therefore the only route by which randomization is accounted for, so dropping a
+randomization variable is flagged:
+
+```{r}
+robin_mh(y_b ~ s1,
+  data = subset(glm_data, treatment != "trt2"),
+  treatment = treatment ~ pb(s1, s2)
+)
+```
+
+The direction of the failure is worth being precise about. Permuted blocks force
+treatment balance within each stratum, which *removes* variability that the
+unstratified formula still assumes is present, so the standard error comes out
+too large: the interval over-covers and power is lost, rather than false
+positives being produced. In a 2000-replicate simulation (n = 400, permuted
+blocks within a stratum with risks 0.15 and 0.65, true risk difference 0.10),
+`y_b ~ 1` gave a mean standard error 18% above the true sampling SD and 98%
+coverage of a nominal 95% interval, while `y_b ~ s1` gave a ratio of 1.02 and
+95.0% coverage. Under simple randomization there is no such penalty -- `sr`
+forces no balance, so the unstratified standard error is already correct
+(ratio 0.99, coverage 95.2%); stratifying then buys precision, not correctness.
+
+| | Randomization handled by | Randomization variable missing from the analysis formula |
+|---|---|---|
+| `robin_lm()`, `robin_glm()` | scheme-aware variance correction, fed from `treatment` | costs precision only; no warning |
+| `robin_mh()`, `robin_surv()` | conditioning on the strata in the estimator | conservative standard error under `pb`; warning issued |
+
+One case is a genuine bias rather than a precision loss: if the allocation ratio
+varies across the omitted variable, the arms differ in composition and the
+unstratified estimate is confounded. With 150/50 patients in one stratum and
+50/150 in the other and a true risk difference of 0.10, `y_b ~ 1` returns 0.375
+while `y_b ~ s1` returns 0.15. Stratified randomization rules this out by
+construction, which is one more reason to keep the randomization strata in the
+formula.
+
+This is also why the scheme wrapper (`pb`, `ps`, `sr`) changes the numbers for
+`robin_lm()` and `robin_glm()` but is only informational for `robin_mh()` and
+`robin_surv()`. For the trade-offs specific to each -- how fine to make the
+strata, and which variables belong there -- see `?robin_mh` and the
+"Survival Analysis with RobinCar2" article.
+
 ## Obtain the Confidence Intervals for the Marginal Means and contrast
 
 To obtain the confidence interval, we can use `confint` function.

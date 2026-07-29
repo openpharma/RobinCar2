@@ -5,17 +5,21 @@
 #' stratified or covariate-adaptive randomization.
 #'
 #' @param formula (`formula`) Response formula of the form `y ~ s1 + s2` where
-#'   the LHS names a binary outcome and the RHS variables define the joint
-#'   analysis strata. Use `y ~ 1` for the unstratified case. The response may
-#'   be `0`/`1`, `logical`, or a two-level `factor` whose second level is the
-#'   event. Both sides must be bare variable names: transformed terms such as
-#'   `I(1 - y)` or `factor(s1)` are rejected rather than silently ignored.
+#'   the LHS names a binary outcome and the RHS names the variables to adjust
+#'   for. `robin_mh()` adjusts by stratification only, so every RHS term defines
+#'   analysis strata rather than model covariates, and continuous columns are
+#'   rejected; see the "Choosing the analysis strata" section below. Use
+#'   `y ~ 1` for the unstratified case. The response may be `0`/`1`, `logical`,
+#'   or a two-level `factor` whose second level is the event. Both sides must be
+#'   bare variable names: transformed terms such as `I(1 - y)` or `factor(s1)`
+#'   are rejected rather than silently ignored.
 #' @param data (`data.frame`) Input data frame. Rows with missing values in the
 #'   response, treatment or analysis strata are dropped with a message.
 #' @param treatment (`formula`) A treatment formula `treatment ~ scheme(vars)`
 #'   following the same grammar as the rest of the package (`sr`, `pb`, `ps`).
-#'   The randomization scheme is informational; if the analysis strata do not
-#'   cover the randomization strata a warning is emitted, paralleling
+#'   Only the treatment column enters the estimator; the scheme is used for
+#'   labelling, and the randomization strata to check that the analysis strata
+#'   cover them. If they do not, a warning is emitted, paralleling
 #'   [robin_surv()]. Analysis strata finer than the randomization strata are
 #'   accepted without a warning.
 #' @param estimand (`character(1)`) Either `"ATE"` (default) for the average
@@ -41,6 +45,35 @@
 #' Variance estimators: see Greenland & Robins (1985), Sato (1989), and
 #' Bannick et al. (2024) for the ATE additive correction.
 #'
+#' @section Choosing the analysis strata:
+#' The analysis strata should cover the randomization strata; being finer than,
+#' or a relabelling of, them is fine, as the check compares joint levels rather
+#' than names. Leaving a randomization variable out has two distinct costs,
+#' neither of which [robin_glm()] pays - see the "Package Introduction" vignette
+#' for that comparison:
+#'
+#' - Under a scheme that forces balance within strata (`pb`), the standard error
+#'   is conservative rather than wrong: the scheme suppresses variability that
+#'   the unstratified formula still assumes is present, so coverage exceeds the
+#'   nominal level and power is lost. `y ~ 1` under `sr` has no such penalty.
+#' - If the allocation ratio varies across the omitted variable, the estimate is
+#'   confounded, since the arms then differ in composition. This is a bias, not a
+#'   precision loss.
+#'
+#' Baseline variables that were *not* used for randomization may be added, and
+#' stratifying on a strongly prognostic one is the usual route to a precision
+#' gain. Two cautions:
+#'
+#' - Each added variable multiplies the number of cells. Strata in which one arm
+#'   is empty carry zero weight and drop out silently, so check the cell counts
+#'   with `table()` on the result. Only if *every* stratum loses an arm is an
+#'   error raised.
+#' - For `estimand = "ATE"`, the MH weights target the ATE when the allocation
+#'   ratio is constant across strata, and the `nu` correction likewise uses
+#'   pooled allocation proportions. Stratified randomization on the analysis
+#'   strata guarantees this by construction; a self-chosen stratification does
+#'   not.
+#'
 #' @references
 #' Greenland S, Robins JM (1985). Estimation of a common effect parameter from
 #' sparse follow-up data. \emph{Biometrics} 41:55-68.
@@ -62,7 +95,9 @@
 #'   treatment = treatment ~ pb(s1, s2)
 #' )
 #'
-#' # Unstratified MH risk difference (degenerates to plain difference of proportions):
+#' # Unstratified MH risk difference. With one stratum the weights cancel, so this
+#' # is the plain difference of proportions; `GR`/`Sato` reproduce the unpooled
+#' # Wald standard error and `mGR` its `n - 1` variant.
 #' robin_mh(
 #'   y_b ~ 1,
 #'   data = subset(glm_data, treatment != "trt2"),
@@ -106,6 +141,7 @@ robin_mh <- function(
 
   needed <- unique(c(response_var, trt_var, analysis_strata))
   assert_subset(c(needed, trt_vars$strata), names(data))
+  h_mh_assert_strata(data, analysis_strata)
 
   # Completeness is only required of the analysis variables; the randomization
   # strata are carried along for the warning below without restricting the
@@ -201,9 +237,13 @@ robin_mh <- function(
   if (!covers_rand_strata) {
     warning(
       "It looks like you have not included all of the variables that were used ",
-      "during randomization in your analysis strata. Consider adding `",
+      "during randomization in your analysis strata. Unlike `robin_glm()`, ",
+      "`robin_mh()` has no scheme-specific variance correction, so the standard ",
+      "error will be conservative under a balance-forcing scheme, and the ",
+      "estimate itself is confounded if the allocation ratio varies across the ",
+      "omitted variable. Add `",
       toString(missing_vars),
-      "` to the right-hand side of `formula` to ensure valid stratified inference.",
+      "` to the right-hand side of `formula`.",
       call. = FALSE
     )
   }
@@ -256,6 +296,35 @@ h_mh_strata_vars <- function(formula) {
     )
   }
   term_labels
+}
+
+#' Assert that the Analysis Strata Columns are Categorical
+#'
+#' `robin_mh()` adjusts for covariates by stratification only, so a continuous
+#' column would silently contribute one stratum per distinct value. This mirrors
+#' the `assert_factor()` check that the stratified log-rank code applies to its
+#' own analysis strata.
+#'
+#' @param data (`data.frame`) Input data frame.
+#' @param analysis_strata (`character`) Analysis strata variable names.
+#' @return `NULL`, invisibly; called for its side effect of raising an error.
+#' @keywords internal
+h_mh_assert_strata <- function(data, analysis_strata) {
+  is_continuous <- vapply(
+    data[analysis_strata],
+    function(x) is.numeric(x) && !test_integerish(x),
+    logical(1L)
+  )
+  if (any(is_continuous)) {
+    bad <- analysis_strata[is_continuous]
+    stop(
+      "Analysis stratum ", toString(paste0("`", bad, "`")),
+      " is continuous. `robin_mh()` adjusts for covariates by stratification ",
+      "only, so every distinct value would form its own stratum. Categorize it ",
+      "first, or use `robin_glm(family = binomial())` to adjust for it in a model."
+    )
+  }
+  invisible(NULL)
 }
 
 #' Coerce and Validate a Binary `robin_mh` Response

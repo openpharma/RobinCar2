@@ -8,7 +8,9 @@
   and the Bannick-Ye additive correction for the ATE. The interface follows
   the package's `treatment ~ schema(strata)` grammar; the implementation is
   vectorised across joint analysis strata and pairwise treatment comparisons,
-  so multi-arm trials are supported in a single call.
+  so multi-arm trials are supported in a single call. Since stratification is
+  the only adjustment mechanism, continuous analysis strata are rejected with a
+  pointer to `robin_glm(family = binomial())`.
 * The new `surv_control` argument in `robin_surv()` allows to fine-control the root finding algorithm used for the hazard ratio estimation.
 
 ### Bug Fixes
@@ -18,7 +20,12 @@
 ### Misc
 
 * Added `robincar-mh` vignette article comparing `robin_mh()` to
-  `RobinCar::robincar_mh()`.
+  `RobinCar::robincar_mh()`, including a section on how to choose the analysis
+  strata.
+* The `intro` vignette now explains how the randomization scheme enters each
+  analysis function, and why omitting a randomization variable from the analysis
+  formula is benign for `robin_lm()`/`robin_glm()` but not for
+  `robin_mh()`/`robin_surv()`.
 * The internal Wald coefficient matrix and events table helpers are now shared
   between the survival and Mantel-Haenszel result classes.
 
