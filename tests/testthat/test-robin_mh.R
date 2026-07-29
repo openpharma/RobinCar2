@@ -1,0 +1,476 @@
+# Reference Mantel-Haenszel statistics computed from textbook formulas, used as
+# a self-contained ground truth (no RobinCar dependency at test time).
+
+h_mh_reference <- function(df, treat_col, response_col, strata_cols,
+                           exp_lvl, ref_lvl, estimand = "ATE", ci_type = "mGR") {
+  df <- as.data.frame(df)
+  if (length(strata_cols) > 0L) {
+    strata <- interaction(df[, strata_cols, drop = FALSE], drop = TRUE, sep = ":")
+  } else {
+    strata <- factor(rep("all", nrow(df)))
+  }
+  is_exp <- df[[treat_col]] == exp_lvl
+  is_ref <- df[[treat_col]] == ref_lvl
+  keep <- is_exp | is_ref
+  df <- df[keep, , drop = FALSE]
+  strata <- droplevels(strata[keep])
+  is_exp <- is_exp[keep]
+  is_ref <- is_ref[keep]
+  y <- as.integer(df[[response_col]])
+
+  # `strata` was just dropped to its observed levels, so `table()` on any subset
+  # already spans all of them.
+  n1k <- as.integer(table(strata[is_exp]))
+  n0k <- as.integer(table(strata[is_ref]))
+  n11k <- as.integer(table(strata[is_exp & y == 1L]))
+  n10k <- as.integer(table(strata[is_ref & y == 1L]))
+
+  weight <- n1k * n0k / (n1k + n0k)
+  weight[(n1k + n0k) == 0L] <- 0
+  delta <- ifelse(n1k > 0L & n0k > 0L, n11k / pmax(n1k, 1) - n10k / pmax(n0k, 1), 0)
+  est <- sum(weight * delta) / sum(weight)
+
+  var_gr <- {
+    num <- n11k * (n1k - n11k) * n0k^3 + n10k * (n0k - n10k) * n1k^3
+    den <- pmax(n1k, 1) * pmax(n0k, 1) * pmax(n1k + n0k, 1)^2
+    sum((num / den)[weight != 0]) / sum(weight)^2
+  }
+  var_mgr <- {
+    n01k <- n1k - n11k
+    n00k <- n0k - n10k
+    h1 <- ifelse(n1k > 1, n1k / pmax(n1k - 1, 1), 1)
+    h0 <- ifelse(n0k > 1, n0k / pmax(n0k - 1, 1), 1)
+    vk <- weight^2 * (
+      n11k * n01k / pmax(n1k, 1)^3 * h1 +
+        n10k * n00k / pmax(n0k, 1)^3 * h0
+    )
+    sum(vk[weight != 0]) / sum(weight)^2
+  }
+  var_sato <- {
+    pk <- (n1k^2 * n10k - n0k^2 * n11k + n1k * n0k * (n0k - n1k) / 2) /
+      pmax(n1k + n0k, 1)^2
+    qk <- (n11k * (n0k - n10k) + n10k * (n1k - n11k)) / (2 * pmax(n1k + n0k, 1))
+    (est * sum(pk[weight != 0]) + sum(qk[weight != 0])) / sum(weight)^2
+  }
+  var_ate_extra <- {
+    n_sum_k <- n1k + n0k
+    total_n <- sum(n_sum_k)
+    pi1 <- sum(n1k) / total_n
+    pi0 <- sum(n0k) / total_n
+    rho_k <- n_sum_k / total_n
+    p1k <- n11k / pmax(n1k, 1)
+    p0k <- n10k / pmax(n0k, 1)
+    y1var <- ifelse(n1k > 1, p1k * (1 - p1k) * n1k / pmax(n1k - 1, 1), 0)
+    y0var <- ifelse(n0k > 1, p0k * (1 - p0k) * n0k / pmax(n0k - 1, 1), 0)
+    p1k_sq <- p1k^2 - y1var / pmax(n1k, 1)
+    p0k_sq <- p0k^2 - y0var / pmax(n0k, 1)
+    delta_sq <- p1k_sq - 2 * p1k * p0k + p0k_sq
+    delta_k <- p1k - p0k
+    tmp1 <- rho_k * (delta_sq - est^2)
+    tmp2 <- (delta_sq - 2 * delta_k * est + est^2) *
+      pi1 * pi0 * (n_sum_k - 1) / pmax(n_sum_k, 1) *
+      (n_sum_k - 1 - (4 * n_sum_k - 6) * pi1 * pi0) / total_n
+    nz <- weight != 0
+    (sum(tmp1[nz]) * pi1^2 * pi0^2 + sum(tmp2[nz])) /
+      total_n / (sum(weight) / total_n)^2
+  }
+
+  v <- switch(ci_type,
+    GR = var_gr,
+    mGR = var_mgr,
+    Sato = var_sato
+  )
+  if (estimand == "ATE") {
+    v <- v + var_ate_extra
+  }
+  list(estimate = est, se = sqrt(v))
+}
+
+# Build a small two-arm subset for the simple checks.
+df_two <- subset(glm_data, treatment != "trt2")
+df_two$treatment <- droplevels(df_two$treatment)
+
+# robin_mh basic behaviour ----
+
+test_that("robin_mh returns mh_effect with the expected components", {
+  expect_silent(
+    res <- robin_mh(
+      y_b ~ s1 + s2,
+      data = df_two,
+      treatment = treatment ~ pb(s1, s2)
+    )
+  )
+  expect_s3_class(res, "mh_effect")
+  expect_named(
+    res,
+    c(
+      "formula", "randomization", "schema", "vars", "estimand", "ci_type",
+      "pair", "estimate", "se", "n_per_arm_stratum",
+      "events_per_arm_stratum", "events_table", "coef_mat"
+    )
+  )
+  expect_equal(rownames(res$coef_mat), "trt1 v.s. pbo")
+  expect_equal(colnames(res$coef_mat), c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)"))
+})
+
+test_that("robin_mh matches reference formulas across estimand and variance choices", {
+  ref_specs <- expand.grid(
+    estimand = c("MH", "ATE"),
+    ci_type = c("GR", "mGR", "Sato"),
+    stringsAsFactors = FALSE
+  )
+  ref_specs <- ref_specs[!(ref_specs$estimand == "ATE" & ref_specs$ci_type != "mGR"), ]
+  for (i in seq_len(nrow(ref_specs))) {
+    estimand <- ref_specs$estimand[i]
+    ci_type <- ref_specs$ci_type[i]
+    res <- robin_mh(
+      y_b ~ s1 + s2,
+      data = df_two,
+      treatment = treatment ~ pb(s1, s2),
+      estimand = estimand,
+      ci_type = ci_type
+    )
+    ref <- h_mh_reference(
+      df_two, "treatment", "y_b", c("s1", "s2"),
+      exp_lvl = "trt1", ref_lvl = "pbo",
+      estimand = estimand, ci_type = ci_type
+    )
+    expect_equal(unname(res$estimate), ref$estimate,
+      tolerance = 1e-12,
+      info = paste(estimand, ci_type)
+    )
+    expect_equal(unname(res$se), ref$se,
+      tolerance = 1e-12,
+      info = paste(estimand, ci_type)
+    )
+  }
+})
+
+test_that("robin_mh handles unstratified analysis (y ~ 1) and reduces to plain risk diff", {
+  expect_warning(
+    res <- robin_mh(
+      y_b ~ 1,
+      data = df_two,
+      treatment = treatment ~ pb(s1, s2),
+      estimand = "MH",
+      ci_type = "GR"
+    ),
+    "not included all of the variables that were used during randomization"
+  )
+  # With one stratum the MH risk difference is the unweighted prevalence diff.
+  p1 <- mean(df_two$y_b[df_two$treatment == "trt1"])
+  p0 <- mean(df_two$y_b[df_two$treatment == "pbo"])
+  expect_equal(unname(res$estimate), p1 - p0)
+})
+
+test_that("robin_mh with y ~ 1 reproduces the classic two-sample standard errors", {
+  n1 <- sum(df_two$treatment == "trt1")
+  n0 <- sum(df_two$treatment == "pbo")
+  p1 <- mean(df_two$y_b[df_two$treatment == "trt1"])
+  p0 <- mean(df_two$y_b[df_two$treatment == "pbo"])
+  se_wald <- sqrt(p1 * (1 - p1) / n1 + p0 * (1 - p0) / n0)
+  # `mGR` carries an n / (n - 1) factor, giving the unbiased-variance version.
+  se_wald_unbiased <- sqrt(p1 * (1 - p1) / (n1 - 1) + p0 * (1 - p0) / (n0 - 1))
+
+  ses <- vapply(
+    c("GR", "Sato", "mGR"),
+    function(ct) {
+      unname(robin_mh(
+        y_b ~ 1,
+        data = df_two,
+        treatment = treatment ~ sr(1),
+        estimand = "MH",
+        ci_type = ct
+      )$se)
+    },
+    numeric(1L)
+  )
+  expect_equal(ses[["GR"]], se_wald)
+  expect_equal(ses[["Sato"]], se_wald)
+  expect_equal(ses[["mGR"]], se_wald_unbiased)
+})
+
+test_that("robin_mh extends to multi-arm pairwise comparisons and is consistent with two-arm fits", {
+  res_all <- robin_mh(
+    y_b ~ s1 + s2,
+    data = glm_data,
+    treatment = treatment ~ pb(s1, s2),
+    estimand = "ATE", ci_type = "mGR"
+  )
+  expect_equal(length(res_all$estimate), 3L)
+  # Compare the trt1 vs pbo pair to a two-arm fit on the corresponding subset.
+  res_a <- robin_mh(
+    y_b ~ s1 + s2,
+    data = df_two,
+    treatment = treatment ~ pb(s1, s2),
+    estimand = "ATE", ci_type = "mGR"
+  )
+  expect_equal(res_all$estimate[["trt1 v.s. pbo"]], unname(res_a$estimate))
+  expect_equal(res_all$se[["trt1 v.s. pbo"]], unname(res_a$se))
+})
+
+test_that("robin_mh accepts a custom contrast (against_ref)", {
+  res <- robin_mh(
+    y_b ~ s1 + s2,
+    data = glm_data,
+    treatment = treatment ~ pb(s1, s2),
+    pair = against_ref(levels(glm_data$treatment), ref = "pbo")
+  )
+  expect_equal(rownames(res$coef_mat), c("trt1 v.s. pbo", "trt2 v.s. pbo"))
+})
+
+test_that("robin_mh validates inputs", {
+  expect_error(
+    robin_mh(y ~ s1, data = glm_data, treatment = treatment ~ pb(s1)),
+    "lower|upper|integerish"
+  )
+  expect_error(
+    robin_mh(y_b ~ s1,
+      data = glm_data, treatment = treatment ~ pb(s1),
+      estimand = "ATE", ci_type = "GR"
+    ),
+    "ci_type = 'mGR'"
+  )
+  expect_error(
+    robin_mh(~y_b, data = glm_data, treatment = treatment ~ pb(s1)),
+    "treatment formula must be of type|formula"
+  )
+})
+
+test_that("robin_mh emits a warning if randomization strata are not analysis strata", {
+  expect_warning(
+    robin_mh(y_b ~ s1, data = glm_data, treatment = treatment ~ pb(s1, s2)),
+    "Add `s2`"
+  )
+  expect_warning(
+    robin_mh(y_b ~ 1, data = glm_data, treatment = treatment ~ pb(s1), estimand = "MH"),
+    "Add `s1`"
+  )
+})
+
+test_that("robin_mh rejects continuous analysis strata", {
+  # Stratification is the only adjustment mechanism, so a continuous column
+  # would silently contribute one stratum per distinct value.
+  expect_error(
+    robin_mh(y_b ~ covar, data = df_two, treatment = treatment ~ sr(1)),
+    "is continuous"
+  )
+  # Integer-valued columns are legitimate coarse strata and must still work.
+  d_int <- df_two
+  d_int$s_int <- as.integer(d_int$s1)
+  expect_silent(
+    res <- robin_mh(y_b ~ s_int + s2, data = d_int, treatment = treatment ~ pb(s1, s2))
+  )
+  expect_equal(nrow(res$n_per_arm_stratum), 4L)
+})
+
+test_that("robin_mh stays silent when the analysis strata are finer than the randomization strata", {
+  # Analysing by s1:s2 while randomizing on s1 alone is valid stratified
+  # inference, so the name-level mismatch must not trigger the warning.
+  expect_silent(
+    robin_mh(y_b ~ s1 + s2, data = df_two, treatment = treatment ~ pb(s1))
+  )
+})
+
+test_that("robin_mh does not retain the input data in the returned object", {
+  # Both stored formulas must be detached: either one would otherwise keep the
+  # caller's frame, and with it the whole input data set, alive.
+  res <- local({
+    d <- df_two
+    robin_mh(y_b ~ s1 + s2, data = d, treatment = treatment ~ pb(s1, s2))
+  })
+  expect_identical(attr(res$formula, ".Environment"), baseenv())
+  expect_identical(attr(res$randomization, ".Environment"), baseenv())
+  # `object.size()` does not follow environments, but serialization does.
+  expect_lt(length(serialize(res, NULL)), length(serialize(df_two, NULL)))
+})
+
+test_that("robin_mh errors on randomization strata absent from data", {
+  expect_error(
+    robin_mh(y_b ~ s1, data = df_two, treatment = treatment ~ pb(nosuchvar)),
+    "nosuchvar"
+  )
+})
+
+test_that("robin_mh rejects transformed formula terms instead of silently ignoring them", {
+  expect_error(
+    robin_mh(I(1 - y_b) ~ s1 + s2, data = df_two, treatment = treatment ~ pb(s1, s2)),
+    "without transformation"
+  )
+  expect_error(
+    robin_mh(y_b ~ factor(s1), data = df_two, treatment = treatment ~ sr(1)),
+    "must be `1` or a sum of variable names"
+  )
+})
+
+test_that("robin_mh rejects the treatment variable as an analysis stratum", {
+  expect_error(
+    robin_mh(y_b ~ s1 + treatment, data = df_two, treatment = treatment ~ pb(s1)),
+    "disjunct"
+  )
+})
+
+test_that("robin_mh rejects a pair referring to unobserved treatment levels", {
+  # `subset` keeps `trt2` as an unused level, so a pair built from the original
+  # levels would otherwise produce NA indices.
+  expect_error(
+    robin_mh(
+      y_b ~ s1,
+      data = subset(glm_data, treatment != "trt2"),
+      treatment = treatment ~ pb(s1),
+      pair = against_ref(levels(glm_data$treatment), ref = "pbo")
+    ),
+    "not observed in `data`"
+  )
+})
+
+test_that("robin_mh accepts factor and logical binary responses", {
+  ref <- robin_mh(y_b ~ s1 + s2, data = df_two, treatment = treatment ~ pb(s1, s2))
+
+  d_fct <- df_two
+  d_fct$y_b <- factor(ifelse(d_fct$y_b == 1L, "resp", "no"), levels = c("no", "resp"))
+  res_fct <- robin_mh(y_b ~ s1 + s2, data = d_fct, treatment = treatment ~ pb(s1, s2))
+  expect_equal(res_fct$estimate, ref$estimate)
+  expect_equal(res_fct$se, ref$se)
+
+  d_lgl <- df_two
+  d_lgl$y_b <- as.logical(d_lgl$y_b)
+  res_lgl <- robin_mh(y_b ~ s1 + s2, data = d_lgl, treatment = treatment ~ pb(s1, s2))
+  expect_equal(res_lgl$estimate, ref$estimate)
+
+  d_bad <- df_two
+  d_bad$y_b <- factor(rep(c("low", "mid", "high"), length.out = nrow(d_bad)))
+  expect_error(
+    robin_mh(y_b ~ s2, data = d_bad, treatment = treatment ~ sr(1)),
+    "binary response with exactly 2 levels"
+  )
+})
+
+test_that("robin_mh messages when incomplete observations are dropped", {
+  d_na <- df_two
+  d_na$s1[1:20] <- NA
+  expect_message(
+    res <- robin_mh(y_b ~ s1 + s2, data = d_na, treatment = treatment ~ pb(s1, s2)),
+    "Removed 20 of 400 observations"
+  )
+  expect_equal(sum(res$n_per_arm_stratum), nrow(df_two) - 20L)
+})
+
+test_that("robin_mh does not warn when randomization strata carry missing values but are covered", {
+  # Only the analysis variables are complete-cased, so a randomization stratum
+  # may still hold `NA`. That must not by itself defeat the nesting check.
+  d <- df_two
+  d$sjoint <- interaction(d$s1, d$s2, drop = TRUE)
+  d$s2 <- as.character(d$s2)
+  d$s2[1:5] <- NA
+  expect_silent(
+    robin_mh(y_b ~ sjoint, data = d, treatment = treatment ~ pb(s1, s2))
+  )
+  # A genuinely uncovered randomization stratum still warns.
+  expect_warning(
+    robin_mh(y_b ~ s1, data = d, treatment = treatment ~ pb(s1, s2)),
+    "Add `s2`"
+  )
+})
+
+test_that("robin_mh keeps strata distinct when their labels contain the separator", {
+  # "x:y" x "z" and "x" x "y:z" both paste to "x:y:z", so a label-based
+  # `interaction()` would silently collapse two strata into one.
+  n <- 40L
+  d <- data.frame(
+    s1 = factor(rep(c("x:y", "x"), each = n / 2)),
+    s2 = factor(rep(c("z", "y:z"), each = n / 2)),
+    trt = factor(rep(c("a", "b"), n / 2))
+  )
+  d$y <- ifelse(d$s1 == "x:y", rep(c(1, 1, 1, 0, 0), 4), rep(c(0, 0, 1, 0, 0), 4))
+  res <- robin_mh(y ~ s1 + s2, data = d, treatment = trt ~ pb(s1, s2), estimand = "MH", ci_type = "GR")
+  expect_equal(nrow(res$n_per_arm_stratum), 2L)
+
+  # Renaming the levels must not change the numbers, only the labels.
+  d_safe <- d
+  levels(d_safe$s1) <- c("A", "B")
+  levels(d_safe$s2) <- c("C", "D")
+  res_safe <- robin_mh(
+    y ~ s1 + s2,
+    data = d_safe, treatment = trt ~ pb(s1, s2), estimand = "MH", ci_type = "GR"
+  )
+  expect_equal(unname(res$estimate), unname(res_safe$estimate))
+  expect_equal(unname(res$se), unname(res_safe$se))
+  expect_equal(res$events_table$Patients, res_safe$events_table$Patients)
+  expect_equal(res$events_table$Events, res_safe$events_table$Events)
+})
+
+test_that("h_mh_joint_strata matches interaction() when no label collision occurs", {
+  d <- expand.grid(a = factor(c("p", "q")), b = factor(c("x", "y", "z")))
+  expect_identical(
+    h_mh_joint_strata(d),
+    interaction(d, drop = TRUE, sep = ":")
+  )
+  # Unobserved combinations are dropped, and non-factor columns are accepted.
+  d2 <- data.frame(a = c("p", "q", "p"), b = c(10, 20, 10), stringsAsFactors = FALSE)
+  expect_identical(levels(h_mh_joint_strata(d2)), c("p:10", "q:20"))
+})
+
+test_that("robin_mh reports a zero standard error for a degenerate stratum", {
+  # A perfectly separated outcome has zero within-arm variance; `RobinCar`
+  # reports `se = 0` here rather than failing, and so should we.
+  d <- data.frame(
+    y = c(1, 1, 1, 0, 0, 0),
+    trt = factor(rep(c("a", "b"), each = 3)),
+    s = factor(rep(1, 6))
+  )
+  for (ci in c("GR", "mGR", "Sato")) {
+    res <- robin_mh(y ~ s, data = d, treatment = trt ~ sr(1), estimand = "MH", ci_type = ci)
+    expect_equal(unname(res$estimate), -1, info = ci)
+    expect_equal(unname(res$se), 0, info = ci)
+  }
+  res_ate <- robin_mh(y ~ s, data = d, treatment = trt ~ sr(1), estimand = "ATE", ci_type = "mGR")
+  expect_equal(unname(res_ate$se), 0)
+})
+
+# Print snapshot ----
+
+test_that("robin_mh print method produces the expected output", {
+  res <- robin_mh(
+    y_b ~ s1 + s2,
+    data = df_two,
+    treatment = treatment ~ pb(s1, s2)
+  )
+  expect_snapshot(print(res))
+})
+
+# table() and confint() ----
+
+test_that("table.mh_effect returns the events table invisibly", {
+  res <- robin_mh(
+    y_b ~ s1 + s2,
+    data = df_two,
+    treatment = treatment ~ pb(s1, s2)
+  )
+  capture.output(tab <- table(res))
+  expect_s3_class(tab, "data.frame")
+  expect_named(tab, c("Stratum", "Treatment", "Patients", "Events"))
+  expect_equal(sum(tab$Patients), nrow(df_two))
+  expect_equal(sum(tab$Events), sum(df_two$y_b))
+})
+
+test_that("table.mh_effect drops the Stratum column for an unstratified analysis", {
+  res <- robin_mh(y_b ~ 1, data = df_two, treatment = treatment ~ sr(1))
+  out <- capture.output(tab <- table(res))
+  expect_named(tab, c("Treatment", "Patients", "Events"))
+  expect_equal(nrow(tab), 2L)
+  expect_false(any(grepl("stratum", out)))
+})
+
+test_that("confint.mh_effect returns Wald confidence intervals consistent with the SE", {
+  res <- robin_mh(
+    y_b ~ s1 + s2,
+    data = df_two,
+    treatment = treatment ~ pb(s1, s2)
+  )
+  ci <- confint(res, level = 0.95)
+  z <- qnorm(0.975)
+  expect_equal(unname(ci[, "Estimate"]), unname(res$estimate))
+  expect_equal(unname(ci[, "2.5 %"]), unname(res$estimate - z * res$se))
+  expect_equal(unname(ci[, "97.5 %"]), unname(res$estimate + z * res$se))
+})

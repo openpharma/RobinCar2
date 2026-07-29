@@ -317,42 +317,6 @@ robin_surv_strata_cov <- function(vars, data, exp_level, control_level, contrast
   )
 }
 
-#' Log Hazard Ratio Coefficient Matrix
-#'
-#' This function creates a coefficient matrix for the log hazard ratio estimates.
-#'
-#' @param x (`list`) A list containing the log hazard ratio estimates and their standard errors.
-#' @return A matrix with columns for the log hazard ratio estimate, standard error, z-value,
-#'   and p-value.
-#'
-#' @keywords internal
-h_log_hr_coef_mat <- function(x) {
-  assert_list(x, names = "unique")
-  assert_names(names(x), must.include = c("estimate", "se", "pair"))
-  assert_numeric(x$estimate, finite = TRUE)
-  assert_numeric(x$se, finite = TRUE, len = length(x$estimate), lower = .Machine$double.eps)
-  assert_list(x$pair, types = "integer", len = 2L)
-  assert_character(attr(x$pair, "levels"), min.len = max(unlist(x$pair)))
-  assert_true(length(x$pair[[1]]) == length(x$pair[[2]]))
-  assert_true(length(x$pair[[1]]) == length(x$se))
-
-  z_value <- x$estimate / x$se
-  p_value <- 2 * pnorm(-abs(z_value))
-  ret <- matrix(
-    c(
-      x$estimate,
-      x$se,
-      z_value,
-      p_value
-    ),
-    nrow = length(x$estimate)
-  )
-  colnames(ret) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
-  pair <- x$pair
-  row.names(ret) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
-  ret
-}
-
 #' Log-Rank Test Results Matrix
 #'
 #' This function creates a matrix summarizing the results of the log-rank test.
@@ -644,7 +608,7 @@ robin_surv <- function(
   )
 
   if (contrast == "hazardratio") {
-    result$log_hr_coef_mat <- h_log_hr_coef_mat(result)
+    result$log_hr_coef_mat <- h_coef_mat(result)
   }
   result$test_mat <- h_test_mat(result)
 

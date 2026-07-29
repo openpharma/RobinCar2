@@ -281,6 +281,66 @@ sum_vectors_in_list <- function(lst) {
   .rowSums(tmp, m = len1, n = length(lst))
 }
 
+#' Print the Events Table of an Effect Result
+#'
+#' Shared by the `table()` methods of the effect result classes.
+#'
+#' @param x (`list`) An effect result carrying `events_table` and `vars$strata`.
+#' @return The `events_table`, invisibly.
+#' @keywords internal
+h_print_events_table <- function(x) {
+  cat(
+    "Number of patients and events per",
+    if (length(x$vars$strata) > 0L) " stratum and " else " ",
+    "treatment arm:\n",
+    sep = ""
+  )
+  print(x$events_table)
+  invisible(x$events_table)
+}
+
+#' Wald Coefficient Matrix
+#'
+#' Builds the `printCoefmat`-ready estimate / standard error / z-value /
+#' p-value matrix shared by the effect result classes, with row names derived
+#' from the `contrast` pair.
+#'
+#' @param x (`list`) A list with elements `estimate`, `se` and `pair`
+#'   (a [custom_contrast()] object).
+#' @return A `matrix` with columns `Estimate`, `Std.Err`, `Z Value` and
+#'   `Pr(>|z|)`, and one row per contrast.
+#'
+#' @keywords internal
+h_coef_mat <- function(x) {
+  assert_list(x, names = "unique")
+  assert_names(names(x), must.include = c("estimate", "se", "pair"))
+  assert_numeric(x$estimate, finite = TRUE)
+  # A zero standard error is allowed: it arises legitimately from degenerate
+  # strata (e.g. a perfectly separated binary outcome). A missing one is also
+  # allowed: it flags a negative variance estimate.
+  assert_numeric(x$se, finite = TRUE, len = length(x$estimate), lower = 0)
+  assert_list(x$pair, types = "integer", len = 2L)
+  assert_character(attr(x$pair, "levels"), min.len = max(unlist(x$pair)))
+  assert_true(length(x$pair[[1]]) == length(x$pair[[2]]))
+  assert_true(length(x$pair[[1]]) == length(x$se))
+
+  z_value <- x$estimate / x$se
+  p_value <- 2 * pnorm(-abs(z_value))
+  ret <- matrix(
+    c(
+      x$estimate,
+      x$se,
+      z_value,
+      p_value
+    ),
+    nrow = length(x$estimate)
+  )
+  colnames(ret) <- c("Estimate", "Std.Err", "Z Value", "Pr(>|z|)")
+  pair <- x$pair
+  row.names(ret) <- sprintf("%s v.s. %s", attr(pair, "levels")[pair[[1]]], attr(pair, "levels")[pair[[2]]])
+  ret
+}
+
 #' Confidence interval calculations which are common across effect results.
 #' @keywords internal
 h_confint <- function(x, parm, level = 0.95, transform, include_se = FALSE, ...) {
