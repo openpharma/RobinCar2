@@ -7,21 +7,6 @@ pitfalls — lives in [.github/copilot-instructions.md](.github/copilot-instruct
 Read it first; the points below are Claude-specific and complement it rather
 than replace it.
 
-## Environment (this Linux server)
-
-R and Quarto are only available via the Lmod `ml` module system. Always
-invoke through `bash -lc` so the `ml` shell function is loaded.
-
-```bash
-# R
-bash -lc 'ml R/4.4.1-gfbf-2023a && Rscript -e "devtools::test()"'
-
-# R + Quarto (for vignette / design-doc rendering)
-bash -lc 'ml R/4.4.1-gfbf-2023a quarto-cli/1.8.25 && quarto render design/survival/design_survival.qmd'
-```
-
-Running `Rscript` or `quarto` directly (without `ml`) fails with
-"command not found".
 
 ## Working agreements
 
