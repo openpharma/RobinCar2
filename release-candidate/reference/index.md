@@ -96,3 +96,5 @@
   [`confint(`*`<surv_effect>`*`)`](https://openpharma.github.io/RobinCar2/reference/confint.md)
   [`confint(`*`<treatment_effect>`*`)`](https://openpharma.github.io/RobinCar2/reference/confint.md)
   : Confidence Interval
+- [`surv_control()`](https://openpharma.github.io/RobinCar2/reference/surv_control.md)
+  : Control Survival Analysis Root Finding

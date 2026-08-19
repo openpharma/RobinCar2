@@ -1,6 +1,39 @@
 # Changelog
 
+## RobinCar2 0.2.4
+
+#### New Features
+
+- The new `surv_control` argument in
+  [`robin_surv()`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)
+  allows to fine-control the root finding algorithm used for the hazard
+  ratio estimation.
+
+#### Bug Fixes
+
+- Previously
+  [`robin_surv()`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)
+  gave small numerical differences to
+  [`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html) for
+  the hazard ratio estimate. This is now fixed.
+
+#### Misc
+
+- Adapted a unit test to a change in
+  [`stats::model.frame.glm()`](https://rdrr.io/r/stats/model.frame.html)
+  in `R-devel`, which now enforces the factor levels recorded in the
+  model fit, consistent with
+  [`stats::model.frame.lm()`](https://rdrr.io/r/stats/model.frame.html).
+  As a consequence,
+  [`predict_counterfactual()`](https://openpharma.github.io/RobinCar2/reference/predict_counterfactual.md)
+  requires the factor levels of the treatment variable in `data` to
+  match those of `fit`. Previously, mismatched levels were silently
+  accepted for `glm` fits; this restriction has always applied to `lm`
+  fits.
+
 ## RobinCar2 0.2.3
+
+CRAN release: 2026-07-02
 
 #### Bug Fixes
 

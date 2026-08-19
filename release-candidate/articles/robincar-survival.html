@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">RobinCar2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,6 +54,7 @@
     <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/release-candidate">release-candidate</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/main">main</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/latest-tag">latest-tag</a>
+<a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.4-rc1">v0.2.4-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.3">v0.2.3</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.3-rc1">v0.2.3-rc1</a>
 <a class="dropdown-item" data-toggle="tooltip" title="" href="https://openpharma.github.io/RobinCar2/v0.2.2">v0.2.2</a>
@@ -92,7 +93,7 @@
       <h1>Survival Analysis with RobinCar2</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.3-rc1/vignettes/articles/robincar-survival.Rmd" class="external-link"><code>vignettes/articles/robincar-survival.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/openpharma/RobinCar2/blob/v0.2.4-rc1/vignettes/articles/robincar-survival.Rmd" class="external-link"><code>vignettes/articles/robincar-survival.Rmd</code></a></small>
       <div class="d-none name"><code>robincar-survival.Rmd</code></div>
     </div>
 
@@ -152,7 +153,7 @@ standard log-rank test:</p>
 <span><span class="co">#&gt; Contrast     : Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; Male v.s. Female  0.53343 0.16727   3.189 0.001428 **</span></span>
+<span><span class="co">#&gt; Male v.s. Female  0.53037 0.16718  3.1724 0.001512 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -177,7 +178,7 @@ standard log-rank test:</p>
 <span><span class="co">#&gt; Contrast     : Stratified Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **</span></span>
+<span><span class="co">#&gt; Male v.s. Female   0.5536  0.1706  3.2451 0.001174 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -202,7 +203,7 @@ the right-hand side of the model formula, as follows:</p>
 <span><span class="co">#&gt; Contrast     : Stratified Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **</span></span>
+<span><span class="co">#&gt; Male v.s. Female   0.5536  0.1706  3.2451 0.001174 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -225,8 +226,8 @@ the right-hand side of the model formula, as follows:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Contrast     : Covariate-adjusted Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)  </span></span>
-<span><span class="co">#&gt; Male v.s. Female  0.47686 0.18608  2.5626  0.01039 *</span></span>
+<span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; Male v.s. Female  0.48335 0.18631  2.5944 0.009477 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -251,7 +252,7 @@ the right-hand side of the model formula, as follows:</p>
 <span><span class="co">#&gt; Contrast     : Covariate-adjusted Stratified Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **</span></span>
+<span><span class="co">#&gt; Male v.s. Female  0.54791 0.19118   2.866 0.004157 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -306,8 +307,8 @@ the <code>strata(strata)</code> term above:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Contrast     : Covariate-adjusted Log Hazard Ratio</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; Male v.s. Female  0.48134 0.18681  2.5765  0.00998 **</span></span>
+<span><span class="co">#&gt;                  Estimate Std.Err Z Value Pr(&gt;|z|)  </span></span>
+<span><span class="co">#&gt; Male v.s. Female  0.47487 0.18659  2.5449  0.01093 *</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -894,7 +895,7 @@ Applicability.”</span> <em>Biometrika</em> 111 (2): 691–705. <a href="https:
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

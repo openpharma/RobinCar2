@@ -199,7 +199,7 @@ print(result_tte)
     ## Contrast     : Stratified Log Hazard Ratio
     ## 
     ##                  Estimate Std.Err Z Value Pr(>|z|)   
-    ## Male v.s. Female  0.55482 0.17063  3.2516 0.001147 **
+    ## Male v.s. Female   0.5536  0.1706  3.2451 0.001174 **
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
