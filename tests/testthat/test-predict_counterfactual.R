@@ -78,4 +78,3 @@ test_that("predict_counterfactual works for treatment factor levels in non-alpha
   names(expected)[1] <- "trtpbo"
   expect_equal(expected, result_relabel$estimate)
 })
-
