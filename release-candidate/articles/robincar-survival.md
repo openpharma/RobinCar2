@@ -10,14 +10,7 @@ algorithms.
 Survival analysis is performed with the `robin_surv` function, and the
 syntax is:
 
-``` r
-
-robin_surv(
-  Surv(time, event) ~ covariates + strata(strata),
-  treatment = group ~ sr(1),
-  data = df
-)
-```
+[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``event``)`` ``~`` ``covariates`` ``+`` ``strata``(``strata``)``,`` `` treatment ``=`` ``group`` ``~`` ``sr``(``1``)``,`` `` data ``=`` ``df`` ``)`
 
 When there are no covariates or strata, then these can just be replaced
 by an intercept (`1`) term, respectively. Note that the `treatment`
@@ -41,172 +34,30 @@ methods are available:
 Let’s go through these in a simple example. We start with the standard
 log-rank test:
 
-``` r
-
-library(RobinCar2)
-robin_surv(
-  Surv(time, status) ~ 1,
-  treatment = sex ~ sr(1),
-  data = surv_data
-)
-#> Model        : Surv(time, status) ~ 1
-#> Randomization: sex ~ sr(1) (Simple)
-#> 
-#> Contrast     : Log Hazard Ratio
-#> 
-#>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female  0.53037 0.16718  3.1724 0.001512 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#> Test         : Log-Rank
-#> 
-#>                  Test Stat. Pr(>|z|)   
-#> Male v.s. Female     3.2135 0.001311 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
+[`library`](https://rdrr.io/r/base/library.html)`(`[`RobinCar2`](https://github.com/openpharma/RobinCar2/)`)`` `[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``status``)`` ``~`` ``1``,`` `` treatment ``=`` ``sex`` ``~`` ``sr``(``1``)``,`` `` data ``=`` ``surv_data`` ``)`` ``#> Model : Surv(time, status) ~ 1`` ``#> Randomization: sex ~ sr(1) (Simple)`` ``#> `` ``#> Contrast : Log Hazard Ratio`` ``#> `` ``#> Estimate Std.Err Z Value Pr(>|z|) `` ``#> Male v.s. Female 0.53037 0.16718 3.1724 0.001512 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`` ``#> `` ``#> Test : Log-Rank`` ``#> `` ``#> Test Stat. Pr(>|z|) `` ``#> Male v.s. Female 3.2135 0.001311 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
 
 We can perform the stratified log-rank test by adding a `strata`
 right-hand side in the model formula:
 
-``` r
-
-robin_surv(
-  Surv(time, status) ~ 1 + strata(strata),
-  treatment = sex ~ sr(1),
-  data = surv_data
-)
-#> Model        : Surv(time, status) ~ 1 + strata(strata)
-#> Randomization: sex ~ sr(1) (Simple)
-#> Stratification variables:  strata 
-#> 
-#> Contrast     : Stratified Log Hazard Ratio
-#> 
-#>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female   0.5536  0.1706  3.2451 0.001174 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#> Test         : Stratified Log-Rank
-#> 
-#>                  Test Stat. Pr(>|z|)   
-#> Male v.s. Female     3.2856 0.001018 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
+[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``status``)`` ``~`` ``1`` ``+`` ``strata``(``strata``)``,`` `` treatment ``=`` ``sex`` ``~`` ``sr``(``1``)``,`` `` data ``=`` ``surv_data`` ``)`` ``#> Model : Surv(time, status) ~ 1 + strata(strata)`` ``#> Randomization: sex ~ sr(1) (Simple)`` ``#> Stratification variables: strata `` ``#> `` ``#> Contrast : Stratified Log Hazard Ratio`` ``#> `` ``#> Estimate Std.Err Z Value Pr(>|z|) `` ``#> Male v.s. Female 0.5536 0.1706 3.2451 0.001174 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`` ``#> `` ``#> Test : Stratified Log-Rank`` ``#> `` ``#> Test Stat. Pr(>|z|) `` ``#> Male v.s. Female 3.2856 0.001018 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
 
 We can also use multiple stratification variables by adding them on the
 right-hand side of the model formula, as follows:
 
-``` r
-
-robin_surv(
-  Surv(time, status) ~ 1 + strata(strata, ecog),
-  treatment = sex ~ sr(1),
-  data = surv_data
-)
-#> Model        : Surv(time, status) ~ 1 + strata(strata, ecog)
-#> Randomization: sex ~ sr(1) (Simple)
-#> Stratification variables:  strata, ecog 
-#> 
-#> Contrast     : Stratified Log Hazard Ratio
-#> 
-#>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female   0.5536  0.1706  3.2451 0.001174 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#> Test         : Stratified Log-Rank
-#> 
-#>                  Test Stat. Pr(>|z|)   
-#> Male v.s. Female     3.2856 0.001018 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
+[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``status``)`` ``~`` ``1`` ``+`` ``strata``(``strata``, ``ecog``)``,`` `` treatment ``=`` ``sex`` ``~`` ``sr``(``1``)``,`` `` data ``=`` ``surv_data`` ``)`` ``#> Model : Surv(time, status) ~ 1 + strata(strata, ecog)`` ``#> Randomization: sex ~ sr(1) (Simple)`` ``#> Stratification variables: strata, ecog `` ``#> `` ``#> Contrast : Stratified Log Hazard Ratio`` ``#> `` ``#> Estimate Std.Err Z Value Pr(>|z|) `` ``#> Male v.s. Female 0.5536 0.1706 3.2451 0.001174 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`` ``#> `` ``#> Test : Stratified Log-Rank`` ``#> `` ``#> Test Stat. Pr(>|z|) `` ``#> Male v.s. Female 3.2856 0.001018 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
 
 We could also just use covariate adjustment:
 
-``` r
-
-robin_surv(
-  Surv(time, status) ~ age + meal.cal,
-  treatment = sex ~ sr(1),
-  data = surv_data
-)
-#> Model        : Surv(time, status) ~ age + meal.cal
-#> Randomization: sex ~ sr(1) (Simple)
-#> Covariates adjusted for: age, meal.cal (including interactions with sex)
-#> 
-#> Contrast     : Covariate-adjusted Log Hazard Ratio
-#> 
-#>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female  0.48335 0.18631  2.5944 0.009477 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#> Test         : Covariate-adjusted Log-Rank
-#> 
-#>                  Test Stat. Pr(>|z|)   
-#> Male v.s. Female     2.6858 0.007236 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
+[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``status``)`` ``~`` ``age`` ``+`` ``meal.cal``,`` `` treatment ``=`` ``sex`` ``~`` ``sr``(``1``)``,`` `` data ``=`` ``surv_data`` ``)`` ``#> Model : Surv(time, status) ~ age + meal.cal`` ``#> Randomization: sex ~ sr(1) (Simple)`` ``#> Covariates adjusted for: age, meal.cal (including interactions with sex)`` ``#> `` ``#> Contrast : Covariate-adjusted Log Hazard Ratio`` ``#> `` ``#> Estimate Std.Err Z Value Pr(>|z|) `` ``#> Male v.s. Female 0.48335 0.18631 2.5944 0.009477 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`` ``#> `` ``#> Test : Covariate-adjusted Log-Rank`` ``#> `` ``#> Test Stat. Pr(>|z|) `` ``#> Male v.s. Female 2.6858 0.007236 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
 
 Or we combine both stratification and covariate adjustment:
 
-``` r
-
-robin_surv(
-  Surv(time, status) ~ age + meal.cal + strata(strata, ecog),
-  treatment = sex ~ sr(1),
-  data = surv_data
-)
-#> Model        : Surv(time, status) ~ age + meal.cal + strata(strata, ecog)
-#> Randomization: sex ~ sr(1) (Simple)
-#> Stratification variables:  strata, ecog 
-#> Covariates adjusted for: age, meal.cal (including interactions with sex)
-#> 
-#> Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
-#> 
-#>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female  0.54791 0.19118   2.866 0.004157 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#> Test         : Covariate-adjusted Stratified Log-Rank
-#> 
-#>                  Test Stat. Pr(>|z|)   
-#> Male v.s. Female     2.9496 0.003181 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
+[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``status``)`` ``~`` ``age`` ``+`` ``meal.cal`` ``+`` ``strata``(``strata``, ``ecog``)``,`` `` treatment ``=`` ``sex`` ``~`` ``sr``(``1``)``,`` `` data ``=`` ``surv_data`` ``)`` ``#> Model : Surv(time, status) ~ age + meal.cal + strata(strata, ecog)`` ``#> Randomization: sex ~ sr(1) (Simple)`` ``#> Stratification variables: strata, ecog `` ``#> Covariates adjusted for: age, meal.cal (including interactions with sex)`` ``#> `` ``#> Contrast : Covariate-adjusted Stratified Log Hazard Ratio`` ``#> `` ``#> Estimate Std.Err Z Value Pr(>|z|) `` ``#> Male v.s. Female 0.54791 0.19118 2.866 0.004157 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`` ``#> `` ``#> Test : Covariate-adjusted Stratified Log-Rank`` ``#> `` ``#> Test Stat. Pr(>|z|) `` ``#> Male v.s. Female 2.9496 0.003181 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
 
 Note that it is also possible to skip estimation of the hazard ratio by
 specifying `contrast = "none"`:
 
-``` r
-
-robin_surv(
-  Surv(time, status) ~ age + meal.cal + strata(strata),
-  treatment = sex ~ pb(strata),
-  data = surv_data,
-  contrast = "none"
-)
-#> Model        : Surv(time, status) ~ age + meal.cal + strata(strata)
-#> Randomization: sex ~ pb(strata) (Permuted-Block)
-#> Stratification variables:  strata 
-#> Covariates adjusted for: age, meal.cal (including interactions with sex)
-#> 
-#> Contrast     : None
-#> 
-#> Test         : Covariate-adjusted Stratified Log-Rank
-#> 
-#>                  Test Stat. Pr(>|z|)   
-#> Male v.s. Female     2.9496 0.003181 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
+[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``status``)`` ``~`` ``age`` ``+`` ``meal.cal`` ``+`` ``strata``(``strata``)``,`` `` treatment ``=`` ``sex`` ``~`` ``pb``(``strata``)``,`` `` data ``=`` ``surv_data``,`` `` contrast ``=`` ``"none"`` ``)`` ``#> Model : Surv(time, status) ~ age + meal.cal + strata(strata)`` ``#> Randomization: sex ~ pb(strata) (Permuted-Block)`` ``#> Stratification variables: strata `` ``#> Covariates adjusted for: age, meal.cal (including interactions with sex)`` ``#> `` ``#> Contrast : None`` ``#> `` ``#> Test : Covariate-adjusted Stratified Log-Rank`` ``#> `` ``#> Test Stat. Pr(>|z|) `` ``#> Male v.s. Female 2.9496 0.003181 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
 
 This can help to speed up simulation studies e.g. when there is no
 interest in the estimation performance.
@@ -215,37 +66,7 @@ Note that a warning will be issued when the randomization strata are not
 adequately included in the analysis model, for example if we omit the
 `strata(strata)` term above:
 
-``` r
-
-robin_surv(
-  Surv(time, status) ~ age + meal.cal,
-  treatment = sex ~ pb(strata),
-  data = surv_data
-)
-#> Warning: It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either:
-#> 
-#> a. adjust for all joint levels in your `formula` using `+ strata` or
-#> b. perform a stratified test by adding to your `formula` the term `+ strata(strata)`
-#> 
-#> NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details.
-#> Model        : Surv(time, status) ~ age + meal.cal
-#> Randomization: sex ~ pb(strata) (Permuted-Block)
-#> Covariates adjusted for: age, meal.cal (including interactions with sex)
-#> 
-#> Contrast     : Covariate-adjusted Log Hazard Ratio
-#> 
-#>                  Estimate Std.Err Z Value Pr(>|z|)  
-#> Male v.s. Female  0.47487 0.18659  2.5449  0.01093 *
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#> Test         : Covariate-adjusted Log-Rank
-#> 
-#>                  Test Stat. Pr(>|z|)   
-#> Male v.s. Female     2.6333 0.008455 **
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-```
+[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``status``)`` ``~`` ``age`` ``+`` ``meal.cal``,`` `` treatment ``=`` ``sex`` ``~`` ``pb``(``strata``)``,`` `` data ``=`` ``surv_data`` ``)`` ``` #> Warning: It looks like you have not included all of the variables that were used during randomization in your analysis `formula`. You can either: ``` ``#> `` ``` #> a. adjust for all joint levels in your `formula` using `+ strata` or ``` ``` #> b. perform a stratified test by adding to your `formula` the term `+ strata(strata)` ``` ``#> `` ``` #> NOTE: (b) changes the null hypothesis from your current model specification. Please see the vignette `robincar-survival` for details. ``` ``#> Model : Surv(time, status) ~ age + meal.cal`` ``#> Randomization: sex ~ pb(strata) (Permuted-Block)`` ``#> Covariates adjusted for: age, meal.cal (including interactions with sex)`` ``#> `` ``#> Contrast : Covariate-adjusted Log Hazard Ratio`` ``#> `` ``#> Estimate Std.Err Z Value Pr(>|z|) `` ``#> Male v.s. Female 0.47487 0.18659 2.5449 0.01093 *`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`` ``#> `` ``#> Test : Covariate-adjusted Log-Rank`` ``#> `` ``#> Test Stat. Pr(>|z|) `` ``#> Male v.s. Female 2.6333 0.008455 **`` ``#> ---`` ``#> Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
 
 ## Details of the Methods
 
