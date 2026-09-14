@@ -44,21 +44,25 @@ import(checkmate)
 importFrom(MASS,negative.binomial)
 importFrom(numDeriv,grad)
 importFrom(sandwich,vcovHC)
-importFrom(stats,as.formula)
-importFrom(stats,coefficients)
-importFrom(stats,confint)
-importFrom(stats,family)
-importFrom(stats,fitted)
-importFrom(stats,gaussian)
-importFrom(stats,glm)
-importFrom(stats,lm)
-importFrom(stats,model.matrix)
-importFrom(stats,model.response)
-importFrom(stats,pnorm)
-importFrom(stats,predict)
-importFrom(stats,qnorm)
-importFrom(stats,residuals)
-importFrom(stats,terms)
-importFrom(stats,var)
-importFrom(utils,combn)
-importFrom(utils,tail)
+importFrom(stats,
+  as.formula,
+  coefficients,
+  confint,
+  family,
+  fitted,
+  gaussian,
+  glm,
+  lm,
+  model.matrix,
+  model.response,
+  pnorm,
+  predict,
+  qnorm,
+  residuals,
+  terms,
+  var
+)
+importFrom(utils,
+  combn,
+  tail
+)
