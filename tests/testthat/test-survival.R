@@ -916,3 +916,22 @@ test_that("robin_surv gives the same result for strata when the labels differ", 
   # The results should be identical regardless of the labels.
   expect_identical(r1$log_hr_coef_mat, r2$log_hr_coef_mat)
 })
+
+test_that("robin_surv gives warning also with special strata labels", {
+  set.seed(4)
+  n <- 100
+  d <- data.frame(
+    # g1 is the analysis stratum, coarser than s1 and s2.
+    g = factor(rep("g1", n)),
+    s1 = factor(rep(c("a.b", "a"), each = n / 2)),
+    s2 = factor(rep(c("c", "b.c"), each = n / 2)),
+    trt = factor(rep(c("A", "B"), n / 2))
+  )
+  d$time <- rexp(n, 0.1)
+  d$status <- rbinom(n, 1, 0.7)
+
+  expect_warning(
+    robin_surv(Surv(time, status) ~ strata(g), data = d, treatment = trt ~ pb(s1, s2)),
+    "It looks like you have not included all of the variables that were used during randomization"
+  )
+})
