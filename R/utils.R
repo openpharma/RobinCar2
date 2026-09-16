@@ -6,6 +6,44 @@ randomization_schema <- data.frame(
   stringsAsFactors = FALSE
 )
 
+#' Build the Joint Strata Factor
+#'
+#' Unlike [interaction()], the stratum identity is derived from the level
+#' *codes* of the input columns rather than from pasted labels, so levels that
+#' happen to contain the separator (e.g. `"x:y"` crossed with `"z"` versus
+#' `"x"` crossed with `"y:z"`) remain distinct strata instead of silently
+#' collapsing into one. Labels are only cosmetic and are made unique for
+#' printing.
+#'
+#' @param df (`data.frame`) Strata columns.
+#' @return A `factor` of observed joint strata, with `interaction()`-style
+#'   `:`-separated labels and the first variable varying fastest.
+#' @keywords internal
+h_joint_strata <- function(df) {
+  assert_data_frame(df, min.cols = 1L)
+
+  fcts <- lapply(df, as.factor)
+  n_lvls <- vapply(fcts, nlevels, integer(1L))
+
+  # Mixed-radix index with the first variable varying fastest, matching the
+  # level order that `interaction()` would produce.
+  radix <- cumprod(c(1L, n_lvls[-length(n_lvls)]))
+  mixed_radix <- Map(function(f, m) (as.integer(f) - 1L) * m, fcts, radix)
+  flat_radix <- 1L + as.integer(Reduce(`+`, mixed_radix))
+
+  observed <- sort(unique(flat_radix))
+
+  # Decode each observed index back into its per-variable level for labelling.
+  grid <- arrayInd(observed, .dim = n_lvls)
+  labels <- Map(function(f, i) levels(f)[grid[, i]], fcts, seq_along(fcts))
+
+  factor(
+    flat_radix,
+    levels = observed,
+    labels = make.unique(do.call(paste, c(labels, sep = ":")))
+  )
+}
+
 #' Extract Variable Names
 #'
 #' @param treatment (`string` or `formula`) string name of the treatment, or a formula.
