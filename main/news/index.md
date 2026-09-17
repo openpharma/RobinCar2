@@ -1,6 +1,8 @@
 # Changelog
 
-## RobinCar2 0.2.3.9000
+## RobinCar2 0.2.4
+
+CRAN release: 2026-08-22
 
 #### New Features
 
@@ -16,6 +18,20 @@
   gave small numerical differences to
   [`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html) for
   the hazard ratio estimate. This is now fixed.
+
+#### Misc
+
+- Adapted a unit test to a change in
+  [`stats::model.frame.glm()`](https://rdrr.io/r/stats/model.frame.html)
+  in `R-devel`, which now enforces the factor levels recorded in the
+  model fit, consistent with
+  [`stats::model.frame.lm()`](https://rdrr.io/r/stats/model.frame.html).
+  As a consequence,
+  [`predict_counterfactual()`](https://openpharma.github.io/RobinCar2/reference/predict_counterfactual.md)
+  requires the factor levels of the treatment variable in `data` to
+  match those of `fit`. Previously, mismatched levels were silently
+  accepted for `glm` fits; this restriction has always applied to `lm`
+  fits.
 
 ## RobinCar2 0.2.3
 

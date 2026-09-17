@@ -29,7 +29,7 @@ adjustment](https://www.regulations.gov/docket/FDA-2019-D-0934).
 
 ## Project Structure
 
-``` plaintext
+```
 R/                    # Source code
 ├── robin_lm.R        # Linear model adjustment
 ├── robin_glm.R       # GLM adjustment
@@ -62,17 +62,7 @@ vignettes/            # User-facing tutorials
 
 ### Documentation (roxygen2)
 
-``` r
-
-#' Title (one line)
-#'
-#' @param name (`type`) Description.
-#' @param formula (`formula`) A formula of analysis.
-#' @return Description of return value.
-#' @export
-#' @examples
-#' robin_lm(y ~ treatment * s1, data = glm_data, treatment = treatment ~ s1)
-```
+`#' Title (one line)`` ``#'`` ``` #' @param name (`type`) Description. ``` ``` #' @param formula (`formula`) A formula of analysis. ``` ``#' @return Description of return value.`` ``#' @export`` ``#' @examples`` ``#' robin_lm(y ~ treatment * s1, data = glm_data, treatment = treatment ~ s1)`
 
 - Use `@keywords internal` for non-exported helper functions
 - Include type annotations in param descriptions: `(`type`)`
@@ -82,12 +72,7 @@ vignettes/            # User-facing tutorials
 
 Use `checkmate` for input validation:
 
-``` r
-
-assert_formula(formula)
-assert_subset(all.vars(formula), names(data))
-assert_function(contrast, args = c("x", "y"))
-```
+`assert_formula``(``formula``)`` ``assert_subset``(`[`all.vars`](https://rdrr.io/r/base/allnames.html)`(``formula``)``, `[`names`](https://rdrr.io/r/base/names.html)`(``data``)``)`` ``assert_function``(``contrast``, args ``=`` `[`c`](https://rdrr.io/r/base/c.html)`(``"x"``, ``"y"``)``)`
 
 ### Testing (testthat v3)
 
@@ -96,15 +81,7 @@ assert_function(contrast, args = c("x", "y"))
   behavior tests
 - Use snapshot tests in `tests/testthat/_snaps/` for complex outputs
 
-``` r
-
-test_that("robin_glm works correctly", {
-
-  expect_silent(
-    robin_glm(y ~ treatment * s1, data = glm_data, treatment = treatment ~ s1, contrast = "difference")
-  )
-})
-```
+`test_that``(``"robin_glm works correctly"``, ``{`` `` `` ``expect_silent``(`` `` `[`robin_glm`](https://openpharma.github.io/RobinCar2/reference/robin_glm.md)`(``y`` ``~`` ``treatment`` ``*`` ``s1``, data ``=`` ``glm_data``, treatment ``=`` ``treatment`` ``~`` ``s1``, contrast ``=`` ``"difference"``)`` `` ``)`` ``}``)`
 
 ## Developer Workflows
 
@@ -159,11 +136,7 @@ The
 [`h_get_vars()`](https://openpharma.github.io/RobinCar2/reference/h_get_vars.md)
 function extracts treatment, strata, and randomization schema:
 
-``` r
-
-# Input: treatment ~ pb(s1, s2)
-# Output: list(treatment = "treatment", schema = "pb", strata = c("s1", "s2"))
-```
+`# Input: treatment ~ pb(s1, s2)`` ``# Output: list(treatment = "treatment", schema = "pb", strata = c("s1", "s2"))`
 
 ### Return Objects
 
