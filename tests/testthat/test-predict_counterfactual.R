@@ -66,11 +66,13 @@ test_that("confint method for prediction_cf works as expected", {
 
 
 test_that("predict_counterfactual works for treatment factor levels in non-alphabetical order", {
+  relabel_dat <- glm_data
+  levels(relabel_dat$treatment)[1] <- "trtpbo"
+
+  fit_glm_relabel <- glm(y ~ treatment * s1 + covar, data = relabel_dat)
   expected_result <- predict_counterfactual(fit_glm, treatment ~ 1)
 
-  relabel_dat <- find_data(fit_glm)
-  levels(relabel_dat$treatment)[1] <- "trtpbo"
-  result_relabel <- predict_counterfactual(fit_glm, treatment ~ 1, data = relabel_dat)
+  result_relabel <- predict_counterfactual(fit_glm_relabel, treatment ~ 1, data = relabel_dat)
 
   expected <- expected_result$estimate
   names(expected)[1] <- "trtpbo"

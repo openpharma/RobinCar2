@@ -1,4 +1,4 @@
-# RobinCar2 0.2.3.9000
+# RobinCar2 0.2.4
 
 ### New Features
 
@@ -7,6 +7,10 @@
 ### Bug Fixes
 
 * Previously `robin_surv()` gave small numerical differences to `survival::coxph()` for the hazard ratio estimate. This is now fixed.
+
+### Misc
+
+* Adapted a unit test to a change in `stats::model.frame.glm()` in `R-devel`, which now enforces the factor levels recorded in the model fit, consistent with `stats::model.frame.lm()`. As a consequence, `predict_counterfactual()` requires the factor levels of the treatment variable in `data` to match those of `fit`. Previously, mismatched levels were silently accepted for `glm` fits; this restriction has always applied to `lm` fits.
 
 # RobinCar2 0.2.3
 
