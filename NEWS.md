@@ -1,5 +1,13 @@
 # RobinCar2 0.2.4
 
+### Breaking Changes
+
+* Models carrying an offset, supplied either as `offset()` in the model formula or via the `offset` argument, are now rejected with an error by `robin_glm()`, `robin_lm()`, `predict_counterfactual()` and `treatment_effect()`. Such models previously returned estimates silently, and those estimates were wrong: the offset was dropped from the counterfactual predictions but retained in the residuals used for the bias correction, so the two were on different scales and the estimate did not target the marginal mean or any other interpretable quantity (reported in #117).
+
+  The error is deliberate rather than a repair of that mismatch. Offsets are used almost exclusively to express a rate per unit exposure time, and there is no established covariate-adjusted rate estimand for RobinCar2 to target: the theory the package implements (Bannick et al., 2024) develops marginal means of the response and does not treat exposure time at all. Beyond that, predicting at each subject's own exposure makes the prediction depend on a variable whose distribution can itself be affected by treatment, which the robustness argument for the AIPW estimator excludes, and it collapses a ratio contrast to the model coefficient `exp(beta)` rather than a marginal quantity.
+
+  For a gaussian model with an identity link the offset is only a known additive shift, so there is an exact restatement: fit `I(y - z) ~ treatment + ...` in place of `y ~ treatment + ... + offset(z)`, which gives identical coefficients, standard errors and treatment contrasts, with marginal means shifted by `mean(z)`. For any other link there is no equivalent restatement, and users who need a rate have no supported route in this release. See #117 for discussion.
+
 ### New Features
 
 * The new `surv_control` argument in `robin_surv()` allows to fine-control the root finding algorithm used for the hazard ratio estimation.
