@@ -30,6 +30,22 @@ predict_counterfactual <- function(fit, treatment, data, vcov, vcov_args, ...) {
 
 #' @export
 predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vcov = "vcovG", vcov_args = list(), ...) {
+  # Offsets are rejected rather than supported. There is no established covariate-adjusted
+  # rate estimand to target: the theory underlying RobinCar2 (Bannick et al., 2024) develops
+  # marginal means of the response and does not cover exposure time. Predicting at each
+  # subject's own exposure additionally makes the prediction depend on a variable whose
+  # distribution can be affected by treatment, which is what the robustness argument for the
+  # AIPW estimator excludes. `fit$offset` is set for both supply routes, `offset()` in the
+  # formula and the `offset` argument. See design/offset_rate/offset_estimand_note.md.
+  if (!is.null(fit$offset)) {
+    stop(
+      "Models with an offset are not supported. ",
+      "RobinCar2 estimates marginal means of the response, and there is no established ",
+      "covariate-adjusted rate estimand for offset models, so no correct result can be ",
+      "returned here. Model the offset variable as an ordinary covariate with a free ",
+      "coefficient instead, e.g. `y ~ treatment + log(exposure)`."
+    )
+  }
   trt_vars <- h_get_vars(treatment)
   assert(
     test_string(vcov),

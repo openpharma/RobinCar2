@@ -71,3 +71,30 @@ test_that("robin_glm can be printed correctly", {
     robin_glm(y_b ~ treatment + s1, data = glm_data, treatment = treatment ~ s1)
   )
 })
+
+test_that("robin_glm rejects models carrying an offset", {
+  offset_data <- glm_data
+  set.seed(123)
+  offset_data$expo <- runif(nrow(offset_data), 0.5, 3)
+  offset_data$os <- log(offset_data$expo)
+  offset_data$y_count <- rpois(nrow(offset_data), offset_data$expo * 2)
+
+  expect_error(
+    robin_glm(
+      y_count ~ treatment * s1 + offset(os),
+      data = offset_data,
+      treatment = treatment ~ s1,
+      family = poisson()
+    ),
+    "Models with an offset are not supported"
+  )
+  # log exposure as an ordinary covariate is the supported alternative
+  expect_silent(
+    robin_glm(
+      y_count ~ treatment * s1 + os,
+      data = offset_data,
+      treatment = treatment ~ s1,
+      family = poisson()
+    )
+  )
+})

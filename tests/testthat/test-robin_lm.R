@@ -82,3 +82,14 @@ test_that("robin_lm give same result as robin_glm", {
     f2$contrast$estimate
   )
 })
+
+test_that("robin_lm rejects models carrying an offset", {
+  offset_data <- glm_data
+  set.seed(123)
+  offset_data$os <- log(runif(nrow(offset_data), 0.5, 3))
+
+  expect_error(
+    robin_lm(y ~ treatment * s1 + offset(os), data = offset_data, treatment = treatment ~ s1),
+    "Models with an offset are not supported"
+  )
+})

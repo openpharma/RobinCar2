@@ -76,3 +76,33 @@ test_that("predict_counterfactual works for treatment factor levels in non-alpha
   names(expected)[1] <- "trtpbo"
   expect_equal(expected, result_relabel$estimate)
 })
+
+test_that("predict_counterfactual rejects fits carrying an offset", {
+  # exposure time, supplied both as offset() in the formula and as the offset argument
+  offset_data <- glm_data
+  set.seed(123)
+  offset_data$expo <- runif(nrow(offset_data), 0.5, 3)
+  offset_data$os <- log(offset_data$expo)
+  offset_data$y_count <- rpois(nrow(offset_data), offset_data$expo * 2)
+
+  fits <- list(
+    lm_formula = lm(y ~ treatment * s1 + offset(os), data = offset_data),
+    lm_argument = lm(y ~ treatment * s1, offset = os, data = offset_data),
+    glm_formula = glm(y_count ~ treatment * s1 + offset(os), family = poisson(), data = offset_data),
+    glm_argument = glm(y_count ~ treatment * s1, family = poisson(), offset = os, data = offset_data),
+    negbin_formula = suppressWarnings(MASS::glm.nb(y_count ~ treatment * s1 + offset(os), data = offset_data))
+  )
+  for (nm in names(fits)) {
+    expect_error(
+      predict_counterfactual(fits[[nm]], treatment ~ s1, data = offset_data),
+      "Models with an offset are not supported",
+      info = nm
+    )
+  }
+})
+
+test_that("predict_counterfactual is unaffected for fits without an offset", {
+  expect_silent(predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data))
+  expect_silent(predict_counterfactual(fit_glm, treatment ~ 1))
+  expect_silent(predict_counterfactual(fit_binom, treatment ~ 1))
+})
