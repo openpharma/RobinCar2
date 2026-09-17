@@ -101,6 +101,45 @@ test_that("predict_counterfactual rejects fits carrying an offset", {
   }
 })
 
+test_that("the offset rejection advises a response shift only where that is exact", {
+  offset_data <- glm_data
+  set.seed(123)
+  offset_data$expo <- runif(nrow(offset_data), 0.5, 3)
+  offset_data$os <- log(offset_data$expo)
+  offset_data$y_count <- rpois(nrow(offset_data), offset_data$expo * 2)
+
+  # gaussian identity link: the offset is a known additive shift, so the shift is exact
+  expect_error(
+    predict_counterfactual(
+      lm(y ~ treatment * s1 + offset(os), data = offset_data),
+      treatment ~ s1,
+      data = offset_data
+    ),
+    "subtract it from the response"
+  )
+  # non-identity link: no restatement exists, and a free coefficient is not one
+  expect_error(
+    predict_counterfactual(
+      glm(y_count ~ treatment * s1 + offset(os), family = poisson(), data = offset_data),
+      treatment ~ s1,
+      data = offset_data
+    ),
+    "free coefficient is not a substitute"
+  )
+  # identity link but non-gaussian family: shifted values need not be in the response support,
+  # so the response-shift advice must not be given here
+  poisson_identity <- glm(
+    y_count ~ treatment + offset(os),
+    family = poisson(link = "identity"),
+    data = offset_data,
+    start = c(1, 0, 0)
+  )
+  expect_error(
+    predict_counterfactual(poisson_identity, treatment ~ s1, data = offset_data),
+    "free coefficient is not a substitute"
+  )
+})
+
 test_that("predict_counterfactual is unaffected for fits without an offset", {
   expect_silent(predict_counterfactual(fit_lm, treatment ~ 1, data = glm_data))
   expect_silent(predict_counterfactual(fit_glm, treatment ~ 1))

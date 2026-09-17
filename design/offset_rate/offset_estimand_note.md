@@ -26,18 +26,34 @@ unvalidated (§4 "Variance", §6 q2), and it must not be presented to users as t
 literature's answer. Until Prof. Ye rules on §6 q1 and q2, RobinCar2 has no rate estimand it can
 defend.
 
-**2. Do not use offsets in any GLM handled by RobinCar2.** Not in the prediction step, and not in the
+**2. Do not use offsets in any model handled by RobinCar2.** Not in the prediction step, and not in the
 fitting step either. An offset is a coefficient fixed at 1 on a variable that, whenever follow-up is
 treatment- or outcome-dependent, violates the "distribution of $X$ is not affected by treatments"
 clause the entire robustness argument rests on (§3.2) — and even when it does not, own-exposure
 prediction collapses the ratio contrast to $e^{\hat\beta}$ (§4, §5.2). The reference-exposure
 workaround (§7 option 2) is *arithmetically* defensible but is a package feature with no literature
-behind it and an interface that invites the invalid use, so it is not offered. `robin_glm` should
-**reject models carrying an offset**, via `offset()` in the formula or `offset =` as an argument.
+behind it and an interface that invites the invalid use, so it is not offered. `robin_glm` and
+`robin_lm` should both **reject models carrying an offset**, via `offset()` in the formula or
+`offset =` as an argument.
 
-What remains available to users is not an offset: put $\log T$ in as an **ordinary covariate with a
-free coefficient**. That is a legitimate working model under §2 of the paper ("can be arbitrary"),
-it keeps every prediction a function of baseline covariates, and it needs no new package code.
+The rate framing above is the *log-link* case, and it is the one that motivated #117. It is not the
+only way an offset reaches the package: under an identity link an offset is an additive shift and has
+nothing to do with rates. The rejection covers both, but for different reasons and — since rev. 4 —
+with different messages.
+
+**What we do not offer as a substitute:** $\log T$ as an ordinary covariate with a **free**
+coefficient. It is a legitimate working model under §2 of the paper ("can be arbitrary") and it does
+keep every prediction a function of baseline covariates — but it is a *different model*, in which the
+response is no longer proportional to exposure, and it estimates a marginal mean of the count rather
+than a rate. Offering it as the answer to an offset user's question would conflate the two. Rev. 3 of
+this note did exactly that; corrected here.
+
+**The one exact substitute** is confined to a **gaussian identity link**, where the offset is a known
+additive shift: fitting the shifted response $y - z$ gives bit-identical coefficients and standard
+errors, identical treatment contrasts, and marginal means shifted by $\overline{z}$ (verified — §9).
+It does not extend to an identity link with a non-gaussian family, where $y - z$ need not lie in the
+response support. For any other link there is no restatement, and users needing a rate have no
+supported route.
 
 ---
 
@@ -355,10 +371,21 @@ every choice available at that point is either invalid (own exposure, Case B), e
 (own exposure, ratio contrast), or unpublished (reference exposure). Rejecting the input removes the
 ambiguity at its source.
 
-The supported alternative in both regimes is the same, and involves no offset: put $\log T$ in as an
-**ordinary covariate with a free coefficient**. Under Case A this is valid and efficient. Under Case B
-it keeps $\hat\mu_a$ a function of baseline covariates, which is what §3.2 requires; a marginal *rate*
-then still requires the unestablished §4 construction, and there is no supported route to one.
+There is no substitute that answers the same question. Two candidates and why neither is one:
+
+- **$\log T$ as an ordinary covariate with a free coefficient.** Valid as a working model, and under
+  Case B it keeps $\hat\mu_a$ a function of baseline covariates as §3.2 requires. But freeing the
+  coefficient changes the model: the response is no longer proportional to exposure, which is the
+  content of an offset. It targets a marginal mean of the count, not a rate. It is a legitimate thing
+  to fit if that is what the analyst wants; it is not the offset model and must not be presented as
+  the fix for one.
+- **The shifted response $y - z$.** Exact, but only for a **gaussian identity link**, where the offset
+  is a known additive shift. Then contrasts are identical and marginal means shift by $\overline{z}$
+  (§9). Under a log link the offset is multiplicative and no response transformation reproduces it.
+
+So under Case B, or under any non-identity link, a marginal *rate* still requires the unestablished §4
+construction and there is no supported route to one. The package says so rather than substituting a
+different estimand.
 
 ### Variance
 
@@ -497,8 +524,9 @@ current numbers are wrong under every reading and a warning would be swallowed i
 check must be an error. Rev. 2 of this note paired the error with a reference-exposure opt-in; that is
 withdrawn. Shipping any offset pathway means shipping a rate method that Prof. Ye's work does not
 establish (§0.0), and an `offset_value` argument reads to users as an endorsement that the theory does
-not support. The error message should say what to do instead: model $\log T$ as an ordinary covariate
-with a free coefficient.
+not support. The error message should offer a substitute only where an exact one exists — the shifted
+response under a gaussian identity link — and should otherwise say plainly that there is none, rather
+than redirecting the user to a model that answers a different question.
 
 Options 3 and 5 belong in their own design cycles, and option 3 is gated on §6 rather than on
 engineering effort.
@@ -554,13 +582,33 @@ repaired.
 |---|---|
 | The guard | [`R/predict_couterfactual.R`](../../R/predict_couterfactual.R), first statement of `predict_counterfactual.lm` |
 | Unit tests, both supply routes × `lm`/`glm`/`glm.nb`, plus no-offset regression guard | `tests/testthat/test-predict_counterfactual.R` |
-| End-to-end tests + supported-alternative test | `tests/testthat/test-robin_glm.R`, `tests/testthat/test-robin_lm.R` |
+| Tests pinning which of the two messages each link gets, incl. Poisson identity link | `tests/testthat/test-predict_counterfactual.R` |
+| End-to-end tests | `tests/testthat/test-robin_glm.R`, `tests/testthat/test-robin_lm.R` |
 | User-facing rationale | `NEWS.md`, under **Breaking Changes** |
 
 **One check covers every entry point.** `predict_counterfactual.lm` is the single implementation;
 `predict_counterfactual.glm` delegates to it and `glm.nb` inherits from `glm`. `robin_glm`, `robin_lm`
 and both `treatment_effect` routes all pass through it. Verified by execution, not inspection. The
 survival code paths do not use it and are untouched.
+
+**The message branches on the link, not the class.** Two messages, because the two situations are
+mathematically different and a single message would have to be wrong about one of them:
+
+- **Gaussian identity link** — the offset is a known additive shift, so the message gives the exact
+  restatement (fit $y - z$) and never mentions rates, which are irrelevant here. Verified: coefficients
+  and standard errors are bit-identical (max abs. difference 0), treatment contrasts are bit-identical,
+  and marginal means differ by exactly $\overline{z}$.
+- **Any other link** — the message states that prediction requires choosing an offset value, that the
+  implied estimand where the offset is exposure time is a rate, that none is established, and
+  explicitly that a free coefficient is *not* a substitute.
+
+The condition is gaussian **and** identity, not identity alone: a Poisson or NB fit with an identity
+link is legal, and there $y - z$ need not lie in the response support, so the shift advice would be
+wrong. `family(fit)$link` and `$family` are available on plain `lm` too, so no class dispatch is needed.
+A test pins the Poisson-identity case to the generic message.
+
+Neither message points at this design note, because `design` is in `.Rbuildignore` and installed users
+would not have it.
 
 **Detection is `!is.null(fit$offset)`.** Established empirically across the six offset cases
 (`offset()` in formula and `offset =` argument × `lm`/`glm`/`glm.nb`) and the three no-offset cases.
@@ -580,10 +628,15 @@ branch for a degenerate input in exchange for nothing.
   intended: the previous output was wrong (§5.1 puts it 42% low), and a warning would be swallowed in
   pipelines. Flagged under **Breaking Changes** in `NEWS.md`, and to be stated plainly in the #117
   reply rather than left for users to discover — the reporter is one of the affected users.
-- **No migration path to a rate.** The supported alternative — $\log T$ as an ordinary covariate with a
-  free coefficient — gives a valid marginal mean of the count, not a rate. Users who need a rate have
-  no supported route, and the error message does not pretend otherwise. Case A users can recover
-  absolute rates as $\hat\theta_a/\bar T$ by hand (§4).
+- **No migration path to a rate, and we say so instead of offering one.** Under a non-identity link
+  there is no substitute model, and the error message states that rather than redirecting the user.
+  A free coefficient on $\log T$ is explicitly named as *not* a substitute, because it fits a different
+  model and estimates a marginal mean of the count. Case A users can still recover absolute rates as
+  $\hat\theta_a/\bar T$ by hand (§4). Gaussian identity-link users lose nothing: their restatement is
+  exact.
+- **The error message is longer than is conventional in R.** Accepted, because the reason for rejection
+  is the part users need and a terse message would read as an unimplemented feature rather than a
+  deliberate refusal.
 
 ### What this decision does not settle
 

@@ -30,20 +30,34 @@ predict_counterfactual <- function(fit, treatment, data, vcov, vcov_args, ...) {
 
 #' @export
 predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vcov = "vcovG", vcov_args = list(), ...) {
-  # Offsets are rejected rather than supported. There is no established covariate-adjusted
-  # rate estimand to target: the theory underlying RobinCar2 (Bannick et al., 2024) develops
-  # marginal means of the response and does not cover exposure time. Predicting at each
-  # subject's own exposure additionally makes the prediction depend on a variable whose
-  # distribution can be affected by treatment, which is what the robustness argument for the
-  # AIPW estimator excludes. `fit$offset` is set for both supply routes, `offset()` in the
-  # formula and the `offset` argument. See design/offset_rate/offset_estimand_note.md.
+  # Offsets are rejected rather than supported: counterfactual prediction requires choosing a
+  # value for the offset, and each choice targets a different quantity. Where the offset encodes
+  # exposure time the implied estimand is a rate, for which no covariate-adjusted method is
+  # established in the theory underlying RobinCar2 (Bannick et al., 2024) -- it develops marginal
+  # means of the response and does not cover exposure time. `fit$offset` is set for both supply
+  # routes, `offset()` in the formula and the `offset` argument.
+  # A gaussian identity-link offset is the one case with an exact restatement: the offset is a
+  # known additive shift, so fitting the shifted response gives bit-identical coefficients and
+  # standard errors, identical treatment contrasts, and marginal means shifted by `mean(z)`.
+  # That does not extend to an identity link with a non-gaussian family, where the shifted values
+  # need not lie in the response support. See design/offset_rate/offset_estimand_note.md.
   if (!is.null(fit$offset)) {
+    fit_family <- family(fit)
+    if (identical(fit_family$family, "gaussian") && identical(fit_family$link, "identity")) {
+      stop(
+        "Models with an offset are not supported. ",
+        "Here the offset is a known additive shift, so subtract it from the response instead: ",
+        "use `I(y - z) ~ ...` in place of `y ~ ... + offset(z)`. Treatment contrasts are ",
+        "identical; marginal means are shifted by `mean(z)`."
+      )
+    }
     stop(
       "Models with an offset are not supported. ",
-      "RobinCar2 estimates marginal means of the response, and there is no established ",
-      "covariate-adjusted rate estimand for offset models, so no correct result can be ",
-      "returned here. Model the offset variable as an ordinary covariate with a free ",
-      "coefficient instead, e.g. `y ~ treatment + log(exposure)`."
+      "Counterfactual prediction requires choosing a value for the offset, and each choice ",
+      "targets a different quantity; where the offset encodes exposure time the implied estimand ",
+      "is a rate, for which no covariate-adjusted method is established in the theory this ",
+      "package implements. Giving the offset variable a free coefficient is not a substitute, ",
+      "as it fits a different model."
     )
   }
   trt_vars <- h_get_vars(treatment)

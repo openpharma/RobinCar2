@@ -88,7 +88,9 @@ test_that("robin_glm rejects models carrying an offset", {
     ),
     "Models with an offset are not supported"
   )
-  # log exposure as an ordinary covariate is the supported alternative
+  # the guard must not over-fire: the same variable as a plain covariate carries no offset.
+  # Note this is a different model, not a substitute for the offset one -- it frees the
+  # coefficient, so the response is no longer proportional to exposure.
   expect_silent(
     robin_glm(
       y_count ~ treatment * s1 + os,
