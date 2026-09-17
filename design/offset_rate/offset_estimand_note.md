@@ -594,13 +594,10 @@ survival code paths do not use it and are untouched.
 **The message branches on the link, not the class.** Two messages, because the two situations are
 mathematically different and a single message would have to be wrong about one of them:
 
-- **Gaussian identity link** — the offset is a known additive shift, so the message gives the exact
-  restatement (fit $y - z$) and never mentions rates, which are irrelevant here. Verified: coefficients
-  and standard errors are bit-identical (max abs. difference 0), treatment contrasts are bit-identical,
-  and marginal means differ by exactly $\overline{z}$.
-- **Any other link** — the message states that prediction requires choosing an offset value, that the
-  implied estimand where the offset is exposure time is a rate, that none is established, and
-  explicitly that a free coefficient is *not* a substitute.
+- **Gaussian identity link** — gives the exact restatement (fit $y - z$) and never mentions rates,
+  which are irrelevant here. Verified: coefficients and standard errors bit-identical (max abs.
+  difference 0), treatment contrasts bit-identical, marginal means differ by exactly $\overline{z}$.
+- **Any other link** — states only that no established covariate-adjusted rate estimand exists.
 
 The condition is gaussian **and** identity, not identity alone: a Poisson or NB fit with an identity
 link is legal, and there $y - z$ need not lie in the response support, so the shift advice would be
@@ -609,6 +606,21 @@ A test pins the Poisson-identity case to the generic message.
 
 Neither message points at this design note, because `design` is in `.Rbuildignore` and installed users
 would not have it.
+
+**Both messages are short, and deliberately so.** The audience is trial statisticians. Two things were
+cut after review, and the reason generalises:
+
+- *The mechanism* — that counterfactual prediction requires choosing an offset value and each choice
+  targets a different quantity. Derivable by anyone who would hit this error. What is **not** derivable
+  is whether the rejection is an unimplemented feature or a deliberate refusal, so that is the one
+  thing the non-identity message says.
+- *An explicit warning that a free coefficient is not a substitute.* Cut because it was answering a
+  mistake **this note made in rev. 3**, not one a statistician is likely to make — the offset's content
+  is that the coefficient is fixed at 1, which the audience knows. Correcting our own decision history
+  in a user-facing string is the wrong place for it; it belongs in §0.0 and §4, where it now lives.
+
+The general rule: the error states what is refused and, where one exists, the exact substitute. It does
+not explain GLM semantics.
 
 **Detection is `!is.null(fit$offset)`.** Established empirically across the six offset cases
 (`offset()` in formula and `offset =` argument × `lm`/`glm`/`glm.nb`) and the three no-offset cases.
@@ -629,14 +641,11 @@ branch for a degenerate input in exchange for nothing.
   pipelines. Flagged under **Breaking Changes** in `NEWS.md`, and to be stated plainly in the #117
   reply rather than left for users to discover — the reporter is one of the affected users.
 - **No migration path to a rate, and we say so instead of offering one.** Under a non-identity link
-  there is no substitute model, and the error message states that rather than redirecting the user.
-  A free coefficient on $\log T$ is explicitly named as *not* a substitute, because it fits a different
-  model and estimates a marginal mean of the count. Case A users can still recover absolute rates as
+  there is no substitute model, and the error says that rather than redirecting the user to a different
+  estimand. That a free coefficient on $\log T$ is not a substitute is recorded here (§0.0, §4) and not
+  in the error, per the messaging rule above. Case A users can still recover absolute rates as
   $\hat\theta_a/\bar T$ by hand (§4). Gaussian identity-link users lose nothing: their restatement is
   exact.
-- **The error message is longer than is conventional in R.** Accepted, because the reason for rejection
-  is the part users need and a terse message would read as an unimplemented feature rather than a
-  deliberate refusal.
 
 ### What this decision does not settle
 

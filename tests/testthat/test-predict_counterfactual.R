@@ -115,16 +115,16 @@ test_that("the offset rejection advises a response shift only where that is exac
       treatment ~ s1,
       data = offset_data
     ),
-    "subtract it from the response"
+    "Fit the shifted response instead"
   )
-  # non-identity link: no restatement exists, and a free coefficient is not one
+  # non-identity link: no restatement exists
   expect_error(
     predict_counterfactual(
       glm(y_count ~ treatment * s1 + offset(os), family = poisson(), data = offset_data),
       treatment ~ s1,
       data = offset_data
     ),
-    "free coefficient is not a substitute"
+    "no established covariate-adjusted rate estimand"
   )
   # identity link but non-gaussian family: shifted values need not be in the response support,
   # so the response-shift advice must not be given here
@@ -136,7 +136,7 @@ test_that("the offset rejection advises a response shift only where that is exac
   )
   expect_error(
     predict_counterfactual(poisson_identity, treatment ~ s1, data = offset_data),
-    "free coefficient is not a substitute"
+    "no established covariate-adjusted rate estimand"
   )
 })
 
