@@ -52,7 +52,7 @@ print(x)
 #> Contrast     : Covariate-adjusted Stratified Log Hazard Ratio
 #> 
 #>                  Estimate Std.Err Z Value Pr(>|z|)   
-#> Male v.s. Female  0.55219 0.19133  2.8861   0.0039 **
+#> Male v.s. Female  0.54791 0.19118   2.866 0.004157 **
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
