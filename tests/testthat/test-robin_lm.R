@@ -93,3 +93,33 @@ test_that("robin_lm rejects models carrying an offset", {
     "Models with an offset are not supported"
   )
 })
+
+test_that("the response shift advised for offset models works and is exact", {
+  set.seed(11)
+  shift_data <- glm_data
+  shift_data$z <- log(runif(nrow(shift_data), 0.5, 3))
+
+  # the literal form the offset rejection message tells users to write
+  res <- robin_lm(I(y - z) ~ treatment * s1, data = shift_data, treatment = treatment ~ ps(s1))
+
+  # g-computation on the offset model it replaces
+  fit_offset <- lm(y ~ treatment * s1 + offset(z), data = shift_data)
+  lvls <- levels(shift_data$treatment)
+  preds <- sapply(lvls, function(a) {
+    newdata <- shift_data
+    newdata$treatment <- factor(a, lvls)
+    predict(fit_offset, newdata = newdata)
+  })
+  group_idx <- split(seq_len(nrow(shift_data)), shift_data$s1)
+  mm_offset <- colMeans(preds + bias(shift_data$y - fitted(fit_offset), shift_data$treatment, group_idx))
+
+  # the two promises the message makes
+  expect_equal(
+    unname(mm_offset - res$marginal_mean$estimate),
+    rep(mean(shift_data$z), length(lvls))
+  )
+  expect_equal(
+    unname(res$contrast$estimate[1:2]),
+    unname((mm_offset - mm_offset[1])[-1])
+  )
+})
