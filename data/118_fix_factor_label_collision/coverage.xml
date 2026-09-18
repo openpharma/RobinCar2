@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE coverage SYSTEM "https://raw.githubusercontent.com/cobertura/cobertura/master/cobertura/src/site/htdocs/xml/coverage-04.dtd">
-<coverage line-rate="0.99652052887961" branch-rate="0" lines-covered="1432" lines-valid="1437" branches-covered="0" branches-valid="0" complexity="0" version="3.6.5" timestamp="2026-09-16 05:54:59.939088">
+<coverage line-rate="0.99652052887961" branch-rate="0" lines-covered="1432" lines-valid="1437" branches-covered="0" branches-valid="0" complexity="0" version="3.6.5" timestamp="2026-09-18 03:41:49.885764">
   <sources>
     <source>/__w/RobinCar2/RobinCar2/RobinCar2</source>
   </sources>
@@ -93,12 +93,12 @@
           <methods>
             <method name="find_data" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="7" hits="20" branch="false"/>
+                <line number="7" hits="19" branch="false"/>
               </lines>
             </method>
             <method name="find_data.glm" signature="" line-rate="1" branch-rate="0" complexity="0">
               <lines>
-                <line number="11" hits="19" branch="false"/>
+                <line number="11" hits="18" branch="false"/>
               </lines>
             </method>
             <method name="find_data.lm" signature="" line-rate="1" branch-rate="0" complexity="0">
@@ -108,8 +108,8 @@
             </method>
           </methods>
           <lines>
-            <line number="7" hits="20" branch="false"/>
-            <line number="11" hits="19" branch="false"/>
+            <line number="7" hits="19" branch="false"/>
+            <line number="11" hits="18" branch="false"/>
             <line number="15" hits="1" branch="false"/>
           </lines>
         </class>
