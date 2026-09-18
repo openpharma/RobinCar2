@@ -1,5 +1,9 @@
 # Changelog
 
+## RobinCar2 0.2.4.9000
+
+Under development
+
 ## RobinCar2 0.2.4
 
 CRAN release: 2026-08-22
@@ -60,7 +64,6 @@ CRAN release: 2026-01-09
   `RobinCar2` functions for consistency. A warning will be issued when
   the randomization strata are not adequately included in the analysis
   model. See the updated vignette for details.
-
 - It is now possible to only perform the log rank test, without
   estimating the log hazard ratio, in `robin_surv` by setting the
   argument `contrast = "none"`. This can be useful e.g. when performing
@@ -74,13 +77,10 @@ CRAN release: 2026-01-09
   estimation in `robin_surv` which could occur when there are character
   covariates with values only appearing in one stratum, which could have
   failed or lead to incorrect results.
-
 - Fixed a issue in `robin_lm` that variance method does not apply
   correctly.
-
 - Fixed a issue in `robin_glm` that `vcovHC` could previously be used
   for non-Gaussian family.
-
 - Fixed another bug in covariate-adjusted stratified survival function
   estimation in `robin_surv`, which resulted from design matrices
   separately derived per stratum. Now the design matrix is created once

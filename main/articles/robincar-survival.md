@@ -31,6 +31,10 @@ methods are available:
 - Covariate adjusted and stratified log-rank test by specifying both
   `strata` and `covariates`
 
+Corresponding hazard ratios under the same configurations are also
+estimated using score functions to align estimands with the log-rank
+test.
+
 Let’s go through these in a simple example. We start with the standard
 log-rank test:
 
