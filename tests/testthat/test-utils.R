@@ -29,6 +29,32 @@ test_that("h_get_vars works for formula", {
   )
 })
 
+test_that("h_joint_strata matches interaction when labels do not collide", {
+  set.seed(42)
+  for (i in seq_len(20)) {
+    n <- sample(1:100, 1)
+    d <- data.frame(
+      a = factor(sample(letters[1:4], n, replace = TRUE), levels = letters[1:4]),
+      b = factor(sample(LETTERS[1:3], n, replace = TRUE), levels = LETTERS[1:3]),
+      c = factor(sample(1:2, n, replace = TRUE), levels = 1:2)
+    )
+    expect_identical(h_joint_strata(d), interaction(d, drop = TRUE, sep = ":"))
+  }
+})
+
+test_that("h_joint_strata derives identity from level codes", {
+  d <- data.frame(
+    a = factor(c("a:b", "a"), levels = c("a", "a:b")),
+    b = factor(c("c", "b:c"), levels = c("b:c", "c"))
+  )
+
+  result <- h_joint_strata(d)
+
+  expect_identical(as.integer(result), c(2L, 1L))
+  expect_identical(levels(result), c("a:b:c", "a:b:c.1"))
+  expect_identical(nlevels(result), 2L)
+})
+
 test_that("h_get_vars works for formula with schemas", {
   res <- expect_silent(h_get_vars(a ~ b + c))
   expect_identical(res, list(treatment = "a", schema = "sr", strata = c("b", "c")))

@@ -114,7 +114,7 @@ test_that("marginal means", {
           # Skip simple randomization with strata
           # this is fine for RobinCar2, but it returns an error
           # (intentionally) with RobinCar
-          if (!(identical(strata, c()) & (scheme != "simple"))) {
+          if (!(identical(strata, c()) && (scheme != "simple"))) {
             # Use RobinCar
             # We don't need to see RobinCar warnings.
             set.seed(365)

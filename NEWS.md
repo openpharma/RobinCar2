@@ -11,6 +11,7 @@ Under development
 ### Bug Fixes
 
 * Previously `robin_surv()` gave small numerical differences to `survival::coxph()` for the hazard ratio estimate. This is now fixed.
+* Fixed `robin_surv()` silently combining distinct joint strata when their pasted factor labels were identical.
 
 ### Misc
 

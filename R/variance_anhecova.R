@@ -21,7 +21,7 @@ vcovG <- function(x, decompose = TRUE, ...) {
   trt_lvls <- levels(trt)
   group_idx <- x$group_idx
 
-  idx <- split(seq_len(length(trt)), trt)
+  idx <- split(seq_along(trt), trt)
   cov_ymu <- vapply(idx, function(is) stats::cov(y[is], preds[is, ]), FUN.VALUE = rep(0, ncol(preds)))
 
   if (decompose) {
@@ -34,7 +34,7 @@ vcovG <- function(x, decompose = TRUE, ...) {
   v <- v - h_get_erb(resi, group_idx, trt, pi_t, x$schema)
   ret <- v / length(resi)
   dimnames(ret) <- list(trt_lvls, trt_lvls)
-  return(ret)
+  ret
 }
 
 #' Obtain Adjustment for Proportion of Treatment Assignment
