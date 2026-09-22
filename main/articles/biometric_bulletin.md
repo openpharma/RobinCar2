@@ -67,7 +67,17 @@ The randomization scheme is permuted-block randomization stratified by
 `s1`, specified as `treatment ~ pb(s1)`. The variance estimation method
 is `vcovG`.
 
-[`library`](https://rdrr.io/r/base/library.html)`(`[`RobinCar2`](https://github.com/openpharma/RobinCar2/)`)`` `` ``result_lm`` ``<-`` `[`robin_lm`](https://openpharma.github.io/RobinCar2/reference/robin_lm.md)`(`` `` ``y`` ``~`` ``treatment`` ``*`` ``s1`` ``+`` ``covar``,`` `` data ``=`` ``glm_data``,`` `` treatment ``=`` ``treatment`` ``~`` ``pb``(``s1``)``,`` `` vcov ``=`` ``"vcovG"`` ``)`` `` `[`print`](https://rdrr.io/r/base/print.html)`(``result_lm``)`
+\
+[`library`](https://rdrr.io/r/base/library.html)`(`[`RobinCar2`](https://github.com/openpharma/RobinCar2/)`)`\
+\
+`result_lm`` ``<-`` `[`robin_lm`](https://openpharma.github.io/RobinCar2/reference/robin_lm.md)`(`\
+`  ``y`` ``~`` ``treatment`` ``*`` ``s1`` ``+`` ``covar``,`\
+`  data ``=`` ``glm_data``,`\
+`  treatment ``=`` ``treatment`` ``~`` ``pb``(``s1``)``,`\
+`  vcov ``=`` ``"vcovG"`\
+`)`\
+\
+[`print`](https://rdrr.io/r/base/print.html)`(``result_lm``)`
 
     ## Model        :  y ~ treatment * s1 + covar 
     ## Randomization:  treatment ~ pb(s1)  ( Permuted-Block )
@@ -114,7 +124,16 @@ permuted-block randomization stratified by `s1`, specified as
 `treatment ~ pb(s1)`. Currently, `vcovG` is the only supported method
 for variance estimation in generalized linear models.
 
-`result_binary`` ``<-`` `[`robin_glm`](https://openpharma.github.io/RobinCar2/reference/robin_glm.md)`(`` `` ``y_b`` ``~`` ``treatment`` ``*`` ``s1`` ``+`` ``covar``,`` `` data ``=`` ``glm_data``,`` `` treatment ``=`` ``treatment`` ``~`` ``pb``(``s1``)``,`` `` family ``=`` `[`binomial`](https://rdrr.io/r/stats/family.html)`(``link ``=`` ``"logit"``)``,`` `` contrast ``=`` ``"difference"`` ``)`` `` `[`print`](https://rdrr.io/r/base/print.html)`(``result_binary``)`
+\
+`result_binary`` ``<-`` `[`robin_glm`](https://openpharma.github.io/RobinCar2/reference/robin_glm.md)`(`\
+`  ``y_b`` ``~`` ``treatment`` ``*`` ``s1`` ``+`` ``covar``,`\
+`  data ``=`` ``glm_data``,`\
+`  treatment ``=`` ``treatment`` ``~`` ``pb``(``s1``)``,`\
+`  family ``=`` `[`binomial`](https://rdrr.io/r/stats/family.html)`(``link ``=`` ``"logit"``)``,`\
+`  contrast ``=`` ``"difference"`\
+`)`\
+\
+[`print`](https://rdrr.io/r/base/print.html)`(``result_binary``)`
 
     ## Model        :  y_b ~ treatment * s1 + covar 
     ## Randomization:  treatment ~ pb(s1)  ( Permuted-Block )
@@ -158,7 +177,14 @@ factor `strata`. The treatment variable (`sex`) is specified via the
 `treatment` formula. The randomization scheme is permuted-block
 randomization stratified by `strata`, specified as `sex ~ pb(strata)`.
 
-`result_tte`` ``<-`` `[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`` `` ``Surv``(``time``, ``status``)`` ``~`` ``1`` ``+`` ``strata``(``strata``)``,`` `` data ``=`` ``surv_data``,`` `` treatment ``=`` ``sex`` ``~`` ``pb``(``strata``)`` ``)`` `` `[`print`](https://rdrr.io/r/base/print.html)`(``result_tte``)`
+\
+`result_tte`` ``<-`` `[`robin_surv`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)`(`\
+`  ``Surv``(``time``, ``status``)`` ``~`` ``1`` ``+`` ``strata``(``strata``)``,`\
+`  data ``=`` ``surv_data``,`\
+`  treatment ``=`` ``sex`` ``~`` ``pb``(``strata``)`\
+`)`\
+\
+[`print`](https://rdrr.io/r/base/print.html)`(``result_tte``)`
 
     ## Model        : Surv(time, status) ~ 1 + strata(strata)
     ## Randomization: sex ~ pb(strata) (Permuted-Block)

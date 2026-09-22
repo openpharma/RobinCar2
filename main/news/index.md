@@ -22,6 +22,10 @@ CRAN release: 2026-08-22
   gave small numerical differences to
   [`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html) for
   the hazard ratio estimate. This is now fixed.
+- Fixed
+  [`robin_surv()`](https://openpharma.github.io/RobinCar2/reference/robin_surv.md)
+  silently combining distinct joint strata when their pasted factor
+  labels were identical.
 
 #### Misc
 

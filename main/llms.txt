@@ -46,7 +46,14 @@ All the following papers (added above) are cited in the FDA guidance.
 
 You can install the current development version from `github` with:
 
-`if`` ``(``!`[`require`](https://rdrr.io/r/base/library.html)`(`[`"remotes"`](https://remotes.r-lib.org)`)``)`` ``{`` `` `[`install.packages`](https://rdrr.io/r/utils/install.packages.html)`(``"remotes"``)`` ``}`` `` ``remotes``::`[`install_github`](https://remotes.r-lib.org/reference/install_github.html)`(`` `` ``"openpharma/RobinCar2"`` ``)`
+\
+`if`` ``(``!`[`require`](https://rdrr.io/r/base/library.html)`(`[`"remotes"`](https://remotes.r-lib.org)`)``)`` ``{`\
+`  `[`install.packages`](https://rdrr.io/r/utils/install.packages.html)`(``"remotes"``)`\
+`}`\
+\
+`remotes``::`[`install_github`](https://remotes.r-lib.org/reference/install_github.html)`(`\
+`  ``"openpharma/RobinCar2"`\
+`)`
 
 ## Citing `RobinCar2`
 
