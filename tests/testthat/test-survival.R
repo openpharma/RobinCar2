@@ -454,6 +454,38 @@ test_that("robin_surv works as expected without strata or covariates", {
   expect_snapshot_value(result$events_table, tolerance = 1e-4, style = "serialize")
 })
 
+test_that("robin_surv respects reordered treatment factor levels", {
+  original <- robin_surv(
+    Surv(time, status) ~ 1,
+    treatment = sex ~ sr(1),
+    data = surv_data
+  )
+
+  relabelled_data <- surv_data
+  levels(relabelled_data$sex) <- c("Male", "Female")
+  relabelled <- robin_surv(
+    Surv(time, status) ~ 1,
+    treatment = sex ~ sr(1),
+    data = relabelled_data
+  )
+
+  reordered_data <- surv_data
+  reordered_data$sex <- factor(reordered_data$sex, levels = c("Male", "Female"))
+  reordered <- robin_surv(
+    Surv(time, status) ~ 1,
+    treatment = sex ~ sr(1),
+    data = reordered_data
+  )
+
+  # Assigning `levels()` changes the labels attached to the existing factor
+  # codes; it does not reorder the factor. Reconstructing the factor with an
+  # explicit level order reverses the comparison and therefore the log HR.
+  expect_equal(relabelled$estimate, original$estimate)
+  expect_equal(reordered$estimate, -original$estimate)
+  expect_equal(reordered$se, original$se)
+  expect_identical(rownames(reordered$log_hr_coef_mat), "Female v.s. Male")
+})
+
 test_that("robin_surv gives the same results as RobinCar functions without strata or covariates", {
   result <- robin_surv(
     Surv(time, status) ~ 1,
