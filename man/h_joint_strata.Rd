@@ -7,7 +7,7 @@
 h_joint_strata(df)
 }
 \arguments{
-\item{df}{(\code{data.frame}) Strata columns.}
+\item{df}{(\code{data.frame}) Strata columns. No missing values are allowed.}
 }
 \value{
 A \code{factor} of observed joint strata, with \code{interaction()}-style
