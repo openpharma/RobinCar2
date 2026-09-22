@@ -887,3 +887,74 @@ test_that("robin_surv only gives a single warning for randomization strata with 
   expect_matrix(result$log_hr_coef_mat, ncol = 4, nrow = 6)
   expect_names(rownames(result$log_hr_coef_mat), identical.to = comparisons)
 })
+
+test_that("robin_surv gives the same result for strata when the labels differ", {
+  set.seed(9)
+  n <- 120
+  d <- data.frame(
+    s1 = factor(rep(c("a.b", "a"), each = 2, length.out = n)),
+    s2 = factor(rep(c("c", "b.c"), each = n / 2)),
+    trt = factor(rep(c("A", "B"), n / 2))
+  )
+  # Use a strong stratum effect.
+  rate <- ifelse(d$s1 == "a.b", 0.05, 0.4)
+  d$time <- rexp(n, rate)
+  d$status <- rbinom(n, 1, 0.8)
+  f <- Surv(time, status) ~ strata(s1) + strata(s2)
+
+  # First result.
+  r1 <- robin_surv(f, data = d, treatment = trt ~ pb(s1, s2))
+
+  # Just rename the levels of the strata variables.
+  d2 <- d
+  levels(d2$s1) <- c("P", "Q")
+  levels(d2$s2) <- c("R", "S")
+
+  # Second result with renamed levels.
+  r2 <- robin_surv(f, data = d2, treatment = trt ~ pb(s1, s2))
+
+  # The results should be identical regardless of the labels.
+  expect_identical(r1$log_hr_coef_mat, r2$log_hr_coef_mat)
+})
+
+test_that("robin_surv gives warning also with special strata labels", {
+  set.seed(4)
+  n <- 100
+  d <- data.frame(
+    # g1 is the analysis stratum, coarser than s1 and s2.
+    g = factor(rep("g1", n)),
+    s1 = factor(rep(c("a.b", "a"), each = n / 2)),
+    s2 = factor(rep(c("c", "b.c"), each = n / 2)),
+    trt = factor(rep(c("A", "B"), n / 2))
+  )
+  d$time <- rexp(n, 0.1)
+  d$status <- rbinom(n, 1, 0.7)
+
+  expect_warning(
+    robin_surv(Surv(time, status) ~ strata(g), data = d, treatment = trt ~ pb(s1, s2)),
+    "It looks like you have not included all of the variables that were used during randomization"
+  )
+})
+
+test_that("robin_surv works as expected when some strata are NA", {
+  set.seed(5)
+  n <- 100
+  d <- data.frame(
+    g = factor(rep("g1", n)),
+    s1 = factor(rep(c("a.b", "a"), each = n / 2)),
+    s2 = factor(rep(c("c", "b.c"), each = n / 2)),
+    trt = factor(rep(c("A", "B"), n / 2))
+  )
+  # Introduce some NA values in the strata.
+  d$s1[sample(seq_len(n), 10)] <- NA
+  d$s2[sample(seq_len(n), 10)] <- NA
+  d$time <- rexp(n, 0.1)
+  d$status <- rbinom(n, 1, 0.7)
+
+  result <- robin_surv(Surv(time, status) ~ strata(g, s1), data = d, treatment = trt ~ pb(s1, s2))
+  expect_s3_class(result, "surv_effect")
+
+  # We are omitting rows where any of the included variables are NA
+  # (including randomization variables):
+  expect_identical(sum(!is.na(d$s1) & !is.na(d$s2)), nrow(result$data))
+})
