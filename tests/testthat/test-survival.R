@@ -953,4 +953,8 @@ test_that("robin_surv works as expected when some strata are NA", {
 
   result <- robin_surv(Surv(time, status) ~ strata(g, s1), data = d, treatment = trt ~ pb(s1, s2))
   expect_s3_class(result, "surv_effect")
+
+  # We are omitting rows where any of the included variables are NA
+  # (including randomization variables):
+  expect_identical(sum(!is.na(d$s1) & !is.na(d$s2)), nrow(result$data))
 })
