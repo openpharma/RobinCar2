@@ -55,6 +55,18 @@ test_that("h_joint_strata derives identity from level codes", {
   expect_identical(nlevels(result), 2L)
 })
 
+test_that("h_joint_strata fails when there are missing values", {
+  d <- data.frame(
+    a = factor(c("a:b", "a"), levels = c("a", "a:b")),
+    b = factor(c("c", "b:c"), levels = c("b:c", "c"))
+  )
+  d$a[1] <- NA
+  expect_error(
+    h_joint_strata(d),
+    "Contains missing values"
+  )
+})
+
 test_that("h_get_vars works for formula with schemas", {
   res <- expect_silent(h_get_vars(a ~ b + c))
   expect_identical(res, list(treatment = "a", schema = "sr", strata = c("b", "c")))

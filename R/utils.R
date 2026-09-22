@@ -15,12 +15,12 @@ randomization_schema <- data.frame(
 #' collapsing into one. Labels are only cosmetic and are made unique for
 #' printing.
 #'
-#' @param df (`data.frame`) Strata columns.
+#' @param df (`data.frame`) Strata columns. No missing values are allowed.
 #' @return A `factor` of observed joint strata, with `interaction()`-style
 #'   `:`-separated labels and the first variable varying fastest.
 #' @keywords internal
 h_joint_strata <- function(df) {
-  assert_data_frame(df, min.cols = 1L)
+  assert_data_frame(df, min.cols = 1L, any.missing = FALSE)
 
   fcts <- lapply(df, as.factor)
   n_lvls <- vapply(fcts, nlevels, integer(1L))
