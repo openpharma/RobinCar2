@@ -935,3 +935,22 @@ test_that("robin_surv gives warning also with special strata labels", {
     "It looks like you have not included all of the variables that were used during randomization"
   )
 })
+
+test_that("robin_surv works as expected when some strata are NA", {
+  set.seed(5)
+  n <- 100
+  d <- data.frame(
+    g = factor(rep("g1", n)),
+    s1 = factor(rep(c("a.b", "a"), each = n / 2)),
+    s2 = factor(rep(c("c", "b.c"), each = n / 2)),
+    trt = factor(rep(c("A", "B"), n / 2))
+  )
+  # Introduce some NA values in the strata.
+  d$s1[sample(seq_len(n), 10)] <- NA
+  d$s2[sample(seq_len(n), 10)] <- NA
+  d$time <- rexp(n, 0.1)
+  d$status <- rbinom(n, 1, 0.7)
+
+  result <- robin_surv(Surv(time, status) ~ strata(g, s1), data = d, treatment = trt ~ pb(s1, s2))
+  expect_s3_class(result, "surv_effect")
+})
