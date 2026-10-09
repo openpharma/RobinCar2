@@ -1,7 +1,7 @@
 # Offsets, exposure time, and the rate estimand in `robin_glm`
 
-**Status:** analysis only — no package code has been changed.
-**Date:** 2026-09-16 (rev. 3 — bottom line sharpened; see §0.0)
+**Status:** implemented in PR #122 — `robin_glm()` and `robin_lm()` reject models carrying an offset.
+**Date:** 2026-09-16 (rev. 4 — link-specific rejection messages; see §0.0)
 **Context:** GitHub issue #117 (Tobias Mütze) — "Negative binomial model: Marginal means ignore the model offset".
 **Primary reference read:** Bannick, Shao, Liu, Du, Yi, Ye (2024), *A General Form of Covariate
 Adjustment in Randomized Clinical Trials*, arXiv:2306.10213v2 (25 Mar 2024, 69 pp.) — cited in

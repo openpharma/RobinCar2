@@ -111,6 +111,38 @@ robin_glm(
 )
 ```
 
+## Models with an Offset
+
+Models carrying an offset, either as `offset()` in the formula or via the
+`offset` argument, are not supported and are rejected with an error.
+
+An offset is almost always used to model a rate per unit exposure time, e.g.
+`y_count ~ treatment + covar + offset(log(exposure))`. The covariate adjustment
+theory implemented in RobinCar2 (Bannick et al., 2024) targets marginal means of
+the response and does not treat exposure time, so there is no established
+covariate-adjusted rate estimand to target. Predicting at each subject's own
+exposure is also problematic: the exposure can itself be affected by treatment,
+which the robustness of the method does not allow, and for a log link the ratio
+contrast collapses to the model coefficient `exp(beta)` rather than a marginal
+quantity. See [#117](https://github.com/openpharma/RobinCar2/issues/117) for
+the discussion.
+
+For a gaussian model with an identity link, the offset is only a known additive
+shift, and there is an exact alternative: fit the shifted response
+`I(y - z) ~ ...` in place of `y ~ ... + offset(z)`. The treatment contrasts are
+identical, and the marginal means are shifted by `mean(z)`.
+
+```{r}
+glm_data$z <- runif(nrow(glm_data))
+robin_lm(
+  I(y - z) ~ treatment * s1 + covar,
+  data = glm_data,
+  treatment = treatment ~ pb(s1)
+)
+```
+
+For any other link there is no equivalent restatement.
+
 ## Using Different Covariate-Adaptive Randomization Schema
 
 If the randomization schema is not permuted-block randomization, we can use
