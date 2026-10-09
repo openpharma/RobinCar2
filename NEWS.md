@@ -4,6 +4,10 @@ Under development
 
 # RobinCar2 0.2.4
 
+### Breaking Changes
+
+* Models carrying an offset, supplied either as `offset()` in the model formula or via the `offset` argument, are now rejected with an error by `robin_glm()`, `robin_lm()`, `predict_counterfactual()` and `treatment_effect()`. Such models previously returned incorrect estimates silently (#117). See the "Models with an Offset" section of `vignette("intro")` for the rationale and, for gaussian identity-link models, an exact alternative.
+
 ### New Features
 
 * The new `surv_control` argument in `robin_surv()` allows to fine-control the root finding algorithm used for the hazard ratio estimation.

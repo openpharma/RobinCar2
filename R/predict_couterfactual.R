@@ -30,6 +30,27 @@ predict_counterfactual <- function(fit, treatment, data, vcov, vcov_args, ...) {
 
 #' @export
 predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vcov = "vcovG", vcov_args = list(), ...) {
+  # Offsets are rejected, not repaired: the estimand they imply is a rate, and no covariate-adjusted
+  # rate estimand is established in the theory this package implements. Rationale and open questions
+  # in design/offset_rate/offset_estimand_note.md.
+  # `fit$offset` is the only check covering both supply routes; the formula route sets
+  # `attr(terms(fit), "offset")` and leaves the call empty, the `offset =` argument does the reverse.
+  # The gaussian/identity branch must test the family as well as the link: a Poisson or NB fit with
+  # an identity link is legal, and there the shifted response need not be in the response support.
+  if (!is.null(fit$offset)) {
+    fit_family <- family(fit)
+    if (identical(fit_family$family, "gaussian") && identical(fit_family$link, "identity")) {
+      stop(
+        "Models with an offset are not supported. ",
+        "Fit the shifted response instead: `I(y - z) ~ ...` in place of `y ~ ... + offset(z)`. ",
+        "Contrasts are identical; marginal means shift by `mean(z)`."
+      )
+    }
+    stop(
+      "Models with an offset are not supported: ",
+      "there is no established covariate-adjusted rate estimand to target."
+    )
+  }
   trt_vars <- h_get_vars(treatment)
   assert(
     test_string(vcov),
