@@ -170,7 +170,7 @@ h_lr_score_strat <- function(
   give_rand_strat_warning <- if (check_rand_strat_warning) {
     length(randomization_strata) > 0 &&
       !all(randomization_strata %in% strata) &&
-      !h_first_fct_nested_in_second(interaction(df[strata]), interaction(df[randomization_strata]))
+      !h_first_fct_nested_in_second(h_joint_strata(df[strata]), h_joint_strata(df[randomization_strata]))
   } else {
     FALSE
   }
@@ -178,8 +178,7 @@ h_lr_score_strat <- function(
   df <- stats::na.omit(df[, c(treatment, time, status, strata)])
   n <- nrow(df)
 
-  strata_formula <- paste("~", paste(strata, collapse = "+"))
-  df_split <- split(df, f = as.formula(strata_formula), drop = TRUE)
+  df_split <- split(df, f = h_joint_strata(df[strata]), drop = TRUE)
 
   strata_results <- lapply(
     df_split,

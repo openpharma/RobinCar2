@@ -12,10 +12,10 @@ glm_data <- tibble(
   s2 = sample(c("c", "d"), replace = TRUE, size = n),
   covar = rnorm(n),
   id = seq_len(n)
-) %>%
-  group_by(s1, s2) %>%
-  mutate(treatment = unlist(replicate(ceiling(n() / length(block)), sample(block)))[seq_len(n())]) %>%
-  ungroup() %>%
+) |>
+  group_by(s1, s2) |>
+  mutate(treatment = unlist(replicate(ceiling(n() / length(block)), sample(block)))[seq_len(n())]) |>
+  ungroup() |>
   mutate(
     y = covar *
       0.2 +
@@ -25,12 +25,12 @@ glm_data <- tibble(
       0.8 * (treatment == "trt2") +
       rnorm(n),
     y_b = ifelse(y > 0.6, 1L, 0L)
-  ) %>%
+  ) |>
   mutate(
     s1 = factor(s1),
     s2 = factor(s2),
     treatment = factor(treatment, levels = c("pbo", "trt1", "trt2"))
-  ) %>%
+  ) |>
   select(id, treatment, s1, s2, covar, y, y_b)
 
 usethis::use_data(glm_data, overwrite = TRUE)

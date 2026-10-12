@@ -49,10 +49,6 @@ jobs:
     if: github.event_name == 'pull_request'
     name: Spell Check 🆎
     uses: insightsengineering/r.pkg.template/.github/workflows/spelling.yaml@main
-  links:
-    if: github.event_name == 'pull_request'
-    name: Check URLs 🌐
-    uses: insightsengineering/r.pkg.template/.github/workflows/links.yaml@main
   vbump:
     name: Version Bump 🤜🤛
     if: github.event_name == 'push'
