@@ -48,10 +48,10 @@ response is no longer proportional to exposure, and it estimates a marginal mean
 than a rate. Offering it as the answer to an offset user's question would conflate the two. Rev. 3 of
 this note did exactly that; corrected here.
 
-**The one exact substitute** is confined to a **gaussian identity link**, where the offset is a known
+**The one exact substitute** is confined to a **Gaussian identity link**, where the offset is a known
 additive shift: fitting the shifted response $y - z$ gives bit-identical coefficients and standard
 errors, identical treatment contrasts, and marginal means shifted by $\overline{z}$ (verified — §9).
-It does not extend to an identity link with a non-gaussian family, where $y - z$ need not lie in the
+It does not extend to an identity link with a non-Gaussian family, where $y - z$ need not lie in the
 response support. For any other link there is no restatement, and users needing a rate have no
 supported route.
 
@@ -379,7 +379,7 @@ There is no substitute that answers the same question. Two candidates and why ne
   content of an offset. It targets a marginal mean of the count, not a rate. It is a legitimate thing
   to fit if that is what the analyst wants; it is not the offset model and must not be presented as
   the fix for one.
-- **The shifted response $y - z$.** Exact, but only for a **gaussian identity link**, where the offset
+- **The shifted response $y - z$.** Exact, but only for a **Gaussian identity link**, where the offset
   is a known additive shift. Then contrasts are identical and marginal means shift by $\overline{z}$
   (§9). Under a log link the offset is multiplicative and no response transformation reproduces it.
 
@@ -525,7 +525,7 @@ check must be an error. Rev. 2 of this note paired the error with a reference-ex
 withdrawn. Shipping any offset pathway means shipping a rate method that Prof. Ye's work does not
 establish (§0.0), and an `offset_value` argument reads to users as an endorsement that the theory does
 not support. The error message should offer a substitute only where an exact one exists — the shifted
-response under a gaussian identity link — and should otherwise say plainly that there is none, rather
+response under a Gaussian identity link — and should otherwise say plainly that there is none, rather
 than redirecting the user to a model that answers a different question.
 
 Options 3 and 5 belong in their own design cycles, and option 3 is gated on §6 rather than on
@@ -599,7 +599,7 @@ mathematically different and a single message would have to be wrong about one o
   difference 0), treatment contrasts bit-identical, marginal means differ by exactly $\overline{z}$.
 - **Any other link** — states only that no established covariate-adjusted rate estimand exists.
 
-The condition is gaussian **and** identity, not identity alone: a Poisson or NB fit with an identity
+The condition is Gaussian **and** identity, not identity alone: a Poisson or NB fit with an identity
 link is legal, and there $y - z$ need not lie in the response support, so the shift advice would be
 wrong. `family(fit)$link` and `$family` are available on plain `lm` too, so no class dispatch is needed.
 A test pins the Poisson-identity case to the generic message.

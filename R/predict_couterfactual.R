@@ -35,7 +35,7 @@ predict_counterfactual.lm <- function(fit, treatment, data = find_data(fit), vco
   # in design/offset_rate/offset_estimand_note.md.
   # `fit$offset` is the only check covering both supply routes; the formula route sets
   # `attr(terms(fit), "offset")` and leaves the call empty, the `offset =` argument does the reverse.
-  # The gaussian/identity branch must test the family as well as the link: a Poisson or NB fit with
+  # The Gaussian/identity branch must test the family as well as the link: a Poisson or NB fit with
   # an identity link is legal, and there the shifted response need not be in the response support.
   if (!is.null(fit$offset)) {
     fit_family <- family(fit)

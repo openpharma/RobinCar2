@@ -110,7 +110,7 @@ test_that("the offset rejection advises a response shift only where that is exac
   offset_data$os <- log(offset_data$expo)
   offset_data$y_count <- rpois(nrow(offset_data), offset_data$expo * 2)
 
-  # gaussian identity link: the offset is a known additive shift, so the shift is exact
+  # Gaussian identity link: the offset is a known additive shift, so the shift is exact
   expect_error(
     predict_counterfactual(
       lm(y ~ treatment * s1 + offset(os), data = offset_data),
@@ -128,7 +128,7 @@ test_that("the offset rejection advises a response shift only where that is exac
     ),
     "no established covariate-adjusted rate estimand"
   )
-  # identity link but non-gaussian family: shifted values need not be in the response support,
+  # identity link but non-Gaussian family: shifted values need not be in the response support,
   # so the response-shift advice must not be given here
   poisson_identity <- glm(
     y_count ~ treatment + offset(os),

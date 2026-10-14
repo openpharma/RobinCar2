@@ -127,7 +127,7 @@ contrast collapses to the model coefficient `exp(beta)` rather than a marginal
 quantity. See [#117](https://github.com/openpharma/RobinCar2/issues/117) for
 the discussion.
 
-For a gaussian model with an identity link, the offset is only a known additive
+For a Gaussian model with an identity link, the offset is only a known additive
 shift, and there is an exact alternative: fit the shifted response
 `I(y - z) ~ ...` in place of `y ~ ... + offset(z)`. The treatment contrasts are
 identical, and the marginal means are shifted by `mean(z)`.
