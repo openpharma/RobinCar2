@@ -2,7 +2,22 @@
 
 ## RobinCar2 0.2.4.9000
 
-Under development
+#### Breaking Changes
+
+- Models carrying an offset, supplied either as
+  [`offset()`](https://rdrr.io/r/stats/offset.html) in the model formula
+  or via the `offset` argument, are now rejected with an error by
+  [`robin_glm()`](https://openpharma.github.io/RobinCar2/reference/robin_glm.md),
+  [`robin_lm()`](https://openpharma.github.io/RobinCar2/reference/robin_lm.md),
+  [`predict_counterfactual()`](https://openpharma.github.io/RobinCar2/reference/predict_counterfactual.md)
+  and
+  [`treatment_effect()`](https://openpharma.github.io/RobinCar2/reference/treatment_effect.md).
+  Such models previously returned incorrect estimates silently
+  ([\#117](https://github.com/openpharma/RobinCar2/issues/117)). See the
+  “Models with an Offset” section of
+  [`vignette("intro")`](https://openpharma.github.io/RobinCar2/articles/intro.md)
+  for the rationale and, for Gaussian identity-link models, an exact
+  alternative.
 
 ## RobinCar2 0.2.4
 

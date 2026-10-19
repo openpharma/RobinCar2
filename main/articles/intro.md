@@ -170,6 +170,57 @@ model. A fixed `theta` could be provided if it is known.
 `#> ---`\
 `#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
 
+### Models with an Offset
+
+Models carrying an offset, either as
+[`offset()`](https://rdrr.io/r/stats/offset.html) in the formula or via
+the `offset` argument, are not supported and are rejected with an error.
+
+An offset is almost always used to model a rate per unit exposure time,
+e.g. `y_count ~ treatment + covar + offset(log(exposure))`. The
+covariate adjustment theory implemented in RobinCar2 (Bannick et al.,
+2024) targets marginal means of the response and does not treat exposure
+time, so there is no established covariate-adjusted rate estimand to
+target. Predicting at each subject’s own exposure is also problematic:
+the exposure can itself be affected by treatment, which the robustness
+of the method does not allow, and for a log link the ratio contrast
+collapses to the model coefficient `exp(beta)` rather than a marginal
+quantity. See
+[\#117](https://github.com/openpharma/RobinCar2/issues/117) for the
+discussion.
+
+For a Gaussian model with an identity link, the offset is only a known
+additive shift, and there is an exact alternative: fit the shifted
+response `I(y - z) ~ ...` in place of `y ~ ... + offset(z)`. The
+treatment contrasts are identical, and the marginal means are shifted by
+`mean(z)`.
+
+\
+`glm_data``$``z`` ``<-`` `[`runif`](https://rdrr.io/r/stats/Uniform.html)`(`[`nrow`](https://rdrr.io/r/base/nrow.html)`(``glm_data``)``)`\
+[`robin_lm`](https://openpharma.github.io/RobinCar2/reference/robin_lm.md)`(`\
+`  `[`I`](https://rdrr.io/r/base/AsIs.html)`(``y`` ``-`` ``z``)`` ``~`` ``treatment`` ``*`` ``s1`` ``+`` ``covar``,`\
+`  data ``=`` ``glm_data``,`\
+`  treatment ``=`` ``treatment`` ``~`` ``pb``(``s1``)`\
+`)`\
+`#> Model        :  I(y - z) ~ treatment * s1 + covar `\
+`#> Randomization:  treatment ~ pb(s1)  ( Permuted-Block )`\
+`#> Variance Type:  vcovG `\
+`#> Marginal Mean: `\
+`#>       Estimate   Std.Err     2.5 %  97.5 %`\
+`#> pbo  -0.304826  0.072650 -0.447217 -0.1624`\
+`#> trt1  0.256912  0.079956  0.100200  0.4136`\
+`#> trt2  0.464379  0.077309  0.312856  0.6159`\
+`#> `\
+`#> Contrast     :  h_diff`\
+`#>                Estimate Std.Err Z Value  Pr(>|z|)    `\
+`#> trt1 v.s. pbo   0.56174 0.10712  5.2438 1.573e-07 ***`\
+`#> trt2 v.s. pbo   0.76921 0.10524  7.3092 2.688e-13 ***`\
+`#> trt2 v.s. trt1  0.20747 0.11040  1.8792   0.06022 .  `\
+`#> ---`\
+`#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1`
+
+For any other link there is no equivalent restatement.
+
 ### Using Different Covariate-Adaptive Randomization Schema
 
 If the randomization schema is not permuted-block randomization, we can
